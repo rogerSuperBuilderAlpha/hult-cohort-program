@@ -25,17 +25,17 @@ export type ApplicationRecord = ApplicationInput & {
   status: 'submitted';
 };
 
-const REQUIRED: (keyof Omit<ApplicationInput, 'hultStudentId' | 'confirmations'>)[] = [
-  'firstName',
-  'lastName',
-  'email',
-  'githubUrl',
-  'motivation',
-  'project1Idea',
-  'timezone',
-  'campus',
-  'referralSource',
-];
+const REQUIRED: (keyof Omit<ApplicationInput, 'hultStudentId' | 'confirmations' | 'githubUrl'>)[] =
+  [
+    'firstName',
+    'lastName',
+    'email',
+    'motivation',
+    'project1Idea',
+    'timezone',
+    'campus',
+    'referralSource',
+  ];
 
 export function parseGithubHandle(url: string): string | null {
   const match = url.trim().match(/^https:\/\/github\.com\/([a-zA-Z0-9-]+)\/?$/i);
@@ -59,13 +59,17 @@ function parseConfirmations(body: Record<string, string>): ApplicationConfirmati
   };
 }
 
-export function validateApplication(body: Record<string, string>): ApplicationInput {
+export function validateApplication(
+  body: Record<string, string>,
+  options: { githubUrl: string }
+): ApplicationInput {
   for (const field of REQUIRED) {
     if (!body[field]?.trim()) {
       throw new Error(`Missing field: ${field}`);
     }
   }
-  if (!parseGithubHandle(body.githubUrl)) {
+  const githubUrl = options.githubUrl.trim();
+  if (!parseGithubHandle(githubUrl)) {
     throw new Error('GitHub URL must be https://github.com/{username}');
   }
   const email = body.email.trim().toLowerCase();
@@ -77,7 +81,7 @@ export function validateApplication(body: Record<string, string>): ApplicationIn
     firstName: body.firstName.trim(),
     lastName: body.lastName.trim(),
     email,
-    githubUrl: body.githubUrl.trim(),
+    githubUrl,
     motivation: body.motivation.trim(),
     project1Idea: body.project1Idea.trim(),
     timezone: body.timezone.trim(),

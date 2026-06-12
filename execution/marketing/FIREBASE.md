@@ -69,6 +69,8 @@ Written by `POST /api/applications` via Admin SDK.
   };
   status: 'submitted' | 'take-home-sent' | 'take-home-submitted' | 'admitted' | 'waitlisted' | 'rejected';
   takeHomePrUrl?: string;
+  firebaseUid?: string;          // Firebase Auth uid (GitHub sign-in)
+  githubOAuthUid?: string;       // GitHub numeric user id from OAuth
   submittedAt: Timestamp;
   updatedAt: Timestamp;
   cohort: 'fall26';              // partition key
@@ -173,9 +175,10 @@ Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when
 
 ### Applicants (pre-admission)
 
-1. Fill `/apply` — no Firebase Auth required.
-2. Server writes to `applications` with Admin SDK.
-3. Auto-reply email (Cloud Function or transactional email API) with take-home repo link.
+1. Sign in with **GitHub** on `/apply` via Firebase Auth.
+2. Complete the form — GitHub handle comes from sign-in (not a free-text field).
+3. `POST /api/applications` verifies the Firebase ID token server-side, then writes to `applications` with Admin SDK.
+4. Auto-reply email (Cloud Function or transactional email API) with take-home repo link.
 
 ### Participants (post week-1 roster lock)
 

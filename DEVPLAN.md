@@ -39,17 +39,17 @@
 
 ## P0 — Before sending the link to testers (~half day)
 
-- [ ] **Fix the success screen.** Show the take-home repo link + 48-hour instructions directly on submit success. Stop referencing email until email exists.
-- [ ] **Add missing form fields:** first name, last name, confirmation checkboxes (GitHub ≥ 6 months / ≥ 5 commits; $10k + $400/mo affordable; public work). Persist `confirmations` map per schema in FIREBASE.md.
-- [ ] **Duplicate guard:** reject second application with same email for `fall26` (friendly message, 409).
-- [ ] **Honeypot field** (hidden input; silently drop bot submissions).
-- [ ] **Remove client-SDK fallback** from `/api/applications` and apply page — single Admin SDK path; stop returning the record body.
-- [ ] **Tighten Firestore rules:** `applications` → `allow create: if false` (server-only writes); `votes` → `allow write: if false` until vote UI + auth exist. Redeploy rules.
-- [ ] **Purge test data:** delete both test applications and `roster/fall26/members/octocat`.
-- [ ] **Rename Vercel project** `site` → `hult-cohort` (URL becomes `hult-cohort.vercel.app` or similar). Update Firebase authorized domains + GitHub OAuth app homepage. Update docs.
-- [ ] **Delete stray key:** remove `~/Downloads/hult-cohorts-firebase-adminsdk-*.json` (repo copy in gitignored `secrets/` is canonical).
-- [ ] **Silence monorepo CI:** disable workflows on the private repo (or fix GitHub billing). Take-home repo CI stays on — that's the one applicants touch.
-- [ ] **Smoke re-test:** apply end-to-end once post-changes; verify doc in Firestore; verify success screen shows take-home link.
+- [x] **Fix the success screen.** Show the take-home repo link + 48-hour instructions directly on submit success. Stop referencing email until email exists.
+- [x] **Add missing form fields:** first name, last name, confirmation checkboxes (GitHub ≥ 6 months / ≥ 5 commits; $10k + $400/mo affordable; public work). Persist `confirmations` map per schema in FIREBASE.md.
+- [x] **Duplicate guard:** reject second application with same email for `fall26` (friendly message, 409).
+- [x] **Honeypot field** (hidden input; silently drop bot submissions).
+- [x] **Remove client-SDK fallback** from `/api/applications` and apply page — single Admin SDK path; stop returning the record body.
+- [x] **Tighten Firestore rules:** `applications` → server-only writes; `votes` → locked until vote UI exists. Redeployed.
+- [x] **Purge test data:** deleted QA applications and `roster/fall26/members/octocat`.
+- [x] **Rename Vercel project** → `hult-cohort` · **https://hult-cohort.vercel.app**
+- [x] **Delete stray key** from `~/Downloads`.
+- [x] **Silence monorepo CI** (workflows disabled; take-home public repo CI unchanged).
+- [x] **Smoke re-test:** apply API 200 + duplicate 409 + Firestore doc with `confirmations`.
 
 **Exit criteria:** A stranger can apply → see honest next-step instructions → land in Firestore exactly once → you approve via script.
 

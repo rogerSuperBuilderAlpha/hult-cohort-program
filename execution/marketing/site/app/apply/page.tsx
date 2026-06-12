@@ -18,6 +18,9 @@ export default function ApplyPage() {
     e.preventDefault();
     if (!profile) return;
 
+    const form = e.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
+
     setStatus('loading');
     setMessage('');
 
@@ -27,9 +30,6 @@ export default function ApplyPage() {
       setMessage('Your GitHub session expired. Sign in again.');
       return;
     }
-
-    const form = e.currentTarget;
-    const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
 
     try {
       const res = await fetch('/api/applications', {
@@ -215,10 +215,6 @@ export default function ApplyPage() {
 
               <fieldset className={styles.confirmFieldset}>
                 <legend>Confirmations (required)</legend>
-                <label className={styles.checkboxLabel}>
-                  <input name="confirmGithubAge" type="checkbox" required />
-                  My GitHub account is at least 6 months old with at least 5 commits on any repo.
-                </label>
                 <label className={styles.checkboxLabel}>
                   <input name="confirmTuition" type="checkbox" required />
                   I can pay $10,000 tuition and ~$400/month for Cursor + Claude Code for at least 4

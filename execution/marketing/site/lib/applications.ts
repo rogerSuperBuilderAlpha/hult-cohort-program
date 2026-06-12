@@ -1,5 +1,4 @@
 export type ApplicationConfirmations = {
-  githubAge: boolean;
   tuitionAffordable: boolean;
   publicWork: boolean;
 };
@@ -43,9 +42,6 @@ export function parseGithubHandle(url: string): string | null {
 }
 
 function parseConfirmations(body: Record<string, string>): ApplicationConfirmations {
-  if (body.confirmGithubAge !== 'on') {
-    throw new Error('You must confirm your GitHub account meets the minimum requirements.');
-  }
   if (body.confirmTuition !== 'on') {
     throw new Error('You must confirm tuition and tooling costs.');
   }
@@ -53,7 +49,6 @@ function parseConfirmations(body: Record<string, string>): ApplicationConfirmati
     throw new Error('You must confirm your work will be public on GitHub.');
   }
   return {
-    githubAge: true,
     tuitionAffordable: true,
     publicWork: true,
   };

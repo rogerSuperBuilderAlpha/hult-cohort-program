@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import type { ProgramProject } from '@/content/program';
+import { AgentPromptHarness } from '@/components/AgentPromptHarness';
 import { cohortOrg, cohortOrgUrl } from '@/lib/cohort-config';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
+import { buildProjectAgentPrompt, buildPublicAgentPrompt } from '@/lib/project-agent-prompt';
 import { isAdmitted } from '@/lib/participant-status';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import { useParticipantStatus } from '@/lib/use-participant-status';
@@ -29,6 +31,7 @@ function EnrolledView({
   const org = cohortOrg();
   const p = (text: string) => personalizeProgramText(text, handle, org);
   const isOnboarding = project.slug === 'onboarding';
+  const agentPrompt = buildProjectAgentPrompt(project, handle, org);
 
   return (
     <div className={styles.participantPanel}>
@@ -101,6 +104,8 @@ function EnrolledView({
         </dl>
       </section>
 
+      <AgentPromptHarness prompt={agentPrompt} personalized />
+
       {project.reviews && (
         <section className={styles.overviewBlock}>
           <h2 className={styles.participantHeading}>Peer review</h2>
@@ -140,6 +145,8 @@ function EnrolledView({
 }
 
 function PublicView({ project }: { project: ProgramProject }) {
+  const agentPrompt = buildPublicAgentPrompt(project);
+
   return (
     <>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
@@ -187,6 +194,8 @@ function PublicView({ project }: { project: ProgramProject }) {
           <dd>{project.submission.deadlineNote}</dd>
         </dl>
       </section>
+
+      <AgentPromptHarness prompt={agentPrompt} personalized={false} />
 
       {project.reviews && (
         <section className={styles.overviewBlock}>

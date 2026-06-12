@@ -758,6 +758,56 @@
   margin-bottom: 8px;
 }
 
+.harnessHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.harnessLead {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+.copyHarnessBtn {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+
+.copyHarnessBtn:hover {
+  opacity: 0.92;
+}
+
+.harnessPre {
+  margin: 0;
+  padding: 16px 18px;
+  max-height: 420px;
+  overflow: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @media (max-width: 640px) {
   .nav a:not(.navCta) {
     display: none;

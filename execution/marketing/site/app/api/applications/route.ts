@@ -38,19 +38,19 @@ async function handlePost(request: Request) {
     return Response.json({ error: 'Sign in with GitHub to apply.' }, { status: 401 });
   }
 
-  let githubSession;
-  try {
-    githubSession = await verifyGithubIdToken(idToken);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Invalid sign-in.';
-    return Response.json({ error: message }, { status: 401 });
-  }
-
   let body: Record<string, string>;
   try {
     body = await request.json();
   } catch {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  let githubSession;
+  try {
+    githubSession = await verifyGithubIdToken(idToken, body.githubHandle);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Invalid sign-in.';
+    return Response.json({ error: message }, { status: 401 });
   }
 
   // Honeypot — bots get a silent success, no write

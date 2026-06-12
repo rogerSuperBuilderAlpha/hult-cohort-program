@@ -1,4 +1,5 @@
 import { firebaseConfig } from './config';
+import { resolveGithubHandle } from './github-handle';
 
 export type GithubSession = {
   firebaseUid: string;
@@ -15,20 +16,18 @@ type LookupResponse = {
     providerUserInfo?: Array<{
       providerId: string;
       displayName?: string;
+      screenName?: string;
       federatedId?: string;
+      rawId?: string;
     }>;
   }>;
   error?: { message?: string };
 };
 
-function githubHandleFromClaims(name: unknown): string | null {
-  if (typeof name !== 'string') return null;
-  const handle = name.trim();
-  if (!/^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/.test(handle)) return null;
-  return handle.toLowerCase();
-}
-
-export async function verifyGithubIdToken(idToken: string): Promise<GithubSession> {
+export async function verifyGithubIdToken(
+  idToken: string,
+  handleHint?: string
+): Promise<GithubSession> {
   const apiKey = firebaseConfig.apiKey?.trim();
   if (!apiKey) {
     throw new Error('Applications are temporarily unavailable.');
@@ -54,12 +53,15 @@ export async function verifyGithubIdToken(idToken: string): Promise<GithubSessio
     throw new Error('Sign in with GitHub to apply.');
   }
 
-  const githubHandle = githubHandleFromClaims(github.displayName);
+  const hint = handleHint?.trim().toLowerCase();
+  const githubHandle = await resolveGithubHandle(idToken, github, hint);
   if (!githubHandle) {
-    throw new Error('Could not read your GitHub username. Try signing out and back in.');
+    throw new Error(
+      'We could not verify your GitHub username. Sign out, sign in again, and retry. If it keeps failing, email cohort@hult.edu.'
+    );
   }
 
-  const githubUid = github.federatedId?.trim();
+  const githubUid = github.federatedId?.trim() || github.rawId?.trim();
   if (!githubUid) {
     throw new Error('GitHub identity missing from sign-in.');
   }

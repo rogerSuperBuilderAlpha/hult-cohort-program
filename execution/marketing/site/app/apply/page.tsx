@@ -152,6 +152,7 @@ export default function ApplyPage() {
             </div>
 
             <form className={styles.applyForm} onSubmit={onSubmit}>
+              <input type="hidden" name="githubHandle" value={profile.githubHandle} />
               <div className={styles.nameRow}>
                 <label>
                   First name

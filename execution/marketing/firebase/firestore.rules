@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function validApplication(data) {
+      return data.keys().hasAll([
+          'email', 'githubUrl', 'githubHandle', 'motivation', 'project1Idea',
+          'timezone', 'campus', 'referralSource', 'cohort', 'status'
+        ])
+        && data.email is string
+        && data.email.matches('.*@.*\\..*')
+        && data.githubUrl is string
+        && data.githubUrl.matches('https://github.com/[a-zA-Z0-9-]+/?')
+        && data.status == 'submitted'
+        && data.cohort == 'fall26';
+    }
+
+    match /applications/{applicationId} {
+      allow create: if validApplication(request.resource.data);
+      allow read, update, delete: if false;
+    }
+
+    match /roster/{cohortId}/members/{handle} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    match /ballots/{cohortId}/projects/{projectSlug} {
+      allow read: if request.auth != null && resource.data.status == 'open';
+      allow write: if false;
+    }
+
+    match /votes/{cohortId}/projects/{projectSlug}/ballots/{voterHandle} {
+      allow read: if false;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    match /submissions/{cohortId}/projects/{projectSlug}/entries/{handle} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

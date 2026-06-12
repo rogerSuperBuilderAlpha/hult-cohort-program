@@ -1,0 +1,6 @@
+voter,rank1,rank2,rank3
+alice,bob,carol,dave
+bob,carol,dave,eve
+carol,bob,alice,dave
+dave,bob,carol,alice
+eve,bob,dave,carol

@@ -1,0 +1,5 @@
+data/
+.env*.local
+.vercel
+secrets/
+**/secrets/*.json

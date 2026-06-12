@@ -1,0 +1,16 @@
+{
+  "name": "ludwitt-hult-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test tests/api.test.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^11.0.3"
+  }
+}

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { SiteNav } from '@/components/SiteNav';
 import styles from '../../page.module.css';
 import { getProject, programProjects } from '../../../content/program';
 
@@ -33,12 +34,7 @@ export default async function ProgramProjectPage({
           <span className={styles.logoMark}>Hult</span>
           <span className={styles.logoSub}>Cohort</span>
         </Link>
-        <nav className={styles.nav}>
-          <Link href="/program">Program</Link>
-          <Link href="/apply" className={styles.navCta}>
-            Apply
-          </Link>
-        </nav>
+        <SiteNav links={[{ href: '/program', label: 'Program' }]} />
       </header>
 
       <article className={styles.overview}>

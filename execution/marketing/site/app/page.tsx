@@ -1,6 +1,6 @@
 import styles from './page.module.css';
+import { ParticipantCta } from '@/components/ParticipantCta';
 
-const APPLY_URL = process.env.NEXT_PUBLIC_APPLY_URL || '/apply';
 const OVERVIEW_URL = process.env.NEXT_PUBLIC_OVERVIEW_URL || '/overview';
 
 export default function Home() {
@@ -16,9 +16,7 @@ export default function Home() {
           <a href="/program">Journey</a>
           <a href="#cost">Cost</a>
           <a href="#faq">FAQ</a>
-          <a href={APPLY_URL} className={styles.navCta}>
-            Apply
-          </a>
+          <ParticipantCta variant="nav" />
         </nav>
       </header>
 
@@ -34,9 +32,7 @@ export default function Home() {
           they interview you.
         </p>
         <div className={`${styles.heroActions} animate-in delay-3`}>
-          <a href={APPLY_URL} className={styles.primaryBtn}>
-            Apply for Fall 2026
-          </a>
+          <ParticipantCta />
           <a href={OVERVIEW_URL} className={styles.secondaryBtn}>
             Program overview
           </a>
@@ -159,9 +155,7 @@ export default function Home() {
           <li>Decision within 2 weeks</li>
         </ol>
         <p>Cohort size: 30 · Apply by August 15, 2026</p>
-        <a href={APPLY_URL} className={styles.primaryBtn}>
-          Apply for Fall 2026
-        </a>
+        <ParticipantCta />
       </section>
 
       <footer className={styles.footer}>

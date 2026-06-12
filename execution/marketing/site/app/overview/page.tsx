@@ -1,5 +1,6 @@
 import styles from '../page.module.css';
 import Link from 'next/link';
+import { SiteNav } from '@/components/SiteNav';
 
 export const metadata = {
   title: 'Program Overview | Hult Cohort Developer Program',
@@ -14,12 +15,7 @@ export default function OverviewPage() {
           <span className={styles.logoMark}>Hult</span>
           <span className={styles.logoSub}>Cohort</span>
         </Link>
-        <nav className={styles.nav}>
-          <Link href="/">Home</Link>
-          <Link href="/#apply" className={styles.navCta}>
-            Apply
-          </Link>
-        </nav>
+        <SiteNav links={[{ href: '/', label: 'Home' }]} />
       </header>
 
       <article className={styles.overview}>

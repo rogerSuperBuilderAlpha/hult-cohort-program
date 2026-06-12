@@ -700,6 +700,24 @@
   color: var(--text-muted);
 }
 
+.participantPanel {
+  max-width: 640px;
+}
+
+.participantHeading {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+  margin: 28px 0 12px;
+}
+
+.participantActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 28px;
+}
+
 @media (max-width: 640px) {
   .nav a:not(.navCta) {
     display: none;

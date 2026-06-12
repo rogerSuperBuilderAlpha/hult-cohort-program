@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SiteNav } from '@/components/SiteNav';
 import styles from '../page.module.css';
 import { programProjects } from '../../content/program';
 
@@ -19,12 +20,7 @@ export default function ProgramIndexPage() {
           <span className={styles.logoMark}>Hult</span>
           <span className={styles.logoSub}>Cohort</span>
         </Link>
-        <nav className={styles.nav}>
-          <Link href="/">Home</Link>
-          <Link href="/apply" className={styles.navCta}>
-            Apply
-          </Link>
-        </nav>
+        <SiteNav links={[{ href: '/', label: 'Home' }]} />
       </header>
 
       <article className={styles.overview}>

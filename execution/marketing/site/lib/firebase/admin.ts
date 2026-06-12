@@ -46,8 +46,3 @@ export function getAdminDb(): Firestore {
   if (!adminDb) adminDb = getFirestore(getAdminApp());
   return adminDb;
 }
-
-export function getAdminAuth(): Auth {
-  if (!adminAuth) adminAuth = getAuth(getAdminApp());
-  return adminAuth;
-}

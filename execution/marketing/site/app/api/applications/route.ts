@@ -11,7 +11,24 @@ import {
   verifyGithubIdToken,
 } from '@/lib/firebase/verify-github-session';
 
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
+  try {
+    return await handlePost(request);
+  } catch (err) {
+    console.error('POST /api/applications failed:', err);
+    return Response.json(
+      {
+        error:
+          'Something went wrong saving your application. Try again in a minute or email cohort@hult.edu.',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+async function handlePost(request: Request) {
   if (!isAdminConfigured()) {
     return Response.json({ error: 'Applications are temporarily unavailable.' }, { status: 503 });
   }

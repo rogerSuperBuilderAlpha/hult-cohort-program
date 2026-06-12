@@ -1,4 +1,4 @@
-import { getAdminAuth } from './admin';
+import { firebaseConfig } from './config';
 
 export type GithubSession = {
   firebaseUid: string;
@@ -6,6 +6,19 @@ export type GithubSession = {
   githubUrl: string;
   githubUid: string;
   email?: string;
+};
+
+type LookupResponse = {
+  users?: Array<{
+    localId: string;
+    email?: string;
+    providerUserInfo?: Array<{
+      providerId: string;
+      displayName?: string;
+      federatedId?: string;
+    }>;
+  }>;
+  error?: { message?: string };
 };
 
 function githubHandleFromClaims(name: unknown): string | null {
@@ -16,29 +29,47 @@ function githubHandleFromClaims(name: unknown): string | null {
 }
 
 export async function verifyGithubIdToken(idToken: string): Promise<GithubSession> {
-  const decoded = await getAdminAuth().verifyIdToken(idToken);
+  const apiKey = firebaseConfig.apiKey?.trim();
+  if (!apiKey) {
+    throw new Error('Applications are temporarily unavailable.');
+  }
 
-  if (decoded.firebase?.sign_in_provider !== 'github.com') {
+  const res = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    }
+  );
+
+  const data = (await res.json()) as LookupResponse;
+  if (!res.ok || !data.users?.[0]) {
+    throw new Error('Your GitHub session expired. Sign in again.');
+  }
+
+  const user = data.users[0];
+  const github = user.providerUserInfo?.find((p) => p.providerId === 'github.com');
+  if (!github) {
     throw new Error('Sign in with GitHub to apply.');
   }
 
-  const githubIds = decoded.firebase?.identities?.['github.com'] as string[] | undefined;
-  const githubUid = githubIds?.[0];
+  const githubHandle = githubHandleFromClaims(github.displayName);
+  if (!githubHandle) {
+    throw new Error('Could not read your GitHub username. Try signing out and back in.');
+  }
+
+  const githubUid = github.federatedId?.trim();
   if (!githubUid) {
     throw new Error('GitHub identity missing from sign-in.');
   }
 
-  const githubHandle = githubHandleFromClaims(decoded.name);
-  if (!githubHandle) {
-    throw new Error('Could not read GitHub username from sign-in.');
-  }
-
   return {
-    firebaseUid: decoded.uid,
+    firebaseUid: user.localId,
     githubHandle,
     githubUrl: `https://github.com/${githubHandle}`,
     githubUid,
-    email: decoded.email,
+    email: user.email,
   };
 }
 

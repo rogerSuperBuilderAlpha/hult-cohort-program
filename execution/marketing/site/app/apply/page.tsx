@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
+import { readApplicationApiError } from '@/lib/read-application-api-error';
 import styles from '../page.module.css';
 
 const DEFAULT_TAKE_HOME =
@@ -40,11 +41,12 @@ export default function ApplyPage() {
         },
         body: JSON.stringify(data),
       });
-      const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json.error || 'Submission failed');
+        throw new Error(await readApplicationApiError(res));
       }
+
+      const json = (await res.json()) as { takeHomeRepoUrl?: string };
 
       setTakeHomeUrl(json.takeHomeRepoUrl || DEFAULT_TAKE_HOME);
       setStatus('success');

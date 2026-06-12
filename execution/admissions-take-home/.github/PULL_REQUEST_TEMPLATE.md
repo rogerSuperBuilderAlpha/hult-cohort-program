@@ -4,15 +4,14 @@ What was broken and how you fixed it (2–4 sentences):
 
 ## Changes
 
-- [ ] Bug 1 — `getTasks` returns a defensive copy
-- [ ] Bug 2 — `updateTask` merges without dropping fields
-- [ ] Bug 3 — `PATCH /api/tasks/:id` reads `req.params.id`
-- [ ] Feature — `DELETE /api/tasks/:id` (optional but recommended)
+- [ ] Bug fixes (describe each in your own words — do not paste solution lists)
+- [ ] Missing feature implemented (optional — see README; recommended for strong pass)
+- [ ] Tests pass (`npm test`)
 
 ## Test plan
 
 - [ ] `npm test` passes locally
-- [ ] Manual smoke: create → patch complete → delete (if implemented)
+- [ ] Manual smoke: create task → mark complete → (delete if implemented)
 
 ## Agent usage
 

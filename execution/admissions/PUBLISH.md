@@ -2,7 +2,7 @@
 
 ## Recommended setup
 
-1. Create public repo: `hult-cohort/admissions-task-board-fall26`
+1. Create public repo: `admissions-task-board-fall26` (currently live at `rogerSuperBuilderAlpha/admissions-task-board-fall26`)
 2. Push contents of [admissions-take-home/](admissions-take-home/) **excluding** `SOLUTIONS.md` and `node_modules/`
 3. Enable template repo optional for future cohorts
 4. Link in application auto-reply email
@@ -15,7 +15,7 @@ npm ci && npm run test:ci
 git init
 git add README.md package.json package-lock.json src tests .github .gitignore scripts
 git commit -m "Admissions take-home Fall 2026"
-git remote add origin git@github.com:hult-cohort/admissions-task-board-fall26.git
+git remote add origin git@github.com:rogerSuperBuilderAlpha/admissions-task-board-fall26.git
 git push -u origin main
 ```
 
@@ -33,4 +33,4 @@ Preferred: invite applicants as outside collaborators to open PR (heavier ops) O
 
 ## Link in form
 
-`https://github.com/hult-cohort/admissions-task-board-fall26`
+`https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26`

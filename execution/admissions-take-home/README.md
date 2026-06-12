@@ -12,7 +12,7 @@ This is a miniature task board API. It should:
 2. Create tasks via `POST /api/tasks` with `{ "title": "..." }`
 3. Mark tasks complete via `PATCH /api/tasks/:id` with `{ "completed": true }`
 
-Currently **3 bugs** prevent correct behavior and **1 feature** is missing.
+Currently **3 bugs** prevent correct behavior and **1 feature** is missing (optional — see grading: pass requires 3 bugs + green tests; DELETE earns strong pass).
 
 ## Setup
 

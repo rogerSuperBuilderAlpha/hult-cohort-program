@@ -213,9 +213,9 @@ Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when
 
 | Setting | Value |
 |---------|-------|
-| **Homepage URL** (GitHub OAuth app) | `https://site-nine-rouge-68.vercel.app` |
+| **Homepage URL** (GitHub OAuth app) | `https://hult-cohort.vercel.app` |
 | **Authorization callback URL** | `https://hult-cohorts.firebaseapp.com/__/auth/handler` |
-| **Firebase authorized domain** | `site-nine-rouge-68.vercel.app` |
+| **Firebase authorized domain** | `hult-cohort.vercel.app` (+ legacy `site-nine-rouge-68.vercel.app` if needed) |
 
 ---
 

@@ -1,13 +1,8 @@
 name: CI
 
+# Disabled — private repo Actions billing.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'execution/ludwitt-hult-api/**'
-  pull_request:
-    paths:
-      - 'execution/ludwitt-hult-api/**'
+  workflow_dispatch:
 
 defaults:
   run:
@@ -15,24 +10,7 @@ defaults:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    env:
-      NODE_ENV: test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: execution/ludwitt-hult-api/package-lock.json
-      - run: npm ci
-      - run: npm test
-
-  docker:
+    if: false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: docker build -t ludwitt-hult-api ./execution/ludwitt-hult-api
-      - run: docker run -d -p 4000:4000 --name api ludwitt-hult-api
-      - run: sleep 2 && curl -sf http://localhost:4000/health
-      - run: docker stop api
+      - run: echo "skipped"

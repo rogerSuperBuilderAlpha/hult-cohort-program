@@ -2,7 +2,7 @@
 
 **Goal:** Anyone you send the link to can apply, get the take-home, and complete the loop without hitting a lie, a dead end, or a security hole. Staff workflows stay backend-only (no admin UI).
 
-**Live today:** https://site-nine-rouge-68.vercel.app · Firestore (`hult-cohorts`) · take-home repo (public, CI green) · monorepo (private)
+**Live today:** https://hult-cohort.vercel.app · Firestore (`hult-cohorts`) · take-home repo (public, CI green) · monorepo (private)
 
 ---
 

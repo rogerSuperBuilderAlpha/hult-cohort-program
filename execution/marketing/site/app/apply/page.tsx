@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { isFirebaseConfigured } from '@/lib/firebase/config';
-import { submitApplicationClient } from '@/lib/submit-application-client';
 import styles from '../page.module.css';
+
+const DEFAULT_TAKE_HOME =
+  'https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26';
 
 export default function ApplyPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [takeHomeUrl, setTakeHomeUrl] = useState(DEFAULT_TAKE_HOME);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,19 +32,8 @@ export default function ApplyPage() {
         throw new Error(json.error || 'Submission failed');
       }
 
-      if (json.storage === 'firestore-client') {
-        if (!isFirebaseConfigured()) {
-          throw new Error('Firebase is not configured.');
-        }
-        const { validateApplication } = await import('@/lib/applications');
-        const input = validateApplication(data);
-        await submitApplicationClient(input, json.id);
-      }
-
+      setTakeHomeUrl(json.takeHomeRepoUrl || DEFAULT_TAKE_HOME);
       setStatus('success');
-      setMessage(
-        'Application received. Check your email for the 48-hour take-home repo link and PR instructions.'
-      );
       form.reset();
     } catch (err) {
       setStatus('error');
@@ -72,12 +63,57 @@ export default function ApplyPage() {
         </p>
 
         {status === 'success' ? (
-          <div className={styles.calloutSuccess}>{message}</div>
+          <div className={styles.calloutSuccess}>
+            <p>
+              <strong>Application received.</strong> Your next step is the 48-hour take-home — do
+              not wait for email; start now.
+            </p>
+            <ol className={styles.successSteps}>
+              <li>
+                Open the repo:{' '}
+                <a href={takeHomeUrl} target="_blank" rel="noopener noreferrer">
+                  {takeHomeUrl}
+                </a>
+              </li>
+              <li>
+                Clone, fix the bugs, run <code>npm test</code> until green, implement optional
+                DELETE.
+              </li>
+              <li>
+                Open a PR titled <code>[Admissions] Fix task board — {'{your-github-handle}'}</code>{' '}
+                on branch <code>admissions/{'{your-github-handle}'}</code>.
+              </li>
+              <li>Fill the PR template completely, including agent usage.</li>
+            </ol>
+            <p className={styles.formNote}>
+              Questions: cohort@hult.edu · We review take-home PRs within 48 hours of submission.
+            </p>
+          </div>
         ) : (
           <form className={styles.applyForm} onSubmit={onSubmit}>
+            <div className={styles.nameRow}>
+              <label>
+                First name
+                <input name="firstName" type="text" required autoComplete="given-name" />
+              </label>
+              <label>
+                Last name
+                <input name="lastName" type="text" required autoComplete="family-name" />
+              </label>
+            </div>
+            <label>
+              Email
+              <input name="email" type="email" required autoComplete="email" />
+            </label>
             <label>
               GitHub profile URL
-              <input name="githubUrl" type="url" required placeholder="https://github.com/you" />
+              <input
+                name="githubUrl"
+                type="url"
+                required
+                placeholder="https://github.com/you"
+                autoComplete="url"
+              />
             </label>
             <label>
               Why this program (200 words max)
@@ -110,11 +146,39 @@ export default function ApplyPage() {
             </label>
             <label>
               How did you hear about us?
-              <input name="referralSource" type="text" required />
+              <select name="referralSource" required defaultValue="">
+                <option value="" disabled>
+                  Select…
+                </option>
+                <option value="hult-email">Hult email / bulletin</option>
+                <option value="founder-network">Founder network</option>
+                <option value="cursor-boston">Cursor Boston</option>
+                <option value="social">Social media</option>
+                <option value="friend">Friend / colleague</option>
+                <option value="other">Other</option>
+              </select>
             </label>
-            <label>
-              Email
-              <input name="email" type="email" required />
+
+            <fieldset className={styles.confirmFieldset}>
+              <legend>Confirmations (required)</legend>
+              <label className={styles.checkboxLabel}>
+                <input name="confirmGithubAge" type="checkbox" required />
+                My GitHub account is at least 6 months old with at least 5 commits on any repo.
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input name="confirmTuition" type="checkbox" required />
+                I can pay $10,000 tuition and ~$400/month for Cursor + Claude Code for at least 4
+                months.
+              </label>
+              <label className={styles.checkboxLabel}>
+                <input name="confirmPublicWork" type="checkbox" required />
+                I understand my code, reviews, and projects will be public on GitHub.
+              </label>
+            </fieldset>
+
+            <label className={styles.honeypot} aria-hidden="true">
+              Website
+              <input name="_honeypot" type="text" tabIndex={-1} autoComplete="off" />
             </label>
 
             {status === 'error' && <p className={styles.formError}>{message}</p>}

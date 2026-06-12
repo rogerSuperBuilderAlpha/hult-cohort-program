@@ -534,6 +534,70 @@
   color: var(--text-muted);
 }
 
+.nameRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .nameRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.confirmFieldset {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin: 0;
+}
+
+.confirmFieldset legend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0 8px;
+}
+
+.checkboxLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.checkboxLabel input {
+  margin-top: 4px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.successSteps {
+  margin: 16px 0 16px 20px;
+  color: var(--text-muted);
+}
+
+.successSteps li {
+  margin-bottom: 10px;
+}
+
+.successSteps a {
+  color: var(--accent);
+  word-break: break-all;
+}
+
 @media (max-width: 640px) {
   .nav a:not(.navCta) {
     display: none;

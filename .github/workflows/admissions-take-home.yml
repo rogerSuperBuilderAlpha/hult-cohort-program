@@ -1,13 +1,8 @@
 name: CI
 
+# Disabled — private repo Actions billing.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'execution/admissions-take-home/**'
-  pull_request:
-    paths:
-      - 'execution/admissions-take-home/**'
+  workflow_dispatch:
 
 defaults:
   run:
@@ -15,13 +10,7 @@ defaults:
 
 jobs:
   test:
+    if: false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: execution/admissions-take-home/package-lock.json
-      - run: npm ci
-      - run: npm run test:ci
+      - run: echo "skipped"

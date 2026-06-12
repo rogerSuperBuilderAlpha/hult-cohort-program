@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { OnboardingParticipantPanel } from '@/components/OnboardingParticipantPanel';
+import { ParticipantProjectBanner } from '@/components/ParticipantProjectBanner';
 import { SiteNav } from '@/components/SiteNav';
 import styles from '../../page.module.css';
 import { getProject, programProjects } from '../../../content/program';
@@ -41,6 +43,14 @@ export default async function ProgramProjectPage({
         <p className={styles.eyebrow}>{project.phaseLabel}</p>
         <h1 className={styles.sectionTitle}>{project.title}</h1>
         <p className={styles.overviewLead}>{project.summary}</p>
+
+        <ParticipantProjectBanner
+          slug={project.slug}
+          phaseLabel={project.phaseLabel}
+          title={project.title}
+        />
+
+        {project.slug === 'onboarding' && <OnboardingParticipantPanel />}
 
         {project.voteWeek && (
           <div className={styles.callout}>

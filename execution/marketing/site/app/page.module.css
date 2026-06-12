@@ -718,6 +718,46 @@
   margin-top: 28px;
 }
 
+.participantBanner {
+  max-width: 640px;
+  margin-bottom: 28px;
+  padding: 18px 20px;
+  border: 1px solid rgba(46, 160, 67, 0.35);
+  border-radius: 6px;
+  background: rgba(46, 160, 67, 0.08);
+}
+
+.participantBannerEyebrow {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(46, 160, 67, 0.95);
+  margin-bottom: 8px;
+}
+
+.participantBannerLead {
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.participantBannerLink {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.onboardingChecklist {
+  margin: 0 0 8px 20px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.onboardingChecklist li {
+  margin-bottom: 8px;
+}
+
 @media (max-width: 640px) {
   .nav a:not(.navCta) {
     display: none;

@@ -38,10 +38,14 @@ export const programProjects: ProgramProject[] = [
       'Attend live kickoffs; refund window ends Friday 5pm',
     ],
     submission: {
-      repoPattern: 'N/A — no contest submission',
-      prTitle: 'N/A',
-      prBodyMustInclude: ['Tooling verification checklist signed in cohort roster'],
-      deadlineNote: 'Roster locked Sep 12 after refund window',
+      repoPattern: 'hult-cohort-fall26-boston/roster',
+      prTitle: '[Onboarding] Tooling checklist — {handle}',
+      prBodyMustInclude: [
+        'Tooling verification checklist (Cursor, Claude Code, GitHub SSH)',
+        'Expectations Acknowledgment signed',
+        'Agent workflow dry-run noted',
+      ],
+      deadlineNote: 'Roster locked Sep 12 after refund window (Fri week 1, 17:00)',
     },
     passGate: ['100% tooling verification', 'Expectations Acknowledgment signed'],
   },

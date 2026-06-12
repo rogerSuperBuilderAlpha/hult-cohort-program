@@ -12,15 +12,16 @@ export function getTasks() {
 }
 ```
 
-### Bug 2 — updateTask (if using broken pattern)
+### Bug 2 — updateTask drops fields when merging
 
-Current store actually passes tests for merge — optional hardening:
+Starter rebuilds `{ id, ...patch }` and loses `title` when only `completed` is patched.
 
 ```js
 export function updateTask(id, patch) {
   const task = tasks.find((t) => t.id === id);
   if (!task) return null;
-  return Object.assign(task, patch);
+  Object.assign(task, patch);
+  return task;
 }
 ```
 

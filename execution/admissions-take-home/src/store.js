@@ -20,9 +20,10 @@ export function createTask(title) {
 export function updateTask(id, patch) {
   const task = tasks.find((t) => t.id === id);
   if (!task) return null;
-  // BUG 2: replaces entire task instead of merging patch — loses title
-  Object.assign(task, patch);
-  return task;
+  const idx = tasks.indexOf(task);
+  // BUG 2: rebuilds from patch only — drops title when patching { completed: true }
+  tasks[idx] = { id, ...patch };
+  return tasks[idx];
 }
 
 // MISSING FEATURE: export function deleteTask(id) — not implemented

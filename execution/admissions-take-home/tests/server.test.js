@@ -17,7 +17,7 @@ describe('PATCH /api/tasks/:id', () => {
     await new Promise((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())));
   });
 
-  it('returns 404 until applicant fixes req.params.id (starter bug)', async () => {
+  it('marks a task complete via PATCH', async () => {
     await fetch(`http://127.0.0.1:${port}/api/tasks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -28,6 +28,9 @@ describe('PATCH /api/tasks/:id', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ completed: true }),
     });
-    assert.equal(res.status, 404, 'expected starter bug — fix server.js PATCH handler');
+    assert.equal(res.status, 200, 'fix PATCH handler to read req.params.id');
+    const body = await res.json();
+    assert.equal(body.task.title, 'Test');
+    assert.equal(body.task.completed, true);
   });
 });

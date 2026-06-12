@@ -1,6 +1,6 @@
 /**
- * CI guard: starter repo must have exactly one failing test (Bug 1 — getTasks).
- * Applicant PRs run `npm test` directly and must be fully green.
+ * CI guard: starter must have 3 failing tests (Bug 1 getTasks, Bug 2 updateTask, Bug 3 PATCH).
+ * Applicant PRs run `npm test` and must be fully green.
  */
 import { spawnSync } from 'node:child_process';
 
@@ -18,14 +18,20 @@ if (result.status !== 1) {
   process.exit(1);
 }
 
-if (!out.includes('getTasks returns a copy')) {
-  console.error('verify-starter: expected getTasks copy test to fail');
+for (const name of [
+  'getTasks returns a copy',
+  'updateTask merges patch without dropping fields',
+  'marks a task complete via PATCH',
+]) {
+  if (!out.includes(name)) {
+    console.error(`verify-starter: expected failing test "${name}"`);
+    process.exit(1);
+  }
+}
+
+if (!/pass 1/.test(out) || !/fail 3/.test(out)) {
+  console.error('verify-starter: expected 1 passing and 3 failing tests');
   process.exit(1);
 }
 
-if (!/pass 3/.test(out) || !/fail 1/.test(out)) {
-  console.error('verify-starter: expected 3 passing and 1 failing test');
-  process.exit(1);
-}
-
-console.log('verify-starter: starter state OK (1 intentional failure)');
+console.log('verify-starter: starter state OK (3 intentional failures)');

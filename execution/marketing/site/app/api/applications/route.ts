@@ -18,11 +18,13 @@ export async function POST(request: Request) {
     const record = buildApplicationRecord(input, id);
 
     if (isAdminConfigured()) {
-      await getAdminDb().collection('applications').doc(id).set({
+      const doc: Record<string, unknown> = {
         ...record,
         submittedAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
-      });
+      };
+      if (!doc.hultStudentId) delete doc.hultStudentId;
+      await getAdminDb().collection('applications').doc(id).set(doc);
       return Response.json({ ok: true, id, storage: 'firestore-admin' });
     }
 

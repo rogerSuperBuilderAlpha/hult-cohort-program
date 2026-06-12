@@ -38,7 +38,7 @@ export const programProjects: ProgramProject[] = [
       'Attend live kickoffs; refund window ends Friday 5pm',
     ],
     submission: {
-      repoPattern: 'hult-cohort-fall26-boston/roster',
+      repoPattern: '{org}/roster',
       prTitle: '[Onboarding] Tooling checklist — {handle}',
       prBodyMustInclude: [
         'Tooling verification checklist (Cursor, Claude Code, GitHub SSH)',
@@ -59,7 +59,7 @@ export const programProjects: ProgramProject[] = [
       'Build a production PM platform for 30 developers. Winner operates the cohort PM system for the rest of the semester.',
     voteWeek: true,
     expectations: [
-      'Build solo in public repo `pm-{your-handle}` in the cohort org',
+      'Build solo in public repo `pm-{handle}` in the cohort org',
       'Deploy to production HTTPS before deadline',
       'Support ≥30 accounts, projects, tasks, assignments, status workflow',
       'Complete 29 peer reviews during review week',

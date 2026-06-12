@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { OnboardingParticipantPanel } from '@/components/OnboardingParticipantPanel';
-import { ParticipantProjectBanner } from '@/components/ParticipantProjectBanner';
+import { ProgramProjectView } from '@/components/ProgramProjectView';
 import { SiteNav } from '@/components/SiteNav';
 import styles from '../../page.module.css';
 import { getProject, programProjects } from '../../../content/program';
@@ -29,6 +28,13 @@ export default async function ProgramProjectPage({
   const project = getProject(slug);
   if (!project) notFound();
 
+  const index = programProjects.findIndex((p) => p.slug === slug);
+  const prevSlug = index > 0 ? programProjects[index - 1]?.slug : undefined;
+  const nextSlug =
+    index >= 0 && index < programProjects.length - 1
+      ? programProjects[index + 1]?.slug
+      : undefined;
+
   return (
     <main className={styles.main}>
       <header className={styles.header}>
@@ -44,87 +50,7 @@ export default async function ProgramProjectPage({
         <h1 className={styles.sectionTitle}>{project.title}</h1>
         <p className={styles.overviewLead}>{project.summary}</p>
 
-        <ParticipantProjectBanner
-          slug={project.slug}
-          phaseLabel={project.phaseLabel}
-          title={project.title}
-        />
-
-        {project.slug === 'onboarding' && <OnboardingParticipantPanel />}
-
-        {project.voteWeek && (
-          <div className={styles.callout}>
-            <strong>Vote week.</strong> After review, rank your top 3 merged submission PRs on the
-            platform. You cannot rank your own PR. See{' '}
-            <Link href="/program/phase-1-project-1">Phase 1 loop</Link> for mechanics.
-          </div>
-        )}
-
-        <section className={styles.overviewBlock}>
-          <h2>What is expected of you</h2>
-          <ul>
-            {project.expectations.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section className={styles.overviewBlock}>
-          <h2>How you submit (PR, not a link form)</h2>
-          <dl className={styles.dl}>
-            <dt>Repo</dt>
-            <dd>
-              <code>{project.submission.repoPattern}</code>
-            </dd>
-            <dt>PR title</dt>
-            <dd>
-              <code>{project.submission.prTitle}</code>
-            </dd>
-            <dt>PR body must include</dt>
-            <dd>
-              <ul>
-                {project.submission.prBodyMustInclude.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </dd>
-            <dt>Deadline</dt>
-            <dd>{project.submission.deadlineNote}</dd>
-          </dl>
-        </section>
-
-        {project.reviews && (
-          <section className={styles.overviewBlock}>
-            <h2>Peer review</h2>
-            <p>
-              <strong>{project.reviews.count}</strong> mandatory reviews. Artifact:{' '}
-              {project.reviews.artifact}. Due: {project.reviews.dueNote}.
-            </p>
-          </section>
-        )}
-
-        <section className={styles.overviewBlock}>
-          <h2>Pass gate</h2>
-          <ul>
-            {project.passGate.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        {project.voteWeek && (
-          <section className={styles.overviewBlock}>
-            <h2>Voting</h2>
-            <p>
-              Ballot lists every <strong>merged submission PR</strong> that passed the eligibility
-              checklist. Rank your top 3. Ballots are private; aggregate results published after the
-              winner is announced. Tie-break uses median peer rubric score.
-            </p>
-            <p>
-              <em>Enrolled participants only — voting UI opens during review week.</em>
-            </p>
-          </section>
-        )}
+        <ProgramProjectView project={project} prevSlug={prevSlug} nextSlug={nextSlug} />
 
         <p className={styles.backLink}>
           <Link href="/program">← All projects</Link>

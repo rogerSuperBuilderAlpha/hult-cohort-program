@@ -18,30 +18,34 @@ const DEFAULT_TAKE_HOME =
 const MCP_README_URL = `${GITHUB_REPO_URL}/blob/main/execution/hult-cohort-mcp/README.md`;
 
 function SignedInBar({
-  profile,
+  handle,
+  photoUrl,
   onSignOut,
 }: {
-  profile: { githubHandle: string; githubUrl: string; photoUrl: string | null };
+  handle: string | null;
+  photoUrl: string | null;
   onSignOut: () => void;
 }) {
   return (
     <div className={styles.signedInBar}>
-      {profile.photoUrl ? (
+      {photoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={profile.photoUrl}
-          alt=""
-          width={32}
-          height={32}
-          className={styles.signedInAvatar}
-        />
+        <img src={photoUrl} alt="" width={32} height={32} className={styles.signedInAvatar} />
       ) : null}
       <div className={styles.signedInMeta}>
         <span>
           Signed in as{' '}
-          <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer">
-            @{profile.githubHandle}
-          </a>
+          {handle ? (
+            <a
+              href={`https://github.com/${handle}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              @{handle}
+            </a>
+          ) : (
+            <span aria-hidden="true">…</span>
+          )}
         </span>
         <button type="button" className={styles.signOutBtn} onClick={onSignOut}>
           Use a different account
@@ -465,7 +469,11 @@ export default function ApplyPage() {
           </div>
         ) : (
           <>
-            <SignedInBar profile={profile} onSignOut={() => void signOut()} />
+            <SignedInBar
+              handle={me?.githubHandle ?? null}
+              photoUrl={profile.photoUrl}
+              onSignOut={() => void signOut()}
+            />
             {statusError && <p className={styles.formError}>{statusError}</p>}
 
             {admitted && me ? (
@@ -495,7 +503,7 @@ export default function ApplyPage() {
               />
             ) : (
               <form className={styles.applyForm} onSubmit={onSubmit}>
-                <input type="hidden" name="githubHandle" value={profile.githubHandle} />
+                <input type="hidden" name="githubHandle" value={me?.githubHandle ?? ''} />
                 <div className={styles.nameRow}>
                   <label>
                     First name
@@ -512,7 +520,7 @@ export default function ApplyPage() {
                 </label>
                 <div className={styles.githubLocked}>
                   <span className={styles.githubLockedLabel}>GitHub account</span>
-                  <span className={styles.githubLockedValue}>@{profile.githubHandle}</span>
+                  <span className={styles.githubLockedValue}>@{me?.githubHandle ?? '…'}</span>
                   <span className={styles.githubLockedNote}>From your sign-in — not editable</span>
                 </div>
                 <label>
@@ -596,7 +604,7 @@ export default function ApplyPage() {
             )}
 
             <AccountSection
-              handle={profile.githubHandle}
+              handle={me?.githubHandle ?? ''}
               onSignOut={() => void signOut()}
               onDelete={deleteAccount}
               onDeleted={() => void refresh()}

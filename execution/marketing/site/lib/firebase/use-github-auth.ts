@@ -13,21 +13,21 @@ import { isFirebaseConfigured } from './config';
 
 export type GithubAuthProfile = {
   user: User;
-  githubHandle: string;
-  githubUrl: string;
   photoUrl: string | null;
 };
 
+// Sign-in is established by the Firebase user having a github.com provider.
+// We deliberately do NOT derive a handle here: github.displayName is the
+// GitHub *display name* (often a real name like "Roger Hunt"), not the login.
+// The authoritative login is resolved server-side from the immutable numeric id
+// (see lib/firebase/github-handle.ts) and surfaced via /api/me.
 function profileFromUser(user: User): GithubAuthProfile | null {
   const github = user.providerData.find((p) => p.providerId === 'github.com');
-  const handle = github?.displayName?.trim();
-  if (!handle) return null;
+  if (!github) return null;
 
   return {
     user,
-    githubHandle: handle.toLowerCase(),
-    githubUrl: `https://github.com/${handle}`,
-    photoUrl: github?.photoURL ?? user.photoURL,
+    photoUrl: github.photoURL ?? user.photoURL,
   };
 }
 

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hult-cohort": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/HULT/execution/hult-cohort-mcp/dist/index.js"],
+      "env": {
+        "HULT_API_BASE_URL": "https://site-nine-rouge-68.vercel.app",
+        "HULT_ID_TOKEN": "paste-firebase-id-token-from-github-sign-in"
+      }
+    }
+  }
+}

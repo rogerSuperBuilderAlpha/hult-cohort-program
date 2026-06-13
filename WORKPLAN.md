@@ -14,7 +14,8 @@ Program docs (Tiers 1–7) are expanded. Launch artifacts live in [execution/](e
 | Program Agreement draft | [execution/templates/legal/program-agreement.md](execution/templates/legal/program-agreement.md) | General Counsel |
 | Admissions take-home repo | [execution/admissions-take-home/](execution/admissions-take-home/) | Founder — publish via `scripts/publish-public-repo.sh` |
 | Cohort GitHub template | [execution/templates/cohort-project-template/](execution/templates/cohort-project-template/) | Program director |
-| Ludwitt/Hult API (**runnable MVP**) | [execution/ludwitt-hult-api/](execution/ludwitt-hult-api/) | Founder — deploy by Nov 1 |
+| Ludwitt/Hult API | [execution/ludwitt-hult-api/](execution/ludwitt-hult-api/) | Founder — deploy by Nov 1 |
+| **Hult Cohort MCP** | [execution/hult-cohort-mcp/](execution/hult-cohort-mcp/) | Apply, reviews, votes via Cursor |
 | Landing page (**Next.js site**) | [execution/marketing/site/](execution/marketing/site/) | Marketing + GC → Vercel |
 | Application form | [execution/admissions/](execution/admissions/) + [FIREBASE.md](execution/marketing/FIREBASE.md) | Founder |
 | Email templates | [execution/templates/emails.md](execution/templates/emails.md) | Program director |

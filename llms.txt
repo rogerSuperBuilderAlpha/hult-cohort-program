@@ -10,6 +10,7 @@
 - [execution/marketing/site/AGENTS.md](execution/marketing/site/AGENTS.md): Next.js platform
 - [execution/ludwitt-hult-api/AGENTS.md](execution/ludwitt-hult-api/AGENTS.md): Phase 2 metrics API
 - [execution/admissions-take-home/AGENTS.md](execution/admissions-take-home/AGENTS.md): Applicant take-home
+- [execution/hult-cohort-mcp/](execution/hult-cohort-mcp/): MCP server — apply, peer reviews, votes
 
 ## Vision & planning
 

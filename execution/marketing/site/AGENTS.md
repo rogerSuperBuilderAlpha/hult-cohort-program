@@ -41,6 +41,7 @@ All authenticated routes expect `Authorization: Bearer <Firebase ID token>`.
 
 - `POST /api/applications` — apply (Admin SDK)
 - `GET /api/me` — profile + admitted status + cohort stats
+- `GET /api/program/projects` — public program index (MCP + agents)
 - `GET /api/cohort/stats` — public enrolled count
 - `GET /api/program/[slug]/progress` — submission + peer review state
 - `POST /api/program/[slug]/written-reviews` — `{ revieweeHandle, issueUrl }`

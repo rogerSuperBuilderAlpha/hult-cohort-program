@@ -25,6 +25,7 @@ One web surface where applicants apply, admitted participants see every project 
 | Program content (weeks, rubrics) | [execution/marketing/site/content/program.ts](execution/marketing/site/content/program.ts) + [curriculum/](curriculum/) |
 | Voting / peer review logic | [execution/marketing/site/lib/ratings-server.ts](execution/marketing/site/lib/ratings-server.ts), [written-reviews-server.ts](execution/marketing/site/lib/written-reviews-server.ts), UI in [ProjectProgressPanel.tsx](execution/marketing/site/components/ProjectProgressPanel.tsx) |
 | Admissions flow | [execution/admissions-take-home/AGENTS.md](execution/admissions-take-home/AGENTS.md), [site/app/apply/](execution/marketing/site/app/apply/) |
+| **Apply / reviews / votes via MCP** | [execution/hult-cohort-mcp/](execution/hult-cohort-mcp/) |
 | Phase 2 user metrics API | [execution/ludwitt-hult-api/AGENTS.md](execution/ludwitt-hult-api/AGENTS.md) |
 | Launch / production gaps | [DEVPLAN.md](DEVPLAN.md) |
 | Governance & pass gates | [governance/](governance/), [assessment/pass-fail.md](assessment/pass-fail.md) |

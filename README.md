@@ -91,6 +91,7 @@ Live demo: [site-nine-rouge-68.vercel.app](https://site-nine-rouge-68.vercel.app
 |---|---|
 | **License** | [MIT](LICENSE) |
 | **Agents** | [AGENTS.md](AGENTS.md) · [llms.txt](llms.txt) · [.cursor/rules/](.cursor/rules/) |
+| **Hult Cohort MCP** | [execution/hult-cohort-mcp/AGENTS.md](execution/hult-cohort-mcp/AGENTS.md) — apply, reviews, votes via MCP |
 | **Site SEO** | Live: `/robots.txt`, `/sitemap.xml`, `/llms.txt`, OG images (see `execution/marketing/site/app/`) |
 | **Contribute** | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | **Conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |

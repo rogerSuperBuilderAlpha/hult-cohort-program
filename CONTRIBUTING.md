@@ -4,6 +4,8 @@ Thank you for helping improve the Hult Cohort Program. This repository is open s
 
 **AI agents:** start with [AGENTS.md](AGENTS.md) (repo map, architecture, task routing). Cursor loads [.cursor/rules/](.cursor/rules/) automatically.
 
+**MCP (Cursor):** [execution/hult-cohort-mcp/](execution/hult-cohort-mcp/) — apply, peer reviews, and votes from your agent.
+
 ## What belongs here
 
 | Area | Path | Good contributions |

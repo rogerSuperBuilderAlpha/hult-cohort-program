@@ -118,16 +118,18 @@ export default function PrivacyPage() {
               details.
             </li>
             <li>
-              <strong>Deletion</strong> — Email{' '}
-              <a href="mailto:cohort@hult.edu">cohort@hult.edu</a> to request deletion of
-              application PII and platform account data. We will delete or anonymize records we
-              control within a reasonable period. Public GitHub repos, issues, and PRs you created
-              remain on GitHub under your account and are outside our control — you may delete or
-              archive them on GitHub directly.
+              <strong>Deletion</strong> — Delete your account yourself from the{' '}
+              <Link href="/apply">apply dashboard</Link> (Account → Delete my account). This
+              permanently removes your application, roster membership, submissions, written
+              reviews, votes, and sign-in record. You can also email{' '}
+              <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>. Public GitHub repos, issues, and
+              PRs you created remain on GitHub under your account and are outside our control — you
+              may delete or archive them on GitHub directly.
             </li>
             <li>
               <strong>Withdraw consent</strong> — Decline analytics cookies via the site banner.
-              Sign out anytime; re-enrollment requires an active GitHub session.
+              Sign out anytime from the site header or apply dashboard; re-enrollment requires an
+              active GitHub session.
             </li>
           </ul>
         </section>

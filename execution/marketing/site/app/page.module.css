@@ -1468,3 +1468,63 @@
   gap: 10px;
   flex-shrink: 0;
 }
+
+.navSignOut {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.navSignOut:hover {
+  color: var(--hult-black);
+}
+
+.accountSection {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.dangerZone {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.dangerZoneTitle {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.dangerConfirm {
+  margin-top: 16px;
+}
+
+.dangerBtn {
+  padding: 10px 20px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 2px;
+  font-weight: 600;
+  font-family: var(--sans);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.dangerBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.dangerBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

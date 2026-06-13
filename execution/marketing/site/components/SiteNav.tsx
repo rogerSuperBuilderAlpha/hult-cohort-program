@@ -18,7 +18,7 @@ const DEFAULT_LINKS: NavLink[] = [
 ];
 
 export function SiteNav({ links = DEFAULT_LINKS }: SiteNavProps) {
-  const { profile, loading: authLoading, getIdToken } = useGithubAuth();
+  const { profile, loading: authLoading, getIdToken, signOut } = useGithubAuth();
   const { me, loading: meLoading } = useParticipantStatus(getIdToken, Boolean(profile));
 
   const admitted = isAdmitted(me);
@@ -31,6 +31,11 @@ export function SiteNav({ links = DEFAULT_LINKS }: SiteNavProps) {
           {link.label}
         </Link>
       ))}
+      {profile ? (
+        <button type="button" className={styles.navSignOut} onClick={() => void signOut()}>
+          Sign out
+        </button>
+      ) : null}
       <Link href="/apply" className={styles.navCta}>
         {hubLabel}
       </Link>

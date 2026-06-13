@@ -82,6 +82,31 @@ export function useGithubAuth() {
     return profile.user.getIdToken();
   }, [profile]);
 
+  const deleteAccount = useCallback(async (): Promise<{ ok: boolean; error?: string }> => {
+    if (!configured || !profile?.user) {
+      return { ok: false, error: 'You are not signed in.' };
+    }
+    setAuthError('');
+    try {
+      const idToken = await profile.user.getIdToken();
+      const res = await fetch('/api/me', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        return { ok: false, error: json.error || 'Could not delete your account.' };
+      }
+      await firebaseSignOut(getFirebaseAuth());
+      return { ok: true };
+    } catch (err) {
+      return {
+        ok: false,
+        error: err instanceof Error ? err.message : 'Could not delete your account.',
+      };
+    }
+  }, [configured, profile]);
+
   return {
     configured,
     profile,
@@ -89,6 +114,7 @@ export function useGithubAuth() {
     authError,
     signIn,
     signOut,
+    deleteAccount,
     getIdToken,
   };
 }

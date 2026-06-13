@@ -1,6 +1,7 @@
 import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { getParticipantSubmissions } from '@/lib/submissions-server';
+import { deleteParticipantAccount } from '@/lib/account-server';
 import type { ApplicationStatus, ParticipantMe } from '@/lib/participant-status';
 import {
   bearerTokenFromRequest,
@@ -75,6 +76,39 @@ export async function GET(request: Request) {
     console.error('GET /api/me failed:', err);
     return Response.json(
       { error: 'Could not load your participant status. Try again shortly.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  if (!isAdminConfigured()) {
+    return Response.json({ error: 'Account management unavailable.' }, { status: 503 });
+  }
+
+  const idToken = bearerTokenFromRequest(request);
+  if (!idToken) {
+    return Response.json({ error: 'Sign in with GitHub.' }, { status: 401 });
+  }
+
+  let githubHandle: string;
+  let firebaseUid: string;
+  try {
+    const session = await verifyGithubIdToken(idToken);
+    githubHandle = session.githubHandle;
+    firebaseUid = session.firebaseUid;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Invalid sign-in.';
+    return Response.json({ error: message }, { status: 401 });
+  }
+
+  try {
+    const result = await deleteParticipantAccount({ githubHandle, firebaseUid });
+    return Response.json({ ok: true, deleted: result });
+  } catch (err) {
+    console.error('DELETE /api/me failed:', err);
+    return Response.json(
+      { error: 'Could not delete your account. Email cohort@hult.edu for help.' },
       { status: 500 }
     );
   }

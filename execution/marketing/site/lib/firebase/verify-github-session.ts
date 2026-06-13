@@ -24,10 +24,7 @@ type LookupResponse = {
   error?: { message?: string };
 };
 
-export async function verifyGithubIdToken(
-  idToken: string,
-  handleHint?: string
-): Promise<GithubSession> {
+export async function verifyGithubIdToken(idToken: string): Promise<GithubSession> {
   const apiKey = firebaseConfig.apiKey?.trim();
   if (!apiKey) {
     throw new Error('Applications are temporarily unavailable.');
@@ -53,11 +50,10 @@ export async function verifyGithubIdToken(
     throw new Error('Sign in with GitHub to apply.');
   }
 
-  const hint = handleHint?.trim().toLowerCase();
-  const githubHandle = await resolveGithubHandle(idToken, github, hint);
+  const githubHandle = await resolveGithubHandle(github);
   if (!githubHandle) {
     throw new Error(
-      'We could not verify your GitHub username. Sign out, sign in again, and retry. If it keeps failing, email cohort@hult.edu.'
+      'We could not verify your GitHub username. Try again in a moment. If it keeps failing, email cohort@hult.edu.'
     );
   }
 

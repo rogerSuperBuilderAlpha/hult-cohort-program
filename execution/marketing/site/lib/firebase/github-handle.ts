@@ -7,56 +7,10 @@ export function parseGithubHandle(value: unknown): string | null {
   return handle.toLowerCase();
 }
 
-export function decodeJwtPayload(token: string): Record<string, unknown> {
-  const payload = token.split('.')[1];
-  if (!payload) return {};
-  const padded = payload.replace(/-/g, '+').replace(/_/g, '/');
-  const json = Buffer.from(padded, 'base64').toString('utf8');
-  try {
-    return JSON.parse(json) as Record<string, unknown>;
-  } catch {
-    return {};
-  }
-}
-
 type GithubProviderInfo = {
-  displayName?: string;
-  screenName?: string;
   federatedId?: string;
   rawId?: string;
 };
-
-export function githubHandleCandidates(
-  idToken: string,
-  github: GithubProviderInfo,
-  hint?: string
-): string[] {
-  const claims = decodeJwtPayload(idToken);
-  const firebase = claims.firebase as
-    | { sign_in_attributes?: { login?: string; screenName?: string } }
-    | undefined;
-  const attrs = firebase?.sign_in_attributes;
-
-  const raw = [
-    attrs?.login,
-    attrs?.screenName,
-    claims.name,
-    github.screenName,
-    github.displayName,
-    hint,
-  ];
-
-  const seen = new Set<string>();
-  const handles: string[] = [];
-  for (const value of raw) {
-    const handle = parseGithubHandle(value);
-    if (handle && !seen.has(handle)) {
-      seen.add(handle);
-      handles.push(handle);
-    }
-  }
-  return handles;
-}
 
 function githubHeaders(): HeadersInit {
   const headers: Record<string, string> = {
@@ -88,41 +42,13 @@ export async function lookupGithubLoginById(githubUserId: string): Promise<strin
   }
 }
 
-export async function verifyGithubHandleForUserId(
-  handle: string,
-  githubUserId: string
-): Promise<boolean> {
-  try {
-    const res = await fetch(`https://api.github.com/users/${encodeURIComponent(handle)}`, {
-      headers: githubHeaders(),
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return false;
-    const data = (await res.json()) as { id?: number };
-    return String(data.id) === String(githubUserId);
-  } catch {
-    return false;
-  }
-}
-
-export async function resolveGithubHandle(
-  idToken: string,
-  github: GithubProviderInfo,
-  hint?: string
-): Promise<string | null> {
+/**
+ * Resolves a GitHub login strictly from the immutable numeric id Firebase provides.
+ * We never guess the handle from display names or token claims — if the id lookup
+ * fails, we return null and the caller surfaces a retryable error.
+ */
+export async function resolveGithubHandle(github: GithubProviderInfo): Promise<string | null> {
   const githubUserId = github.federatedId?.trim() || github.rawId?.trim();
   if (!githubUserId) return null;
-
-  // Authoritative path: resolve the login directly from the numeric id.
-  const byId = await lookupGithubLoginById(githubUserId);
-  if (byId) return byId;
-
-  // Fallback: verify guessed candidates against the id (covers GitHub API hiccups).
-  const candidates = githubHandleCandidates(idToken, github, hint);
-  for (const handle of candidates) {
-    if (await verifyGithubHandleForUserId(handle, githubUserId)) {
-      return handle;
-    }
-  }
-  return null;
+  return lookupGithubLoginById(githubUserId);
 }

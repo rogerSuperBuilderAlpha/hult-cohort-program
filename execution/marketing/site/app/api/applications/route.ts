@@ -47,7 +47,7 @@ async function handlePost(request: Request) {
 
   let githubSession;
   try {
-    githubSession = await verifyGithubIdToken(idToken, body.githubHandle);
+    githubSession = await verifyGithubIdToken(idToken);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Invalid sign-in.';
     return Response.json({ error: message }, { status: 401 });

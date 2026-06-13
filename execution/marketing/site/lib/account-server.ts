@@ -101,7 +101,8 @@ export async function deleteParticipantAccount(params: {
 
   if (firebaseUid) {
     try {
-      await getAdminAuth().deleteUser(firebaseUid);
+      const auth = await getAdminAuth();
+      await auth.deleteUser(firebaseUid);
       result.authUserDeleted = true;
     } catch (err) {
       const code =

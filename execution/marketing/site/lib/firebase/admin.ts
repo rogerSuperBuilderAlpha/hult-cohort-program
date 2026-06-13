@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
-import { getAuth, type Auth } from 'firebase-admin/auth';
+import type { Auth } from 'firebase-admin/auth';
 
 let adminApp: App | undefined;
 let adminDb: Firestore | undefined;
@@ -49,7 +49,15 @@ export function getAdminDb(): Firestore {
   return adminDb;
 }
 
-export function getAdminAuth(): Auth {
-  if (!adminAuth) adminAuth = getAuth(getAdminApp());
+/**
+ * Lazily imports firebase-admin/auth so its transitive deps (jwks-rsa → jose,
+ * which is ESM-only) never enter the module graph of pages that only need
+ * Firestore. Importing it at module scope crashes force-dynamic pages at runtime.
+ */
+export async function getAdminAuth(): Promise<Auth> {
+  if (!adminAuth) {
+    const { getAuth } = await import('firebase-admin/auth');
+    adminAuth = getAuth(getAdminApp());
+  }
   return adminAuth;
 }

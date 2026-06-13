@@ -51,11 +51,48 @@ function SignedInBar({
   );
 }
 
-function AdmittedDashboard({ me }: { me: ParticipantMe }) {
+function AdmittedDashboard({
+  me,
+  getIdToken,
+}: {
+  me: ParticipantMe;
+  getIdToken: () => Promise<string | null>;
+}) {
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [downloadError, setDownloadError] = useState('');
   const name = me.roster?.displayName ?? `${me.application?.firstName} ${me.application?.lastName}`;
   const stats = me.cohortStats;
   const submissionBySlug = new Map(me.submissions.map((s) => [s.projectSlug, s]));
   const submittedCount = me.submissions.filter((s) => s.merged).length;
+
+  async function downloadMyData() {
+    setDownloadStatus('loading');
+    setDownloadError('');
+    const idToken = await getIdToken();
+    if (!idToken) {
+      setDownloadStatus('error');
+      setDownloadError('Your session expired. Sign in again.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/me', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (!res.ok) throw new Error('Could not fetch your data.');
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `hult-cohort-data-${me.githubHandle}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setDownloadStatus('idle');
+    } catch (err) {
+      setDownloadStatus('error');
+      setDownloadError(err instanceof Error ? err.message : 'Download failed.');
+    }
+  }
 
   return (
     <div className={styles.participantPanel}>
@@ -123,6 +160,24 @@ function AdmittedDashboard({ me }: { me: ParticipantMe }) {
           );
         })}
       </ul>
+
+      <h2 className={styles.participantHeading}>Your data</h2>
+      <p className={styles.formNote} style={{ marginTop: 0 }}>
+        Download a JSON export of platform-held records (application, roster, submissions). To
+        request deletion of PII, email cohort@hult.edu — see{' '}
+        <Link href="/privacy">Privacy Policy</Link>.
+      </p>
+      <div className={styles.participantActions} style={{ marginTop: 0, marginBottom: 24 }}>
+        <button
+          type="button"
+          className={styles.secondaryBtn}
+          disabled={downloadStatus === 'loading'}
+          onClick={() => void downloadMyData()}
+        >
+          {downloadStatus === 'loading' ? 'Preparing download…' : 'Download my data'}
+        </button>
+      </div>
+      {downloadError ? <p className={styles.formError}>{downloadError}</p> : null}
 
       <h2 className={styles.participantHeading}>What to do next</h2>
       <ol className={styles.successSteps}>
@@ -302,6 +357,9 @@ export default function ApplyPage() {
             {authError && <p className={styles.formError}>{authError}</p>}
             <p className={styles.formNote}>
               We read your public GitHub username only. No repo access is requested at apply time.
+              By signing in you agree to the{' '}
+              <Link href="/terms">Terms of Service</Link> and{' '}
+              <Link href="/privacy">Privacy Policy</Link>.
             </p>
           </div>
         ) : (
@@ -310,7 +368,7 @@ export default function ApplyPage() {
             {statusError && <p className={styles.formError}>{statusError}</p>}
 
             {admitted && me ? (
-              <AdmittedDashboard me={me} />
+              <AdmittedDashboard me={me} getIdToken={getIdToken} />
             ) : me?.application?.status === 'take-home-submitted' ? (
               <StatusMessage
                 title="Take-home submitted."
@@ -410,6 +468,12 @@ export default function ApplyPage() {
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPublicWork" type="checkbox" required />
                     I understand my code, reviews, and projects will be public on GitHub.
+                  </label>
+                  <label className={styles.checkboxLabel}>
+                    <input name="confirmPolicies" type="checkbox" required />
+                    I agree to the{' '}
+                    <Link href="/terms">Terms of Service</Link> and{' '}
+                    <Link href="/privacy">Privacy Policy</Link>.
                   </label>
                 </fieldset>
 

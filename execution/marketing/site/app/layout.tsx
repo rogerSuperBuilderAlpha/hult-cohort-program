@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { JsonLdOrganization } from '@/components/JsonLdOrganization';
 import { SiteFooter } from '@/components/SiteFooter';
-import { FirebaseAnalytics } from '@/components/FirebaseAnalytics';
+import { ConsentGate } from '@/components/ConsentGate';
 import {
   DEFAULT_OG_DESCRIPTION,
   getSiteUrl,
@@ -73,7 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLdOrganization />
         {children}
         <SiteFooter />
-        <FirebaseAnalytics />
+        <ConsentGate />
       </body>
     </html>
   );

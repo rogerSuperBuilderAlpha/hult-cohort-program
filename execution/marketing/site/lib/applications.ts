@@ -1,6 +1,7 @@
 export type ApplicationConfirmations = {
   tuitionAffordable: boolean;
   publicWork: boolean;
+  policies: boolean;
 };
 
 export type ApplicationInput = {
@@ -48,9 +49,13 @@ function parseConfirmations(body: Record<string, string>): ApplicationConfirmati
   if (body.confirmPublicWork !== 'on') {
     throw new Error('You must confirm your work will be public on GitHub.');
   }
+  if (body.confirmPolicies !== 'on') {
+    throw new Error('You must agree to the Terms of Service and Privacy Policy.');
+  }
   return {
     tuitionAffordable: true,
     publicWork: true,
+    policies: true,
   };
 }
 

@@ -1411,4 +1411,60 @@
   .hero {
     padding: 48px 0 64px;
   }
+
+  .cookieBannerInner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cookieBannerActions {
+    justify-content: stretch;
+  }
+
+  .cookieBannerActions button {
+    flex: 1;
+  }
+}
+
+.cookieBanner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 16px 24px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.cookieBannerInner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+
+.cookieBannerText {
+  margin: 0;
+  flex: 1;
+  min-width: 240px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.cookieBannerText a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.cookieBannerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
 }

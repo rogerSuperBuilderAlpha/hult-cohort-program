@@ -1,0 +1,37 @@
+# Hult Cohort Program
+
+> Open-source curriculum and Next.js cohort platform for the Hult Cohort Developer Program — GitHub-native, agent-first, semester timeline.
+
+## Agent entry points
+
+- [AGENTS.md](AGENTS.md): Primary guide for AI coding agents — repo map, architecture, task routing
+- [CLAUDE.md](CLAUDE.md): Claude Code pointer to AGENTS.md
+- [CONTRIBUTING.md](CONTRIBUTING.md): Human contributor setup
+- [execution/marketing/site/AGENTS.md](execution/marketing/site/AGENTS.md): Next.js platform
+- [execution/ludwitt-hult-api/AGENTS.md](execution/ludwitt-hult-api/AGENTS.md): Phase 2 metrics API
+- [execution/admissions-take-home/AGENTS.md](execution/admissions-take-home/AGENTS.md): Applicant take-home
+
+## Vision & planning
+
+- [PROPOSAL.md](PROPOSAL.md): Full program proposal
+- [README.md](README.md): Repository overview
+- [WORKPLAN.md](WORKPLAN.md): Tier status and locked decisions
+- [DEVPLAN.md](DEVPLAN.md): Production hardening checklist
+- [PLATFORM.md](PLATFORM.md): Platform architecture (note: voting section may be stale)
+
+## Platform
+
+- [execution/marketing/FIREBASE.md](execution/marketing/FIREBASE.md): Firestore schema and auth
+- [execution/marketing/DEPLOY.md](execution/marketing/DEPLOY.md): Vercel deploy
+- Live site: https://site-nine-rouge-68.vercel.app
+- Site discovery: `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/manifest.webmanifest`
+
+## Curriculum
+
+- [curriculum/](curriculum/): 16-week program
+- [governance/](governance/): Voting, teams, credentials
+- [assessment/](assessment/): Metrics, pass/fail
+
+## License
+
+MIT — see [LICENSE](LICENSE)

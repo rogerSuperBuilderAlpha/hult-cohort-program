@@ -1,0 +1,37 @@
+---
+description: Next.js cohort platform — Firebase, API routes, peer review UI
+globs: execution/marketing/site/**/*
+alwaysApply: false
+---
+
+# Cohort platform (Next.js)
+
+Full guide: [execution/marketing/site/AGENTS.md](../../execution/marketing/site/AGENTS.md)
+
+## Stack
+
+Next.js 15 App Router · Firebase Auth (GitHub) · firebase-admin in API routes only · CSS modules (`app/page.module.css`)
+
+## Critical split
+
+```typescript
+// ✅ Client component — types/format only
+import type { CohortStats } from '@/lib/cohort-stats-types';
+
+// ❌ Never in 'use client' files
+import { getCohortStats } from '@/lib/cohort-stats-server';
+```
+
+## Peer review (implemented)
+
+1. Written review: GitHub issue `Review by @{voter}` → `POST .../written-reviews`
+2. Vote: `POST .../ratings` with `'up'|'down'` — 403 if no written review
+3. UI: collapsed accordion in `PeerReviewCard.tsx`
+
+## Program text
+
+Edit `content/program.ts`; personalize with `personalizeProgramText()` for `{peerCount}`, `{org}`, `{handle}`.
+
+## Env
+
+Copy `.env.example` → `.env.local`. Service account at `secrets/` (gitignored).

@@ -1,22 +1,32 @@
-import styles from '../page.module.css';
 import Link from 'next/link';
-import { SiteNav } from '@/components/SiteNav';
+import { SiteHeader } from '@/components/SiteHeader';
+import styles from '../page.module.css';
+import {
+  getCohortStats,
+} from '@/lib/cohort-stats-server';
+import {
+  formatPeerReviewsPerProject,
+  operatorRoleCount,
+} from '@/lib/cohort-stats-format';
 
 export const metadata = {
   title: 'Program Overview | Hult Cohort Developer Program',
   description: 'Full program structure for students, partners, and university stakeholders.',
 };
 
-export default function OverviewPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function OverviewPage() {
+  const cohortStats = await getCohortStats('fall26');
+  const peerReviewLine = formatPeerReviewsPerProject(cohortStats);
+  const operators =
+    cohortStats.enrolledCount > 0
+      ? `${operatorRoleCount(cohortStats.enrolledCount)} of ${cohortStats.enrolledCount} students`
+      : 'roughly 30% of the cohort';
+
   return (
     <main className={styles.main}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoMark}>Hult</span>
-          <span className={styles.logoSub}>Cohort</span>
-        </Link>
-        <SiteNav links={[{ href: '/', label: 'Home' }]} />
-      </header>
+      <SiteHeader links={[{ href: '/', label: 'Home' }]} />
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Program overview · Fall 2026</p>
@@ -36,7 +46,7 @@ export default function OverviewPage() {
           <p>Each cohort builds its own tool stack. Same loop three times:</p>
           <ol>
             <li>Everyone builds a production deployment</li>
-            <li>Everyone reviews everyone (~29 reviews per project)</li>
+            <li>Everyone reviews everyone ({peerReviewLine})</li>
             <li>The cohort votes; the winner operates the live platform</li>
             <li>Everyone else engages as developer/users (PRs, issues, QA)</li>
           </ol>
@@ -47,7 +57,7 @@ export default function OverviewPage() {
           </ul>
           <p>
             Three winners unify their platforms and each draft 10% of the cohort for leadership
-            teams — 12 of 30 students in recognized operator roles.
+            teams — {operators} in recognized operator roles.
           </p>
         </section>
 
@@ -114,10 +124,6 @@ export default function OverviewPage() {
           </Link>
         </div>
       </article>
-
-      <footer className={styles.footer}>
-        <p>Full proposal available to university stakeholders on request.</p>
-      </footer>
     </main>
   );
 }

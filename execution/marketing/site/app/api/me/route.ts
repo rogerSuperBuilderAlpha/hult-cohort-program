@@ -1,4 +1,6 @@
 import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { getCohortStats } from '@/lib/cohort-stats-server';
+import { getParticipantSubmissions } from '@/lib/submissions-server';
 import type { ApplicationStatus, ParticipantMe } from '@/lib/participant-status';
 import {
   bearerTokenFromRequest,
@@ -30,9 +32,11 @@ export async function GET(request: Request) {
     const db = getAdminDb();
     const cohort = 'fall26';
 
-    const [appSnap, rosterDoc] = await Promise.all([
+    const [appSnap, rosterDoc, cohortStats, submissions] = await Promise.all([
       db.collection('applications').where('githubHandle', '==', githubHandle).limit(5).get(),
       db.collection('roster').doc(cohort).collection('members').doc(githubHandle).get(),
+      getCohortStats(cohort),
+      getParticipantSubmissions(cohort, githubHandle),
     ]);
 
     const applicationDoc = appSnap.docs.find((d) => d.data().cohort === cohort);
@@ -42,6 +46,8 @@ export async function GET(request: Request) {
 
     const payload: ParticipantMe = {
       githubHandle,
+      cohortStats,
+      submissions,
       application: appData
         ? {
             id: applicationDoc!.id,

@@ -5,6 +5,8 @@ export type ProgramProject = {
   title: string;
   weeks: string;
   summary: string;
+  /** Longer narrative shown at top of project page */
+  description: string;
   voteWeek: boolean;
   expectations: string[];
   submission: {
@@ -14,7 +16,6 @@ export type ProgramProject = {
     deadlineNote: string;
   };
   reviews?: {
-    count: number;
     artifact: string;
     dueNote: string;
   };
@@ -30,6 +31,8 @@ export const programProjects: ProgramProject[] = [
     weeks: 'Week 1',
     summary:
       'Verify tooling, learn the PR loop, and complete bootstrap work on Discord before cohort-owned platforms exist.',
+    description:
+      'Week 1 is setup — not a build contest. You confirm Cursor + Claude Code, accept your GitHub org invite, and complete your first PR in the cohort roster repo. After the refund window closes, the roster locks and Phase 1 begins.',
     voteWeek: false,
     expectations: [
       'Cursor + Claude Code active ($400/mo combined)',
@@ -52,18 +55,21 @@ export const programProjects: ProgramProject[] = [
   {
     slug: 'phase-1-project-1',
     phase: 'phase-1',
-    phaseLabel: 'Phase 1 · Project 1',
+    phaseLabel: 'Project 1 · Weeks 2–4',
     title: 'Project management platform',
     weeks: 'Weeks 2–4',
     summary:
-      'Build a production PM platform for 30 developers. Winner operates the cohort PM system for the rest of the semester.',
+      'Build the PM tool the entire cohort will use to track projects, tasks, and assignments for the rest of the semester.',
+    description:
+      'Every student builds their own production project-management platform in `pm-{handle}`. The winner becomes the live system the cohort runs on — real accounts for every enrolled student, real projects, real deadlines. You are not building a demo for a portfolio; you are building infrastructure your classmates will depend on. After review week, the repo with the most private 👍 votes operates the cohort PM stack until Phase 2.',
     voteWeek: true,
     expectations: [
       'Build solo in public repo `pm-{handle}` in the cohort org',
       'Deploy to production HTTPS before deadline',
-      'Support ≥30 accounts, projects, tasks, assignments, status workflow',
-      'Complete 29 peer reviews during review week',
-      'Cast ranked-choice ballot (top 3 merged builds)',
+      'Support all enrolled accounts, projects, tasks, assignments, status workflow',
+      'Rate every other participant 👍 or 👎 on the platform (private until results post)',
+      'Winner = repo with the most thumbs up after review week',
+      'File a public GitHub review issue on each peer repo before you can vote on their build',
       'If you lose: become developer/user on the winning platform (≥2 PRs/cycle)',
     ],
     submission: {
@@ -79,24 +85,30 @@ export const programProjects: ProgramProject[] = [
       deadlineNote: 'PR merged to main by Thu week 4, 17:00 — unmerged PRs ineligible for ballot',
     },
     reviews: {
-      count: 29,
-      artifact: 'GitHub issue `Review by @{you}` on each peer repo (see peer-review-system.md)',
+      artifact: 'GitHub issue `Review by @{you}` on each peer repo, then private 👍/👎 here',
       dueNote: 'Fri week 4, 14:00',
     },
-    passGate: ['Submission PR merged or eligible miss documented', '29/29 reviews', 'Vote submitted'],
+    passGate: [
+      'Submission PR merged or eligible miss documented',
+      '{peerCount}/{peerCount} written GitHub reviews',
+      '{peerCount}/{peerCount} private votes',
+    ],
   },
   {
     slug: 'phase-1-project-2',
     phase: 'phase-1',
-    phaseLabel: 'Phase 1 · Project 2',
+    phaseLabel: 'Project 2 · Weeks 5–6',
     title: 'Internal comms platform',
     weeks: 'Weeks 5–6',
-    summary: 'Build the comms stack the cohort lives in after Discord bootstrap ends.',
+    summary:
+      'Build how the cohort communicates as a group — replacing Discord with a production comms stack you own.',
+    description:
+      'Discord gets you through week 1. Project 2 is the comms platform the cohort actually lives in: channels, DMs, notifications, or async threads — your design, but it must work for every enrolled student. Integrate with the winning PM platform where it makes sense (deep links, shared auth, task notifications). Winner operates cohort comms for the rest of the semester.',
     voteWeek: true,
     expectations: [
       'Build in `comms-{handle}`; integrate with winning PM platform where sensible',
-      'Real-time or async comms for 30+ users',
-      '29 peer reviews + ranked-choice vote on merged submissions',
+      'Real-time or async comms for all enrolled users',
+      'File GitHub review on each peer, then private 👍/👎 vote (most 👍 wins)',
     ],
     submission: {
       repoPattern: '{org}/comms-{handle}',
@@ -104,21 +116,31 @@ export const programProjects: ProgramProject[] = [
       prBodyMustInclude: ['Production URL', 'PM platform integration notes', 'Agent usage'],
       deadlineNote: 'PR merged by Thu week 6, 17:00',
     },
-    reviews: { count: 29, artifact: 'GitHub review issue per peer', dueNote: 'Fri week 6, 14:00' },
-    passGate: ['Merged submission PR', '29/29 reviews', 'Vote submitted'],
+    reviews: {
+      artifact: 'GitHub issue per peer, then private 👍/👎',
+      dueNote: 'Fri week 6, 14:00',
+    },
+    passGate: [
+      'Merged submission PR',
+      '{peerCount}/{peerCount} written reviews',
+      '{peerCount}/{peerCount} private votes',
+    ],
   },
   {
     slug: 'phase-1-project-3',
     phase: 'phase-1',
-    phaseLabel: 'Phase 1 · Project 3',
+    phaseLabel: 'Project 3 · Weeks 7–8',
     title: 'Public showcase platform',
     weeks: 'Weeks 7–8',
-    summary: 'Build the hiring-partner-facing showcase. Winner operates public profiles for the cohort.',
+    summary:
+      'Build the public-facing website that promotes the cohort to hiring partners and the world.',
+    description:
+      'This is the cohort’s storefront. Every student gets a public profile linking their GitHub trail, projects, and deploy URLs. Hiring partners browse here before week-16 showcase. Winner operates the public showcase — the face of the cohort outside the org. Profiles must cover every enrolled member; partner-facing README and sample URLs required in your submission PR.',
     voteWeek: true,
     expectations: [
       'Build in `showcase-{handle}`',
       'Public profiles linking GitHub trail for every cohort member',
-      '29 reviews + vote; winners begin ecosystem unification',
+      'GitHub review + private vote per peer; most 👍 wins',
     ],
     submission: {
       repoPattern: '{org}/showcase-{handle}',
@@ -126,8 +148,15 @@ export const programProjects: ProgramProject[] = [
       prBodyMustInclude: ['Production URL', 'Sample profile URLs', 'Partner-facing README'],
       deadlineNote: 'PR merged by Thu week 8, 17:00',
     },
-    reviews: { count: 29, artifact: 'GitHub review issue per peer', dueNote: 'Fri week 8, 14:00' },
-    passGate: ['Merged submission PR', '29/29 reviews', 'Vote submitted'],
+    reviews: {
+      artifact: 'GitHub issue per peer, then private 👍/👎',
+      dueNote: 'Fri week 8, 14:00',
+    },
+    passGate: [
+      'Merged submission PR',
+      '{peerCount}/{peerCount} written reviews',
+      '{peerCount}/{peerCount} private votes',
+    ],
   },
   {
     slug: 'phase-1-unification',
@@ -136,6 +165,8 @@ export const programProjects: ProgramProject[] = [
     title: 'Ecosystem unification',
     weeks: 'Week 8',
     summary: 'Three winners merge PM + comms + showcase into one linked ecosystem.',
+    description:
+      'The three Phase 1 winners collaborate to unify PM, comms, and showcase into a single linked ecosystem — shared navigation, SSO or deep links, and a cutover plan for the rest of the cohort. Everyone else contributes PRs to the winning platforms as developer/users.',
     voteWeek: false,
     expectations: [
       'Winners collaborate in `ecosystem-integration` repo',
@@ -153,10 +184,13 @@ export const programProjects: ProgramProject[] = [
   {
     slug: 'phase-2-learning-app',
     phase: 'phase-2',
-    phaseLabel: 'Phase 2 · Project 1',
-    title: 'Learning app on Ludwitt/Hult',
+    phaseLabel: 'Project 4 · Weeks 9–11',
+    title: 'Learning application',
     weeks: 'Weeks 9–11',
-    summary: 'Individual app on any topic. Success = ≥25 external users counted by platform API.',
+    summary:
+      'Build a learning app that helps real people learn a topic you choose — success is measured by external users.',
+    description:
+      'Pick any topic — algorithms, finance, language, interview prep — and ship a production learning app registered on the Ludwitt/Hult platform. The bar is real usage: ≥25 external users counted by the platform API on deadline day, not self-reported numbers. Promote it; the market judges whether anyone actually learns from what you built.',
     voteWeek: false,
     expectations: [
       'Register app via Ludwitt/Hult API; JWT + events working',
@@ -179,10 +213,13 @@ export const programProjects: ProgramProject[] = [
   {
     slug: 'phase-2-venture',
     phase: 'phase-2',
-    phaseLabel: 'Phase 2 · Project 2',
-    title: 'Venture',
+    phaseLabel: 'Project 5 · Weeks 12–15',
+    title: 'Startup venture',
     weeks: 'Weeks 12–15',
-    summary: 'Market research, business plan, investor materials, and production app with ≥25 users.',
+    summary:
+      'Full startup package: investor deck, business plan, and a production-grade platform ready for real users.',
+    description:
+      'Treat this like founding a company. Market research, business plan, investor materials, and a production app with ≥25 real users — same metrics bar as Project 4. Document at least one investor touch (pitch email, call, or meeting — redact PII in your PR). The repo is `venture-{handle}`; everything lives in GitHub, not a slide deck sent over email.',
     voteWeek: false,
     expectations: [
       'Venture docs and app in `venture-{handle}`',
@@ -205,14 +242,18 @@ export const programProjects: ProgramProject[] = [
   {
     slug: 'phase-2-open-source',
     phase: 'phase-2',
-    phaseLabel: 'Phase 2 · Project 3',
+    phaseLabel: 'Project 6 · Weeks 9–16',
     title: 'Open source contribution',
     weeks: 'Weeks 9–16 (continuous)',
-    summary: '≥1 merged PR to a qualified repo (≥1k stars). Tracked via cohort PR, not a form.',
+    summary:
+      'Get at least one PR merged into a qualified open-source project — tracked via a cohort tracking PR.',
+    description:
+      'Contribute to open source the way professionals do: pick an upstream repo, open a real PR, get it merged. Track progress in `oss-{handle}` in the cohort org with links to your upstream PR.\n\n**Starter targets** (good while you work toward larger platforms):\n- [cursorboston.com](https://cursorboston.com) — community site with a GUI; approachable first merge\n- [algorithmacy.org](https://algorithmacy.org) — research/education project; contributions may be docs, server-side code, or repo-only — not everything has a web UI\n\nYou can also target major repos (≥1k stars) or staff-approved equivalents. Not all open source is a website: libraries, CLIs, APIs, and research repos count. The pass gate is one merged upstream PR before cohort end.',
     voteWeek: false,
     expectations: [
-      'Target repo from qualified list or staff-approved equivalent',
-      'Open tracking PR in cohort org linking upstream PR',
+      'Open tracking PR in cohort org linking upstream repo + PR',
+      'Consider cursorboston.com or algorithmacy.org for an early merge while pursuing larger targets',
+      'Upstream may be GUI, server-side, CLI, or docs-only — match the repo’s contribution model',
       'Update tracking PR when upstream merges',
     ],
     submission: {

@@ -1,4 +1,5 @@
 import type { ProgramProject } from '@/content/program';
+import type { CohortStats } from './cohort-stats-types';
 import { cohortOrgUrl } from './cohort-config';
 import { personalizeProgramText } from './personalize-program';
 
@@ -126,9 +127,10 @@ function workflowSteps(project: ProgramProject, handle: string, org: string): st
 export function buildProjectAgentPrompt(
   project: ProgramProject,
   handle: string,
-  org: string
+  org: string,
+  stats?: CohortStats | null
 ): string {
-  const p = (text: string) => personalizeProgramText(text, handle, org);
+  const p = (text: string) => personalizeProgramText(text, handle, org, stats);
   const repo = p(project.submission.repoPattern);
   const prTitle = p(project.submission.prTitle);
   const interview = extraInterviewQuestions(project);
@@ -163,15 +165,20 @@ export function buildProjectAgentPrompt(
     ...prBodyItems.map((item) => `- ${item}`),
     ``,
     `## Pass gate (submission must satisfy)`,
-    ...project.passGate.map((item) => `- ${item}`),
+    ...project.passGate.map((item) => `- ${p(item)}`),
   ];
 
   if (project.reviews) {
+    const reviewCount =
+      stats && stats.enrolledCount > 0
+        ? `${stats.peerReviewCount} written GitHub reviews + ${stats.peerReviewCount} private votes`
+        : 'Review every peer on GitHub, then vote 👍/👎 on the platform';
     lines.push(
       ``,
-      `## Peer review (after submission week)`,
-      `- ${project.reviews.count} reviews required`,
-      `- Artifact: ${p(project.reviews.artifact)}`,
+      `## Peer review & vote (review week)`,
+      `- ${reviewCount}`,
+      `- Order: try deploy → read PR → file GitHub issue "Review by @{handle}" → then 👍/👎 here`,
+      `- Votes are private; winner = most thumbs up`,
       `- Due: ${project.reviews.dueNote}`
     );
   }
@@ -179,9 +186,10 @@ export function buildProjectAgentPrompt(
   if (project.voteWeek) {
     lines.push(
       ``,
-      `## Vote week`,
-      `- Rank top 3 merged peer submission PRs (not my own).`,
-      `- Voting UI opens during review week for enrolled participants.`
+      `## Winner selection`,
+      `- Winner = repo with the most thumbs up after review week closes.`,
+      `- Written reviews are public on GitHub; 👍/👎 votes stay private until results.`,
+      `- I cannot vote on my own submission.`
     );
   }
 
@@ -214,6 +222,9 @@ export function buildProjectAgentPrompt(
   return lines.join('\n');
 }
 
-export function buildPublicAgentPrompt(project: ProgramProject): string {
-  return buildProjectAgentPrompt(project, '{handle}', '{org}');
+export function buildPublicAgentPrompt(
+  project: ProgramProject,
+  stats?: CohortStats | null
+): string {
+  return buildProjectAgentPrompt(project, '{handle}', '{org}', stats);
 }

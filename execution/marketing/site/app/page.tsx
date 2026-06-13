@@ -1,27 +1,30 @@
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
+import { SiteHeader } from '@/components/SiteHeader';
+import { getCohortStats } from '@/lib/cohort-stats-server';
+import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
 
 const OVERVIEW_URL = process.env.NEXT_PUBLIC_OVERVIEW_URL || '/overview';
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const cohortStats = await getCohortStats('fall26');
+  const cohortSizeLine = formatCohortSizeLine(cohortStats);
+
   return (
     <main className={styles.main}>
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <span className={styles.logoMark}>Hult</span>
-          <span className={styles.logoSub}>Cohort</span>
-        </div>
-        <nav className={styles.nav}>
-          <a href="#program">Program</a>
-          <a href="/program">Journey</a>
-          <a href="#cost">Cost</a>
-          <a href="#faq">FAQ</a>
-          <ParticipantCta variant="nav" />
-        </nav>
-      </header>
+      <SiteHeader
+        links={[
+          { href: '#program', label: 'Program' },
+          { href: '/program', label: 'Journey' },
+          { href: '#cost', label: 'Cost' },
+          { href: '#faq', label: 'FAQ' },
+        ]}
+      />
 
       <section className={styles.hero}>
-        <p className={`${styles.eyebrow} animate-in`}>Fall 2026 · Boston + Online</p>
+        <p className={`${styles.eyebrow} animate-in`}>Dare Mighty Things · Fall 2026</p>
         <h1 className={`${styles.headline} animate-in delay-1`}>
           Pay once.<br />
           Ship six production projects.<br />
@@ -154,17 +157,9 @@ export default function Home() {
           <li>48-hour take-home: fix a repo, open a PR</li>
           <li>Decision within 2 weeks</li>
         </ol>
-        <p>Cohort size: 30 · Apply by August 15, 2026</p>
+        <p>{cohortSizeLine} · Apply by August 15, 2026</p>
         <ParticipantCta />
       </section>
-
-      <footer className={styles.footer}>
-        <p>Hult Cohort Developer Program · cohort@hult.edu</p>
-        <p className={styles.legal}>
-          Program Agreement and Expectations Acknowledgment required at enrollment.
-          Job placement terms subject to published criteria.
-        </p>
-      </footer>
     </main>
   );
 }

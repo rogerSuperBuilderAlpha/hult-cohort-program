@@ -1,18 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Outfit:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-  --bg: #0a0b0d;
-  --bg-elevated: #12141a;
-  --bg-card: #161922;
-  --text: #e8eaef;
-  --text-muted: #8b919e;
-  --accent: #c41e3a;
-  --accent-dim: rgba(196, 30, 58, 0.15);
-  --border: rgba(255, 255, 255, 0.08);
-  --mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --serif: 'Newsreader', Georgia, serif;
-  --sans: 'Outfit', system-ui, sans-serif;
-  --grid: rgba(255, 255, 255, 0.03);
+  /* Hult brand palette (hult.edu / EF brand refresh) */
+  --hult-ivory: #f2f3ee;
+  --hult-black: #0e0e0c;
+  --hult-red: #a81202;
+  --hult-red-hover: #bb2c15;
+  --hult-gray: #a2a4a0;
+  --hult-gray-dark: #605c59;
+  --hult-sage: #74857c;
+  --hult-gold: #c49c2f;
+
+  --bg: var(--hult-ivory);
+  --bg-elevated: #ffffff;
+  --bg-card: #ffffff;
+  --bg-subtle: rgba(14, 14, 12, 0.04);
+  --bg-subtle-hover: rgba(14, 14, 12, 0.06);
+  --text: var(--hult-black);
+  --text-muted: var(--hult-gray-dark);
+  --accent: var(--hult-red);
+  --accent-hover: var(--hult-red-hover);
+  --accent-dim: rgba(168, 18, 2, 0.08);
+  --border: rgba(14, 14, 12, 0.12);
+  --border-strong: rgba(14, 14, 12, 0.2);
+  --success: var(--hult-sage);
+  --success-dim: rgba(116, 133, 124, 0.12);
+  --success-border: rgba(116, 133, 124, 0.35);
+  --mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  --serif: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --shadow-sm: 0 1px 3px rgba(14, 14, 12, 0.06);
+  --shadow-md: 0 8px 24px rgba(14, 14, 12, 0.08);
+  --shadow-accent: 0 8px 24px rgba(168, 18, 2, 0.2);
 }
 
 * {
@@ -33,23 +52,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Subtle brand shape accent — inspired by Hult chart/graph motifs */
 body::before {
   content: '';
   position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-dim), transparent);
+  top: -120px;
+  right: -80px;
+  width: 420px;
+  height: 420px;
+  background: linear-gradient(135deg, rgba(116, 133, 124, 0.12) 0%, rgba(196, 156, 47, 0.08) 100%);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -64,10 +76,14 @@ a {
   text-decoration: none;
 }
 
+a:hover {
+  color: var(--accent);
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -76,11 +92,11 @@ a {
 }
 
 .animate-in {
-  animation: fadeUp 0.8s ease forwards;
+  animation: fadeUp 0.7s ease forwards;
   opacity: 0;
 }
 
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.35s; }
-.delay-4 { animation-delay: 0.5s; }
+.delay-1 { animation-delay: 0.08s; }
+.delay-2 { animation-delay: 0.16s; }
+.delay-3 { animation-delay: 0.24s; }
+.delay-4 { animation-delay: 0.32s; }

@@ -1,0 +1,14 @@
+/* TEAM */
+Program: Hult Cohort Developer Program
+Site: https://site-nine-rouge-68.vercel.app
+GitHub: https://github.com/rogerSuperBuilderAlpha/hult-cohort-program
+Repository: open source (MIT)
+
+/* THANKS */
+Cursor Boston cohort model
+Contributors and peer reviewers
+
+/* SITE */
+Last update: 2026-06-12
+Standards: HTML5, CSS3, Next.js App Router
+Components: Firebase Auth, Firestore, Vercel

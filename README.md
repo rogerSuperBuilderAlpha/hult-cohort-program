@@ -1,6 +1,11 @@
 # Hult Cohort Program
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-a81202.svg)](LICENSE)
+[![CI](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions/workflows/marketing-site.yml/badge.svg)](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions)
+
 A cohort-based developer program at Hult International University, modeled on the Cursor Boston cohorts over a one-semester timeline.
+
+**Open source:** curriculum, governance docs, and platform code are published under the [MIT License](LICENSE). Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## The goal
 
@@ -75,3 +80,20 @@ execution/                   Launch-ready artifacts (legal drafts, templates, ad
 **Design phase:** complete — all curriculum, governance, assessment, and business docs are expanded.
 
 **Execution phase:** use [execution/](execution/) — includes a **runnable Next.js landing page** (`execution/marketing/site`), Ludwitt/Hult API, admissions take-home, and launch checklists.
+
+**AI agents:** read [AGENTS.md](AGENTS.md) first.
+
+Live demo: [site-nine-rouge-68.vercel.app](https://site-nine-rouge-68.vercel.app) (requires Firebase env on deploy).
+
+## Open source
+
+| | |
+|---|---|
+| **License** | [MIT](LICENSE) |
+| **Agents** | [AGENTS.md](AGENTS.md) · [llms.txt](llms.txt) · [.cursor/rules/](.cursor/rules/) |
+| **Site SEO** | Live: `/robots.txt`, `/sitemap.xml`, `/llms.txt`, OG images (see `execution/marketing/site/app/`) |
+| **Contribute** | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| **Conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
+| **Security** | [SECURITY.md](SECURITY.md) — report vulnerabilities privately |
+
+Fork, adapt, or reuse this curriculum for your own cohort. Student project repos in the cohort GitHub org use the MIT template in [execution/templates/cohort-project-template/](execution/templates/cohort-project-template/).

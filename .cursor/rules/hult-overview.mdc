@@ -1,0 +1,32 @@
+---
+description: Hult Cohort Program — repo map and agent conventions (always read first)
+alwaysApply: true
+---
+
+# Hult Cohort Program
+
+Read [AGENTS.md](../../AGENTS.md) for the full task routing table and Firestore schema.
+
+**North star:** Next.js cohort platform on Vercel + Firebase. Submissions = GitHub PRs. Phase 1 voting = written GitHub review → private 👍/👎 per peer.
+
+**Live:** https://site-nine-rouge-68.vercel.app · **Code:** `execution/marketing/site/`
+
+## Quick map
+
+- Curriculum/docs → `curriculum/`, `governance/`, `assessment/`
+- Platform code → `execution/marketing/site/`
+- Program copy (source of truth for weeks) → `execution/marketing/site/content/program.ts`
+- Firebase → `execution/marketing/FIREBASE.md`
+
+## Rules
+
+1. Minimal diffs; match existing patterns.
+2. Never commit secrets (`.env.local`, service account JSON).
+3. Split `firebase-admin` into `*-server.ts` — never import in client components.
+4. Cohort size is dynamic from roster, not hardcoded.
+5. ⚠️ `PLATFORM.md` / `governance/winner-selection.md` describe old ranked-choice voting — **implemented model is 👍/👎** in `ratings-server.ts`.
+
+## Before finishing
+
+- Site changes: `cd execution/marketing/site && npm run build`
+- API packages: `npm test` in the package directory

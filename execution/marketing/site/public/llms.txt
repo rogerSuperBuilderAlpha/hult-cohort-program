@@ -1,0 +1,35 @@
+# Hult Cohort Developer Program
+
+> Open-source curriculum and cohort platform — GitHub-native, agent-first, Fall 2026 semester.
+
+## Public site
+
+- [Home](https://site-nine-rouge-68.vercel.app/): Landing page and apply CTA
+- [Program overview](https://site-nine-rouge-68.vercel.app/overview): Full participant journey
+- [All projects](https://site-nine-rouge-68.vercel.app/program): Every phase and project
+- [Apply](https://site-nine-rouge-68.vercel.app/apply): Fall 2026 application
+- [Sitemap](https://site-nine-rouge-68.vercel.app/sitemap.xml)
+- [Robots](https://site-nine-rouge-68.vercel.app/robots.txt)
+
+## Program projects
+
+- [Onboarding](https://site-nine-rouge-68.vercel.app/program/onboarding)
+- [Project 1 — PM platform](https://site-nine-rouge-68.vercel.app/program/phase-1-project-1)
+- [Project 2 — Comms](https://site-nine-rouge-68.vercel.app/program/phase-1-project-2)
+- [Project 3 — Public showcase](https://site-nine-rouge-68.vercel.app/program/phase-1-project-3)
+- [Phase 1 unification](https://site-nine-rouge-68.vercel.app/program/phase-1-unification)
+- [Project 4 — Learning app](https://site-nine-rouge-68.vercel.app/program/phase-2-learning-app)
+- [Project 5 — Venture](https://site-nine-rouge-68.vercel.app/program/phase-2-venture)
+- [Project 6 — Open source](https://site-nine-rouge-68.vercel.app/program/phase-2-open-source)
+
+## Open-source repository
+
+- [GitHub — hult-cohort-program](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program)
+- [AGENTS.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/AGENTS.md): Guide for AI coding agents
+- [CONTRIBUTING.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/CONTRIBUTING.md)
+- [LICENSE (MIT)](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/LICENSE)
+- [SECURITY.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/SECURITY.md)
+
+## License
+
+MIT

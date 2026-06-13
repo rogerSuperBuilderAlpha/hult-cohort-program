@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { SiteNav } from '@/components/SiteNav';
+import { SiteHeader } from '@/components/SiteHeader';
 import styles from '../page.module.css';
 import { programProjects } from '../../content/program';
 
@@ -15,21 +15,15 @@ export default function ProgramIndexPage() {
 
   return (
     <main className={styles.main}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoMark}>Hult</span>
-          <span className={styles.logoSub}>Cohort</span>
-        </Link>
-        <SiteNav links={[{ href: '/', label: 'Home' }]} />
-      </header>
+      <SiteHeader links={[{ href: '/', label: 'Home' }]} />
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Participant journey</p>
         <h1 className={styles.sectionTitle}>Every project. Clear expectations. PRs as proof.</h1>
         <p className={styles.overviewLead}>
           You do not submit links in a form. You open a PR in the cohort org with your deploy URL,
-          metrics, and agent notes. Phase 1 contest weeks add peer review and ranked-choice voting
-          on merged submission PRs.
+          metrics, and agent notes. Phase 1 contest weeks: rate every peer build 👍 or 👎 on the
+          platform (private). The repo with the most thumbs up wins.
         </p>
 
         <Section title="Onboarding" projects={onboarding} />
@@ -57,6 +51,7 @@ function Section({
               <span className={styles.programWeeks}>{p.weeks}</span>
               <span className={styles.programTitle}>{p.title}</span>
               {p.voteWeek && <span className={styles.voteBadge}>Vote week</span>}
+              <span className={styles.programSummary}>{p.summary}</span>
             </Link>
           </li>
         ))}

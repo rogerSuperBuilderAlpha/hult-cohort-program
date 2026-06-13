@@ -1,3 +1,6 @@
+import type { CohortStats } from './cohort-stats-types';
+import type { SubmissionEntry } from './submissions-types';
+
 export type ApplicationStatus =
   | 'submitted'
   | 'take-home-sent'
@@ -8,6 +11,8 @@ export type ApplicationStatus =
 
 export type ParticipantMe = {
   githubHandle: string;
+  cohortStats: CohortStats;
+  submissions: SubmissionEntry[];
   application: {
     id: string;
     status: ApplicationStatus;

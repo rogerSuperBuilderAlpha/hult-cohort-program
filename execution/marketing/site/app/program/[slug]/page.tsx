@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ProgramDescription } from '@/components/ProgramDescription';
 import { ProgramProjectView } from '@/components/ProgramProjectView';
-import { SiteNav } from '@/components/SiteNav';
+import { SiteHeader } from '@/components/SiteHeader';
+import { getSiteUrl } from '@/lib/site-config';
 import styles from '../../page.module.css';
 import { getProject, programProjects } from '../../../content/program';
 
@@ -13,9 +15,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) return { title: 'Not found' };
+
+  const url = `${getSiteUrl()}/program/${slug}`;
+
   return {
-    title: `${project.title} | Hult Cohort Program`,
+    title: project.title,
     description: project.summary,
+    openGraph: {
+      title: `${project.title} | Hult Cohort Program`,
+      description: project.summary,
+      url,
+      type: 'article',
+    },
+    alternates: { canonical: url },
   };
 }
 
@@ -37,18 +49,13 @@ export default async function ProgramProjectPage({
 
   return (
     <main className={styles.main}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoMark}>Hult</span>
-          <span className={styles.logoSub}>Cohort</span>
-        </Link>
-        <SiteNav links={[{ href: '/program', label: 'Program' }]} />
-      </header>
+      <SiteHeader links={[{ href: '/program', label: 'Program' }]} />
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>{project.phaseLabel}</p>
         <h1 className={styles.sectionTitle}>{project.title}</h1>
         <p className={styles.overviewLead}>{project.summary}</p>
+        <ProgramDescription text={project.description} />
 
         <ProgramProjectView project={project} prevSlug={prevSlug} nextSlug={nextSlug} />
 

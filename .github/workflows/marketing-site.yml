@@ -1,8 +1,15 @@
-name: CI
+name: Marketing site CI
 
-# Disabled — private repo Actions billing; deploy via Vercel CLI instead.
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'execution/marketing/site/**'
+      - '.github/workflows/marketing-site.yml'
+  pull_request:
+    paths:
+      - 'execution/marketing/site/**'
+      - '.github/workflows/marketing-site.yml'
 
 defaults:
   run:
@@ -10,7 +17,21 @@ defaults:
 
 jobs:
   build:
-    if: false
     runs-on: ubuntu-latest
     steps:
-      - run: echo "skipped"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: execution/marketing/site/package-lock.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          # Build-time placeholders — real values only on Vercel
+          NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '0'
+          NEXT_PUBLIC_FIREBASE_APP_ID: '1:0:web:0'

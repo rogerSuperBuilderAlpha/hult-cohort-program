@@ -29,3 +29,17 @@ Pull review completion counts from cohort org (requires `GITHUB_TOKEN`):
 ```bash
 GITHUB_TOKEN=ghp_... node github-metrics-export.js hult-cohort-fall26-boston
 ```
+
+## seed-demo-cohort.mjs
+
+Seed demo students into Firestore for UI testing (roster + applications + submissions + ballots).
+
+Run from `execution/marketing/site`:
+
+```bash
+node scripts/seed-demo-cohort.mjs --count=45
+node scripts/backfill-roster-submissions.mjs   # existing real roster members
+node scripts/seed-demo-cohort.mjs --dry-run    # preview only
+```
+
+Demo handles use prefix `demo-` and email `@demo.hult-cohort.test`. Marked with `demoSeed: true` for later cleanup.

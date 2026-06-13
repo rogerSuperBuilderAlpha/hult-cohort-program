@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { SiteNav } from '@/components/SiteNav';
+import { SiteHeader } from '@/components/SiteHeader';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import type { ParticipantMe } from '@/lib/participant-status';
 import { isAdmitted, isApplicantInFlight } from '@/lib/participant-status';
 import { readApplicationApiError } from '@/lib/read-application-api-error';
 import { useParticipantStatus } from '@/lib/use-participant-status';
+import { programProjects } from '@/content/program';
 import styles from '../page.module.css';
 
 const DEFAULT_TAKE_HOME =
@@ -49,6 +50,9 @@ function SignedInBar({
 
 function AdmittedDashboard({ me }: { me: ParticipantMe }) {
   const name = me.roster?.displayName ?? `${me.application?.firstName} ${me.application?.lastName}`;
+  const stats = me.cohortStats;
+  const submissionBySlug = new Map(me.submissions.map((s) => [s.projectSlug, s]));
+  const submittedCount = me.submissions.filter((s) => s.merged).length;
 
   return (
     <div className={styles.participantPanel}>
@@ -67,9 +71,55 @@ function AdmittedDashboard({ me }: { me: ParticipantMe }) {
         </dd>
         <dt>Campus</dt>
         <dd>{me.roster?.campus ?? me.application?.campus ?? '—'}</dd>
+        <dt>Cohort</dt>
+        <dd>
+          {stats.enrolledCount > 0 ? (
+            <>
+              {stats.enrolledCount} enrolled · {stats.peerReviewCount} peer reviews per Phase 1
+              project
+            </>
+          ) : (
+            'Enrollment filling'
+          )}
+        </dd>
         <dt>Status</dt>
         <dd>Enrolled participant</dd>
       </dl>
+
+      <h2 className={styles.participantHeading}>Your submissions</h2>
+      <p className={styles.formNote} style={{ marginTop: 0 }}>
+        {submittedCount} of {programProjects.length} program weeks with merged PRs on file.
+      </p>
+      <ul className={styles.onboardingChecklist}>
+        {programProjects.map((project) => {
+          const entry = submissionBySlug.get(project.slug);
+          return (
+            <li key={project.slug}>
+              <strong>{project.phaseLabel}</strong> — {project.title}
+              {entry?.merged ? (
+                <>
+                  {' '}
+                  ·{' '}
+                  <a href={entry.prUrl} target="_blank" rel="noopener noreferrer">
+                    merged PR
+                  </a>
+                  {entry.deployUrl ? (
+                    <>
+                      {' '}
+                      ·{' '}
+                      <a href={entry.deployUrl} target="_blank" rel="noopener noreferrer">
+                        deploy
+                      </a>
+                    </>
+                  ) : null}
+                </>
+              ) : (
+                <> · not submitted yet</>
+              )}
+            </li>
+          );
+        })}
+      </ul>
 
       <h2 className={styles.participantHeading}>What to do next</h2>
       <ol className={styles.successSteps}>
@@ -202,13 +252,7 @@ export default function ApplyPage() {
 
   return (
     <main className={styles.main}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoMark}>Hult</span>
-          <span className={styles.logoSub}>Cohort</span>
-        </Link>
-        <SiteNav links={[{ href: '/program', label: 'Program' }, { href: '/', label: 'Home' }]} />
-      </header>
+      <SiteHeader links={[{ href: '/program', label: 'Program' }, { href: '/', label: 'Home' }]} />
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>

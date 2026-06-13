@@ -58,16 +58,43 @@ export function githubHandleCandidates(
   return handles;
 }
 
+function githubHeaders(): HeadersInit {
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'hult-cohort-apply',
+  };
+  const token = process.env.GITHUB_TOKEN?.trim();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+/**
+ * Authoritative reverse lookup: GitHub exposes a user by their immutable numeric
+ * id at /user/{id}, returning the current login. Firebase always provides this id
+ * (rawId/federatedId), so this resolves the handle without guessing from display
+ * names — which are frequently a person's real name, not their login.
+ */
+export async function lookupGithubLoginById(githubUserId: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://api.github.com/user/${encodeURIComponent(githubUserId)}`, {
+      headers: githubHeaders(),
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { login?: string };
+    return parseGithubHandle(data.login);
+  } catch {
+    return null;
+  }
+}
+
 export async function verifyGithubHandleForUserId(
   handle: string,
   githubUserId: string
 ): Promise<boolean> {
   try {
     const res = await fetch(`https://api.github.com/users/${encodeURIComponent(handle)}`, {
-      headers: {
-        Accept: 'application/vnd.github+json',
-        'User-Agent': 'hult-cohort-apply',
-      },
+      headers: githubHeaders(),
       next: { revalidate: 3600 },
     });
     if (!res.ok) return false;
@@ -86,6 +113,11 @@ export async function resolveGithubHandle(
   const githubUserId = github.federatedId?.trim() || github.rawId?.trim();
   if (!githubUserId) return null;
 
+  // Authoritative path: resolve the login directly from the numeric id.
+  const byId = await lookupGithubLoginById(githubUserId);
+  if (byId) return byId;
+
+  // Fallback: verify guessed candidates against the id (covers GitHub API hiccups).
   const candidates = githubHandleCandidates(idToken, github, hint);
   for (const handle of candidates) {
     if (await verifyGithubHandleForUserId(handle, githubUserId)) {

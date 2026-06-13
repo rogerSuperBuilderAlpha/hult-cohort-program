@@ -27,7 +27,7 @@ function whatsLeft(_project: ProgramProject, progress: ProjectProgress): string 
     const writtenLeft = progress.reviews.required - progress.reviews.writtenCompleted;
     const voteLeft = progress.reviews.required - progress.reviews.ratingsCompleted;
     if (writtenLeft > 0) {
-      items.push(`file ${writtenLeft} more GitHub review${writtenLeft === 1 ? '' : 's'}`);
+      items.push(`file ${writtenLeft} more written review${writtenLeft === 1 ? '' : 's'}`);
     }
     if (voteLeft > 0) {
       items.push(`cast ${voteLeft} more private vote${voteLeft === 1 ? '' : 's'} (👍/👎)`);
@@ -108,8 +108,8 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                   Written reviews {reviews.writtenCompleted}/{reviews.required}
                 </strong>
                 <p className={styles.progressDetail}>
-                  GitHub issue titled <code>Review by @{handle}</code> on each peer repo (public
-                  rubric).
+                  Written review (GitHub issue) titled <code>Review by @{handle}</code> on each peer
+                  repo (public rubric).
                 </p>
               </div>
             </li>
@@ -266,8 +266,9 @@ export function PeerRatingBoard({
 
       <div className={styles.reviewHowTo}>
         <p className={styles.reviewHowToLead}>
-          Expand one classmate at a time. For each peer: try their deploy → read their PR → file a
-          GitHub review issue → cast a private 👍/👎 (vote unlocks after the review is saved).
+          Work through one peer at a time. For each peer: try their deploy → read their PR → file a
+          written review (GitHub issue) → cast a private 👍/👎 (vote unlocks after the review is
+          saved).
         </p>
         {voteWeek ? (
           <p className={styles.privacyNote}>

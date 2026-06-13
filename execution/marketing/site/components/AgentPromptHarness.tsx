@@ -38,7 +38,7 @@ export function AgentPromptHarness({ prompt, personalized = true }: Props) {
       {!personalized && (
         <p className={styles.formNote} style={{ marginTop: 0 }}>
           Contains template placeholders <code>{'{handle}'}</code> and <code>{'{org}'}</code> —
-          sign in after admission for a personalized prompt.
+          sign in once enrolled to personalize this prompt.
         </p>
       )}
       <pre className={styles.harnessPre}>{prompt}</pre>

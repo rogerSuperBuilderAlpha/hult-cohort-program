@@ -1,3 +1,11 @@
+/**
+ * Messaging standards (canonical vocabulary for participant-facing copy):
+ * - "Review week" (not "vote week") for Phase 1 contest mechanics
+ * - Always pair "review → vote": file a written GitHub review, then cast a private 👍/👎
+ * - "Peer" (not "classmate"); "required" (not "mandatory")
+ * - Post-admission state: "Enrolled" (admission moment only on /apply)
+ * - Money: ~$400/mo tooling; ~$1,600 (~4 months) combined
+ */
 export type ProgramProject = {
   slug: string;
   phase: 'onboarding' | 'phase-1' | 'phase-2';
@@ -35,7 +43,7 @@ export const programProjects: ProgramProject[] = [
       'Week 1 is setup — not a build contest. You confirm Cursor + Claude Code, accept your GitHub org invite, and complete your first PR in the cohort roster repo. After the refund window closes, the roster locks and Phase 1 begins.',
     voteWeek: false,
     expectations: [
-      'Cursor + Claude Code active ($400/mo combined)',
+      'Cursor + Claude Code active (~$400/mo combined)',
       'GitHub account linked; org invite accepted',
       'Complete repo-exploration workshop',
       'Attend live kickoffs; refund window ends Friday 5pm',
@@ -61,15 +69,15 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Build the PM tool the entire cohort will use to track projects, tasks, and assignments for the rest of the semester.',
     description:
-      'Every student builds their own production project-management platform in `pm-{handle}`. The winner becomes the live system the cohort runs on — real accounts for every enrolled student, real projects, real deadlines. You are not building a demo for a portfolio; you are building infrastructure your classmates will depend on. After review week, the repo with the most private 👍 votes operates the cohort PM stack until Phase 2.',
+      'Every student builds their own production project-management platform in `pm-{handle}`. The winner becomes the live system the cohort runs on — real accounts for every enrolled student, real projects, real deadlines. You are not building a demo for a portfolio; you are building infrastructure your peers will depend on. After review week, the repo with the most private 👍 votes operates the cohort PM stack until Phase 2.',
     voteWeek: true,
     expectations: [
       'Build solo in public repo `pm-{handle}` in the cohort org',
       'Deploy to production HTTPS before deadline',
       'Support all enrolled accounts, projects, tasks, assignments, status workflow',
-      'Rate every other participant 👍 or 👎 on the platform (private until results post)',
+      'File a written review (GitHub issue) on each peer repo, then cast a private 👍 or 👎 vote',
       'Winner = repo with the most thumbs up after review week',
-      'File a public GitHub review issue on each peer repo before you can vote on their build',
+      'Votes unlock only after your written review is on file for that peer',
       'If you lose: become developer/user on the winning platform (≥2 PRs/cycle)',
     ],
     submission: {
@@ -82,15 +90,15 @@ export const programProjects: ProgramProject[] = [
         'Known limitations',
         'Agent usage summary',
       ],
-      deadlineNote: 'PR merged to main by Thu week 4, 17:00 — unmerged PRs ineligible for ballot',
+      deadlineNote: 'PR merged to main by Thu week 4, 17:00 — unmerged PRs ineligible for review week',
     },
     reviews: {
-      artifact: 'GitHub issue `Review by @{you}` on each peer repo, then private 👍/👎 here',
+      artifact: 'Written review (GitHub issue) `Review by @{you}` on each peer repo, then private 👍/👎 here',
       dueNote: 'Fri week 4, 14:00',
     },
     passGate: [
       'Submission PR merged or eligible miss documented',
-      '{peerCount}/{peerCount} written GitHub reviews',
+      '{peerCount}/{peerCount} written reviews',
       '{peerCount}/{peerCount} private votes',
     ],
   },
@@ -108,7 +116,7 @@ export const programProjects: ProgramProject[] = [
     expectations: [
       'Build in `comms-{handle}`; integrate with winning PM platform where sensible',
       'Real-time or async comms for all enrolled users',
-      'File GitHub review on each peer, then private 👍/👎 vote (most 👍 wins)',
+      'File a written review (GitHub issue) on each peer, then cast a private 👍/👎 vote (most 👍 wins)',
     ],
     submission: {
       repoPattern: '{org}/comms-{handle}',
@@ -117,7 +125,7 @@ export const programProjects: ProgramProject[] = [
       deadlineNote: 'PR merged by Thu week 6, 17:00',
     },
     reviews: {
-      artifact: 'GitHub issue per peer, then private 👍/👎',
+      artifact: 'Written review (GitHub issue) per peer, then private 👍/👎',
       dueNote: 'Fri week 6, 14:00',
     },
     passGate: [
@@ -140,7 +148,7 @@ export const programProjects: ProgramProject[] = [
     expectations: [
       'Build in `showcase-{handle}`',
       'Public profiles linking GitHub trail for every cohort member',
-      'GitHub review + private vote per peer; most 👍 wins',
+      'Written review (GitHub issue) + private vote per peer; most 👍 wins',
     ],
     submission: {
       repoPattern: '{org}/showcase-{handle}',
@@ -149,7 +157,7 @@ export const programProjects: ProgramProject[] = [
       deadlineNote: 'PR merged by Thu week 8, 17:00',
     },
     reviews: {
-      artifact: 'GitHub issue per peer, then private 👍/👎',
+      artifact: 'Written review (GitHub issue) per peer, then private 👍/👎',
       dueNote: 'Fri week 8, 14:00',
     },
     passGate: [

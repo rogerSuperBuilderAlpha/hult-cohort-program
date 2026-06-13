@@ -1,6 +1,7 @@
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
 import { SiteHeader } from '@/components/SiteHeader';
+import { cohortOrg, cohortOrgUrl } from '@/lib/cohort-config';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
 
@@ -41,7 +42,9 @@ export default async function Home() {
           </a>
         </div>
         <div className={`${styles.heroMeta} animate-in delay-4`}>
-          <code>cohort.hult.edu</code>
+          <a href={cohortOrgUrl()} target="_blank" rel="noopener noreferrer">
+            github.com/{cohortOrg()}
+          </a>
           <span>Applications open June 15</span>
           <span>Starts Sep 8</span>
         </div>
@@ -67,8 +70,8 @@ export default async function Home() {
             <li>Public showcase for hiring partners</li>
           </ul>
           <p className={styles.phaseNote}>
-            Everyone builds. Everyone reviews. The cohort votes. Winners operate live platforms
-            the whole semester runs on.
+            Everyone builds. Everyone files written reviews on GitHub. Everyone votes 👍/👎 in
+            private. Most thumbs up operates the platform.
           </p>
         </div>
         <div className={styles.phaseCard}>
@@ -87,6 +90,10 @@ export default async function Home() {
 
       <section className={styles.skills}>
         <h2>What you walk away with</h2>
+        <p className={styles.sectionBody} style={{ marginBottom: '1.5rem' }}>
+          Agent-native from day one — apply, file written reviews, and cast votes via the web or
+          the cohort MCP server.
+        </p>
         <div className={styles.skillGrid}>
           {[
             { n: '01', t: 'GitHub fluency', d: 'Hundreds of reviews, PRs, and merges — all public.' },
@@ -145,7 +152,7 @@ export default async function Home() {
           </div>
           <div>
             <dt>Do I need both Cursor and Claude Code?</dt>
-            <dd>Yes. $400/month total. Both required from day 1.</dd>
+            <dd>Yes. ~$400/mo total. Both required from day 1.</dd>
           </div>
         </dl>
       </section>
@@ -155,7 +162,7 @@ export default async function Home() {
         <ol className={styles.steps}>
           <li>Short application (15 min)</li>
           <li>48-hour take-home: fix a repo, open a PR</li>
-          <li>Decision within 2 weeks</li>
+          <li>Decision within 48 hours of your take-home PR</li>
         </ol>
         <p>{cohortSizeLine} · Apply by August 15, 2026</p>
         <ParticipantCta />

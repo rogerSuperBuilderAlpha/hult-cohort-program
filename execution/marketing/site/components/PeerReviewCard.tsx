@@ -186,7 +186,7 @@ export function PeerReviewCard({
             <li className={styles.reviewStep}>
               <div className={styles.reviewStepTitle}>
                 <span className={styles.reviewStepNum}>3</span>
-                File written review on GitHub
+                File written review (GitHub issue)
               </div>
               <WrittenReviewForm
                 projectSlug={projectSlug}
@@ -225,7 +225,7 @@ export function PeerReviewCard({
                 </button>
               </div>
               {peer.reviewFiled ? (
-                <p className={styles.reviewStepHint}>Only you see your vote. Classmates cannot view it.</p>
+                <p className={styles.reviewStepHint}>Only you see your vote. Peers cannot view it.</p>
               ) : null}
             </li>
           </ol>

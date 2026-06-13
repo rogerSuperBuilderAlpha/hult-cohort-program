@@ -8,7 +8,7 @@ import type { CohortStats } from '@/lib/cohort-stats-types';
 import { cohortOrg, cohortOrgUrl } from '@/lib/cohort-config';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { buildProjectAgentPrompt, buildPublicAgentPrompt } from '@/lib/project-agent-prompt';
-import { isAdmitted } from '@/lib/participant-status';
+import { isAdmitted, isApplicantInFlight } from '@/lib/participant-status';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import { useCohortStats } from '@/lib/use-cohort-stats';
 import { useProjectProgress } from '@/lib/use-project-progress';
@@ -23,9 +23,9 @@ type Props = {
 
 function peerReviewLabel(stats: CohortStats | null | undefined): string {
   if (!stats || stats.enrolledCount === 0) {
-    return 'One mandatory review per other enrolled participant (count updates live)';
+    return 'One required review per other enrolled participant (count updates live)';
   }
-  return `${stats.peerReviewCount} mandatory reviews (cohort size ${stats.enrolledCount})`;
+  return `${stats.peerReviewCount} required reviews (cohort size ${stats.enrolledCount})`;
 }
 
 function EnrolledView({
@@ -65,8 +65,8 @@ function EnrolledView({
             </>
           ) : project.voteWeek ? (
             <>
-              <strong>{project.phaseLabel}</strong> — contest project with a vote week. Build solo,
-              review every other participant
+              <strong>{project.phaseLabel}</strong> — contest project with a review week. Build solo,
+              file written reviews on every other participant
               {stats && stats.peerReviewCount > 0 ? ` (${stats.peerReviewCount} reviews)` : ''},
               submit a merged PR before the deadline.
             </>
@@ -81,8 +81,9 @@ function EnrolledView({
 
       {project.voteWeek && (
         <div className={styles.callout}>
-          <strong>Review week.</strong> Try every peer build, then rate each one 👍 or 👎 on this page.
-          Your ratings are private. After the deadline, the repo with the most thumbs up wins.
+          <strong>Review week.</strong> Try every peer build, file a written GitHub review on each
+          repo, then cast a private 👍 or 👎. Votes unlock only after your written review is on
+          file. Your ratings are private. After the deadline, the repo with the most thumbs up wins.
         </div>
       )}
 
@@ -184,8 +185,7 @@ function EnrolledView({
                   >
                     {progress.reviews.writtenCompleted >= progress.reviews.required ? '✓' : '○'}
                   </span>
-                  {progress.reviews.writtenCompleted}/{progress.reviews.required} written GitHub
-                  reviews
+                  {progress.reviews.writtenCompleted}/{progress.reviews.required} written reviews
                 </li>
                 <li
                   className={
@@ -242,12 +242,26 @@ function EnrolledView({
   );
 }
 
+function ApplicantInFlightBanner() {
+  return (
+    <div className={styles.callout}>
+      <p>
+        <strong>Application in review</strong> — finish your take-home PR. This is the journey
+        you&apos;re applying to.{' '}
+        <Link href="/apply">Back to apply dashboard →</Link>
+      </p>
+    </div>
+  );
+}
+
 function PublicView({
   project,
   stats,
+  applicantInFlight,
 }: {
   project: ProgramProject;
   stats: CohortStats | null;
+  applicantInFlight?: boolean;
 }) {
   const p = (text: string) =>
     personalizeProgramText(text, '{handle}', '{org}', stats ?? undefined);
@@ -266,14 +280,25 @@ function PublicView({
           </>
         ) : (
           <> Peer review counts update from the live roster.</>
-        )}{' '}
-        <Link href="/apply">Sign in to apply</Link>.
+        )}
+        {applicantInFlight ? (
+          <>
+            {' '}
+            <Link href="/apply">Back to apply dashboard</Link>.
+          </>
+        ) : (
+          <>
+            {' '}
+            <Link href="/apply">Sign in to apply</Link>.
+          </>
+        )}
       </p>
 
       {project.voteWeek && (
         <div className={styles.callout}>
-          <strong>Review week.</strong> Rate every peer build 👍 or 👎 on the platform after trying
-          their deploy. Ratings are private. The repo with the most thumbs up wins.
+          <strong>Review week.</strong> Try every peer build, file a written GitHub review on each
+          repo, then cast a private 👍 or 👎. Votes unlock only after your written review is on file.
+          Ratings are private. The repo with the most thumbs up wins.
         </div>
       )}
 
@@ -335,7 +360,8 @@ function PublicView({
         <section className={styles.overviewBlock}>
           <h2>Winner selection</h2>
           <p>
-            Each participant rates every other merged build with a private 👍 or 👎. After review
+            Each participant files a written GitHub review on every other merged build, then casts a
+            private 👍 or 👎. Votes unlock only after the written review is on file. After review
             week closes, the repo with the <strong>most thumbs up</strong> wins. Live tallies are
             never shown during voting.
           </p>
@@ -352,6 +378,7 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
 
   const loading = authLoading || (Boolean(profile) && statusLoading) || statsLoading;
   const admitted = isAdmitted(me);
+  const inFlight = isApplicantInFlight(me);
   const handle = me?.githubHandle;
   const stats = me?.cohortStats ?? fetchedStats;
 
@@ -372,5 +399,10 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
     );
   }
 
-  return <PublicView project={project} stats={stats} />;
+  return (
+    <>
+      {inFlight ? <ApplicantInFlightBanner /> : null}
+      <PublicView project={project} stats={stats} applicantInFlight={inFlight} />
+    </>
+  );
 }

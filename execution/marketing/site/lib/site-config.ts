@@ -17,4 +17,4 @@ export const GITHUB_REPO_URL =
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program';
 
 export const DEFAULT_OG_DESCRIPTION =
-  'Hult International Business School developer cohort — one semester, six production projects, GitHub-native proof of work. Apply Fall 2026.';
+  'Agent-native Hult developer cohort — one semester, six production projects, GitHub-native proof of work. Apply, review, and vote via web or MCP. Fall 2026.';

@@ -5,7 +5,8 @@ import { programProjects } from '../../content/program';
 
 export const metadata = {
   title: 'Program | Hult Cohort Developer Program',
-  description: 'Every phase and project — what participants build, submit as PRs, and vote on.',
+  description:
+    'Every phase and project — what participants build, submit as PRs, and review and vote on.',
 };
 
 export default function ProgramIndexPage() {
@@ -22,12 +23,12 @@ export default function ProgramIndexPage() {
         <h1 className={styles.sectionTitle}>Every project. Clear expectations. PRs as proof.</h1>
         <p className={styles.overviewLead}>
           You do not submit links in a form. You open a PR in the cohort org with your deploy URL,
-          metrics, and agent notes. Phase 1 contest weeks: rate every peer build 👍 or 👎 on the
-          platform (private). The repo with the most thumbs up wins.
+          metrics, and agent notes. Phase 1 review weeks: file a written GitHub review on every peer
+          build, then cast a private 👍 or 👎. The repo with the most thumbs up wins.
         </p>
 
         <Section title="Onboarding" projects={onboarding} />
-        <Section title="Phase 1 · Internal (vote weeks)" projects={phase1} />
+        <Section title="Phase 1 · Internal (review weeks)" projects={phase1} />
         <Section title="Phase 2 · External" projects={phase2} />
       </article>
     </main>
@@ -50,7 +51,7 @@ function Section({
             <Link href={`/program/${p.slug}`} className={styles.programLink}>
               <span className={styles.programWeeks}>{p.weeks}</span>
               <span className={styles.programTitle}>{p.title}</span>
-              {p.voteWeek && <span className={styles.voteBadge}>Vote week</span>}
+              {p.voteWeek && <span className={styles.voteBadge}>Review week</span>}
               <span className={styles.programSummary}>{p.summary}</span>
             </Link>
           </li>

@@ -8,11 +8,14 @@ import type { ParticipantMe } from '@/lib/participant-status';
 import { isAdmitted, isApplicantInFlight } from '@/lib/participant-status';
 import { readApplicationApiError } from '@/lib/read-application-api-error';
 import { useParticipantStatus } from '@/lib/use-participant-status';
+import { GITHUB_REPO_URL } from '@/lib/site-config';
 import { programProjects } from '@/content/program';
 import styles from '../page.module.css';
 
 const DEFAULT_TAKE_HOME =
   'https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26';
+
+const MCP_README_URL = `${GITHUB_REPO_URL}/blob/main/execution/hult-cohort-mcp/README.md`;
 
 function SignedInBar({
   profile,
@@ -83,7 +86,7 @@ function AdmittedDashboard({ me }: { me: ParticipantMe }) {
           )}
         </dd>
         <dt>Status</dt>
-        <dd>Enrolled participant</dd>
+        <dd>Enrolled</dd>
       </dl>
 
       <h2 className={styles.participantHeading}>Your submissions</h2>
@@ -132,6 +135,13 @@ function AdmittedDashboard({ me }: { me: ParticipantMe }) {
         </li>
         <li>Accept your cohort org invite when it arrives (check GitHub notifications).</li>
         <li>Confirm Cursor + Claude Code tooling before kickoff (Sep 8).</li>
+        <li>
+          Optional: connect the{' '}
+          <a href={MCP_README_URL} target="_blank" rel="noopener noreferrer">
+            cohort MCP server
+          </a>{' '}
+          to apply your agent to reviews and votes.
+        </li>
       </ol>
 
       <div className={styles.participantActions}>
@@ -151,13 +161,25 @@ function AdmittedDashboard({ me }: { me: ParticipantMe }) {
   );
 }
 
-function TakeHomeSteps({ takeHomeUrl, handle }: { takeHomeUrl: string; handle: string }) {
+function TakeHomeSteps({
+  takeHomeUrl,
+  handle,
+  status,
+}: {
+  takeHomeUrl: string;
+  handle: string;
+  status: 'submitted' | 'take-home-sent';
+}) {
+  const headline =
+    status === 'take-home-sent'
+      ? 'Take-home assigned — clock is running.'
+      : 'Application on file — start your take-home now.';
+
   return (
     <div className={styles.participantPanel}>
       <div className={styles.callout}>
         <p>
-          <strong>Application on file.</strong> Complete the take-home PR to finish admissions
-          review.
+          <strong>{headline}</strong> Complete the take-home PR to finish admissions review.
         </p>
       </div>
       <ol className={styles.successSteps}>
@@ -175,6 +197,7 @@ function TakeHomeSteps({ takeHomeUrl, handle }: { takeHomeUrl: string; handle: s
           <code>admissions/{handle}</code>.
         </li>
         <li>Fill the PR template completely, including agent usage.</li>
+        <li>Decision within 48 hours of your take-home PR.</li>
       </ol>
     </div>
   );
@@ -304,7 +327,13 @@ export default function ApplyPage() {
                 body="Thank you for applying. You may reapply in a future cohort."
               />
             ) : inFlight && me ? (
-              <TakeHomeSteps takeHomeUrl={takeHomeUrl} handle={me.githubHandle} />
+              <TakeHomeSteps
+                takeHomeUrl={takeHomeUrl}
+                handle={me.githubHandle}
+                status={
+                  me.application?.status === 'take-home-sent' ? 'take-home-sent' : 'submitted'
+                }
+              />
             ) : (
               <form className={styles.applyForm} onSubmit={onSubmit}>
                 <input type="hidden" name="githubHandle" value={profile.githubHandle} />

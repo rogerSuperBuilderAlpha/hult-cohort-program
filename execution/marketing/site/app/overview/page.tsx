@@ -46,8 +46,12 @@ export default async function OverviewPage() {
           <p>Each cohort builds its own tool stack. Same loop three times:</p>
           <ol>
             <li>Everyone builds a production deployment</li>
-            <li>Everyone reviews everyone ({peerReviewLine})</li>
-            <li>The cohort votes; the winner operates the live platform</li>
+            <li>
+              Everyone files a written GitHub review on every peer repo ({peerReviewLine})
+            </li>
+            <li>
+              Everyone casts a private 👍/👎; most thumbs up wins and operates the platform
+            </li>
             <li>Everyone else engages as developer/users (PRs, issues, QA)</li>
           </ol>
           <ul>
@@ -98,7 +102,7 @@ export default async function OverviewPage() {
                 <td>~$1,600</td>
               </tr>
               <tr>
-                <td>Typical placement referral (program)</td>
+                <td>For hiring partners · typical placement referral (program revenue)</td>
                 <td>~$45,000</td>
               </tr>
             </tbody>

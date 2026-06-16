@@ -28,6 +28,26 @@ export function verifyGithubWebhookSignature(
   }
 }
 
+/** GitHub may send raw JSON or `application/x-www-form-urlencoded` with a `payload` field. */
+export function parseGithubWebhookPayload(rawBody: string): unknown {
+  const trimmed = rawBody.trim();
+  if (!trimmed) {
+    throw new Error('Empty webhook body.');
+  }
+
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return JSON.parse(trimmed) as unknown;
+  }
+
+  const params = new URLSearchParams(rawBody);
+  const payload = params.get('payload');
+  if (payload) {
+    return JSON.parse(payload) as unknown;
+  }
+
+  throw new Error('Unrecognized webhook body format.');
+}
+
 const EMPTY_STATS: CohortStats = {
   cohortId: 'fall26',
   enrolledCount: 0,

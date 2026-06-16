@@ -1,7 +1,10 @@
 import { logApi, logApiError } from '@/lib/api-log';
 import { checkRateLimit, clientIp } from '@/lib/rate-limit';
 import { ingestMergedPullRequest } from '@/lib/submission-write-server';
-import { verifyGithubWebhookSignature } from '@/lib/submission-ingest-server';
+import {
+  parseGithubWebhookPayload,
+  verifyGithubWebhookSignature,
+} from '@/lib/submission-ingest-server';
 
 export const runtime = 'nodejs';
 
@@ -43,13 +46,19 @@ export async function POST(request: Request) {
     repository?: { full_name?: string };
   };
 
+  const eventName = request.headers.get('x-github-event');
+
   try {
-    event = JSON.parse(payload) as typeof event;
+    event = parseGithubWebhookPayload(payload) as typeof event;
   } catch {
-    return Response.json({ error: 'Invalid JSON.' }, { status: 400 });
+    logApi(ROUTE, 'warn', 'Invalid webhook payload', { ip, eventName });
+    return Response.json({ error: 'Invalid payload.' }, { status: 400 });
   }
 
-  const eventName = request.headers.get('x-github-event');
+  if (eventName === 'ping') {
+    return Response.json({ ok: true, ping: true });
+  }
+
   if (eventName !== 'pull_request') {
     return Response.json({ ok: true, ignored: true, reason: 'not pull_request' });
   }

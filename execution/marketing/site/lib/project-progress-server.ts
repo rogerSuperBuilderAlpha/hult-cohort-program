@@ -1,7 +1,9 @@
 import { getProject } from '@/content/program';
 import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
-import { cohortOrg } from '@/lib/cohort-config';
+import { cohortId, cohortOrg } from '@/lib/cohort-config';
 import type { CohortStats } from '@/lib/cohort-stats-types';
+import { getEligiblePeerRows, mergePeerProgress } from '@/lib/eligible-peers-server';
+import { formatScheduleDate } from '@/lib/program-schedule';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import type { ProjectProgress } from './project-progress-types';
 import { githubRepoUrl, orgReposSearchUrl } from './project-progress-format';
@@ -9,7 +11,6 @@ import { getVoterRatingsMap } from './ratings-server';
 import { getWrittenReviewsMap } from './written-reviews-server';
 
 export async function getProjectProgress(
-  cohortId: string,
   githubHandle: string,
   projectSlug: string,
   cohortStats: CohortStats
@@ -19,14 +20,15 @@ export async function getProjectProgress(
   const project = getProject(projectSlug);
   if (!project) return null;
 
-  const db = getAdminDb();
+  const id = cohortId();
   const org = cohortOrg();
-  const repo = personalizeProgramText(project.submission.repoPattern, githubHandle, org, cohortStats);
+  const db = getAdminDb();
+  const repo = personalizeProgramText(project.submission.repoPattern.split(' ')[0]!, githubHandle, org, cohortStats);
   const repoUrl = githubRepoUrl(repo);
 
   const submissionDoc = await db
     .collection('submissions')
-    .doc(cohortId)
+    .doc(id)
     .collection('projects')
     .doc(projectSlug)
     .collection('entries')
@@ -37,46 +39,28 @@ export async function getProjectProgress(
 
   let reviews: ProjectProgress['reviews'] = null;
   if (project.reviews) {
-    const [myRatings, writtenReviews] = await Promise.all([
+    const [myRatings, writtenReviews, peerRows] = await Promise.all([
       getVoterRatingsMap(projectSlug, githubHandle),
       getWrittenReviewsMap(projectSlug, githubHandle),
+      getEligiblePeerRows(projectSlug, githubHandle),
     ]);
 
-    const entriesSnap = await db
-      .collection('submissions')
-      .doc(cohortId)
-      .collection('projects')
-      .doc(projectSlug)
-      .collection('entries')
-      .where('merged', '==', true)
-      .get();
-
-    const peers = entriesSnap.docs
-      .filter((doc) => doc.id !== githubHandle)
-      .map((doc) => {
-        const data = doc.data();
-        const peerRepo = data.repo as string;
-        const myRating = myRatings[doc.id] ?? null;
-        const reviewIssueUrl = writtenReviews[doc.id] ?? null;
-        return {
-          handle: doc.id,
-          repo: peerRepo,
-          repoUrl: githubRepoUrl(peerRepo),
-          prUrl: data.prUrl as string,
-          deployUrl: (data.deployUrl as string | null) ?? null,
-          reviewFiled: reviewIssueUrl !== null,
-          reviewIssueUrl,
-          rated: myRating !== null,
-          myRating,
-        };
-      })
-      .sort((a, b) => a.handle.localeCompare(b.handle));
+    const peers = mergePeerProgress(peerRows, writtenReviews, myRatings);
+    const required = peers.length;
+    const rosterPeerCount = Math.max(0, cohortStats.peerReviewCount);
+    const awaitingMerge = Math.max(0, rosterPeerCount - required);
 
     reviews = {
-      required: cohortStats.peerReviewCount,
+      required,
+      rosterPeerCount,
+      awaitingMerge,
       writtenCompleted: peers.filter((p) => p.reviewFiled).length,
       ratingsCompleted: peers.filter((p) => p.reviewFiled && p.rated).length,
       dueNote: project.reviews.dueNote,
+      dueAt: project.schedule.reviewCloses ?? project.schedule.submissionCloses,
+      dueAtFormatted: formatScheduleDate(
+        project.schedule.reviewCloses ?? project.schedule.submissionCloses
+      ),
       peers,
       orgReposUrl: orgReposSearchUrl(org, projectSlug),
       voteWeek: project.voteWeek,

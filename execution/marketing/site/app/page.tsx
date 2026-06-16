@@ -10,7 +10,7 @@ const OVERVIEW_URL = process.env.NEXT_PUBLIC_OVERVIEW_URL || '/overview';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const cohortStats = await getCohortStats('fall26');
+  const cohortStats = await getCohortStats();
   const cohortSizeLine = formatCohortSizeLine(cohortStats);
 
   return (

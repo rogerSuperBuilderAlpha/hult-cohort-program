@@ -55,7 +55,7 @@
 
 ## P1 — Production hardening (~1 day, before public/non-friendly launch)
 
-- [ ] **Auto-reply email** on apply via Resend (template #1 from `execution/templates/emails.md`, take-home link from env). Restore "check your email" copy once true.
+- [ ] **Auto-reply email** on apply via Mailgun (`EMAIL_*` env vars; template #1 from `execution/templates/emails.md`). Restore "check your email" copy once true.
 - [ ] **Staff CLI:** `execution/cohort-scripts/admissions.js` — `list`, `send-take-home <email>`, `admit <email> --pr <url>`, `reject <email>`. Replaces ad-hoc Console edits and one-off scripts.
 - [ ] **OG image, favicon, per-route metadata, robots.txt.**
 - [ ] **Error visibility:** structured logs in API route; review Vercel logs; optional Sentry.
@@ -74,7 +74,7 @@
 
 - [ ] Create `hult-cohort` GitHub org; transfer take-home repo; update `NEXT_PUBLIC_TAKE_HOME_REPO_URL` + docs.
 - [ ] Custom domain `cohort.hult.edu` (Hult IT CNAME).
-- [ ] Transactional email domain + DKIM (replace Resend default sender).
+- [ ] Transactional email domain + DKIM (Mailgun sending domain)
 
 ---
 

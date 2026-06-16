@@ -14,14 +14,8 @@ export default function TermsPage() {
       <SiteHeader links={[{ href: '/', label: 'Home' }]} />
 
       <article className={styles.overview}>
-        <p className={styles.eyebrow}>Legal · Draft</p>
+        <p className={styles.eyebrow}>Legal</p>
         <h1 className={styles.sectionTitle}>Terms of Service</h1>
-        <div className={styles.callout}>
-          <p>
-            <strong>Draft — pending legal review.</strong> Enrollment requires a signed Program
-            Agreement and Expectations Acknowledgment. This page governs use of the website only.
-          </p>
-        </div>
         <p className={styles.overviewLead}>
           Last updated: June 2026 · Contact:{' '}
           <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>

@@ -5,7 +5,11 @@ import {
   takeHomeRepoUrl,
   validateApplication,
 } from '@/lib/applications';
+import { cohortId } from '@/lib/cohort-config';
 import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { logApi, logApiError } from '@/lib/api-log';
+import { sendApplicationConfirmationEmail } from '@/lib/email-server';
+import { checkRateLimit, clientIp } from '@/lib/rate-limit';
 import {
   bearerTokenFromRequest,
   verifyGithubIdToken,
@@ -13,11 +17,22 @@ import {
 
 export const runtime = 'nodejs';
 
+const ROUTE = 'POST /api/applications';
+
 export async function POST(request: Request) {
+  const ip = clientIp(request);
+  const rate = checkRateLimit(`applications:${ip}`, 10, 60_000);
+  if (!rate.allowed) {
+    return Response.json(
+      { error: 'Too many applications from this network. Try again shortly.' },
+      { status: 429, headers: { 'Retry-After': String(rate.retryAfterSec) } }
+    );
+  }
+
   try {
     return await handlePost(request);
   } catch (err) {
-    console.error('POST /api/applications failed:', err);
+    logApiError(ROUTE, err);
     return Response.json(
       {
         error:
@@ -53,7 +68,6 @@ async function handlePost(request: Request) {
     return Response.json({ error: message }, { status: 401 });
   }
 
-  // Honeypot — bots get a silent success, no write
   if (body._honeypot?.trim()) {
     return Response.json({ ok: true, id: randomUUID(), takeHomeRepoUrl: takeHomeRepoUrl() });
   }
@@ -61,6 +75,7 @@ async function handlePost(request: Request) {
   try {
     const input = validateApplication(body, { githubUrl: githubSession.githubUrl });
     const db = getAdminDb();
+    const id = cohortId();
 
     const [byEmail, byHandle] = await Promise.all([
       db.collection('applications').where('email', '==', input.email).limit(5).get(),
@@ -71,7 +86,7 @@ async function handlePost(request: Request) {
         .get(),
     ]);
 
-    if (byEmail.docs.some((d) => d.data().cohort === 'fall26')) {
+    if (byEmail.docs.some((d) => d.data().cohort === id)) {
       return Response.json(
         {
           error:
@@ -81,7 +96,7 @@ async function handlePost(request: Request) {
       );
     }
 
-    if (byHandle.docs.some((d) => d.data().cohort === 'fall26')) {
+    if (byHandle.docs.some((d) => d.data().cohort === id)) {
       return Response.json(
         {
           error:
@@ -91,8 +106,8 @@ async function handlePost(request: Request) {
       );
     }
 
-    const id = randomUUID();
-    const record = buildApplicationRecord(input, id);
+    const applicationId = randomUUID();
+    const record = buildApplicationRecord(input, applicationId);
 
     const doc: Record<string, unknown> = {
       ...record,
@@ -104,9 +119,20 @@ async function handlePost(request: Request) {
     };
     if (!doc.hultStudentId) delete doc.hultStudentId;
 
-    await db.collection('applications').doc(id).set(doc);
+    await db.collection('applications').doc(applicationId).set(doc);
 
-    return Response.json({ ok: true, id, takeHomeRepoUrl: takeHomeRepoUrl() });
+    void sendApplicationConfirmationEmail({
+      email: input.email,
+      firstName: input.firstName,
+      takeHomeRepoUrl: takeHomeRepoUrl(),
+    }).catch((err) => logApiError(`${ROUTE} email`, err));
+
+    logApi(ROUTE, 'info', 'Application submitted', {
+      applicationId,
+      githubHandle: record.githubHandle,
+    });
+
+    return Response.json({ ok: true, id: applicationId, takeHomeRepoUrl: takeHomeRepoUrl() });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Submission failed';
     return Response.json({ error: message }, { status: 400 });

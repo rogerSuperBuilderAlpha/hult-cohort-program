@@ -10,7 +10,7 @@ Credentials are supplied by the founder and stored only in environment variables
 
 | Firebase product | Purpose |
 |------------------|---------|
-| **Firestore** | Applications, roster, ballots, votes, submission PR registry |
+| **Firestore** | Applications, roster, submissions, peerWrittenReviews, peerRatings |
 | **Authentication** | GitHub sign-in for enrolled participants (voting, gated pages) |
 | **Admin SDK** | Next.js API routes write applications server-side (bypass client rules) |
 | **Cloud Functions** *(optional, later)* | Auto-reply email on apply, GitHub webhook → ballot feed |
@@ -94,52 +94,11 @@ Enrolled participants after week 1 roster lock.
 }
 ```
 
-Used to gate `/vote/*` and future participant-only routes.
-
-### `ballots/{cohortId}/projects/{projectSlug}`
-
-One doc per Phase 1 contest (3 vote weeks).
-
-```typescript
-{
-  projectSlug: string;           // e.g. phase-1-project-1
-  voteOpensAt: Timestamp;
-  voteClosesAt: Timestamp;
-  eligiblePrs: {
-    githubHandle: string;
-    repo: string;
-    prNumber: number;
-    prUrl: string;
-    mergedAt: Timestamp;
-    deployUrl: string;
-  }[];
-  status: 'draft' | 'open' | 'closed' | 'tallied';
-  winnerHandle?: string;
-}
-```
-
-Populated from GitHub (merged `[Project N] Submission` PRs) via webhook or `github-metrics-export.js`.
-
-### `votes/{cohortId}/projects/{projectSlug}/ballots/{voterHandle}`
-
-Private ranked-choice ballot.
-
-```typescript
-{
-  voterHandle: string;
-  rank1PrUrl: string;
-  rank2PrUrl: string;
-  rank3PrUrl: string;
-  submittedAt: Timestamp;
-  // voterHandle must exist in roster; cannot rank own submission PR
-}
-```
-
-Tallied by [cohort-scripts/vote-tally.js](../cohort-scripts/vote-tally.js) reading Firestore export or Admin script.
+Used to gate participant APIs (`/api/program/*`, `/api/dashboard`).
 
 ### `submissions/{cohortId}/projects/{projectSlug}/entries/{githubHandle}`
 
-Tracks participant submission PRs (proof-of-work registry).
+Tracks participant submission PRs (GitHub projection).
 
 ```typescript
 {
@@ -147,12 +106,45 @@ Tracks participant submission PRs (proof-of-work registry).
   repo: string;
   prNumber: number;
   prUrl: string;
+  prTitle: string;
   merged: boolean;
   mergedAt?: Timestamp;
-  deployUrl?: string;
-  eligibleForBallot: boolean;
+  deployUrl?: string | null;
+  source?: 'webhook' | 'reconcile';
 }
 ```
+
+Populated by `POST /api/github/webhook` on merged PRs matching `content/program.ts` title patterns, or `scripts/reconcile-submissions.mjs`.
+
+### `peerWrittenReviews/{cohortId}/projects/{projectSlug}/voters/{voterHandle}/entries/{revieweeHandle}`
+
+Written GitHub review URLs filed by voter on each peer.
+
+```typescript
+{
+  issueUrl: string;
+  voterHandle: string;
+  revieweeHandle: string;
+  updatedAt: Timestamp;
+}
+```
+
+### `peerRatings/{cohortId}/projects/{projectSlug}/voters/{voterHandle}`
+
+Private 👍/👎 votes (one doc per voter).
+
+```typescript
+{
+  ratings: Record<string, 'up' | 'down'>;  // revieweeHandle → rating
+  updatedAt: Timestamp;
+}
+```
+
+Vote requires prior written review for that peer. Staff tally: `tallyThumbsUp(projectSlug)` in site code.
+
+### Legacy (retired — do not write)
+
+`ballots/` and `votes/` collections were designed for ranked-choice voting and are **not used** by the platform. Firestore rules deny all client access.
 
 ---
 
@@ -160,11 +152,11 @@ Tracks participant submission PRs (proof-of-work registry).
 
 | Collection | Read | Write |
 |------------|------|-------|
-| `applications` | Staff service account only | Create via API route only (Admin SDK) |
-| `roster` | Authenticated roster members | Staff service account only |
-| `ballots` | Authenticated roster members when `status == 'open'` | Staff / webhook service account |
-| `votes` | Staff service account only | Authenticated voter creates own doc once |
-| `submissions` | Authenticated roster members | Webhook + staff |
+| `applications` | Deny all client | Admin SDK only |
+| `roster` | Deny all client | Admin SDK only |
+| `submissions` | Deny all client | Admin SDK / webhook |
+| `peerWrittenReviews` | Deny all client | Admin SDK only |
+| `peerRatings` | Deny all client | Admin SDK only |
 
 Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when credentials wired)*.
 

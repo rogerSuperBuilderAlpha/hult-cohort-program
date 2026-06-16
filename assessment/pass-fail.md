@@ -12,10 +12,10 @@ Pass requires **all** of the following:
 
 | Unit | Gate |
 |------|------|
-| Project 1 reviews | 29/29 submitted |
-| Project 2 reviews | 29/29 submitted |
-| Project 3 reviews | 29/29 submitted |
-| Votes | 3/3 ballots submitted |
+| Project 1 reviews | `{peerCount}/{peerCount}` on eligible peers |
+| Project 2 reviews | `{peerCount}/{peerCount}` on eligible peers |
+| Project 3 reviews | `{peerCount}/{peerCount}` on eligible peers |
+| Private votes | `{peerCount}/{peerCount}` per contest project (after written review each) |
 | Builds | ≥ **2/3** builds eligible at deadline |
 | Developer/user cycles | ≥ **2/3** four-week cycles meet minimums ([metrics.md](metrics.md)) |
 

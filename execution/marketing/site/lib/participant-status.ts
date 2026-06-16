@@ -1,5 +1,6 @@
 import type { CohortStats } from './cohort-stats-types';
 import type { SubmissionEntry } from './submissions-types';
+import type { EnrollmentInfo } from './enrollment-types';
 
 export type ApplicationStatus =
   | 'submitted'
@@ -13,6 +14,7 @@ export type ParticipantMe = {
   githubHandle: string;
   cohortStats: CohortStats;
   submissions: SubmissionEntry[];
+  enrollment: EnrollmentInfo;
   application: {
     id: string;
     status: ApplicationStatus;
@@ -31,15 +33,19 @@ export type ParticipantMe = {
   } | null;
 };
 
+export function isEnrolled(me: ParticipantMe | null): boolean {
+  return me?.enrollment.canAccessEnrolledUi === true;
+}
+
+/** @deprecated Use isEnrolled — kept for gradual migration */
 export function isAdmitted(me: ParticipantMe | null): boolean {
-  return me?.application?.status === 'admitted' || Boolean(me?.roster?.active);
+  return isEnrolled(me);
 }
 
 export function isApplicantInFlight(me: ParticipantMe | null): boolean {
-  const status = me?.application?.status;
-  return (
-    status === 'submitted' ||
-    status === 'take-home-sent' ||
-    status === 'take-home-submitted'
-  );
+  return me?.enrollment.state === 'applicant-in-flight';
+}
+
+export function isAdmittedPendingRoster(me: ParticipantMe | null): boolean {
+  return me?.enrollment.state === 'admitted-pending-roster';
 }

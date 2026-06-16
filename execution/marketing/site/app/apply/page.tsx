@@ -1,21 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
-import type { ParticipantMe } from '@/lib/participant-status';
-import { isAdmitted, isApplicantInFlight } from '@/lib/participant-status';
+import {
+  isApplicantInFlight,
+  isAdmittedPendingRoster,
+  isEnrolled,
+} from '@/lib/participant-status';
 import { readApplicationApiError } from '@/lib/read-application-api-error';
 import { useParticipantStatus } from '@/lib/use-participant-status';
-import { GITHUB_REPO_URL } from '@/lib/site-config';
-import { programProjects } from '@/content/program';
 import styles from '../page.module.css';
 
 const DEFAULT_TAKE_HOME =
   'https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26';
-
-const MCP_README_URL = `${GITHUB_REPO_URL}/blob/main/execution/hult-cohort-mcp/README.md`;
 
 function SignedInBar({
   handle,
@@ -51,171 +51,6 @@ function SignedInBar({
           Use a different account
         </button>
       </div>
-    </div>
-  );
-}
-
-function AdmittedDashboard({
-  me,
-  getIdToken,
-}: {
-  me: ParticipantMe;
-  getIdToken: () => Promise<string | null>;
-}) {
-  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'error'>('idle');
-  const [downloadError, setDownloadError] = useState('');
-  const name = me.roster?.displayName ?? `${me.application?.firstName} ${me.application?.lastName}`;
-  const stats = me.cohortStats;
-  const submissionBySlug = new Map(me.submissions.map((s) => [s.projectSlug, s]));
-  const submittedCount = me.submissions.filter((s) => s.merged).length;
-
-  async function downloadMyData() {
-    setDownloadStatus('loading');
-    setDownloadError('');
-    const idToken = await getIdToken();
-    if (!idToken) {
-      setDownloadStatus('error');
-      setDownloadError('Your session expired. Sign in again.');
-      return;
-    }
-    try {
-      const res = await fetch('/api/me', {
-        headers: { Authorization: `Bearer ${idToken}` },
-      });
-      if (!res.ok) throw new Error('Could not fetch your data.');
-      const data = await res.json();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `hult-cohort-data-${me.githubHandle}.json`;
-      anchor.click();
-      URL.revokeObjectURL(url);
-      setDownloadStatus('idle');
-    } catch (err) {
-      setDownloadStatus('error');
-      setDownloadError(err instanceof Error ? err.message : 'Download failed.');
-    }
-  }
-
-  return (
-    <div className={styles.participantPanel}>
-      <div className={styles.calloutSuccess}>
-        <p>
-          <strong>You&apos;re admitted — Fall 2026.</strong> Welcome, {name.split(' ')[0]}.
-        </p>
-      </div>
-
-      <dl className={styles.dl}>
-        <dt>GitHub</dt>
-        <dd>
-          <a href={`https://github.com/${me.githubHandle}`} target="_blank" rel="noopener noreferrer">
-            @{me.githubHandle}
-          </a>
-        </dd>
-        <dt>Campus</dt>
-        <dd>{me.roster?.campus ?? me.application?.campus ?? '—'}</dd>
-        <dt>Cohort</dt>
-        <dd>
-          {stats.enrolledCount > 0 ? (
-            <>
-              {stats.enrolledCount} enrolled · {stats.peerReviewCount} peer reviews per Phase 1
-              project
-            </>
-          ) : (
-            'Enrollment filling'
-          )}
-        </dd>
-        <dt>Status</dt>
-        <dd>Enrolled</dd>
-      </dl>
-
-      <h2 className={styles.participantHeading}>Your submissions</h2>
-      <p className={styles.formNote} style={{ marginTop: 0 }}>
-        {submittedCount} of {programProjects.length} program weeks with merged PRs on file.
-      </p>
-      <ul className={styles.onboardingChecklist}>
-        {programProjects.map((project) => {
-          const entry = submissionBySlug.get(project.slug);
-          return (
-            <li key={project.slug}>
-              <strong>{project.phaseLabel}</strong> — {project.title}
-              {entry?.merged ? (
-                <>
-                  {' '}
-                  ·{' '}
-                  <a href={entry.prUrl} target="_blank" rel="noopener noreferrer">
-                    merged PR
-                  </a>
-                  {entry.deployUrl ? (
-                    <>
-                      {' '}
-                      ·{' '}
-                      <a href={entry.deployUrl} target="_blank" rel="noopener noreferrer">
-                        deploy
-                      </a>
-                    </>
-                  ) : null}
-                </>
-              ) : (
-                <> · not submitted yet</>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-
-      <h2 className={styles.participantHeading}>Your data</h2>
-      <p className={styles.formNote} style={{ marginTop: 0 }}>
-        Download a JSON export of platform-held records (application, roster, submissions). To
-        delete your account and data, use the Account section below — see{' '}
-        <Link href="/privacy">Privacy Policy</Link>.
-      </p>
-      <div className={styles.participantActions} style={{ marginTop: 0, marginBottom: 24 }}>
-        <button
-          type="button"
-          className={styles.secondaryBtn}
-          disabled={downloadStatus === 'loading'}
-          onClick={() => void downloadMyData()}
-        >
-          {downloadStatus === 'loading' ? 'Preparing download…' : 'Download my data'}
-        </button>
-      </div>
-      {downloadError ? <p className={styles.formError}>{downloadError}</p> : null}
-
-      <h2 className={styles.participantHeading}>What to do next</h2>
-      <ol className={styles.successSteps}>
-        <li>
-          Read the <Link href="/program/onboarding">Week 1 onboarding</Link> expectations.
-        </li>
-        <li>
-          Browse the full <Link href="/program">program journey</Link> — submissions are PRs, not
-          forms.
-        </li>
-        <li>Accept your cohort org invite when it arrives (check GitHub notifications).</li>
-        <li>Confirm Cursor + Claude Code tooling before kickoff (Sep 8).</li>
-        <li>
-          Optional: connect the{' '}
-          <a href={MCP_README_URL} target="_blank" rel="noopener noreferrer">
-            cohort MCP server
-          </a>{' '}
-          to apply your agent to reviews and votes.
-        </li>
-      </ol>
-
-      <div className={styles.participantActions}>
-        <Link href="/program/onboarding" className={styles.primaryBtn}>
-          Start onboarding
-        </Link>
-        <Link href="/program" className={styles.secondaryBtn}>
-          View all projects
-        </Link>
-      </div>
-
-      <p className={styles.formNote}>
-        Questions: cohort@hult.edu · Tuition and week-1 refund details in{' '}
-        <Link href="/overview">program overview</Link>.
-      </p>
     </div>
   );
 }
@@ -362,6 +197,20 @@ function AccountSection({
   );
 }
 
+function AdmittedPendingPanel() {
+  return (
+    <div className={styles.participantPanel}>
+      <div className={styles.callout}>
+        <p>
+          <strong>Admitted — roster pending.</strong> Your application is approved; staff are
+          adding you to the cohort roster. Participant features unlock once your roster row is
+          active (usually within one business day). Check back here or email cohort@hult.edu.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function StatusMessage({ title, body }: { title: string; body: string }) {
   return (
     <div className={styles.participantPanel}>
@@ -375,6 +224,7 @@ function StatusMessage({ title, body }: { title: string; body: string }) {
 }
 
 export default function ApplyPage() {
+  const router = useRouter();
   const { configured, profile, loading, authError, signIn, signOut, deleteAccount, getIdToken } =
     useGithubAuth();
   const { me, loading: statusLoading, error: statusError, refresh } = useParticipantStatus(
@@ -384,13 +234,18 @@ export default function ApplyPage() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
 
-  const admitted = isAdmitted(me);
+  const enrolled = isEnrolled(me);
+  const pendingRoster = isAdmittedPendingRoster(me);
   const inFlight = isApplicantInFlight(me);
   const takeHomeUrl = me?.application?.takeHomeRepoUrl || DEFAULT_TAKE_HOME;
 
+  useEffect(() => {
+    if (enrolled) router.replace('/dashboard');
+  }, [enrolled, router]);
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!profile || admitted || inFlight) return;
+    if (!profile || enrolled || pendingRoster || inFlight) return;
 
     const form = e.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
@@ -428,9 +283,9 @@ export default function ApplyPage() {
     }
   }
 
-  const pageTitle = admitted ? 'Dashboard' : 'Apply';
-  const pageLead = admitted
-    ? 'You are enrolled in the Fall 2026 cohort. Everything below is your participant hub — not an application form.'
+  const pageTitle = enrolled ? 'Apply' : pendingRoster ? 'Admitted' : 'Apply';
+  const pageLead = pendingRoster
+    ? 'You are admitted to Fall 2026. Your roster row is being finalized — participant tools unlock shortly.'
     : 'Step 1: sign in with GitHub, then complete this form. Step 2: fix the repo and open a PR within 48 hours. Admissions is PR-native — same loop as the program.';
 
   return (
@@ -439,7 +294,7 @@ export default function ApplyPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>
-          Fall 2026 · {admitted ? 'Enrolled participant' : 'Applications open June 15'}
+          Fall 2026 · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : 'Applications open June 15'}
         </p>
         <h1 className={styles.sectionTitle}>{pageTitle}</h1>
         <p className={styles.overviewLead}>{pageLead}</p>
@@ -476,8 +331,8 @@ export default function ApplyPage() {
             />
             {statusError && <p className={styles.formError}>{statusError}</p>}
 
-            {admitted && me ? (
-              <AdmittedDashboard me={me} getIdToken={getIdToken} />
+            {pendingRoster ? (
+              <AdmittedPendingPanel />
             ) : me?.application?.status === 'take-home-submitted' ? (
               <StatusMessage
                 title="Take-home submitted."
@@ -612,7 +467,7 @@ export default function ApplyPage() {
           </>
         )}
 
-        {!admitted && (
+        {!enrolled && !pendingRoster && (
           <p className={styles.formNote}>
             Tuition $10,000 + ~$400/mo tooling. Week-1 full refund. After week 1, free re-enrollment
             instead of cash refund. See <Link href="/overview">program overview</Link>.

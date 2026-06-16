@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
-import { isAdmitted } from '@/lib/participant-status';
+import { isEnrolled } from '@/lib/participant-status';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import styles from '../app/page.module.css';
 
@@ -21,8 +21,9 @@ export function SiteNav({ links = DEFAULT_LINKS }: SiteNavProps) {
   const { profile, loading: authLoading, getIdToken, signOut } = useGithubAuth();
   const { me, loading: meLoading } = useParticipantStatus(getIdToken, Boolean(profile));
 
-  const admitted = isAdmitted(me);
-  const hubLabel = authLoading || (profile && meLoading) ? '…' : admitted ? 'Dashboard' : 'Apply';
+  const enrolled = isEnrolled(me);
+  const hubHref = enrolled ? '/dashboard' : '/apply';
+  const hubLabel = authLoading || (profile && meLoading) ? '…' : enrolled ? 'Dashboard' : 'Apply';
 
   return (
     <nav className={styles.nav}>
@@ -36,7 +37,7 @@ export function SiteNav({ links = DEFAULT_LINKS }: SiteNavProps) {
           Sign out
         </button>
       ) : null}
-      <Link href="/apply" className={styles.navCta}>
+      <Link href={hubHref} className={styles.navCta}>
         {hubLabel}
       </Link>
     </nav>

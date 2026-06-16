@@ -14,7 +14,7 @@ import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = 'fall26';
+const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
 const ORG = process.env.NEXT_PUBLIC_COHORT_ORG?.trim() || 'hult-cohort-fall26-boston';
 
 const PROJECTS = [
@@ -119,9 +119,6 @@ async function main() {
   }
 
   const ops = [];
-  const ballotEntries = Object.fromEntries(
-    PROJECTS.filter((p) => p.ballot).map((p) => [p.slug, []])
-  );
 
   for (const student of toAdd) {
     const appId = `demo-${student.handle}`;
@@ -192,45 +189,11 @@ async function main() {
             merged: true,
             mergedAt,
             deployUrl: deployUrl ?? null,
-            eligibleForBallot: project.ballot,
+            source: 'reconcile',
             demoSeed: true,
           }
         );
       });
-
-      if (project.ballot) {
-        ballotEntries[project.slug].push({
-          githubHandle: student.handle,
-          repo,
-          prNumber,
-          prUrl,
-          mergedAt,
-          deployUrl: deployUrl ?? `https://${student.handle}.demo.hult-cohort.test`,
-        });
-      }
-    });
-  }
-
-  // Merge ballot eligible PRs with any existing entries
-  for (const project of PROJECTS.filter((p) => p.ballot)) {
-    const ballotRef = db.collection('ballots').doc(COHORT).collection('projects').doc(project.slug);
-    const existing = await ballotRef.get();
-    const prior = existing.exists ? existing.data()?.eligiblePrs ?? [] : [];
-    const merged = [...prior, ...ballotEntries[project.slug]];
-
-    ops.push((batch) => {
-      batch.set(
-        ballotRef,
-        {
-          projectSlug: project.slug,
-          cohortId: COHORT,
-          status: 'closed',
-          eligiblePrs: merged,
-          demoSeed: true,
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-      );
     });
   }
 

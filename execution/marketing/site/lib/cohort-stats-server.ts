@@ -1,28 +1,32 @@
 import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { cohortId } from '@/lib/cohort-config';
 import type { CohortStats } from './cohort-stats-types';
 
 export type { CohortStats } from './cohort-stats-types';
 
-export async function getCohortStats(cohortId = 'fall26'): Promise<CohortStats> {
-  const empty = { cohortId, enrolledCount: 0, peerReviewCount: 0 };
+function emptyStats(id: string, available = false): CohortStats {
+  return {
+    cohortId: id,
+    enrolledCount: 0,
+    peerReviewCount: 0,
+    available,
+  };
+}
 
+export async function getCohortStats(id = cohortId()): Promise<CohortStats> {
   if (!isAdminConfigured()) {
-    return empty;
+    return emptyStats(id, false);
   }
 
-  try {
-    const db = getAdminDb();
-    const snap = await db.collection('roster').doc(cohortId).collection('members').get();
+  const db = getAdminDb();
+  const snap = await db.collection('roster').doc(id).collection('members').get();
 
-    const enrolledCount = snap.docs.filter((doc) => doc.data().active !== false).length;
+  const enrolledCount = snap.docs.filter((doc) => doc.data().active !== false).length;
 
-    return {
-      cohortId,
-      enrolledCount,
-      peerReviewCount: Math.max(0, enrolledCount - 1),
-    };
-  } catch (err) {
-    console.error('getCohortStats failed:', err);
-    return empty;
-  }
+  return {
+    cohortId: id,
+    enrolledCount,
+    peerReviewCount: Math.max(0, enrolledCount - 1),
+    available: true,
+  };
 }

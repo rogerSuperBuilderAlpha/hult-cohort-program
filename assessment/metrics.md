@@ -17,9 +17,9 @@
 
 | Metric | Definition | Collection | Pass gate |
 |--------|------------|------------|-----------|
-| **Reviews submitted** | GitHub issues labeled `review` authored by student on others' repos during review window | GitHub API | 29/29 per project × 3 projects |
+| **Reviews submitted** | GitHub issues titled `Review by @{reviewer}` on eligible peer repos during review window | GitHub API + platform `peerWrittenReviews` | `{peerCount}/{peerCount}` per contest project (eligible merged peers only) |
 | **Review quality** | Median peer spot-check score ≥ 3/5 (5% sample) | Staff sample | No gate; distinction only |
-| **Vote participation** | Ballot submitted by deadline | Firestore `votes` collection | 3/3 Phase 1 votes |
+| **Vote participation** | Private 👍/👎 cast for every **eligible** peer (merged submission + active roster) after written review on file | Firestore `peerRatings` | All eligible peers per contest project (dynamic `{peerCount}`) |
 | **Build eligibility** | Submission PR merged + deploy URL passes smoke-test at deadline | GitHub API + staff checklist | 2/3 builds eligible (1 miss allowed with overall pass review) |
 | **Rubric score (received)** | Median total /25 across peer reviews | GitHub issue parser | Advisory only |
 

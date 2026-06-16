@@ -17,7 +17,7 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function OverviewPage() {
-  const cohortStats = await getCohortStats('fall26');
+  const cohortStats = await getCohortStats();
   const peerReviewLine = formatPeerReviewsPerProject(cohortStats);
   const operators =
     cohortStats.enrolledCount > 0

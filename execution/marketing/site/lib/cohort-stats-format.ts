@@ -24,6 +24,9 @@ export function formatPeerReviewsPerProject(stats: CohortStats): string {
 }
 
 export function formatCohortSizeLine(stats: CohortStats): string {
+  if (!stats.available) {
+    return 'Cohort size updating';
+  }
   if (stats.enrolledCount === 0) {
     return 'Cohort filling now';
   }

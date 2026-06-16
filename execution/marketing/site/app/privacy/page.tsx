@@ -13,15 +13,8 @@ export default function PrivacyPage() {
       <SiteHeader links={[{ href: '/', label: 'Home' }]} />
 
       <article className={styles.overview}>
-        <p className={styles.eyebrow}>Legal · Draft</p>
+        <p className={styles.eyebrow}>Legal</p>
         <h1 className={styles.sectionTitle}>Privacy Policy</h1>
-        <div className={styles.callout}>
-          <p>
-            <strong>Draft — pending legal review.</strong> This policy describes how the cohort
-            platform operates today. Final text will be reviewed by Hult counsel before enrollment
-            opens.
-          </p>
-        </div>
         <p className={styles.overviewLead}>
           Last updated: June 2026 · Contact:{' '}
           <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>

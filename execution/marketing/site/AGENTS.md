@@ -12,11 +12,12 @@ Parent guide: [../../../AGENTS.md](../../../AGENTS.md)
 
 | Area | Path |
 |------|------|
-| Routes | `app/` — `/`, `/apply`, `/overview`, `/program`, `/program/[slug]` |
+| Routes | `app/` — `/`, `/apply`, `/dashboard`, `/overview`, `/program`, `/program/[slug]` |
+| Core libs | `lib/cohort-config.ts`, `lib/enrollment-server.ts`, `lib/eligible-peers-server.ts`, `lib/program-schedule.ts` |
 | Program content | `content/program.ts` — titles, descriptions, pass gates |
 | Participant UI | `components/ProgramProjectView.tsx`, `ProjectProgressPanel.tsx`, `PeerReviewCard.tsx` |
 | Auth hook | `lib/firebase/use-github-auth.ts` |
-| Roster gate | `lib/participant-status.ts`, `GET /api/me` |
+| Roster gate | `lib/enrollment-server.ts`, `lib/require-enrolled.ts`, `GET /api/me` |
 | Progress API | `lib/project-progress-server.ts` |
 | Written reviews | `lib/written-reviews-server.ts`, `lib/written-reviews-format.ts` |
 | Private votes | `lib/ratings-server.ts` |
@@ -40,20 +41,22 @@ CI uses placeholder Firebase env vars — build must pass without real credentia
 All authenticated routes expect `Authorization: Bearer <Firebase ID token>`.
 
 - `POST /api/applications` — apply (Admin SDK)
-- `GET /api/me` — profile + admitted status + cohort stats
+- `GET /api/me` — profile + enrollment state + cohort stats
+- `GET /api/dashboard` — enrolled cross-project progress (requires roster)
 - `GET /api/program/projects` — public program index (MCP + agents)
 - `GET /api/cohort/stats` — public enrolled count
+- `POST /api/github/webhook` — merged PR → submissions (HMAC)
 - `GET /api/program/[slug]/progress` — submission + peer review state
 - `POST /api/program/[slug]/written-reviews` — `{ revieweeHandle, issueUrl }`
 - `POST /api/program/[slug]/ratings` — `{ revieweeHandle, rating: 'up'|'down' }` (403 without written review)
 
-Optional: set `GITHUB_TOKEN` server-side to verify review issue titles via GitHub API.
+`GITHUB_TOKEN` required in production for review issue verification.
 
 ## Firestore (this app writes)
 
-- `applications`, `roster/fall26/members`, `submissions/.../entries`
-- `peerWrittenReviews/fall26/projects/{slug}/reviewers/{voter}/reviews/{reviewee}`
-- `peerRatings/fall26/projects/{slug}/voters/{voter}`
+- `applications`, `roster/{cohortId}/members`, `submissions/.../entries`
+- `peerWrittenReviews/{cohortId}/projects/{slug}/voters/{voter}/entries/{reviewee}`
+- `peerRatings/{cohortId}/projects/{slug}/voters/{voter}`
 
 Schema details: [../FIREBASE.md](../FIREBASE.md)
 

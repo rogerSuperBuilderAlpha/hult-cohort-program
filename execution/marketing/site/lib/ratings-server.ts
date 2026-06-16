@@ -1,13 +1,12 @@
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
-import type { Firestore } from 'firebase-admin/firestore';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { cohortId } from '@/lib/cohort-config';
 import type { PeerRating } from './project-progress-types';
 
-const COHORT = 'fall26';
-
-function ratingsRef(db: Firestore, projectSlug: string, voterHandle: string) {
+function ratingsRef(projectSlug: string, voterHandle: string) {
+  const db = getAdminDb();
   return db
     .collection('peerRatings')
-    .doc(COHORT)
+    .doc(cohortId())
     .collection('projects')
     .doc(projectSlug)
     .collection('voters')
@@ -18,10 +17,7 @@ export async function getVoterRatingsMap(
   projectSlug: string,
   voterHandle: string
 ): Promise<Record<string, PeerRating>> {
-  if (!isAdminConfigured()) return {};
-
-  const db = getAdminDb();
-  const doc = await ratingsRef(db, projectSlug, voterHandle).get();
+  const doc = await ratingsRef(projectSlug, voterHandle).get();
   if (!doc.exists) return {};
 
   const raw = doc.data()?.ratings ?? {};
@@ -38,8 +34,7 @@ export async function setPeerRating(
   revieweeHandle: string,
   rating: PeerRating
 ): Promise<Record<string, PeerRating>> {
-  const db = getAdminDb();
-  const ref = ratingsRef(db, projectSlug, voterHandle);
+  const ref = ratingsRef(projectSlug, voterHandle);
   const existing = await ref.get();
   const ratings: Record<string, PeerRating> = existing.exists
     ? { ...(existing.data()?.ratings ?? {}) }
@@ -65,7 +60,7 @@ export async function tallyThumbsUp(
   const db = getAdminDb();
   const snap = await db
     .collection('peerRatings')
-    .doc(COHORT)
+    .doc(cohortId())
     .collection('projects')
     .doc(projectSlug)
     .collection('voters')

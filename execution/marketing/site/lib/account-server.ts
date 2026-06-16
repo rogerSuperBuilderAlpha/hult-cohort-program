@@ -1,7 +1,6 @@
 import { getAdminAuth, getAdminDb } from '@/lib/firebase/admin';
+import { cohortId } from '@/lib/cohort-config';
 import { programProjects } from '@/content/program';
-
-const COHORT = 'fall26';
 
 export type AccountDeletionResult = {
   applicationsDeleted: number;
@@ -24,6 +23,7 @@ export async function deleteParticipantAccount(params: {
   firebaseUid?: string;
 }): Promise<AccountDeletionResult> {
   const db = getAdminDb();
+  const id = cohortId();
   const { githubHandle, firebaseUid } = params;
 
   const result: AccountDeletionResult = {
@@ -42,11 +42,7 @@ export async function deleteParticipantAccount(params: {
   await Promise.all(appSnap.docs.map((doc) => doc.ref.delete()));
   result.applicationsDeleted = appSnap.size;
 
-  const rosterRef = db
-    .collection('roster')
-    .doc(COHORT)
-    .collection('members')
-    .doc(githubHandle);
+  const rosterRef = db.collection('roster').doc(id).collection('members').doc(githubHandle);
   const rosterDoc = await rosterRef.get();
   if (rosterDoc.exists) {
     await rosterRef.delete();
@@ -57,7 +53,7 @@ export async function deleteParticipantAccount(params: {
     programProjects.map(async (project) => {
       const submissionRef = db
         .collection('submissions')
-        .doc(COHORT)
+        .doc(id)
         .collection('projects')
         .doc(project.slug)
         .collection('entries')
@@ -70,7 +66,7 @@ export async function deleteParticipantAccount(params: {
 
       const writtenVoterRef = db
         .collection('peerWrittenReviews')
-        .doc(COHORT)
+        .doc(id)
         .collection('projects')
         .doc(project.slug)
         .collection('voters')
@@ -85,7 +81,7 @@ export async function deleteParticipantAccount(params: {
 
       const ratingsRef = db
         .collection('peerRatings')
-        .doc(COHORT)
+        .doc(id)
         .collection('projects')
         .doc(project.slug)
         .collection('voters')

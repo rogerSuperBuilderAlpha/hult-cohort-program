@@ -1,13 +1,12 @@
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
-import type { Firestore } from 'firebase-admin/firestore';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { cohortId } from '@/lib/cohort-config';
 import { issueUrlMatchesRepo, parseGithubIssueUrl } from './written-reviews-format';
 
-const COHORT = 'fall26';
-
-function writtenRef(db: Firestore, projectSlug: string, voterHandle: string, revieweeHandle: string) {
+function writtenRef(projectSlug: string, voterHandle: string, revieweeHandle: string) {
+  const db = getAdminDb();
   return db
     .collection('peerWrittenReviews')
-    .doc(COHORT)
+    .doc(cohortId())
     .collection('projects')
     .doc(projectSlug)
     .collection('voters')
@@ -20,12 +19,10 @@ export async function getWrittenReviewsMap(
   projectSlug: string,
   voterHandle: string
 ): Promise<Record<string, string>> {
-  if (!isAdminConfigured()) return {};
-
   const db = getAdminDb();
   const snap = await db
     .collection('peerWrittenReviews')
-    .doc(COHORT)
+    .doc(cohortId())
     .collection('projects')
     .doc(projectSlug)
     .collection('voters')
@@ -41,12 +38,22 @@ export async function getWrittenReviewsMap(
   return out;
 }
 
+function githubVerificationRequired(): boolean {
+  return process.env.NODE_ENV === 'production';
+}
+
 async function verifyIssueWithGithub(
   issueUrl: string,
   reviewerHandle: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const token = process.env.GITHUB_TOKEN?.trim();
   if (!token) {
+    if (githubVerificationRequired()) {
+      return {
+        ok: false,
+        error: 'Review verification is temporarily unavailable. Contact cohort@hult.edu.',
+      };
+    }
     return { ok: true };
   }
 
@@ -70,7 +77,7 @@ async function verifyIssueWithGithub(
     return { ok: false, error: 'GitHub issue not found or not accessible.' };
   }
 
-  const issue = (await res.json()) as { title?: string; state?: string; pull_request?: unknown };
+  const issue = (await res.json()) as { title?: string; pull_request?: unknown };
   if (issue.pull_request) {
     return { ok: false, error: 'Link must be an issue, not a pull request.' };
   }
@@ -107,8 +114,7 @@ export async function saveWrittenReview(
     throw new Error(githubCheck.error);
   }
 
-  const db = getAdminDb();
-  await writtenRef(db, projectSlug, voterHandle, revieweeHandle).set({
+  await writtenRef(projectSlug, voterHandle, revieweeHandle).set({
     issueUrl: trimmed,
     revieweeHandle,
     voterHandle,
@@ -123,9 +129,6 @@ export async function hasWrittenReview(
   voterHandle: string,
   revieweeHandle: string
 ): Promise<boolean> {
-  if (!isAdminConfigured()) return false;
-
-  const db = getAdminDb();
-  const doc = await writtenRef(db, projectSlug, voterHandle, revieweeHandle).get();
+  const doc = await writtenRef(projectSlug, voterHandle, revieweeHandle).get();
   return doc.exists && Boolean(doc.data()?.issueUrl);
 }

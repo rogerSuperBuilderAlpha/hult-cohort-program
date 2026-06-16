@@ -38,7 +38,7 @@ Program director delivers:
 
 ### Eligible build checklist
 
-To appear on the review ballot, student's **submission PR must be merged to `main`** by deploy deadline. The PR body is the proof-of-work record — no separate link submission form.
+To appear on the peer review/vote list, student's **submission PR must be merged to `main`** by deploy deadline. The PR body is the proof-of-work record — no separate link submission form.
 
 Merged PR must include:
 
@@ -49,7 +49,7 @@ Merged PR must include:
 - [ ] `AGENTS.md` present
 - [ ] Staff smoke-test: program director clicks URL — if down at deadline, **ineligible**
 
-Unmerged PRs may still receive peer reviews but **cannot appear on the vote ballot**.
+Unmerged PRs may still receive peer reviews but **cannot appear on the eligible peer list** for votes.
 
 ### What's provided vs discovered
 
@@ -82,16 +82,16 @@ At cohort 30: 29 reviews × ~45 min = ~22 hrs. Agents reduce repo archaeology ti
 
 See [governance/winner-selection.md](../../governance/winner-selection.md).
 
-- **Method:** Ranked choice — rank top 3 **merged submission PRs**
-- **Self-votes:** Own submission PR cannot appear on ballot
-- **Ballot:** Private to staff; ranked results public after winner announced
-- **Platform:** Participants vote on cohort site `/vote/{project}` during review week (replaces Google Form)
-- **Closes:** Fri 16:00 review week
+- **Method:** Private 👍/👎 per eligible peer **after** written GitHub review is saved on platform
+- **Self-votes:** Cannot review or vote on own submission
+- **Privacy:** Individual votes private; live tallies never shown during review week
+- **Platform:** `/program/{slug}` → review & vote panel; `POST /api/program/{slug}/ratings`
+- **Closes:** Review window end (see `content/program.ts` schedule per project)
 - **Winner announced:** Following Mon 10:00 kickoff
 
 ### Tie-break
 
-Instant runoff on ranked ballots. If still tied: higher median rubric score across all peer reviews (see [assessment/peer-review-system.md](../../assessment/peer-review-system.md)). If still tied: program director selects based on production readiness.
+Most thumbs up wins. If tied: higher median rubric score across written reviews. If still tied: program director selects based on production readiness.
 
 ---
 

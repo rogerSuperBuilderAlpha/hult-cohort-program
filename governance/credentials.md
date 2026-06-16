@@ -9,7 +9,7 @@
 | Credential | ID slug | Criteria | Evidence URL |
 |------------|---------|----------|--------------|
 | **Cohort Graduate** | `hult-cohort-graduate-{term}` | Pass all units ([pass-fail.md](../assessment/pass-fail.md)) | Showcase profile + certificate |
-| **Platform Winner** | `hult-cohort-winner-{platform}-{term}` | Won ranked-choice vote for PM, comms, or showcase | Vote record + winning repo |
+| **Platform Winner** | `hult-cohort-winner-{platform}-{term}` | Most 👍 votes after review week for PM, comms, or showcase | Vote tally + winning repo |
 | **Platform Operator** | `hult-cohort-operator-{platform}-{term}` | Won + met ≥ 80% SLA weeks ([metrics.md](../assessment/metrics.md)) | Platform repo commit history + uptime log |
 | **Leadership Team** | `hult-cohort-leadership-{platform}-{term}` | Picked in draft + active ≥ 50% of term | Team roster on showcase |
 | **Distinction** | `hult-cohort-distinction-{term}` | Top 10% by composite metrics (optional) | Showcase featured profile |

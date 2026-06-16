@@ -6,6 +6,13 @@
  * - Post-admission state: "Enrolled" (admission moment only on /apply)
  * - Money: ~$400/mo tooling; ~$1,600 (~4 months) combined
  */
+export type ProjectSchedule = {
+  submissionOpens: string;
+  submissionCloses: string;
+  reviewOpens?: string;
+  reviewCloses?: string;
+};
+
 export type ProgramProject = {
   slug: string;
   phase: 'onboarding' | 'phase-1' | 'phase-2';
@@ -17,6 +24,7 @@ export type ProgramProject = {
   description: string;
   voteWeek: boolean;
   expectations: string[];
+  schedule: ProjectSchedule;
   submission: {
     repoPattern: string;
     prTitle: string;
@@ -42,6 +50,10 @@ export const programProjects: ProgramProject[] = [
     description:
       'Week 1 is setup — not a build contest. You confirm Cursor + Claude Code, accept your GitHub org invite, and complete your first PR in the cohort roster repo. After the refund window closes, the roster locks and Phase 1 begins.',
     voteWeek: false,
+    schedule: {
+      submissionOpens: '2026-09-08T12:00:00.000Z',
+      submissionCloses: '2026-09-12T21:00:00.000Z',
+    },
     expectations: [
       'Cursor + Claude Code active (~$400/mo combined)',
       'GitHub account linked; org invite accepted',
@@ -71,6 +83,12 @@ export const programProjects: ProgramProject[] = [
     description:
       'Every student builds their own production project-management platform in `pm-{handle}`. The winner becomes the live system the cohort runs on — real accounts for every enrolled student, real projects, real deadlines. You are not building a demo for a portfolio; you are building infrastructure your peers will depend on. After review week, the repo with the most private 👍 votes operates the cohort PM stack until Phase 2.',
     voteWeek: true,
+    schedule: {
+      submissionOpens: '2026-09-15T12:00:00.000Z',
+      submissionCloses: '2026-10-02T21:00:00.000Z',
+      reviewOpens: '2026-10-02T21:00:00.000Z',
+      reviewCloses: '2026-10-03T18:00:00.000Z',
+    },
     expectations: [
       'Build solo in public repo `pm-{handle}` in the cohort org',
       'Deploy to production HTTPS before deadline',
@@ -113,6 +131,12 @@ export const programProjects: ProgramProject[] = [
     description:
       'Discord gets you through week 1. Project 2 is the comms platform the cohort actually lives in: channels, DMs, notifications, or async threads — your design, but it must work for every enrolled student. Integrate with the winning PM platform where it makes sense (deep links, shared auth, task notifications). Winner operates cohort comms for the rest of the semester.',
     voteWeek: true,
+    schedule: {
+      submissionOpens: '2026-10-06T12:00:00.000Z',
+      submissionCloses: '2026-10-16T21:00:00.000Z',
+      reviewOpens: '2026-10-16T21:00:00.000Z',
+      reviewCloses: '2026-10-17T18:00:00.000Z',
+    },
     expectations: [
       'Build in `comms-{handle}`; integrate with winning PM platform where sensible',
       'Real-time or async comms for all enrolled users',
@@ -145,6 +169,12 @@ export const programProjects: ProgramProject[] = [
     description:
       'This is the cohort’s storefront. Every student gets a public profile linking their GitHub trail, projects, and deploy URLs. Hiring partners browse here before week-16 showcase. Winner operates the public showcase — the face of the cohort outside the org. Profiles must cover every enrolled member; partner-facing README and sample URLs required in your submission PR.',
     voteWeek: true,
+    schedule: {
+      submissionOpens: '2026-10-20T12:00:00.000Z',
+      submissionCloses: '2026-10-30T21:00:00.000Z',
+      reviewOpens: '2026-10-30T21:00:00.000Z',
+      reviewCloses: '2026-10-31T18:00:00.000Z',
+    },
     expectations: [
       'Build in `showcase-{handle}`',
       'Public profiles linking GitHub trail for every cohort member',
@@ -176,6 +206,10 @@ export const programProjects: ProgramProject[] = [
     description:
       'The three Phase 1 winners collaborate to unify PM, comms, and showcase into a single linked ecosystem — shared navigation, SSO or deep links, and a cutover plan for the rest of the cohort. Everyone else contributes PRs to the winning platforms as developer/users.',
     voteWeek: false,
+    schedule: {
+      submissionOpens: '2026-10-27T12:00:00.000Z',
+      submissionCloses: '2026-11-07T21:00:00.000Z',
+    },
     expectations: [
       'Winners collaborate in `ecosystem-integration` repo',
       'Single sign-on or deep links between platforms',
@@ -200,6 +234,10 @@ export const programProjects: ProgramProject[] = [
     description:
       'Pick any topic — algorithms, finance, language, interview prep — and ship a production learning app registered on the Ludwitt/Hult platform. The bar is real usage: ≥25 external users counted by the platform API on deadline day, not self-reported numbers. Promote it; the market judges whether anyone actually learns from what you built.',
     voteWeek: false,
+    schedule: {
+      submissionOpens: '2026-11-10T12:00:00.000Z',
+      submissionCloses: '2026-11-21T22:00:00.000Z',
+    },
     expectations: [
       'Register app via Ludwitt/Hult API; JWT + events working',
       'Promote to real users — platform counts, you do not self-report',
@@ -229,6 +267,10 @@ export const programProjects: ProgramProject[] = [
     description:
       'Treat this like founding a company. Market research, business plan, investor materials, and a production app with ≥25 real users — same metrics bar as Project 4. Document at least one investor touch (pitch email, call, or meeting — redact PII in your PR). The repo is `venture-{handle}`; everything lives in GitHub, not a slide deck sent over email.',
     voteWeek: false,
+    schedule: {
+      submissionOpens: '2026-12-01T12:00:00.000Z',
+      submissionCloses: '2026-12-18T22:00:00.000Z',
+    },
     expectations: [
       'Venture docs and app in `venture-{handle}`',
       '≥1 investor touch documented in PR',
@@ -258,6 +300,10 @@ export const programProjects: ProgramProject[] = [
     description:
       'Contribute to open source the way professionals do: pick an upstream repo, open a real PR, get it merged. Track progress in `oss-{handle}` in the cohort org with links to your upstream PR.\n\n**Starter targets** (good while you work toward larger platforms):\n- [cursorboston.com](https://cursorboston.com) — community site with a GUI; approachable first merge\n- [algorithmacy.org](https://algorithmacy.org) — research/education project; contributions may be docs, server-side code, or repo-only — not everything has a web UI\n\nYou can also target major repos (≥1k stars) or staff-approved equivalents. Not all open source is a website: libraries, CLIs, APIs, and research repos count. The pass gate is one merged upstream PR before cohort end.',
     voteWeek: false,
+    schedule: {
+      submissionOpens: '2026-11-10T12:00:00.000Z',
+      submissionCloses: '2026-12-18T22:00:00.000Z',
+    },
     expectations: [
       'Open tracking PR in cohort org linking upstream repo + PR',
       'Consider cursorboston.com or algorithmacy.org for an early merge while pursuing larger targets',

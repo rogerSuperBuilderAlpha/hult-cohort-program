@@ -8,7 +8,7 @@ import type { CohortStats } from '@/lib/cohort-stats-types';
 import { cohortOrg, cohortOrgUrl } from '@/lib/cohort-config';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { buildProjectAgentPrompt, buildPublicAgentPrompt } from '@/lib/project-agent-prompt';
-import { isAdmitted, isApplicantInFlight } from '@/lib/participant-status';
+import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import { useCohortStats } from '@/lib/use-cohort-stats';
 import { useProjectProgress } from '@/lib/use-project-progress';
@@ -224,7 +224,7 @@ function EnrolledView({
       </section>
 
       <div className={styles.participantActions}>
-        <Link href="/apply" className={styles.secondaryBtn}>
+        <Link href="/dashboard" className={styles.secondaryBtn}>
           Dashboard
         </Link>
         {prevSlug && (
@@ -248,7 +248,7 @@ function ApplicantInFlightBanner() {
       <p>
         <strong>Application in review</strong> — finish your take-home PR. This is the journey
         you&apos;re applying to.{' '}
-        <Link href="/apply">Back to apply dashboard →</Link>
+        <Link href="/dashboard">Back to dashboard →</Link>
       </p>
     </div>
   );
@@ -284,7 +284,7 @@ function PublicView({
         {applicantInFlight ? (
           <>
             {' '}
-            <Link href="/apply">Back to apply dashboard</Link>.
+            <Link href="/dashboard">Back to dashboard</Link>.
           </>
         ) : (
           <>
@@ -377,8 +377,9 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
   const { stats: fetchedStats, loading: statsLoading } = useCohortStats();
 
   const loading = authLoading || (Boolean(profile) && statusLoading) || statsLoading;
-  const admitted = isAdmitted(me);
+  const enrolled = isEnrolled(me);
   const inFlight = isApplicantInFlight(me);
+  const pendingRoster = isAdmittedPendingRoster(me);
   const handle = me?.githubHandle;
   const stats = me?.cohortStats ?? fetchedStats;
 
@@ -386,7 +387,18 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
     return <p className={styles.formNote}>Loading your participant view…</p>;
   }
 
-  if (admitted && profile && handle) {
+  if (pendingRoster) {
+    return (
+      <div className={styles.callout}>
+        <p>
+          <strong>Admitted — roster pending.</strong> Your application is approved; participant
+          progress unlocks once staff add you to the roster. Email cohort@hult.edu if this persists.
+        </p>
+      </div>
+    );
+  }
+
+  if (enrolled && profile && handle) {
     return (
       <EnrolledView
         project={project}

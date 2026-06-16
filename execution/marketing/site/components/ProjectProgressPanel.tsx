@@ -250,10 +250,31 @@ export function PeerRatingBoard({
     [getIdToken, onUpdated, projectSlug]
   );
 
-  if (!progress.reviews || progress.reviews.peers.length === 0) return null;
+  if (!progress.reviews) return null;
 
-  const { peers, orgReposUrl, voteWeek, required, writtenCompleted, ratingsCompleted, githubVerification } =
+  const { peers, orgReposUrl, voteWeek, required, writtenCompleted, ratingsCompleted, githubVerification, awaitingMerge } =
     progress.reviews;
+
+  if (peers.length === 0) {
+    return (
+      <section className={styles.overviewBlock} id="peer-ratings">
+        <h2 className={styles.participantHeading}>Review &amp; vote on peer builds</h2>
+        <div className={styles.callout}>
+          <p>
+            <strong>No eligible peers yet.</strong>{' '}
+            {awaitingMerge > 0
+              ? `${awaitingMerge} enrolled peer(s) have not merged a submission PR yet. Your pass gate counts only peers with merged submissions — check back as PRs land.`
+              : 'Waiting for peers to merge submission PRs before review week can begin.'}
+          </p>
+          <p className={styles.formNote} style={{ marginBottom: 0 }}>
+            <a href={orgReposUrl} target="_blank" rel="noopener noreferrer">
+              Browse cohort repos →
+            </a>
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   const needsReview = peers.filter((p) => !p.reviewFiled);
   const readyToVote = peers.filter((p) => p.reviewFiled && !p.rated);

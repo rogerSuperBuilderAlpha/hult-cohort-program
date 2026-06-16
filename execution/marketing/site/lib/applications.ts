@@ -1,3 +1,5 @@
+import { cohortId } from '@/lib/cohort-config';
+
 export type ApplicationConfirmations = {
   tuitionAffordable: boolean;
   publicWork: boolean;
@@ -21,7 +23,7 @@ export type ApplicationInput = {
 export type ApplicationRecord = ApplicationInput & {
   id: string;
   githubHandle: string;
-  cohort: 'fall26';
+  cohort: string;
   status: 'submitted';
 };
 
@@ -100,7 +102,7 @@ export function buildApplicationRecord(input: ApplicationInput, id: string): App
     ...input,
     id,
     githubHandle: handle,
-    cohort: 'fall26',
+    cohort: cohortId(),
     status: 'submitted',
   };
 }

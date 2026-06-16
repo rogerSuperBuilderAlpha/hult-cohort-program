@@ -1,35 +1,29 @@
 # Winner selection
 
-**Purpose:** Voting mechanics for all three Phase 1 contests. Must stay consistent with [the-loop.md](../curriculum/phase-1/the-loop.md) and [peer-review-system.md](../assessment/peer-review-system.md).
+**Purpose:** Voting mechanics for all three Phase 1 contests. Must stay consistent with [the-loop.md](../curriculum/phase-1/the-loop.md), [peer-review-system.md](../assessment/peer-review-system.md), and the cohort platform (`execution/marketing/site/content/program.ts`).
 
 ---
 
-## Voting method
+## Voting method (canonical — implemented)
 
-**Ranked choice — rank your top 3 builds.**
+**Private 👍/👎 per peer after a written GitHub review.**
 
-| Choice | Reasoning |
-|--------|-----------|
-| ~~Single vote~~ | Loses signal; ties too common at n=30 |
-| ~~Approval voting~~ | Encourages vote-all, weak winner mandate |
-| **Ranked choice (top 3)** | Forces judgment; instant runoff handles ties; mirrors "I prefer A but B is acceptable" |
+| Step | Action |
+|------|--------|
+| 1 | File written review (GitHub issue `Review by @{you}`) on each eligible peer repo |
+| 2 | Save issue URL on cohort platform → unlocks vote for that peer |
+| 3 | Cast private 👍 or 👎 on platform (`peerRatings` in Firestore) |
+| 4 | Winner = repo with **most thumbs up** after review week closes |
 
-Ballot UI (cohort platform `/vote/{project}`; Firestore `ballots` + `votes` collections):
+Platform routes: `/program/{slug}` progress panel + `POST /api/program/{slug}/ratings`.
 
-```
-Rank #1 (3 points in internal tally): merged PR ___
-Rank #2 (2 points): merged PR ___
-Rank #3 (1 point): merged PR ___
-
-Cannot rank own submission PR.
-Must rank builds you reviewed (honor system; spot-check against review log).
-```
+**Not used:** ranked-choice top-3 ballots, `/vote/{project}`, or Firestore `votes`/`ballots` collections (legacy docs retired).
 
 ---
 
 ## Self-votes
 
-**Own build cannot appear on ballot.** Students may rank builds they contributed to as developer/user (post-cutover platform PRs) but not their contest submission repo.
+**Cannot review or vote on own submission.** Enforced in UI and API.
 
 ---
 
@@ -37,11 +31,10 @@ Must rank builds you reviewed (honor system; spot-check against review log).
 
 | Aspect | Policy |
 |--------|--------|
-| Individual ballots | **Private** — visible to program staff only |
-| Aggregate results | **Public** — posted in cohort comms after winner announced |
-| Ranked reasons | **Optional** — students may post public "why I ranked X #1" (encouraged, not required) |
-
-Reasoning: private ballots reduce retaliation; public aggregates preserve accountability.
+| Individual votes | **Private** — each voter sees only their own 👍/👎 |
+| Live tallies | **Never shown** during review week |
+| Aggregate results | **Staff-only** until winner announced (`tallyThumbsUp` server helper) |
+| Written reviews | **Public** on peer GitHub repos |
 
 ---
 
@@ -49,63 +42,48 @@ Reasoning: private ballots reduce retaliation; public aggregates preserve accoun
 
 **Reviews inform; votes decide.**
 
-- Peer reviews produce rubric scores (5 dimensions × 1–5) per [peer-review-system.md](../assessment/peer-review-system.md)
+- Written reviews use 5-dimension rubric ([peer-review-system.md](../assessment/peer-review-system.md))
 - Votes are **not rubric-weighted**
-- Tie-break only: median rubric score breaks vote ties
+- Tie-break: higher **median total rubric score** across written reviews
 - Staff may publish rubric leaderboard as reference; it does not override vote
 
 ---
 
 ## Eligibility to receive votes
 
-Build must pass **eligible build checklist** in [the-loop.md](../curriculum/phase-1/the-loop.md):
+A peer appears in your review/vote list only when **both**:
 
-- **Submission PR merged to `main`** before deadline, with production URL and checklist items in PR body
-- Deployed, public repo, README, AGENTS.md, smoke-test passes
+1. Active on cohort roster (`roster/{cohort}/members/{handle}`)
+2. **Submission PR merged** before deadline (`submissions/.../entries/{handle}`)
 
-Ineligible builds:
-- Appear on review list (peers should still review for practice) but **excluded from ballots**
-- Student may still pass cohort if they complete reviews; build unit marked incomplete
+Pass-gate denominator = **count of eligible peers**, not roster size − 1. If peers have not merged yet, your required count shrinks accordingly.
+
+Ineligible (unmerged) builds: excluded from vote list; student may still pass if they complete reviews/votes on all **eligible** peers.
+
+Primary ingestion: GitHub webhook → `POST /api/github/webhook`. Backstop: `scripts/reconcile-submissions.mjs`.
 
 ---
 
 ## Tie-break procedure
 
-1. Instant runoff on ranked-choice ballots
-2. If tied: higher **median total rubric score** (sum of 5 dimensions) across all peer reviews
+1. Most thumbs up wins
+2. If tied: higher **median total rubric score** (sum of 5 dimensions) across peer written reviews
 3. If still tied: program director selects by production readiness (documented public note)
 
 ---
 
 ## Multiple wins
 
-**One student may win multiple projects.** No restriction.
-
-Implications documented in [the-loop.md](../curriculum/phase-1/the-loop.md): multi-platform operator load, team pick rules, unification collaboration.
+One student may win more than one Phase 1 project. Operator obligations stack per [credentials.md](credentials.md).
 
 ---
 
-## Vote administration
+## Staff tally
 
-| Step | Owner | When |
-|------|-------|------|
-| Generate ballot (eligible merged PRs in Firestore) | Program director | Review week Thu |
-| Distribute ballot link (`/vote/{project}`) | Program director | Review week Fri 10:00 |
-| Remind non-voters | Program director | Review week Fri 14:00 |
-| Close ballot | Auto | Review week Fri 16:00 |
-| Run tally | Program director | Review week Fri 17:00 |
-| Announce winner | Program director | Following Mon 10:00 |
+After review week closes, staff run thumbs-up tally from Firestore:
 
-Non-voters: counted as **failed participation** for that project unit (not full cohort fail unless pattern — see pass/fail).
+```bash
+# Uses lib/ratings-server.ts tallyThumbsUp via staff script or Console export
+```
 
----
-
-## Open decisions
-
-None.
-
-## Depends on
-
-- [curriculum/phase-1/the-loop.md](../curriculum/phase-1/the-loop.md)
-- [assessment/peer-review-system.md](../assessment/peer-review-system.md)
-- [operations/calendar.md](../operations/calendar.md)
+Publish winner + aggregate thumbs-up count in cohort comms. Do not publish individual ballots (there are none — only per-voter maps).

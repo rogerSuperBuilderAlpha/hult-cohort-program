@@ -24,12 +24,19 @@ export type ProjectProgress = {
     repoUrl: string;
   };
   reviews: {
+    /** Eligible peers with merged submissions — pass-gate denominator */
     required: number;
+    /** Active roster size − 1 (display only) */
+    rosterPeerCount: number;
+    /** Roster peers without a merged submission yet */
+    awaitingMerge: number;
     /** GitHub issue reviews filed */
     writtenCompleted: number;
     /** Private thumbs up/down submitted */
     ratingsCompleted: number;
     dueNote: string;
+    dueAt: string;
+    dueAtFormatted: string;
     peers: PeerRatingTarget[];
     orgReposUrl: string;
     voteWeek: boolean;

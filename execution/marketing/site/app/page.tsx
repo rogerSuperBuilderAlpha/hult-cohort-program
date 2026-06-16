@@ -1,7 +1,7 @@
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
 import { SiteHeader } from '@/components/SiteHeader';
-import { cohortOrg, cohortOrgUrl } from '@/lib/cohort-config';
+import { cohortSubmissionRepo, cohortRepoUrl } from '@/lib/cohort-config';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
 
@@ -42,8 +42,8 @@ export default async function Home() {
           </a>
         </div>
         <div className={`${styles.heroMeta} animate-in delay-4`}>
-          <a href={cohortOrgUrl()} target="_blank" rel="noopener noreferrer">
-            github.com/{cohortOrg()}
+          <a href={cohortRepoUrl()} target="_blank" rel="noopener noreferrer">
+            github.com/{cohortSubmissionRepo()}
           </a>
           <span>Applications open June 15</span>
           <span>Starts Sep 8</span>

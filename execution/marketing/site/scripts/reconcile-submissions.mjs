@@ -14,16 +14,16 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
-const ORG = process.env.NEXT_PUBLIC_COHORT_ORG?.trim() || 'hult-cohort-fall26-boston';
+const REPO = process.env.NEXT_PUBLIC_COHORT_REPO?.trim() || 'rogerSuperBuilderAlpha/hult-cohort-program';
 
 const PROJECTS = [
-  { slug: 'onboarding', repo: (h) => `${ORG}/roster`, prTitle: (h) => `[Onboarding] Tooling checklist — ${h}` },
-  { slug: 'phase-1-project-1', repo: (h) => `${ORG}/pm-${h}`, prTitle: (h) => `[Project 1] Submission — ${h}` },
-  { slug: 'phase-1-project-2', repo: (h) => `${ORG}/comms-${h}`, prTitle: (h) => `[Project 2] Submission — ${h}` },
-  { slug: 'phase-1-project-3', repo: (h) => `${ORG}/showcase-${h}`, prTitle: (h) => `[Project 3] Submission — ${h}` },
-  { slug: 'phase-2-learning-app', repo: (h) => `${ORG}/learning-${h}`, prTitle: (h) => `[P2-L1] Submission — ${h}` },
-  { slug: 'phase-2-venture', repo: (h) => `${ORG}/venture-${h}`, prTitle: (h) => `[P2-Venture] Submission — ${h}` },
-  { slug: 'phase-2-open-source', repo: (h) => `${ORG}/oss-${h}`, prTitle: (h) => `[P2-OSS] Tracking — ${h}` },
+  { slug: 'onboarding', prTitle: (h) => `[Onboarding] Tooling checklist — ${h}` },
+  { slug: 'phase-1-project-1', prTitle: (h) => `[Project 1] Submission — ${h}` },
+  { slug: 'phase-1-project-2', prTitle: (h) => `[Project 2] Submission — ${h}` },
+  { slug: 'phase-1-project-3', prTitle: (h) => `[Project 3] Submission — ${h}` },
+  { slug: 'phase-2-learning-app', prTitle: (h) => `[P2-L1] Submission — ${h}` },
+  { slug: 'phase-2-venture', prTitle: (h) => `[P2-Venture] Submission — ${h}` },
+  { slug: 'phase-2-open-source', prTitle: (h) => `[P2-OSS] Tracking — ${h}` },
 ];
 
 function loadServiceAccount() {
@@ -63,7 +63,7 @@ async function main() {
       if (existing.exists) continue;
 
       const prNumber = 50 + projectIndex;
-      const repo = project.repo(handle);
+      const repo = REPO;
       await entryRef.set({
         githubHandle: handle,
         repo,

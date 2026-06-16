@@ -5,7 +5,7 @@ import type { ProgramProject } from '@/content/program';
 import { AgentPromptHarness } from '@/components/AgentPromptHarness';
 import { PeerRatingBoard, ProjectProgressPanel } from '@/components/ProjectProgressPanel';
 import type { CohortStats } from '@/lib/cohort-stats-types';
-import { cohortOrg, cohortOrgUrl } from '@/lib/cohort-config';
+import { cohortOrg, cohortSubmissionRepo, cohortRepoUrl } from '@/lib/cohort-config';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { buildProjectAgentPrompt, buildPublicAgentPrompt } from '@/lib/project-agent-prompt';
 import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
@@ -61,7 +61,7 @@ function EnrolledView({
           {isOnboarding ? (
             <>
               <strong>{project.phaseLabel}</strong> — your active week. Complete the checklist and
-              open your onboarding PR in the cohort roster repo.
+              open your onboarding PR in the cohort repo.
             </>
           ) : project.voteWeek ? (
             <>
@@ -107,11 +107,11 @@ function EnrolledView({
       <section className={styles.overviewBlock}>
         <h2 className={styles.participantHeading}>How you submit (PR, not a link form)</h2>
         <p className={styles.formNote} style={{ marginTop: 0, marginBottom: 16 }}>
-          Cohort org:{' '}
-          <a href={cohortOrgUrl()} target="_blank" rel="noopener noreferrer">
-            github.com/{org}
+          Cohort repo:{' '}
+          <a href={cohortRepoUrl()} target="_blank" rel="noopener noreferrer">
+            github.com/{cohortSubmissionRepo()}
           </a>{' '}
-          — accept your invite before pushing.
+          — fork or branch from <code>main</code> and open a PR with the exact title below.
         </p>
         <dl className={styles.dl}>
           <dt>Repo</dt>
@@ -270,7 +270,8 @@ function PublicView({
   return (
     <>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
-        Template placeholders <code>{'{org}'}</code> and <code>{'{handle}'}</code> are replaced after
+        Template placeholders <code>{'{repo}'}</code>, <code>{'{org}'}</code>, and{' '}
+        <code>{'{handle}'}</code> are replaced after
         you enroll.
         {stats && stats.enrolledCount > 0 ? (
           <>

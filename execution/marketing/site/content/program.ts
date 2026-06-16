@@ -48,7 +48,7 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Verify tooling, learn the PR loop, and complete bootstrap work on Discord before cohort-owned platforms exist.',
     description:
-      'Week 1 is setup — not a build contest. You confirm Cursor + Claude Code, accept your GitHub org invite, and complete your first PR in the cohort roster repo. After the refund window closes, the roster locks and Phase 1 begins.',
+      'Week 1 is setup — not a build contest. You confirm Cursor + Claude Code, get write access to the cohort repo, and complete your first PR in `hult-cohort-program`. After the refund window closes, the roster locks and Phase 1 begins.',
     voteWeek: false,
     schedule: {
       submissionOpens: '2026-09-08T12:00:00.000Z',
@@ -56,12 +56,12 @@ export const programProjects: ProgramProject[] = [
     },
     expectations: [
       'Cursor + Claude Code active (~$400/mo combined)',
-      'GitHub account linked; org invite accepted',
+      'GitHub account linked; collaborator access on cohort repo (or fork workflow)',
       'Complete repo-exploration workshop',
       'Attend live kickoffs; refund window ends Friday 5pm',
     ],
     submission: {
-      repoPattern: '{org}/roster',
+      repoPattern: '{repo}',
       prTitle: '[Onboarding] Tooling checklist — {handle}',
       prBodyMustInclude: [
         'Tooling verification checklist (Cursor, Claude Code, GitHub SSH)',
@@ -81,7 +81,7 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Build the PM tool the entire cohort will use to track projects, tasks, and assignments for the rest of the semester.',
     description:
-      'Every student builds their own production project-management platform in `pm-{handle}`. The winner becomes the live system the cohort runs on — real accounts for every enrolled student, real projects, real deadlines. You are not building a demo for a portfolio; you are building infrastructure your peers will depend on. After review week, the repo with the most private 👍 votes operates the cohort PM stack until Phase 2.',
+      'Every student builds their own production project-management platform. Submit a merged PR to `{repo}` with your deploy URL and proof of work. The winner becomes the live system the cohort runs on — real accounts for every enrolled student, real projects, real deadlines. You are not building a demo for a portfolio; you are building infrastructure your peers will depend on. After review week, the submission with the most private 👍 votes operates the cohort PM stack until Phase 2.',
     voteWeek: true,
     schedule: {
       submissionOpens: '2026-09-15T12:00:00.000Z',
@@ -90,16 +90,16 @@ export const programProjects: ProgramProject[] = [
       reviewCloses: '2026-10-03T18:00:00.000Z',
     },
     expectations: [
-      'Build solo in public repo `pm-{handle}` in the cohort org',
-      'Deploy to production HTTPS before deadline',
+      'Build solo; deploy to production HTTPS before deadline',
+      'Submit merged PR to `{repo}` with production URL in the body',
       'Support all enrolled accounts, projects, tasks, assignments, status workflow',
-      'File a written review (GitHub issue) on each peer repo, then cast a private 👍 or 👎 vote',
+      'File a written review (GitHub issue on `{repo}`) for each peer deploy, then cast a private 👍 or 👎 vote',
       'Winner = repo with the most thumbs up after review week',
       'Votes unlock only after your written review is on file for that peer',
       'If you lose: become developer/user on the winning platform (≥2 PRs/cycle)',
     ],
     submission: {
-      repoPattern: '{org}/pm-{handle}',
+      repoPattern: '{repo}',
       prTitle: '[Project 1] Submission — {handle}',
       prBodyMustInclude: [
         'Production URL',
@@ -138,12 +138,12 @@ export const programProjects: ProgramProject[] = [
       reviewCloses: '2026-10-17T18:00:00.000Z',
     },
     expectations: [
-      'Build in `comms-{handle}`; integrate with winning PM platform where sensible',
+      'Build and deploy your comms stack; integrate with winning PM platform where sensible',
       'Real-time or async comms for all enrolled users',
       'File a written review (GitHub issue) on each peer, then cast a private 👍/👎 vote (most 👍 wins)',
     ],
     submission: {
-      repoPattern: '{org}/comms-{handle}',
+      repoPattern: '{repo}',
       prTitle: '[Project 2] Submission — {handle}',
       prBodyMustInclude: ['Production URL', 'PM platform integration notes', 'Agent usage'],
       deadlineNote: 'PR merged by Thu week 6, 17:00',
@@ -176,12 +176,12 @@ export const programProjects: ProgramProject[] = [
       reviewCloses: '2026-10-31T18:00:00.000Z',
     },
     expectations: [
-      'Build in `showcase-{handle}`',
+      'Submit merged PR to `{repo}` with production URL and sample profile links',
       'Public profiles linking GitHub trail for every cohort member',
       'Written review (GitHub issue) + private vote per peer; most 👍 wins',
     ],
     submission: {
-      repoPattern: '{org}/showcase-{handle}',
+      repoPattern: '{repo}',
       prTitle: '[Project 3] Submission — {handle}',
       prBodyMustInclude: ['Production URL', 'Sample profile URLs', 'Partner-facing README'],
       deadlineNote: 'PR merged by Thu week 8, 17:00',
@@ -211,12 +211,12 @@ export const programProjects: ProgramProject[] = [
       submissionCloses: '2026-11-07T21:00:00.000Z',
     },
     expectations: [
-      'Winners collaborate in `ecosystem-integration` repo',
+      'Winners collaborate via PRs to `{repo}`',
       'Single sign-on or deep links between platforms',
       'PRs reviewed by all three operator teams',
     ],
     submission: {
-      repoPattern: '{org}/ecosystem-integration',
+      repoPattern: '{repo}',
       prTitle: '[Unification] Integration PR — {team}',
       prBodyMustInclude: ['Demo URL', 'Migration/cutover plan'],
       deadlineNote: 'Before Phase 2 kickoff',
@@ -244,7 +244,7 @@ export const programProjects: ProgramProject[] = [
       'Submit proof-of-work PR with listing URL and metrics snapshot',
     ],
     submission: {
-      repoPattern: '{org}/learning-{handle}',
+      repoPattern: '{repo}',
       prTitle: '[P2-L1] Submission — {handle}',
       prBodyMustInclude: [
         'Ludwitt/Hult app ID',
@@ -272,12 +272,12 @@ export const programProjects: ProgramProject[] = [
       submissionCloses: '2026-12-18T22:00:00.000Z',
     },
     expectations: [
-      'Venture docs and app in `venture-{handle}`',
+      'Venture docs and app — submit proof via merged PR to `{repo}`',
       '≥1 investor touch documented in PR',
       'Same user metric bar as learning app',
     ],
     submission: {
-      repoPattern: '{org}/venture-{handle}',
+      repoPattern: '{repo}',
       prTitle: '[P2-Venture] Submission — {handle}',
       prBodyMustInclude: [
         'Investor deck link (in repo)',
@@ -298,20 +298,20 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Get at least one PR merged into a qualified open-source project — tracked via a cohort tracking PR.',
     description:
-      'Contribute to open source the way professionals do: pick an upstream repo, open a real PR, get it merged. Track progress in `oss-{handle}` in the cohort org with links to your upstream PR.\n\n**Starter targets** (good while you work toward larger platforms):\n- [cursorboston.com](https://cursorboston.com) — community site with a GUI; approachable first merge\n- [algorithmacy.org](https://algorithmacy.org) — research/education project; contributions may be docs, server-side code, or repo-only — not everything has a web UI\n\nYou can also target major repos (≥1k stars) or staff-approved equivalents. Not all open source is a website: libraries, CLIs, APIs, and research repos count. The pass gate is one merged upstream PR before cohort end.',
+      'Contribute to open source the way professionals do: pick an upstream repo, open a real PR, get it merged. Track progress with a PR to `{repo}` linking your upstream work.\n\n**Starter targets** (good while you work toward larger platforms):\n- [cursorboston.com](https://cursorboston.com) — community site with a GUI; approachable first merge\n- [algorithmacy.org](https://algorithmacy.org) — research/education project; contributions may be docs, server-side code, or repo-only — not everything has a web UI\n\nYou can also target major repos (≥1k stars) or staff-approved equivalents. Not all open source is a website: libraries, CLIs, APIs, and research repos count. The pass gate is one merged upstream PR before cohort end.',
     voteWeek: false,
     schedule: {
       submissionOpens: '2026-11-10T12:00:00.000Z',
       submissionCloses: '2026-12-18T22:00:00.000Z',
     },
     expectations: [
-      'Open tracking PR in cohort org linking upstream repo + PR',
+      'Open tracking PR in `{repo}` linking upstream repo + PR',
       'Consider cursorboston.com or algorithmacy.org for an early merge while pursuing larger targets',
       'Upstream may be GUI, server-side, CLI, or docs-only — match the repo’s contribution model',
       'Update tracking PR when upstream merges',
     ],
     submission: {
-      repoPattern: '{org}/oss-{handle} (tracking) + external upstream',
+      repoPattern: '{repo}',
       prTitle: '[P2-OSS] Tracking — {handle}',
       prBodyMustInclude: [
         'Upstream repo URL',

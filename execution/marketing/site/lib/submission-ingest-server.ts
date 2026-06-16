@@ -55,24 +55,8 @@ const EMPTY_STATS: CohortStats = {
   available: true,
 };
 
-function resolveHandleFromRepo(
-  repoName: string,
-  repoPattern: string
-): string | null {
-  const pattern = repoPattern.replace('{org}/', '');
-
-  if (pattern.includes('{handle}')) {
-    const [prefix, suffix = ''] = pattern.split('{handle}');
-    if (!repoName.startsWith(prefix) || !repoName.endsWith(suffix)) return null;
-    const handle = repoName.slice(prefix.length, repoName.length - suffix.length);
-    return handle ? handle.toLowerCase() : null;
-  }
-
-  if (repoName === pattern) return null;
-  return null;
-}
-
 function resolveHandleFromTitle(prTitle: string, prTitleTemplate: string): string | null {
+  void prTitleTemplate;
   const dashParts = prTitle.split('—');
   if (dashParts.length < 2) return null;
   const handle = dashParts[dashParts.length - 1]?.trim().toLowerCase();
@@ -88,29 +72,13 @@ export function matchMergedPullRequest(params: {
 }): ParsedSubmissionPr | null {
   if (!params.merged) return null;
 
-  const { org, cohortId } = getCohortContext();
-  const orgPrefix = `${org}/`;
-  if (!params.repoFullName.startsWith(orgPrefix)) return null;
+  const { org, cohortId, repo: cohortRepo } = getCohortContext();
+  if (params.repoFullName.toLowerCase() !== cohortRepo.toLowerCase()) return null;
 
-  const repoName = params.repoFullName.slice(orgPrefix.length);
   const stats: CohortStats = { ...EMPTY_STATS, cohortId };
 
   for (const project of programProjects) {
-    const pattern = project.submission.repoPattern.replace('{org}/', '').split(' ')[0]!;
-    let handle: string | null = null;
-
-    if (pattern.includes('{handle}')) {
-      handle = resolveHandleFromRepo(repoName, project.submission.repoPattern);
-    } else if (pattern === 'roster') {
-      if (repoName !== 'roster') continue;
-      handle = resolveHandleFromTitle(params.prTitle, project.submission.prTitle);
-    } else if (pattern === 'ecosystem-integration') {
-      if (repoName !== 'ecosystem-integration') continue;
-      handle = resolveHandleFromTitle(params.prTitle, project.submission.prTitle);
-    } else {
-      continue;
-    }
-
+    const handle = resolveHandleFromTitle(params.prTitle, project.submission.prTitle);
     if (!handle) continue;
 
     const expectedTitle = personalizeProgramText(
@@ -124,7 +92,7 @@ export function matchMergedPullRequest(params: {
     return {
       projectSlug: project.slug,
       githubHandle: handle,
-      repo: params.repoFullName,
+      repo: cohortRepo,
       prNumber: params.prNumber,
       prUrl: params.prHtmlUrl,
       prTitle: params.prTitle,

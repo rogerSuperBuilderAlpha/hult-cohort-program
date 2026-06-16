@@ -1,12 +1,11 @@
 import { getProject } from '@/content/program';
 import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
-import { cohortId, cohortOrg } from '@/lib/cohort-config';
+import { cohortId, cohortSubmissionRepo } from '@/lib/cohort-config';
 import type { CohortStats } from '@/lib/cohort-stats-types';
 import { getEligiblePeerRows, mergePeerProgress } from '@/lib/eligible-peers-server';
 import { formatScheduleDate } from '@/lib/program-schedule';
-import { personalizeProgramText } from '@/lib/personalize-program';
 import type { ProjectProgress } from './project-progress-types';
-import { githubRepoUrl, orgReposSearchUrl } from './project-progress-format';
+import { githubRepoUrl, cohortSubmissionBrowseUrl } from './project-progress-format';
 import { getVoterRatingsMap } from './ratings-server';
 import { getWrittenReviewsMap } from './written-reviews-server';
 
@@ -21,9 +20,8 @@ export async function getProjectProgress(
   if (!project) return null;
 
   const id = cohortId();
-  const org = cohortOrg();
+  const repo = cohortSubmissionRepo();
   const db = getAdminDb();
-  const repo = personalizeProgramText(project.submission.repoPattern.split(' ')[0]!, githubHandle, org, cohortStats);
   const repoUrl = githubRepoUrl(repo);
 
   const submissionDoc = await db
@@ -62,7 +60,7 @@ export async function getProjectProgress(
         project.schedule.reviewCloses ?? project.schedule.submissionCloses
       ),
       peers,
-      orgReposUrl: orgReposSearchUrl(org, projectSlug),
+      orgReposUrl: cohortSubmissionBrowseUrl(repo, projectSlug),
       voteWeek: project.voteWeek,
       githubVerification: Boolean(process.env.GITHUB_TOKEN?.trim()),
     };

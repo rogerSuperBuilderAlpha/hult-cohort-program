@@ -1,4 +1,4 @@
-import { cohortOrg } from './cohort-config';
+import { cohortOrg, cohortSubmissionRepo } from './cohort-config';
 
 import type { CohortStats } from './cohort-stats-types';
 import { formatPeerReviewRequirement } from './cohort-stats-format';
@@ -10,6 +10,7 @@ export function personalizeProgramText(
   stats?: CohortStats | null
 ): string {
   let result = text
+    .replaceAll('{repo}', cohortSubmissionRepo())
     .replaceAll('{org}', org)
     .replaceAll('{handle}', handle)
     .replaceAll('{your-handle}', handle)

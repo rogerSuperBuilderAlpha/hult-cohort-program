@@ -1,6 +1,6 @@
 import type { ProgramProject } from '@/content/program';
 import type { CohortStats } from './cohort-stats-types';
-import { cohortOrgUrl } from './cohort-config';
+import { cohortRepoUrl, cohortSubmissionRepo } from './cohort-config';
 import { personalizeProgramText } from './personalize-program';
 
 function branchName(slug: string, handle: string): string {
@@ -21,7 +21,7 @@ function extraInterviewQuestions(project: ProgramProject): string[] {
     case 'onboarding':
       return [
         'Cursor + Claude Code active and billed?',
-        'GitHub org invite accepted for the cohort org?',
+        'Write access to the cohort monorepo (collaborator or fork workflow)?',
         'Expectations Acknowledgment signed — link or doc path?',
         'Agent workflow dry-run completed — what did you run end-to-end?',
       ];
@@ -77,14 +77,11 @@ function extraInterviewQuestions(project: ProgramProject): string[] {
 }
 
 function workflowSteps(project: ProgramProject, handle: string, org: string): string[] {
-  const repo = personalizeProgramText(project.submission.repoPattern, handle, org);
-  const repoPath = repo.split(' ')[0] ?? repo;
   const branch = branchName(project.slug, handle);
   const prTitle = personalizeProgramText(project.submission.prTitle, handle, org);
 
   const common = [
-    `Confirm I have push access to \`https://github.com/${org}\` (org invite accepted).`,
-    `Repo target: \`${repoPath}\` — create it in the org if missing and I confirm.`,
+    `Confirm I can open PRs on \`${cohortSubmissionRepo()}\` (collaborator access or fork → upstream PR).`,
     `Create branch \`${branch}\` from \`main\`.`,
   ];
 
@@ -100,15 +97,15 @@ function workflowSteps(project: ProgramProject, handle: string, org: string): st
     case 'phase-2-open-source':
       return [
         ...common,
-        'Create tracking repo if needed; README links upstream repo + PR.',
-        'Do not push to upstream — only the cohort tracking repo unless I explicitly authorize upstream PR creation.',
+        'Open a tracking PR in the cohort repo linking upstream repo + PR (do not confuse with upstream merge).',
+        'Do not push to upstream unless I explicitly authorize upstream PR creation.',
         `Open tracking PR titled \`${prTitle}\` → \`main\`.`,
         'Push and return PR URL.',
       ];
     case 'phase-1-unification':
       return [
         ...common,
-        'Coordinate integration changes in the ecosystem-integration repo only.',
+        'Coordinate integration changes via PRs to the cohort monorepo.',
         `Open PR titled \`${prTitle}\` → \`main\`.`,
         'Push and return PR URL.',
       ];
@@ -131,7 +128,6 @@ export function buildProjectAgentPrompt(
   stats?: CohortStats | null
 ): string {
   const p = (text: string) => personalizeProgramText(text, handle, org, stats);
-  const repo = p(project.submission.repoPattern);
   const prTitle = p(project.submission.prTitle);
   const interview = extraInterviewQuestions(project);
   const prBodyItems = project.submission.prBodyMustInclude;
@@ -147,13 +143,12 @@ export function buildProjectAgentPrompt(
     ``,
     `## Your job`,
     `1. **Interview me first** — ask for every item in "Required details" below. Do not invent URLs, metrics, or credentials.`,
-    `2. **Do the work** — create/use the repo, implement or document the submission, run tests/smoke checks where applicable.`,
+    `2. **Do the work** — implement or document the submission; deploy to production when required; run tests/smoke checks where applicable.`,
     `3. **Open a PR and push** — use the exact title and body structure below. Stop after opening the PR unless I explicitly ask you to merge.`,
     ``,
     `## Identity`,
     `- GitHub handle: \`${handle}\``,
-    `- Cohort org: \`${org}\` (${cohortOrgUrl()})`,
-    `- Repo: \`${repo}\``,
+    `- Cohort repo: \`${cohortSubmissionRepo()}\` (${cohortRepoUrl()})`,
     `- PR title: \`${prTitle}\``,
     `- Branch: \`${branchName(project.slug, handle)}\``,
     ``,

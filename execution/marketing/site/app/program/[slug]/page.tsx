@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ProgramDescription } from '@/components/ProgramDescription';
 import { ProgramProjectView } from '@/components/ProgramProjectView';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getSiteUrl } from '@/lib/site-config';
@@ -55,7 +54,6 @@ export default async function ProgramProjectPage({
         <p className={styles.eyebrow}>{project.phaseLabel}</p>
         <h1 className={styles.sectionTitle}>{project.title}</h1>
         <p className={styles.overviewLead}>{project.summary}</p>
-        <ProgramDescription text={project.description} />
 
         <ProgramProjectView project={project} prevSlug={prevSlug} nextSlug={nextSlug} />
 

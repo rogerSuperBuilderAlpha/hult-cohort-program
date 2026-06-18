@@ -166,6 +166,9 @@ function PeerReviewSection({
   onUpdated,
   githubVerification,
   reviewWindowOpen,
+  reviewWindowStatus,
+  reviewOpensFormatted,
+  reviewClosesFormatted,
   expandedHandle,
   onExpand,
   savingVote,
@@ -180,6 +183,9 @@ function PeerReviewSection({
   onUpdated: () => void;
   githubVerification: boolean;
   reviewWindowOpen: boolean;
+  reviewWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
+  reviewOpensFormatted?: string;
+  reviewClosesFormatted?: string;
   expandedHandle: string | null;
   onExpand: (handle: string | null) => void;
   savingVote: string | null;
@@ -206,6 +212,9 @@ function PeerReviewSection({
             onUpdated={onUpdated}
             githubVerification={githubVerification}
             reviewWindowOpen={reviewWindowOpen}
+            reviewWindowStatus={reviewWindowStatus}
+            reviewOpensFormatted={reviewOpensFormatted}
+            reviewClosesFormatted={reviewClosesFormatted}
             expanded={expandedHandle === peer.handle}
             onToggle={() => onExpand(expandedHandle === peer.handle ? null : peer.handle)}
             savingVote={savingVote === peer.handle}
@@ -381,6 +390,9 @@ export function PeerRatingBoard({
         onUpdated={onUpdated}
         githubVerification={githubVerification}
         reviewWindowOpen={reviewWindowOpen}
+        reviewWindowStatus={reviewWindowStatus}
+        reviewOpensFormatted={reviewOpensFormatted}
+        reviewClosesFormatted={reviewClosesFormatted}
         expandedHandle={expandedHandle}
         onExpand={setExpandedHandle}
         savingVote={saving}
@@ -403,6 +415,9 @@ export function PeerRatingBoard({
                 onUpdated={onUpdated}
                 githubVerification={githubVerification}
                 reviewWindowOpen={reviewWindowOpen}
+                reviewWindowStatus={reviewWindowStatus}
+                reviewOpensFormatted={reviewOpensFormatted}
+                reviewClosesFormatted={reviewClosesFormatted}
                 expanded={expandedHandle === peer.handle}
                 onToggle={() =>
                   setExpandedHandle(expandedHandle === peer.handle ? null : peer.handle)

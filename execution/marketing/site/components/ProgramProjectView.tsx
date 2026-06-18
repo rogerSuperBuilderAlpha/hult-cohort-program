@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { ProgramProject } from '@/content/program';
+import { ProgramDescription } from '@/components/ProgramDescription';
 import { AgentPromptHarness } from '@/components/AgentPromptHarness';
 import { PeerRatingBoard, ProjectProgressPanel } from '@/components/ProjectProgressPanel';
 import type { CohortStats } from '@/lib/cohort-stats-types';
@@ -383,24 +384,40 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
   const pendingRoster = isAdmittedPendingRoster(me);
   const handle = me?.githubHandle;
   const stats = me?.cohortStats ?? fetchedStats;
+  const descriptionText = personalizeProgramText(
+    project.description,
+    enrolled && handle ? handle : '{handle}',
+    cohortOrg(),
+    stats ?? undefined
+  );
 
   if (loading) {
-    return <p className={styles.formNote}>Loading your participant view…</p>;
+    return (
+      <>
+        <ProgramDescription text={descriptionText} />
+        <p className={styles.formNote}>Loading your participant view…</p>
+      </>
+    );
   }
 
   if (pendingRoster) {
     return (
+      <>
+        <ProgramDescription text={descriptionText} />
       <div className={styles.callout}>
         <p>
           <strong>Admitted — roster pending.</strong> Your application is approved; participant
           progress unlocks once staff add you to the roster. Email cohort@hult.edu if this persists.
         </p>
       </div>
+      </>
     );
   }
 
   if (enrolled && profile && handle) {
     return (
+      <>
+        <ProgramDescription text={descriptionText} />
       <EnrolledView
         project={project}
         handle={handle}
@@ -409,11 +426,13 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
         nextSlug={nextSlug}
         getIdToken={getIdToken}
       />
+      </>
     );
   }
 
   return (
     <>
+      <ProgramDescription text={descriptionText} />
       {inFlight ? <ApplicantInFlightBanner /> : null}
       <PublicView project={project} stats={stats} applicantInFlight={inFlight} />
     </>

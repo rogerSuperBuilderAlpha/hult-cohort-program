@@ -27,6 +27,9 @@ function WrittenReviewForm({
   onSaved,
   githubVerification,
   reviewWindowOpen,
+  reviewWindowStatus,
+  reviewOpensFormatted,
+  reviewClosesFormatted,
 }: {
   projectSlug: string;
   peer: PeerRatingTarget;
@@ -35,6 +38,9 @@ function WrittenReviewForm({
   onSaved: () => void;
   githubVerification: boolean;
   reviewWindowOpen: boolean;
+  reviewWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
+  reviewOpensFormatted?: string;
+  reviewClosesFormatted?: string;
 }) {
   const [issueUrl, setIssueUrl] = useState(peer.reviewIssueUrl ?? '');
   const [saving, setSaving] = useState(false);
@@ -85,6 +91,19 @@ function WrittenReviewForm({
 
   return (
     <div className={styles.reviewStepBody}>
+      {reviewWindowStatus === 'not-yet' && reviewOpensFormatted ? (
+        <p className={styles.reviewWindowNotice}>
+          <strong>Review week opens {reviewOpensFormatted}.</strong> You can browse their repo and PR
+          now; saving reviews and votes unlock when the window opens.
+        </p>
+      ) : null}
+      {reviewWindowStatus === 'closed' ? (
+        <p className={styles.reviewWindowNotice}>
+          <strong>Review week is closed</strong>
+          {reviewClosesFormatted ? ` (${reviewClosesFormatted})` : ''}. No new reviews or votes can
+          be filed.
+        </p>
+      ) : null}
       <a
         href={newReviewIssueUrl(peer.repo, reviewerHandle)}
         target="_blank"
@@ -112,7 +131,11 @@ function WrittenReviewForm({
           {saving ? 'Saving…' : 'Save review'}
         </button>
       </div>
-      {!reviewWindowOpen ? (
+      {!reviewWindowOpen && reviewWindowStatus === 'not-yet' && reviewOpensFormatted ? (
+        <p className={styles.reviewStepHint}>
+          Save review unlocks {reviewOpensFormatted}.
+        </p>
+      ) : !reviewWindowOpen ? (
         <p className={styles.reviewStepHint}>Review week is not open — saving is disabled.</p>
       ) : null}
       {error ? <p className={styles.formError}>{error}</p> : null}
@@ -131,6 +154,9 @@ type CardProps = {
   onUpdated: () => void;
   githubVerification: boolean;
   reviewWindowOpen: boolean;
+  reviewWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
+  reviewOpensFormatted?: string;
+  reviewClosesFormatted?: string;
   expanded: boolean;
   onToggle: () => void;
   savingVote: boolean;
@@ -145,6 +171,9 @@ export function PeerReviewCard({
   onUpdated,
   githubVerification,
   reviewWindowOpen,
+  reviewWindowStatus,
+  reviewOpensFormatted,
+  reviewClosesFormatted,
   expanded,
   onToggle,
   savingVote,
@@ -204,6 +233,9 @@ export function PeerReviewCard({
                 onSaved={onUpdated}
                 githubVerification={githubVerification}
                 reviewWindowOpen={reviewWindowOpen}
+                reviewWindowStatus={reviewWindowStatus}
+                reviewOpensFormatted={reviewOpensFormatted}
+                reviewClosesFormatted={reviewClosesFormatted}
               />
             </li>
 

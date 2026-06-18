@@ -139,6 +139,21 @@
   box-shadow: var(--shadow-accent);
 }
 
+.primaryBtn:disabled {
+  opacity: 0.85;
+  cursor: not-allowed;
+  background: var(--hult-gray);
+  transform: none;
+  box-shadow: none;
+}
+
+.primaryBtn:disabled:hover {
+  background: var(--hult-gray);
+  color: white;
+  transform: none;
+  box-shadow: none;
+}
+
 .secondaryBtn {
   display: inline-block;
   padding: 14px 28px;
@@ -1112,6 +1127,17 @@
   font-size: 0.85rem;
   color: var(--text-muted);
   line-height: 1.5;
+}
+
+.reviewWindowNotice {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--bg-subtle);
+  border-left: 3px solid var(--hult-sage);
+  border-radius: 2px;
+  line-height: 1.45;
 }
 
 .reviewStepDone {

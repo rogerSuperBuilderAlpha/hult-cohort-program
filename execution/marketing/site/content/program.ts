@@ -265,7 +265,7 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Full startup package: investor deck, business plan, and a production-grade platform ready for real users.',
     description:
-      'Treat this like founding a company. Market research, business plan, investor materials, and a production app with ≥25 real users — same metrics bar as Project 4. Document at least one investor touch (pitch email, call, or meeting — redact PII in your PR). The repo is `venture-{handle}`; everything lives in GitHub, not a slide deck sent over email.',
+      'Treat this like founding a company. Market research, business plan, investor materials, and a production app with ≥25 real users — same metrics bar as Project 4. Document at least one investor touch (pitch email, call, or meeting — redact PII in your PR). You may build in any repo; pass-gate tracking happens through a merged proof-of-work PR to `{repo}` with deck paths, app URL, and metrics in the body.',
     voteWeek: false,
     schedule: {
       submissionOpens: '2026-12-01T12:00:00.000Z',

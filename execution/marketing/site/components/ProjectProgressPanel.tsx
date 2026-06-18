@@ -101,6 +101,29 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
 
         {reviews ? (
           <>
+            {reviews.reviewWindowStatus === 'not-yet' && reviews.reviewOpensFormatted ? (
+              <li className={styles.progressItemPending}>
+                <StatusIcon done={false} />
+                <div>
+                  <strong>Review week has not opened</strong>
+                  <p className={styles.progressDetail}>
+                    Written reviews and private votes unlock {reviews.reviewOpensFormatted}.
+                  </p>
+                </div>
+              </li>
+            ) : reviews.reviewWindowStatus === 'closed' ? (
+              <li className={styles.progressItemPending}>
+                <StatusIcon done={false} />
+                <div>
+                  <strong>Review week closed</strong>
+                  <p className={styles.progressDetail}>
+                    {reviews.reviewClosesFormatted
+                      ? `Closed ${reviews.reviewClosesFormatted}.`
+                      : 'No new reviews or votes can be filed.'}
+                  </p>
+                </div>
+              </li>
+            ) : null}
             <li className={writtenDone ? styles.progressItemDone : styles.progressItemPending}>
               <StatusIcon done={writtenDone} />
               <div>
@@ -142,6 +165,7 @@ function PeerReviewSection({
   getIdToken,
   onUpdated,
   githubVerification,
+  reviewWindowOpen,
   expandedHandle,
   onExpand,
   savingVote,
@@ -155,6 +179,7 @@ function PeerReviewSection({
   getIdToken: () => Promise<string | null>;
   onUpdated: () => void;
   githubVerification: boolean;
+  reviewWindowOpen: boolean;
   expandedHandle: string | null;
   onExpand: (handle: string | null) => void;
   savingVote: string | null;
@@ -180,6 +205,7 @@ function PeerReviewSection({
             getIdToken={getIdToken}
             onUpdated={onUpdated}
             githubVerification={githubVerification}
+            reviewWindowOpen={reviewWindowOpen}
             expanded={expandedHandle === peer.handle}
             onToggle={() => onExpand(expandedHandle === peer.handle ? null : peer.handle)}
             savingVote={savingVote === peer.handle}
@@ -215,9 +241,13 @@ export function PeerRatingBoard({
   const [error, setError] = useState('');
   const [expandedHandle, setExpandedHandle] = useState<string | null>(null);
 
+  const reviews = progress.reviews;
+  const reviewWindowOpen =
+    reviews?.reviewWindowStatus === 'open' || reviews?.reviewWindowStatus === 'none';
+
   const submitRating = useCallback(
     async (peer: PeerRatingTarget, rating: PeerRating) => {
-      if (!peer.reviewFiled) return;
+      if (!peer.reviewFiled || !reviewWindowOpen) return;
 
       setSaving(peer.handle);
       setError('');
@@ -247,13 +277,24 @@ export function PeerRatingBoard({
         setSaving(null);
       }
     },
-    [getIdToken, onUpdated, projectSlug]
+    [getIdToken, onUpdated, projectSlug, reviewWindowOpen]
   );
 
-  if (!progress.reviews) return null;
+  if (!reviews) return null;
 
-  const { peers, orgReposUrl, voteWeek, required, writtenCompleted, ratingsCompleted, githubVerification, awaitingMerge } =
-    progress.reviews;
+  const {
+    peers,
+    orgReposUrl,
+    voteWeek,
+    required,
+    writtenCompleted,
+    ratingsCompleted,
+    githubVerification,
+    awaitingMerge,
+    reviewWindowStatus,
+    reviewOpensFormatted,
+    reviewClosesFormatted,
+  } = reviews;
 
   if (peers.length === 0) {
     return (
@@ -284,6 +325,24 @@ export function PeerRatingBoard({
   return (
     <section className={styles.overviewBlock} id="peer-ratings">
       <h2 className={styles.participantHeading}>Review &amp; vote on peer builds</h2>
+
+      {reviewWindowStatus === 'not-yet' && reviewOpensFormatted ? (
+        <div className={styles.callout}>
+          <p>
+            <strong>Review week opens {reviewOpensFormatted}.</strong> You can browse peer repos
+            now, but written reviews and private votes unlock when the window opens.
+          </p>
+        </div>
+      ) : null}
+      {reviewWindowStatus === 'closed' ? (
+        <div className={styles.callout}>
+          <p>
+            <strong>Review week is closed</strong>
+            {reviewClosesFormatted ? ` (${reviewClosesFormatted})` : ''}. No new reviews or votes
+            can be filed.
+          </p>
+        </div>
+      ) : null}
 
       <div className={styles.reviewHowTo}>
         <p className={styles.reviewHowToLead}>
@@ -321,6 +380,7 @@ export function PeerRatingBoard({
         getIdToken={getIdToken}
         onUpdated={onUpdated}
         githubVerification={githubVerification}
+        reviewWindowOpen={reviewWindowOpen}
         expandedHandle={expandedHandle}
         onExpand={setExpandedHandle}
         savingVote={saving}
@@ -342,6 +402,7 @@ export function PeerRatingBoard({
                 getIdToken={getIdToken}
                 onUpdated={onUpdated}
                 githubVerification={githubVerification}
+                reviewWindowOpen={reviewWindowOpen}
                 expanded={expandedHandle === peer.handle}
                 onToggle={() =>
                   setExpandedHandle(expandedHandle === peer.handle ? null : peer.handle)

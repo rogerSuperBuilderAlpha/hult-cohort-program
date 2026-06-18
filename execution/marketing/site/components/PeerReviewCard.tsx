@@ -26,6 +26,7 @@ function WrittenReviewForm({
   getIdToken,
   onSaved,
   githubVerification,
+  reviewWindowOpen,
 }: {
   projectSlug: string;
   peer: PeerRatingTarget;
@@ -33,12 +34,14 @@ function WrittenReviewForm({
   getIdToken: () => Promise<string | null>;
   onSaved: () => void;
   githubVerification: boolean;
+  reviewWindowOpen: boolean;
 }) {
   const [issueUrl, setIssueUrl] = useState(peer.reviewIssueUrl ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const submit = async () => {
+    if (!reviewWindowOpen) return;
     setSaving(true);
     setError('');
     const idToken = await getIdToken();
@@ -105,10 +108,13 @@ function WrittenReviewForm({
           value={issueUrl}
           onChange={(e) => setIssueUrl(e.target.value)}
         />
-        <button type="button" className={styles.primaryBtn} disabled={saving || !issueUrl.trim()} onClick={() => void submit()}>
+        <button type="button" className={styles.primaryBtn} disabled={saving || !issueUrl.trim() || !reviewWindowOpen} onClick={() => void submit()}>
           {saving ? 'Saving…' : 'Save review'}
         </button>
       </div>
+      {!reviewWindowOpen ? (
+        <p className={styles.reviewStepHint}>Review week is not open — saving is disabled.</p>
+      ) : null}
       {error ? <p className={styles.formError}>{error}</p> : null}
       {!githubVerification ? (
         <p className={styles.reviewStepHint}>Issue must be on @{peer.handle}&apos;s repo.</p>
@@ -124,6 +130,7 @@ type CardProps = {
   getIdToken: () => Promise<string | null>;
   onUpdated: () => void;
   githubVerification: boolean;
+  reviewWindowOpen: boolean;
   expanded: boolean;
   onToggle: () => void;
   savingVote: boolean;
@@ -137,6 +144,7 @@ export function PeerReviewCard({
   getIdToken,
   onUpdated,
   githubVerification,
+  reviewWindowOpen,
   expanded,
   onToggle,
   savingVote,
@@ -195,6 +203,7 @@ export function PeerReviewCard({
                 getIdToken={getIdToken}
                 onSaved={onUpdated}
                 githubVerification={githubVerification}
+                reviewWindowOpen={reviewWindowOpen}
               />
             </li>
 
@@ -208,18 +217,30 @@ export function PeerReviewCard({
                 <button
                   type="button"
                   className={`${styles.thumbBtn} ${peer.myRating === 'up' ? styles.thumbBtnActive : ''}`}
-                  disabled={!peer.reviewFiled || savingVote}
+                  disabled={!peer.reviewFiled || savingVote || !reviewWindowOpen}
                   onClick={() => onVote(peer, 'up')}
-                  title={peer.reviewFiled ? 'Thumbs up' : 'File review first'}
+                  title={
+                    !reviewWindowOpen
+                      ? 'Review week is not open'
+                      : peer.reviewFiled
+                        ? 'Thumbs up'
+                        : 'File review first'
+                  }
                 >
                   👍 Thumbs up
                 </button>
                 <button
                   type="button"
                   className={`${styles.thumbBtn} ${styles.thumbBtnDown} ${peer.myRating === 'down' ? styles.thumbBtnActiveDown : ''}`}
-                  disabled={!peer.reviewFiled || savingVote}
+                  disabled={!peer.reviewFiled || savingVote || !reviewWindowOpen}
                   onClick={() => onVote(peer, 'down')}
-                  title={peer.reviewFiled ? 'Thumbs down' : 'File review first'}
+                  title={
+                    !reviewWindowOpen
+                      ? 'Review week is not open'
+                      : peer.reviewFiled
+                        ? 'Thumbs down'
+                        : 'File review first'
+                  }
                 >
                   👎 Thumbs down
                 </button>

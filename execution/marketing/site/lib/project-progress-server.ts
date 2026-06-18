@@ -3,7 +3,7 @@ import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId, cohortSubmissionRepo } from '@/lib/cohort-config';
 import type { CohortStats } from '@/lib/cohort-stats-types';
 import { getEligiblePeerRows, mergePeerProgress } from '@/lib/eligible-peers-server';
-import { formatScheduleDate } from '@/lib/program-schedule';
+import { formatScheduleDate, reviewWindowStatus } from '@/lib/program-schedule';
 import type { ProjectProgress } from './project-progress-types';
 import { githubRepoUrl, cohortSubmissionBrowseUrl } from './project-progress-format';
 import { getVoterRatingsMap } from './ratings-server';
@@ -48,6 +48,9 @@ export async function getProjectProgress(
     const rosterPeerCount = Math.max(0, cohortStats.peerReviewCount);
     const awaitingMerge = Math.max(0, rosterPeerCount - required);
 
+    const windowStatus = reviewWindowStatus(project);
+    const schedule = project.schedule;
+
     reviews = {
       required,
       rosterPeerCount,
@@ -63,6 +66,13 @@ export async function getProjectProgress(
       orgReposUrl: cohortSubmissionBrowseUrl(repo, projectSlug),
       voteWeek: project.voteWeek,
       githubVerification: Boolean(process.env.GITHUB_TOKEN?.trim()),
+      reviewWindowStatus: windowStatus,
+      reviewOpensFormatted: schedule.reviewOpens
+        ? formatScheduleDate(schedule.reviewOpens)
+        : undefined,
+      reviewClosesFormatted: schedule.reviewCloses
+        ? formatScheduleDate(schedule.reviewCloses)
+        : undefined,
     };
   }
 

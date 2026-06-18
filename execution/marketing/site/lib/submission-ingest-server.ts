@@ -3,6 +3,10 @@ import { programProjects } from '@/content/program';
 import { getCohortContext } from '@/lib/cohort-config';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import type { CohortStats } from '@/lib/cohort-stats-types';
+import {
+  resolveHandleFromSubmissionTitle,
+  submissionTitlesMatch,
+} from '@/lib/submission-title-match';
 
 export type ParsedSubmissionPr = {
   projectSlug: string;
@@ -55,14 +59,6 @@ const EMPTY_STATS: CohortStats = {
   available: true,
 };
 
-function resolveHandleFromTitle(prTitle: string, prTitleTemplate: string): string | null {
-  void prTitleTemplate;
-  const dashParts = prTitle.split('—');
-  if (dashParts.length < 2) return null;
-  const handle = dashParts[dashParts.length - 1]?.trim().toLowerCase();
-  return handle || null;
-}
-
 export function matchMergedPullRequest(params: {
   repoFullName: string;
   prTitle: string;
@@ -78,7 +74,7 @@ export function matchMergedPullRequest(params: {
   const stats: CohortStats = { ...EMPTY_STATS, cohortId };
 
   for (const project of programProjects) {
-    const handle = resolveHandleFromTitle(params.prTitle, project.submission.prTitle);
+    const handle = resolveHandleFromSubmissionTitle(params.prTitle);
     if (!handle) continue;
 
     const expectedTitle = personalizeProgramText(
@@ -87,7 +83,7 @@ export function matchMergedPullRequest(params: {
       org,
       stats
     );
-    if (params.prTitle.trim() !== expectedTitle.trim()) continue;
+    if (!submissionTitlesMatch(params.prTitle, expectedTitle)) continue;
 
     return {
       projectSlug: project.slug,

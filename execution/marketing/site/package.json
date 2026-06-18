@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "verify:submissions": "npx --yes tsx scripts/verify-submission-titles.ts",
+    "check:env": "node scripts/check-production-env.mjs"
   },
   "dependencies": {
     "firebase": "^12.14.0",

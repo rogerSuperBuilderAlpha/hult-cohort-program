@@ -76,7 +76,10 @@ Schema details: [../FIREBASE.md](../FIREBASE.md)
 ## Tests & seeds
 
 ```bash
-node scripts/seed-demo-cohort.mjs      # requires FIREBASE_SERVICE_ACCOUNT_PATH
+node scripts/admissions.mjs list              # staff — requires FIREBASE_SERVICE_ACCOUNT_PATH
+node scripts/seed-demo-cohort.mjs             # demo roster + submissions
+npm run verify:submissions                    # PR title matcher checks
+npm run check:env                             # production env var names
 ```
 
 Deploy: `vercel deploy --prod` from this directory (project `hult-cohort`).

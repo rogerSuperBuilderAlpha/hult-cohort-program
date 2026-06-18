@@ -42,5 +42,8 @@ export type ProjectProgress = {
     voteWeek: boolean;
     /** When GITHUB_TOKEN is set, issue URLs are verified via GitHub API */
     githubVerification: boolean;
+    reviewWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
+    reviewOpensFormatted?: string;
+    reviewClosesFormatted?: string;
   } | null;
 };

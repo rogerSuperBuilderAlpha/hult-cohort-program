@@ -16,6 +16,7 @@ import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
 const REPO = process.env.NEXT_PUBLIC_COHORT_REPO?.trim() || 'rogerSuperBuilderAlpha/hult-cohort-program';
+const ORG = process.env.NEXT_PUBLIC_COHORT_ORG?.trim() || REPO.split('/')[0] || 'rogerSuperBuilderAlpha';
 
 const PROJECTS = [
   { slug: 'onboarding', prTitle: (h) => `[Onboarding] Tooling checklist — ${h}`, ballot: false },

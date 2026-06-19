@@ -2,37 +2,22 @@ import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { resolveEnrollment } from '@/lib/enrollment-server';
+import { rosterMemberRef } from '@/lib/firestore-paths';
 import { getParticipantSubmissions } from '@/lib/submissions-server';
 import { deleteParticipantAccount } from '@/lib/account-server';
 import type { ApplicationStatus, ParticipantMe } from '@/lib/participant-status';
 import { logApiError } from '@/lib/api-log';
-import {
-  bearerTokenFromRequest,
-  verifyGithubIdToken,
-} from '@/lib/firebase/verify-github-session';
+import { requireGithubSession } from '@/lib/require-enrolled';
 
 export const runtime = 'nodejs';
 
 const ROUTE = '/api/me';
 
 export async function GET(request: Request) {
-  if (!isAdminConfigured()) {
-    return Response.json({ error: 'Participant status unavailable.' }, { status: 503 });
-  }
+  const guard = await requireGithubSession(request);
+  if (!guard.ok) return guard.response;
 
-  const idToken = bearerTokenFromRequest(request);
-  if (!idToken) {
-    return Response.json({ error: 'Sign in with GitHub.' }, { status: 401 });
-  }
-
-  let githubHandle: string;
-  try {
-    const session = await verifyGithubIdToken(idToken);
-    githubHandle = session.githubHandle;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Invalid sign-in.';
-    return Response.json({ error: message }, { status: 401 });
-  }
+  const githubHandle = guard.session.githubHandle;
 
   try {
     const db = getAdminDb();
@@ -40,7 +25,7 @@ export async function GET(request: Request) {
 
     const [appSnap, rosterDoc, cohortStats, submissions] = await Promise.all([
       db.collection('applications').where('githubHandle', '==', githubHandle).limit(5).get(),
-      db.collection('roster').doc(id).collection('members').doc(githubHandle).get(),
+      rosterMemberRef(id, githubHandle).get(),
       getCohortStats(id),
       getParticipantSubmissions(id, githubHandle),
     ]);
@@ -92,25 +77,10 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!isAdminConfigured()) {
-    return Response.json({ error: 'Account management unavailable.' }, { status: 503 });
-  }
+  const guard = await requireGithubSession(request);
+  if (!guard.ok) return guard.response;
 
-  const idToken = bearerTokenFromRequest(request);
-  if (!idToken) {
-    return Response.json({ error: 'Sign in with GitHub.' }, { status: 401 });
-  }
-
-  let githubHandle: string;
-  let firebaseUid: string;
-  try {
-    const session = await verifyGithubIdToken(idToken);
-    githubHandle = session.githubHandle;
-    firebaseUid = session.firebaseUid;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Invalid sign-in.';
-    return Response.json({ error: message }, { status: 401 });
-  }
+  const { githubHandle, firebaseUid } = guard.session;
 
   try {
     const result = await deleteParticipantAccount({ githubHandle, firebaseUid });

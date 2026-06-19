@@ -3,44 +3,36 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
+import { AccountSection } from '@/components/AccountSection';
 import { programProjects } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import type { ParticipantMe } from '@/lib/participant-status';
-import { isEnrolled } from '@/lib/participant-status';
+import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
 import { formatScheduleDate } from '@/lib/program-schedule';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import { GITHUB_REPO_URL } from '@/lib/site-config';
+import type { DashboardSummary } from '@/lib/dashboard-server';
 import styles from '../page.module.css';
-
-type DashboardSummary = {
-  schedule: {
-    cohortWeek: number | null;
-    activeProject: { slug: string; phaseLabel: string; title: string } | null;
-  };
-  projects: {
-    slug: string;
-    phaseLabel: string;
-    title: string;
-    submissionMerged: boolean;
-    reviewsRequired: number | null;
-    reviewsWritten: number | null;
-    votesCast: number | null;
-    awaitingMerge: number | null;
-  }[];
-};
 
 function ParticipantDashboard({
   me,
   summary,
   getIdToken,
+  signOut,
+  deleteAccount,
+  onAccountDeleted,
 }: {
   me: ParticipantMe;
   summary: DashboardSummary;
   getIdToken: () => Promise<string | null>;
+  signOut: () => void;
+  deleteAccount: () => Promise<{ ok: boolean; error?: string }>;
+  onAccountDeleted: () => void;
 }) {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [downloadError, setDownloadError] = useState('');
-  const name = me.roster?.displayName ?? `${me.application?.firstName} ${me.application?.lastName}`;
+  const name = me.roster?.displayName ?? `${me.application?.firstName ?? ''} ${me.application?.lastName ?? ''}`.trim();
+  const greetingName = name.split(/\s+/).filter(Boolean)[0] || me.githubHandle;
   const stats = me.cohortStats;
   const active = summary.schedule.activeProject;
   const submittedCount = summary.projects.filter((p) => p.submissionMerged).length;
@@ -78,7 +70,7 @@ function ParticipantDashboard({
     <div className={styles.participantPanel}>
       <div className={styles.calloutSuccess}>
         <p>
-          <strong>Fall 2026 cohort dashboard.</strong> Welcome, {name.split(' ')[0]}.
+          <strong>Fall 2026 cohort dashboard.</strong> Welcome, {greetingName}.
         </p>
       </div>
 
@@ -153,9 +145,8 @@ function ParticipantDashboard({
 
       <h2 className={styles.participantHeading}>Your data</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
-        Download a JSON export or manage account deletion via{' '}
-        <Link href="/apply">account settings on Apply</Link> ·{' '}
-        <Link href="/privacy">Privacy Policy</Link>
+        Download a JSON export of platform-held data below. Account deletion is in the Account
+        section. See the <Link href="/privacy">Privacy Policy</Link> for details.
       </p>
       <div className={styles.participantActions} style={{ marginTop: 0, marginBottom: 24 }}>
         <button
@@ -191,13 +182,21 @@ function ParticipantDashboard({
         </a>{' '}
         for agent-driven reviews and votes.
       </p>
+
+      <AccountSection
+        handle={me.githubHandle}
+        onSignOut={signOut}
+        onDelete={deleteAccount}
+        onDeleted={onAccountDeleted}
+      />
     </div>
   );
 }
 
 export default function DashboardPage() {
-  const { configured, profile, loading, authError, signIn, getIdToken } = useGithubAuth();
-  const { me, loading: statusLoading, error: statusError } = useParticipantStatus(
+  const { configured, profile, loading, authError, signIn, signOut, deleteAccount, getIdToken } =
+    useGithubAuth();
+  const { me, loading: statusLoading, error: statusError, refresh } = useParticipantStatus(
     getIdToken,
     Boolean(profile)
   );
@@ -253,17 +252,47 @@ export default function DashboardPage() {
           </div>
         ) : !isEnrolled(me) ? (
           <div className={styles.callout}>
-            <p>
-              <strong>Not enrolled yet.</strong>{' '}
-              <Link href="/apply">Continue on Apply</Link> to check admissions status.
-            </p>
+            {isApplicantInFlight(me) ? (
+              <p>
+                <strong>Application in review.</strong> Finish your take-home PR on Apply.{' '}
+                <Link href="/apply">Continue on Apply →</Link>
+              </p>
+            ) : isAdmittedPendingRoster(me) ? (
+              <p>
+                <strong>Admitted — roster pending.</strong> Staff are finalizing your roster row.
+                Participant tools unlock shortly.{' '}
+                <Link href="/apply">Check Apply for status →</Link>
+              </p>
+            ) : me?.application?.status === 'waitlisted' ? (
+              <p>
+                <strong>Waitlisted.</strong> We will email you if a spot opens. Questions:{' '}
+                <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
+              </p>
+            ) : me?.application?.status === 'rejected' ? (
+              <p>
+                <strong>Not admitted this cycle.</strong> Thank you for applying. You may reapply in
+                a future cohort.
+              </p>
+            ) : (
+              <p>
+                <strong>Not enrolled yet.</strong>{' '}
+                <Link href="/apply">Apply for Fall 2026 →</Link>
+              </p>
+            )}
           </div>
         ) : summaryError ? (
           <p className={styles.formError}>{summaryError}</p>
         ) : !summary || !me ? (
           <p className={styles.formNote}>Loading your progress…</p>
         ) : (
-          <ParticipantDashboard me={me} summary={summary} getIdToken={getIdToken} />
+          <ParticipantDashboard
+            me={me}
+            summary={summary}
+            getIdToken={getIdToken}
+            signOut={() => void signOut()}
+            deleteAccount={deleteAccount}
+            onAccountDeleted={() => void refresh()}
+          />
         )}
 
         {statusError ? <p className={styles.formError}>{statusError}</p> : null}

@@ -1,10 +1,10 @@
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
+import { submissionEntryRef } from '@/lib/firestore-paths';
 import {
   buildSubmissionEntry,
   matchMergedPullRequest,
   type ParsedSubmissionPr,
-  type SubmissionEntryWrite,
 } from '@/lib/submission-ingest-server';
 
 export async function upsertSubmissionEntry(
@@ -12,15 +12,8 @@ export async function upsertSubmissionEntry(
   mergedAt: Date,
   source: 'webhook' | 'reconcile'
 ): Promise<void> {
-  const db = getAdminDb();
   const entry = buildSubmissionEntry(parsed, mergedAt, source);
-  const ref = db
-    .collection('submissions')
-    .doc(cohortId())
-    .collection('projects')
-    .doc(parsed.projectSlug)
-    .collection('entries')
-    .doc(parsed.githubHandle);
+  const ref = submissionEntryRef(cohortId(), parsed.projectSlug, parsed.githubHandle);
 
   await ref.set(
     {
@@ -54,5 +47,3 @@ export async function ingestMergedPullRequest(params: {
     handle: parsed.githubHandle,
   };
 }
-
-export type { SubmissionEntryWrite };

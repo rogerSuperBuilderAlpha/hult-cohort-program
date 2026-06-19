@@ -4,9 +4,14 @@ import Link from 'next/link';
 import type { ProgramProject } from '@/content/program';
 import { ProgramDescription } from '@/components/ProgramDescription';
 import { AgentPromptHarness } from '@/components/AgentPromptHarness';
-import { PeerRatingBoard, ProjectProgressPanel } from '@/components/ProjectProgressPanel';
+import { PeerRatingBoard } from '@/components/PeerRatingBoard';
+import { ProjectProgressPanel } from '@/components/ProjectProgressPanel';
+import {
+  ProjectPeerReviewSection,
+  ProjectRequirementsSections,
+} from '@/components/ProjectRequirementsSections';
 import type { CohortStats } from '@/lib/cohort-stats-types';
-import { cohortOrg, cohortSubmissionRepo, cohortRepoUrl } from '@/lib/cohort-config';
+import { cohortOrg } from '@/lib/cohort-config';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { buildProjectAgentPrompt, buildPublicAgentPrompt } from '@/lib/project-agent-prompt';
 import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
@@ -14,6 +19,11 @@ import { personalizeProgramText } from '@/lib/personalize-program';
 import { useCohortStats } from '@/lib/use-cohort-stats';
 import { useProjectProgress } from '@/lib/use-project-progress';
 import { useParticipantStatus } from '@/lib/use-participant-status';
+import {
+  REVIEW_WEEK_CALLOUT_ENROLLED,
+  REVIEW_WEEK_CALLOUT_PUBLIC,
+  WINNER_SELECTION_PUBLIC,
+} from '@/lib/review-week-copy';
 import styles from '../app/page.module.css';
 
 type Props = {
@@ -21,13 +31,6 @@ type Props = {
   prevSlug?: string;
   nextSlug?: string;
 };
-
-function peerReviewLabel(stats: CohortStats | null | undefined): string {
-  if (!stats || stats.enrolledCount === 0) {
-    return 'One required review per other enrolled participant (count updates live)';
-  }
-  return `${stats.peerReviewCount} required reviews (cohort size ${stats.enrolledCount})`;
-}
 
 function EnrolledView({
   project,
@@ -82,59 +85,25 @@ function EnrolledView({
 
       {project.voteWeek && (
         <div className={styles.callout}>
-          <strong>Review week.</strong> Try every peer build, file a written GitHub review on each
-          repo, then cast a private 👍 or 👎. Votes unlock only after your written review is on
-          file. Your ratings are private. After the deadline, the repo with the most thumbs up wins.
+          <strong>Review week.</strong> {REVIEW_WEEK_CALLOUT_ENROLLED}
         </div>
       )}
 
       {progressLoading ? (
         <p className={styles.formNote}>Loading your progress…</p>
       ) : progressError ? (
-        <p className={styles.formNote}>{progressError}</p>
+        <p className={styles.formError}>{progressError}</p>
       ) : progress ? (
         <ProjectProgressPanel project={project} progress={progress} handle={handle} />
       ) : null}
 
-      <section className={styles.overviewBlock}>
-        <h2 className={styles.participantHeading}>What is expected of you</h2>
-        <ul className={styles.onboardingChecklist}>
-          {project.expectations.map((item) => (
-            <li key={item}>{p(item)}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section className={styles.overviewBlock}>
-        <h2 className={styles.participantHeading}>How you submit (PR, not a link form)</h2>
-        <p className={styles.formNote} style={{ marginTop: 0, marginBottom: 16 }}>
-          Cohort repo:{' '}
-          <a href={cohortRepoUrl()} target="_blank" rel="noopener noreferrer">
-            github.com/{cohortSubmissionRepo()}
-          </a>{' '}
-          — fork or branch from <code>main</code> and open a PR with the exact title below.
-        </p>
-        <dl className={styles.dl}>
-          <dt>Repo</dt>
-          <dd>
-            <code>{p(project.submission.repoPattern)}</code>
-          </dd>
-          <dt>PR title</dt>
-          <dd>
-            <code>{p(project.submission.prTitle)}</code>
-          </dd>
-          <dt>PR body must include</dt>
-          <dd>
-            <ul className={styles.onboardingChecklist}>
-              {project.submission.prBodyMustInclude.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </dd>
-          <dt>Deadline</dt>
-          <dd>{project.submission.deadlineNote}</dd>
-        </dl>
-      </section>
+      <ProjectRequirementsSections
+        project={project}
+        p={p}
+        stats={stats}
+        variant="enrolled"
+        progress={progress}
+      />
 
       <AgentPromptHarness prompt={agentPrompt} personalized />
 
@@ -149,80 +118,8 @@ function EnrolledView({
       ) : null}
 
       {project.reviews && !progress ? (
-        <section className={styles.overviewBlock}>
-          <h2 className={styles.participantHeading}>Peer review</h2>
-          <p>
-            <strong>{peerReviewLabel(stats)}.</strong> Artifact: {p(project.reviews.artifact)}. Due:{' '}
-            {project.reviews.dueNote}.
-          </p>
-        </section>
+        <ProjectPeerReviewSection project={project} p={p} stats={stats} variant="enrolled" />
       ) : null}
-
-      <section className={styles.overviewBlock}>
-        <h2 className={styles.participantHeading}>Pass gate</h2>
-        {progress ? (
-          <ul className={styles.progressChecklist}>
-            <li className={progress.submission.merged ? styles.progressItemDone : styles.progressItemPending}>
-              <span className={progress.submission.merged ? styles.progressIconDone : styles.progressIconPending}>
-                {progress.submission.merged ? '✓' : '○'}
-              </span>
-              Submission PR merged or eligible miss documented
-            </li>
-            {progress.reviews ? (
-              <>
-                <li
-                  className={
-                    progress.reviews.writtenCompleted >= progress.reviews.required
-                      ? styles.progressItemDone
-                      : styles.progressItemPending
-                  }
-                >
-                  <span
-                    className={
-                      progress.reviews.writtenCompleted >= progress.reviews.required
-                        ? styles.progressIconDone
-                        : styles.progressIconPending
-                    }
-                  >
-                    {progress.reviews.writtenCompleted >= progress.reviews.required ? '✓' : '○'}
-                  </span>
-                  {progress.reviews.writtenCompleted}/{progress.reviews.required} written reviews
-                </li>
-                <li
-                  className={
-                    progress.reviews.ratingsCompleted >= progress.reviews.required
-                      ? styles.progressItemDone
-                      : styles.progressItemPending
-                  }
-                >
-                  <span
-                    className={
-                      progress.reviews.ratingsCompleted >= progress.reviews.required
-                        ? styles.progressIconDone
-                        : styles.progressIconPending
-                    }
-                  >
-                    {progress.reviews.ratingsCompleted >= progress.reviews.required ? '✓' : '○'}
-                  </span>
-                  {progress.reviews.ratingsCompleted}/{progress.reviews.required} private votes
-                  (👍/👎)
-                </li>
-              </>
-            ) : null}
-            {!progress.reviews
-              ? project.passGate.map((item) => (
-                  <li key={item}>{p(item)}</li>
-                ))
-              : null}
-          </ul>
-        ) : (
-          <ul className={styles.onboardingChecklist}>
-            {project.passGate.map((item) => (
-              <li key={item}>{p(item)}</li>
-            ))}
-          </ul>
-        )}
-      </section>
 
       <div className={styles.participantActions}>
         <Link href="/dashboard" className={styles.secondaryBtn}>
@@ -298,75 +195,27 @@ function PublicView({
 
       {project.voteWeek && (
         <div className={styles.callout}>
-          <strong>Review week.</strong> Try every peer build, file a written GitHub review on each
-          repo, then cast a private 👍 or 👎. Votes unlock only after your written review is on file.
-          Ratings are private. The repo with the most thumbs up wins.
+          <strong>Review week.</strong> {REVIEW_WEEK_CALLOUT_PUBLIC}
         </div>
       )}
 
-      <section className={styles.overviewBlock}>
-        <h2>What is expected of you</h2>
-        <ul>
-          {project.expectations.map((item) => (
-            <li key={item}>{p(item)}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section className={styles.overviewBlock}>
-        <h2>How you submit (PR, not a link form)</h2>
-        <dl className={styles.dl}>
-          <dt>Repo</dt>
-          <dd>
-            <code>{p(project.submission.repoPattern)}</code>
-          </dd>
-          <dt>PR title</dt>
-          <dd>
-            <code>{p(project.submission.prTitle)}</code>
-          </dd>
-          <dt>PR body must include</dt>
-          <dd>
-            <ul>
-              {project.submission.prBodyMustInclude.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </dd>
-          <dt>Deadline</dt>
-          <dd>{project.submission.deadlineNote}</dd>
-        </dl>
-      </section>
+      <ProjectRequirementsSections
+        project={project}
+        p={p}
+        stats={stats}
+        variant="public"
+      />
 
       <AgentPromptHarness prompt={agentPrompt} personalized={false} />
 
       {project.reviews && (
-        <section className={styles.overviewBlock}>
-          <h2>Peer review</h2>
-          <p>
-            <strong>{peerReviewLabel(stats)}.</strong> Artifact: {p(project.reviews.artifact)}. Due:{' '}
-            {project.reviews.dueNote}.
-          </p>
-        </section>
+        <ProjectPeerReviewSection project={project} p={p} stats={stats} variant="public" />
       )}
-
-      <section className={styles.overviewBlock}>
-        <h2>Pass gate</h2>
-        <ul>
-          {project.passGate.map((item) => (
-            <li key={item}>{p(item)}</li>
-          ))}
-        </ul>
-      </section>
 
       {project.voteWeek && (
         <section className={styles.overviewBlock}>
           <h2>Winner selection</h2>
-          <p>
-            Each participant files a written GitHub review on every other merged build, then casts a
-            private 👍 or 👎. Votes unlock only after the written review is on file. After review
-            week closes, the repo with the <strong>most thumbs up</strong> wins. Live tallies are
-            never shown during voting.
-          </p>
+          <p>{WINNER_SELECTION_PUBLIC}</p>
         </section>
       )}
     </>
@@ -404,12 +253,16 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
     return (
       <>
         <ProgramDescription text={descriptionText} />
-      <div className={styles.callout}>
-        <p>
-          <strong>Admitted — roster pending.</strong> Your application is approved; participant
-          progress unlocks once staff add you to the roster. Email cohort@hult.edu if this persists.
-        </p>
-      </div>
+        <div className={styles.callout}>
+          <p>
+            <strong>Admitted — roster pending.</strong> Your application is approved; participant
+            progress unlocks once staff add you to the roster. Email cohort@hult.edu if this
+            persists.
+          </p>
+          <p className={styles.formNote} style={{ marginBottom: 0 }}>
+            <Link href="/dashboard">Check your dashboard →</Link>
+          </p>
+        </div>
       </>
     );
   }

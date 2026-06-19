@@ -1,11 +1,13 @@
 import { getProject } from '@/content/program';
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId, cohortSubmissionRepo } from '@/lib/cohort-config';
 import type { CohortStats } from '@/lib/cohort-stats-types';
 import { getEligiblePeerRows, mergePeerProgress } from '@/lib/eligible-peers-server';
 import { formatScheduleDate, reviewWindowStatus } from '@/lib/program-schedule';
 import type { ProjectProgress } from './project-progress-types';
-import { githubRepoUrl, cohortSubmissionBrowseUrl } from './project-progress-format';
+import { cohortSubmissionBrowseUrl } from './project-progress-format';
+import { githubRepoUrl } from '@/lib/github-urls';
+import { submissionEntryRef } from '@/lib/firestore-paths';
 import { getVoterRatingsMap } from './ratings-server';
 import { getWrittenReviewsMap } from './written-reviews-server';
 
@@ -21,17 +23,9 @@ export async function getProjectProgress(
 
   const id = cohortId();
   const repo = cohortSubmissionRepo();
-  const db = getAdminDb();
   const repoUrl = githubRepoUrl(repo);
 
-  const submissionDoc = await db
-    .collection('submissions')
-    .doc(id)
-    .collection('projects')
-    .doc(projectSlug)
-    .collection('entries')
-    .doc(githubHandle)
-    .get();
+  const submissionDoc = await submissionEntryRef(id, projectSlug, githubHandle).get();
 
   const submissionData = submissionDoc.exists ? submissionDoc.data()! : null;
 

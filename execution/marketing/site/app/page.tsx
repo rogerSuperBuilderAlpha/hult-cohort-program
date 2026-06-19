@@ -1,7 +1,8 @@
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
 import { SiteHeader } from '@/components/SiteHeader';
-import { cohortSubmissionRepo, cohortRepoUrl } from '@/lib/cohort-config';
+import { cohortSubmissionRepo } from '@/lib/cohort-config';
+import { cohortRepoUrl } from '@/lib/github-urls';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
 

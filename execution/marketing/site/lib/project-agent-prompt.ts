@@ -1,6 +1,7 @@
 import type { ProgramProject } from '@/content/program';
 import type { CohortStats } from './cohort-stats-types';
-import { cohortRepoUrl, cohortSubmissionRepo } from './cohort-config';
+import { cohortSubmissionRepo } from './cohort-config';
+import { cohortRepoUrl } from './github-urls';
 import { personalizeProgramText } from './personalize-program';
 
 function branchName(slug: string, handle: string): string {

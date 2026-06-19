@@ -5,14 +5,13 @@ import styles from '../app/page.module.css';
 type NavLink = { href: string; label: string; cta?: boolean };
 
 type Props = {
-  links?: NavLink[];
-  subtitle?: string;
+  links: NavLink[];
 };
 
-export function SiteHeader({ links, subtitle }: Props) {
+export function SiteHeader({ links }: Props) {
   return (
     <header className={styles.header}>
-      <HultLogo subtitle={subtitle} />
+      <HultLogo />
       <SiteNav links={links} />
     </header>
   );

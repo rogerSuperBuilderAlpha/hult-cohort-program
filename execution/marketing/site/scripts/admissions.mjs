@@ -6,8 +6,9 @@
  *   node scripts/admissions.mjs set-status --handle=<h>|--email=<e> --status=<s> [--confirm]
  *   node scripts/admissions.mjs admit --handle=<h>|--email=<e> [--display-name=...] [--campus=...] [--confirm]
  *   node scripts/admissions.mjs deactivate --handle=<h> [--confirm]
- *   node scripts/admissions.mjs audit-signins
  *   node scripts/admissions.mjs delete-user --handle=<h> [--uid=<u>] [--confirm]
+ *
+ * Sign-in audit: use scripts/audit-signins.mjs (richer than legacy subcommand).
  *
  * Writes require --confirm (dry-run by default).
  */
@@ -218,29 +219,6 @@ async function cmdDeactivate(db) {
   console.log('\nRoster member deactivated.');
 }
 
-async function cmdAuditSignins(db, auth) {
-  const appsSnap = await db.collection('applications').get();
-  const appByUid = new Map();
-  for (const doc of appsSnap.docs) {
-    const d = doc.data();
-    if (d.firebaseUid) appByUid.set(d.firebaseUid, d);
-  }
-
-  const users = [];
-  let nextPageToken;
-  do {
-    const res = await auth.listUsers(1000, nextPageToken);
-    users.push(...res.users);
-    nextPageToken = res.pageToken;
-  } while (nextPageToken);
-
-  const orphans = users.filter((u) => !appByUid.has(u.uid));
-  console.log(`Auth users: ${users.length}, applications: ${appsSnap.size}, orphans: ${orphans.length}`);
-  for (const u of orphans) {
-    console.log(`  ORPHAN uid=${u.uid} email=${u.email ?? ''} lastSignIn=${u.metadata.lastSignInTime}`);
-  }
-}
-
 async function cmdDeleteUser() {
   const handle = arg('handle');
   const uid = arg('uid');
@@ -258,7 +236,7 @@ async function cmdDeleteUser() {
 
 async function main() {
   const command = process.argv[2];
-  const { db, auth } = init();
+  const { db } = init();
 
   switch (command) {
     case 'list':
@@ -273,16 +251,11 @@ async function main() {
     case 'deactivate':
       await cmdDeactivate(db);
       break;
-    case 'audit-signins':
-      await cmdAuditSignins(db, auth);
-      break;
     case 'delete-user':
       await cmdDeleteUser();
       break;
     default:
-      console.error(
-        'Usage: admissions.mjs list|set-status|admit|deactivate|audit-signins|delete-user'
-      );
+      console.error('Usage: admissions.mjs list|set-status|admit|deactivate|delete-user');
       process.exit(1);
   }
 }

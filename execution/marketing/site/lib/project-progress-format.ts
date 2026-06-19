@@ -1,4 +1,5 @@
 import { cohortSubmissionRepo } from './cohort-config';
+import { githubRepoUrl } from './github-urls';
 
 /** Browse merged/open submission PRs in the cohort monorepo by title prefix. */
 export function cohortSubmissionBrowseUrl(repo: string, projectSlug: string): string {
@@ -13,15 +14,6 @@ export function cohortSubmissionBrowseUrl(repo: string, projectSlug: string): st
     'phase-2-open-source': '[P2-OSS]',
   };
   const prefix = titlePrefix[projectSlug];
-  const base = `https://github.com/${repo}/pulls`;
+  const base = `${githubRepoUrl(repo)}/pulls`;
   return prefix ? `${base}?q=is%3Apr+${encodeURIComponent(prefix)}` : base;
-}
-
-/** @deprecated Use cohortSubmissionBrowseUrl with cohortSubmissionRepo() */
-export function orgReposSearchUrl(_org: string, projectSlug: string): string {
-  return cohortSubmissionBrowseUrl(cohortSubmissionRepo(), projectSlug);
-}
-
-export function githubRepoUrl(repo: string): string {
-  return `https://github.com/${repo}`;
 }

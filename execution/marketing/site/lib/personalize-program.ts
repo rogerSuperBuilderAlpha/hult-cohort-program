@@ -9,8 +9,13 @@ export function personalizeProgramText(
   org = cohortOrg(),
   stats?: CohortStats | null
 ): string {
+  const repo = cohortSubmissionRepo();
+
   let result = text
-    .replaceAll('{repo}', cohortSubmissionRepo())
+    .replaceAll('`{repo}`', `\`${repo}\``)
+    .replaceAll('`{org}`', `\`${org}\``)
+    .replaceAll('`{handle}`', `\`${handle}\``)
+    .replaceAll('{repo}', repo)
     .replaceAll('{org}', org)
     .replaceAll('{handle}', handle)
     .replaceAll('{your-handle}', handle)

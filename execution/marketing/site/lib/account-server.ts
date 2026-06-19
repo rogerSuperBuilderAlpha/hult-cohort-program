@@ -1,6 +1,13 @@
 import { getAdminAuth, getAdminDb } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
 import { programProjects } from '@/content/program';
+import {
+  peerRatingsVoterRef,
+  rosterMemberRef,
+  submissionEntryRef,
+  writtenReviewEntriesRef,
+  writtenReviewVoterRef,
+} from '@/lib/firestore-paths';
 
 export type AccountDeletionResult = {
   applicationsDeleted: number;
@@ -42,7 +49,7 @@ export async function deleteParticipantAccount(params: {
   await Promise.all(appSnap.docs.map((doc) => doc.ref.delete()));
   result.applicationsDeleted = appSnap.size;
 
-  const rosterRef = db.collection('roster').doc(id).collection('members').doc(githubHandle);
+  const rosterRef = rosterMemberRef(id, githubHandle);
   const rosterDoc = await rosterRef.get();
   if (rosterDoc.exists) {
     await rosterRef.delete();
@@ -51,27 +58,15 @@ export async function deleteParticipantAccount(params: {
 
   await Promise.all(
     programProjects.map(async (project) => {
-      const submissionRef = db
-        .collection('submissions')
-        .doc(id)
-        .collection('projects')
-        .doc(project.slug)
-        .collection('entries')
-        .doc(githubHandle);
+      const submissionRef = submissionEntryRef(id, project.slug, githubHandle);
       const submissionDoc = await submissionRef.get();
       if (submissionDoc.exists) {
         await submissionRef.delete();
         result.submissionsDeleted += 1;
       }
 
-      const writtenVoterRef = db
-        .collection('peerWrittenReviews')
-        .doc(id)
-        .collection('projects')
-        .doc(project.slug)
-        .collection('voters')
-        .doc(githubHandle);
-      const writtenEntries = await writtenVoterRef.collection('entries').get();
+      const writtenVoterRef = writtenReviewVoterRef(id, project.slug, githubHandle);
+      const writtenEntries = await writtenReviewEntriesRef(id, project.slug, githubHandle).get();
       if (!writtenEntries.empty) {
         await Promise.all(writtenEntries.docs.map((d) => d.ref.delete()));
         result.writtenReviewsDeleted += writtenEntries.size;
@@ -79,13 +74,7 @@ export async function deleteParticipantAccount(params: {
       const writtenVoterDoc = await writtenVoterRef.get();
       if (writtenVoterDoc.exists) await writtenVoterRef.delete();
 
-      const ratingsRef = db
-        .collection('peerRatings')
-        .doc(id)
-        .collection('projects')
-        .doc(project.slug)
-        .collection('voters')
-        .doc(githubHandle);
+      const ratingsRef = peerRatingsVoterRef(id, project.slug, githubHandle);
       const ratingsDoc = await ratingsRef.get();
       if (ratingsDoc.exists) {
         const ratings = ratingsDoc.data()?.ratings ?? {};

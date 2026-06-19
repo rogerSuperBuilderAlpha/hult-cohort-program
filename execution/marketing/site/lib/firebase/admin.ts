@@ -32,7 +32,7 @@ export function isAdminConfigured(): boolean {
   );
 }
 
-export function getAdminApp(): App {
+function getAdminApp(): App {
   if (!isAdminConfigured()) {
     throw new Error('Firebase Admin is not configured.');
   }

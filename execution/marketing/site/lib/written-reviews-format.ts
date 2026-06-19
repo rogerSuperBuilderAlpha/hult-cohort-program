@@ -22,23 +22,3 @@ export function newReviewIssueUrl(repo: string, reviewerHandle: string): string 
   );
   return `https://github.com/${repo}/issues/new?title=${title}&body=${body}`;
 }
-
-export function parseGithubIssueUrl(
-  issueUrl: string
-): { repo: string; issueNumber: number } | null {
-  try {
-    const u = new URL(issueUrl.trim());
-    if (u.hostname !== 'github.com') return null;
-    const match = u.pathname.match(/^\/([^/]+\/[^/]+)\/issues\/(\d+)\/?$/);
-    if (!match) return null;
-    return { repo: match[1]!, issueNumber: Number(match[2]) };
-  } catch {
-    return null;
-  }
-}
-
-export function issueUrlMatchesRepo(issueUrl: string, expectedRepo: string): boolean {
-  const parsed = parseGithubIssueUrl(issueUrl);
-  if (!parsed) return false;
-  return parsed.repo.toLowerCase() === expectedRepo.toLowerCase();
-}

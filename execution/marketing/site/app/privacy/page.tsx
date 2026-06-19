@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
+import { getSiteUrl } from '@/lib/site-config';
 import styles from '../page.module.css';
 
 export const metadata = {
@@ -8,6 +9,8 @@ export const metadata = {
 };
 
 export default function PrivacyPage() {
+  const siteUrl = getSiteUrl();
+
   return (
     <main className={styles.main}>
       <SiteHeader links={[{ href: '/', label: 'Home' }]} />
@@ -25,8 +28,8 @@ export default function PrivacyPage() {
           <p>
             The Hult Cohort Developer Program is operated by Hult International Business School
             (&quot;Hult&quot;, &quot;we&quot;, &quot;us&quot;). This site (
-            <code>site-nine-rouge-68.vercel.app</code> and successor domains) is the admissions and
-            participant platform for the Fall 2026 cohort.
+            <a href={siteUrl}>{new URL(siteUrl).host}</a> and successor domains) is the admissions
+            and participant platform for the Fall 2026 cohort.
           </p>
         </section>
 
@@ -103,7 +106,8 @@ export default function PrivacyPage() {
           <ul>
             <li>
               <strong>Access and export</strong> — Enrolled participants can download a JSON export
-              of platform-held data from the apply dashboard (&quot;Download my data&quot;).
+              of platform-held data from the{' '}
+              <Link href="/dashboard">participant dashboard</Link> (&quot;Download my data&quot;).
             </li>
             <li>
               <strong>Correction</strong> — Email{' '}
@@ -111,18 +115,19 @@ export default function PrivacyPage() {
               details.
             </li>
             <li>
-              <strong>Deletion</strong> — Delete your account yourself from the{' '}
-              <Link href="/apply">apply dashboard</Link> (Account → Delete my account). This
-              permanently removes your application, roster membership, submissions, written
-              reviews, votes, and sign-in record. You can also email{' '}
+              <strong>Deletion</strong> — While your application is in flight, delete from{' '}
+              <Link href="/apply">Apply</Link> (Account → Delete my account). When enrolled, delete
+              from <Link href="/dashboard">Dashboard</Link> (Account → Delete my account). This
+              permanently removes your application, roster membership, submissions, written reviews,
+              votes, and sign-in record. You can also email{' '}
               <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>. Public GitHub repos, issues, and
               PRs you created remain on GitHub under your account and are outside our control — you
               may delete or archive them on GitHub directly.
             </li>
             <li>
               <strong>Withdraw consent</strong> — Decline analytics cookies via the site banner.
-              Sign out anytime from the site header or apply dashboard; re-enrollment requires an
-              active GitHub session.
+              Sign out anytime from the site header or dashboard; re-enrollment requires an active
+              GitHub session.
             </li>
           </ul>
         </section>

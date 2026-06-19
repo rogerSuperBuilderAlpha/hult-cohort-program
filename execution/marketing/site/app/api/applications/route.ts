@@ -6,14 +6,11 @@ import {
   validateApplication,
 } from '@/lib/applications';
 import { cohortId } from '@/lib/cohort-config';
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { getAdminDb } from '@/lib/firebase/admin';
 import { logApi, logApiError } from '@/lib/api-log';
 import { sendApplicationConfirmationEmail } from '@/lib/email-server';
 import { checkRateLimit, clientIp } from '@/lib/rate-limit';
-import {
-  bearerTokenFromRequest,
-  verifyGithubIdToken,
-} from '@/lib/firebase/verify-github-session';
+import { requireGithubSession } from '@/lib/require-enrolled';
 
 export const runtime = 'nodejs';
 
@@ -44,14 +41,8 @@ export async function POST(request: Request) {
 }
 
 async function handlePost(request: Request) {
-  if (!isAdminConfigured()) {
-    return Response.json({ error: 'Applications are temporarily unavailable.' }, { status: 503 });
-  }
-
-  const idToken = bearerTokenFromRequest(request);
-  if (!idToken) {
-    return Response.json({ error: 'Sign in with GitHub to apply.' }, { status: 401 });
-  }
+  const guard = await requireGithubSession(request);
+  if (!guard.ok) return guard.response;
 
   let body: Record<string, string>;
   try {
@@ -60,13 +51,7 @@ async function handlePost(request: Request) {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  let githubSession;
-  try {
-    githubSession = await verifyGithubIdToken(idToken);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Invalid sign-in.';
-    return Response.json({ error: message }, { status: 401 });
-  }
+  const githubSession = guard.session;
 
   if (body._honeypot?.trim()) {
     return Response.json({ ok: true, id: randomUUID(), takeHomeRepoUrl: takeHomeRepoUrl() });

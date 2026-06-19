@@ -1,12 +1,7 @@
-import type { ProgramProject } from '@/content/program';
+import type { ProgramProject, ProjectSchedule } from '@/content/program';
 import { programProjects } from '@/content/program';
 
-export type ProjectSchedule = {
-  submissionOpens: string;
-  submissionCloses: string;
-  reviewOpens?: string;
-  reviewCloses?: string;
-};
+export type { ProjectSchedule };
 
 export type ProgramPhase = 'onboarding' | 'phase-1' | 'phase-2';
 

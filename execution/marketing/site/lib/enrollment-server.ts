@@ -1,9 +1,8 @@
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
+import { rosterMemberRef } from '@/lib/firestore-paths';
 import type { ApplicationStatus } from '@/lib/participant-status';
-import type { EnrollmentInfo, EnrollmentState } from '@/lib/enrollment-types';
-
-export type { EnrollmentInfo, EnrollmentState } from '@/lib/enrollment-types';
+import type { EnrollmentInfo } from '@/lib/enrollment-types';
 
 const IN_FLIGHT: ApplicationStatus[] = [
   'submitted',
@@ -67,13 +66,7 @@ export function resolveEnrollment(params: {
 export async function getRosterActive(githubHandle: string): Promise<boolean | null> {
   if (!isAdminConfigured()) return null;
 
-  const db = getAdminDb();
-  const doc = await db
-    .collection('roster')
-    .doc(cohortId())
-    .collection('members')
-    .doc(githubHandle)
-    .get();
+  const doc = await rosterMemberRef(cohortId(), githubHandle).get();
 
   if (!doc.exists) return null;
   return doc.data()?.active !== false;

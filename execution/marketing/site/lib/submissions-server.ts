@@ -1,5 +1,6 @@
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
 import { programProjects } from '@/content/program';
+import { isAdminConfigured } from '@/lib/firebase/admin';
+import { submissionEntryRef } from '@/lib/firestore-paths';
 import type { SubmissionEntry } from './submissions-types';
 
 export async function getParticipantSubmissions(
@@ -8,19 +9,11 @@ export async function getParticipantSubmissions(
 ): Promise<SubmissionEntry[]> {
   if (!isAdminConfigured()) return [];
 
-  const db = getAdminDb();
   const results: SubmissionEntry[] = [];
 
   await Promise.all(
     programProjects.map(async (project) => {
-      const doc = await db
-        .collection('submissions')
-        .doc(cohortId)
-        .collection('projects')
-        .doc(project.slug)
-        .collection('entries')
-        .doc(githubHandle)
-        .get();
+      const doc = await submissionEntryRef(cohortId, project.slug, githubHandle).get();
 
       if (!doc.exists) return;
 

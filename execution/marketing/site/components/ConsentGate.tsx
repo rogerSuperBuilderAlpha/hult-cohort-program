@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import { getFirebaseApp } from '@/lib/firebase/client';
 import { isFirebaseConfigured } from '@/lib/firebase/config';
@@ -21,6 +21,8 @@ function initAnalyticsOnce() {
 
 export function ConsentGate() {
   const [consent, setConsent] = useState<CookieConsentValue | null | 'loading'>('loading');
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const acceptRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const stored = getStoredConsent();
@@ -37,11 +39,43 @@ export function ConsentGate() {
     return () => window.removeEventListener('cookie-consent-updated', onUpdate);
   }, []);
 
+  useEffect(() => {
+    if (consent !== null) return;
+
+    acceptRef.current?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [consent]);
+
   if (consent === 'loading') return null;
 
   if (consent === null) {
     return (
-      <div className={styles.cookieBanner} role="dialog" aria-label="Cookie consent">
+      <div
+        ref={dialogRef}
+        className={styles.cookieBanner}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Cookie consent"
+      >
         <div className={styles.cookieBannerInner}>
           <p className={styles.cookieBannerText}>
             We use optional Firebase Analytics cookies to understand site usage. No analytics load
@@ -60,6 +94,7 @@ export function ConsentGate() {
               Decline
             </button>
             <button
+              ref={acceptRef}
               type="button"
               className={styles.primaryBtn}
               onClick={() => {

@@ -6,7 +6,7 @@ type ApplicationEmailParams = {
   takeHomeRepoUrl: string;
 };
 
-type EmailProvider = 'sendgrid' | 'mailgun';
+type EmailProvider = 'mailgun';
 
 function emailConfig():
   | {
@@ -31,10 +31,6 @@ function emailConfig():
   if (provider === 'mailgun' && !domain) return null;
 
   return { provider, apiKey, domain, fromEmail, fromName, apiBase };
-}
-
-export function isEmailConfigured(): boolean {
-  return emailConfig() !== null;
 }
 
 /** Template #1 — execution/templates/emails.md (application received) */

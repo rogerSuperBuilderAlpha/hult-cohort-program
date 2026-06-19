@@ -139,15 +139,19 @@
   box-shadow: var(--shadow-accent);
 }
 
-.primaryBtn:disabled {
-  opacity: 0.85;
+.primaryBtn:disabled,
+.reviewLinkRow .primaryBtn:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
   background: var(--hult-gray);
+  color: white;
   transform: none;
   box-shadow: none;
+  pointer-events: none;
 }
 
-.primaryBtn:disabled:hover {
+.primaryBtn:disabled:hover,
+.reviewLinkRow .primaryBtn:disabled:hover {
   background: var(--hult-gray);
   color: white;
   transform: none;
@@ -818,12 +822,6 @@
   margin-bottom: 10px;
 }
 
-.participantBannerLink {
-  font-family: var(--mono);
-  font-size: 0.85rem;
-  color: var(--accent);
-}
-
 .onboardingChecklist {
   margin: 0 0 8px 20px;
   color: var(--text-muted);
@@ -925,38 +923,6 @@
   letter-spacing: 0.08em;
   color: var(--text-muted);
   margin: 20px 0 10px;
-}
-
-.peerList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 320px;
-  overflow-y: auto;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 10px 12px;
-  background: var(--bg-subtle);
-}
-
-.peerListItem {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-.peerListItemDone {
-  opacity: 0.65;
-}
-
-.peerListLinks {
-  margin-left: 8px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
 }
 
 .reviewHowTo {
@@ -1271,16 +1237,6 @@
   font-weight: 400;
 }
 
-.reviewSteps {
-  margin: 0 0 12px 20px;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-
-.reviewSteps li {
-  margin-bottom: 8px;
-}
-
 .privacyNote {
   margin: 0;
   font-size: 0.9rem;
@@ -1288,38 +1244,6 @@
   line-height: 1.5;
   padding-top: 8px;
   border-top: 1px solid var(--border);
-}
-
-.peerRatingList {
-  list-style: none;
-  margin: 0 0 20px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.peerRatingRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg-subtle);
-}
-
-.peerRatingRowDone {
-  opacity: 0.85;
-}
-
-.peerRatingMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 200px;
 }
 
 .ratingActions {
@@ -1363,11 +1287,6 @@
   border-color: rgba(168, 18, 2, 0.7);
   background: rgba(168, 18, 2, 0.15);
   box-shadow: 0 0 0 1px rgba(168, 18, 2, 0.3);
-}
-
-.reviewLinkForm {
-  margin-top: 10px;
-  width: 100%;
 }
 
 .reviewLinkLabel {
@@ -1430,8 +1349,20 @@
 }
 
 @media (max-width: 640px) {
-  .nav a:not(.navCta) {
-    display: none;
+  .header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .nav {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px 16px;
+    font-size: 0.8125rem;
+  }
+
+  .nav a:not(.navCta):not(.navSignOut) {
+    display: inline;
   }
 
   .hero {

@@ -1,8 +1,7 @@
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
+import { rosterMembersRef } from '@/lib/firestore-paths';
 import type { CohortStats } from './cohort-stats-types';
-
-export type { CohortStats } from './cohort-stats-types';
 
 function emptyStats(id: string, available = false): CohortStats {
   return {
@@ -18,8 +17,7 @@ export async function getCohortStats(id = cohortId()): Promise<CohortStats> {
     return emptyStats(id, false);
   }
 
-  const db = getAdminDb();
-  const snap = await db.collection('roster').doc(id).collection('members').get();
+  const snap = await rosterMembersRef(id).get();
 
   const enrolledCount = snap.docs.filter((doc) => doc.data().active !== false).length;
 

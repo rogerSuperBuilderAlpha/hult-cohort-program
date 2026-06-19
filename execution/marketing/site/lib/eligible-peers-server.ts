@@ -1,7 +1,11 @@
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
+import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
+import {
+  rosterMembersRef,
+  submissionEntriesRef,
+} from '@/lib/firestore-paths';
 import type { PeerRatingTarget } from '@/lib/project-progress-types';
-import { githubRepoUrl } from '@/lib/project-progress-format';
+import { githubRepoUrl } from '@/lib/github-urls';
 
 export type EligiblePeerRow = {
   handle: string;
@@ -20,19 +24,11 @@ export async function getEligiblePeerRows(
 ): Promise<EligiblePeerRow[]> {
   if (!isAdminConfigured()) return [];
 
-  const db = getAdminDb();
   const id = cohortId();
 
   const [rosterSnap, entriesSnap] = await Promise.all([
-    db.collection('roster').doc(id).collection('members').get(),
-    db
-      .collection('submissions')
-      .doc(id)
-      .collection('projects')
-      .doc(projectSlug)
-      .collection('entries')
-      .where('merged', '==', true)
-      .get(),
+    rosterMembersRef(id).get(),
+    submissionEntriesRef(id, projectSlug).where('merged', '==', true).get(),
   ]);
 
   const activeHandles = new Set(
@@ -75,20 +71,19 @@ export function mergePeerProgress(
   });
 }
 
+export async function getEligiblePeerRow(
+  projectSlug: string,
+  voterHandle: string,
+  revieweeHandle: string
+): Promise<EligiblePeerRow | null> {
+  const rows = await getEligiblePeerRows(projectSlug, voterHandle);
+  return rows.find((row) => row.handle === revieweeHandle) ?? null;
+}
+
 export async function isEligiblePeer(
   projectSlug: string,
   voterHandle: string,
   revieweeHandle: string
 ): Promise<boolean> {
-  const rows = await getEligiblePeerRows(projectSlug, voterHandle);
-  return rows.some((row) => row.handle === revieweeHandle);
-}
-
-export async function getEligiblePeerRepo(
-  projectSlug: string,
-  voterHandle: string,
-  revieweeHandle: string
-): Promise<string | null> {
-  const rows = await getEligiblePeerRows(projectSlug, voterHandle);
-  return rows.find((row) => row.handle === revieweeHandle)?.repo ?? null;
+  return (await getEligiblePeerRow(projectSlug, voterHandle, revieweeHandle)) !== null;
 }

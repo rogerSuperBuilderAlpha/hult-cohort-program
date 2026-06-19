@@ -39,7 +39,7 @@ const REQUIRED: (keyof Omit<ApplicationInput, 'hultStudentId' | 'confirmations' 
     'referralSource',
   ];
 
-export function parseGithubHandle(url: string): string | null {
+export function parseGithubUrlHandle(url: string): string | null {
   const match = url.trim().match(/^https:\/\/github\.com\/([a-zA-Z0-9-]+)\/?$/i);
   return match ? match[1].toLowerCase() : null;
 }
@@ -71,7 +71,7 @@ export function validateApplication(
     }
   }
   const githubUrl = options.githubUrl.trim();
-  if (!parseGithubHandle(githubUrl)) {
+  if (!parseGithubUrlHandle(githubUrl)) {
     throw new Error('GitHub URL must be https://github.com/{username}');
   }
   const email = body.email.trim().toLowerCase();
@@ -95,7 +95,7 @@ export function validateApplication(
 }
 
 export function buildApplicationRecord(input: ApplicationInput, id: string): ApplicationRecord {
-  const handle = parseGithubHandle(input.githubUrl);
+  const handle = parseGithubUrlHandle(input.githubUrl);
   if (!handle) throw new Error('Invalid GitHub URL');
 
   return {

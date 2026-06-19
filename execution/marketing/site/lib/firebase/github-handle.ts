@@ -28,7 +28,7 @@ function githubHeaders(): HeadersInit {
  * (rawId/federatedId), so this resolves the handle without guessing from display
  * names — which are frequently a person's real name, not their login.
  */
-export async function lookupGithubLoginById(githubUserId: string): Promise<string | null> {
+async function lookupGithubLoginById(githubUserId: string): Promise<string | null> {
   try {
     const res = await fetch(`https://api.github.com/user/${encodeURIComponent(githubUserId)}`, {
       headers: githubHeaders(),

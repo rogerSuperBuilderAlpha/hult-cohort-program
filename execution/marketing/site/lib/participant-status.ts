@@ -37,11 +37,6 @@ export function isEnrolled(me: ParticipantMe | null): boolean {
   return me?.enrollment.canAccessEnrolledUi === true;
 }
 
-/** @deprecated Use isEnrolled — kept for gradual migration */
-export function isAdmitted(me: ParticipantMe | null): boolean {
-  return isEnrolled(me);
-}
-
 export function isApplicantInFlight(me: ParticipantMe | null): boolean {
   return me?.enrollment.state === 'applicant-in-flight';
 }

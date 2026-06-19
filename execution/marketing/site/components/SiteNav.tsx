@@ -2,28 +2,18 @@
 
 import Link from 'next/link';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
-import { isEnrolled } from '@/lib/participant-status';
-import { useParticipantStatus } from '@/lib/use-participant-status';
+import { useEnrollmentHub } from '@/lib/use-enrollment-hub';
 import styles from '../app/page.module.css';
 
 type NavLink = { href: string; label: string; cta?: boolean };
 
 type SiteNavProps = {
-  links?: NavLink[];
+  links: NavLink[];
 };
 
-const DEFAULT_LINKS: NavLink[] = [
-  { href: '/program', label: 'Program' },
-  { href: '/', label: 'Home' },
-];
-
-export function SiteNav({ links = DEFAULT_LINKS }: SiteNavProps) {
-  const { profile, loading: authLoading, getIdToken, signOut } = useGithubAuth();
-  const { me, loading: meLoading } = useParticipantStatus(getIdToken, Boolean(profile));
-
-  const enrolled = isEnrolled(me);
-  const hubHref = enrolled ? '/dashboard' : '/apply';
-  const hubLabel = authLoading || (profile && meLoading) ? '…' : enrolled ? 'Dashboard' : 'Apply';
+export function SiteNav({ links }: SiteNavProps) {
+  const { profile, signOut } = useGithubAuth();
+  const hub = useEnrollmentHub();
 
   return (
     <nav className={styles.nav}>
@@ -37,8 +27,8 @@ export function SiteNav({ links = DEFAULT_LINKS }: SiteNavProps) {
           Sign out
         </button>
       ) : null}
-      <Link href={hubHref} className={styles.navCta}>
-        {hubLabel}
+      <Link href={hub.href} className={styles.navCta}>
+        {hub.label}
       </Link>
     </nav>
   );

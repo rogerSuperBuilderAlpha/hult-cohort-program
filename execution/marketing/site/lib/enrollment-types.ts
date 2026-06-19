@@ -1,7 +1,6 @@
 /** Client-safe enrollment types — keep in sync with enrollment-server.ts */
 
 export type EnrollmentState =
-  | 'signed-out'
   | 'signed-in'
   | 'applicant'
   | 'applicant-in-flight'

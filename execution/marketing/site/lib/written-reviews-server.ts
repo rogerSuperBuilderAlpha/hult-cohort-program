@@ -1,34 +1,38 @@
-import { getAdminDb } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
-import { issueUrlMatchesRepo, parseGithubIssueUrl } from './written-reviews-format';
+import {
+  writtenReviewEntriesRef,
+  writtenReviewEntryRef,
+} from '@/lib/firestore-paths';
+
+function parseGithubIssueUrl(
+  issueUrl: string
+): { repo: string; issueNumber: number } | null {
+  try {
+    const u = new URL(issueUrl.trim());
+    if (u.hostname !== 'github.com') return null;
+    const match = u.pathname.match(/^\/([^/]+\/[^/]+)\/issues\/(\d+)\/?$/);
+    if (!match) return null;
+    return { repo: match[1]!, issueNumber: Number(match[2]) };
+  } catch {
+    return null;
+  }
+}
+
+function issueUrlMatchesRepo(issueUrl: string, expectedRepo: string): boolean {
+  const parsed = parseGithubIssueUrl(issueUrl);
+  if (!parsed) return false;
+  return parsed.repo.toLowerCase() === expectedRepo.toLowerCase();
+}
 
 function writtenRef(projectSlug: string, voterHandle: string, revieweeHandle: string) {
-  const db = getAdminDb();
-  return db
-    .collection('peerWrittenReviews')
-    .doc(cohortId())
-    .collection('projects')
-    .doc(projectSlug)
-    .collection('voters')
-    .doc(voterHandle)
-    .collection('entries')
-    .doc(revieweeHandle);
+  return writtenReviewEntryRef(cohortId(), projectSlug, voterHandle, revieweeHandle);
 }
 
 export async function getWrittenReviewsMap(
   projectSlug: string,
   voterHandle: string
 ): Promise<Record<string, string>> {
-  const db = getAdminDb();
-  const snap = await db
-    .collection('peerWrittenReviews')
-    .doc(cohortId())
-    .collection('projects')
-    .doc(projectSlug)
-    .collection('voters')
-    .doc(voterHandle)
-    .collection('entries')
-    .get();
+  const snap = await writtenReviewEntriesRef(cohortId(), projectSlug, voterHandle).get();
 
   const out: Record<string, string> = {};
   for (const doc of snap.docs) {

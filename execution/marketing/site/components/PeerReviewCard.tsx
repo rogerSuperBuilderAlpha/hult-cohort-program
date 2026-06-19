@@ -127,7 +127,16 @@ function WrittenReviewForm({
           value={issueUrl}
           onChange={(e) => setIssueUrl(e.target.value)}
         />
-        <button type="button" className={styles.primaryBtn} disabled={saving || !issueUrl.trim() || !reviewWindowOpen} onClick={() => void submit()}>
+        <button
+          type="button"
+          className={
+            saving || !issueUrl.trim() || !reviewWindowOpen
+              ? styles.secondaryBtn
+              : styles.primaryBtn
+          }
+          disabled={saving || !issueUrl.trim() || !reviewWindowOpen}
+          onClick={() => void submit()}
+        >
           {saving ? 'Saving…' : 'Save review'}
         </button>
       </div>
@@ -250,6 +259,7 @@ export function PeerReviewCard({
                   type="button"
                   className={`${styles.thumbBtn} ${peer.myRating === 'up' ? styles.thumbBtnActive : ''}`}
                   disabled={!peer.reviewFiled || savingVote || !reviewWindowOpen}
+                  aria-pressed={peer.myRating === 'up'}
                   onClick={() => onVote(peer, 'up')}
                   title={
                     !reviewWindowOpen
@@ -265,6 +275,7 @@ export function PeerReviewCard({
                   type="button"
                   className={`${styles.thumbBtn} ${styles.thumbBtnDown} ${peer.myRating === 'down' ? styles.thumbBtnActiveDown : ''}`}
                   disabled={!peer.reviewFiled || savingVote || !reviewWindowOpen}
+                  aria-pressed={peer.myRating === 'down'}
                   onClick={() => onVote(peer, 'down')}
                   title={
                     !reviewWindowOpen

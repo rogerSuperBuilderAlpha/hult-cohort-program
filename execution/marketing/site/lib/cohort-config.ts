@@ -1,5 +1,7 @@
 /** Single source of truth for cohort identity across server, API, and scripts. */
 
+import { cohortRepoUrl } from '@/lib/github-urls';
+
 export type CohortContext = {
   cohortId: string;
   /** GitHub owner (user or org) — derived from submission repo when unset. */
@@ -29,15 +31,6 @@ export function cohortOrg(): string {
   const repo = cohortSubmissionRepo();
   const slash = repo.indexOf('/');
   return slash > 0 ? repo.slice(0, slash) : 'rogerSuperBuilderAlpha';
-}
-
-export function cohortRepoUrl(): string {
-  return `https://github.com/${cohortSubmissionRepo()}`;
-}
-
-/** @deprecated Prefer cohortRepoUrl — kept for existing imports. */
-export function cohortOrgUrl(): string {
-  return cohortRepoUrl();
 }
 
 export function getCohortContext(): CohortContext {

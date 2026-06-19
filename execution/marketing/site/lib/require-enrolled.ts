@@ -3,6 +3,7 @@ import { requireActiveRosterMember } from '@/lib/enrollment-server';
 import {
   bearerTokenFromRequest,
   verifyGithubIdToken,
+  type GithubSession,
 } from '@/lib/firebase/verify-github-session';
 import { isAdminConfigured } from '@/lib/firebase/admin';
 
@@ -58,7 +59,7 @@ export async function requireEnrolledSession(request: Request): Promise<Enrolled
 }
 
 export async function requireGithubSession(request: Request): Promise<
-  | { ok: true; githubHandle: string }
+  | { ok: true; session: GithubSession }
   | { ok: false; response: Response }
 > {
   if (!isAdminConfigured()) {
@@ -78,7 +79,7 @@ export async function requireGithubSession(request: Request): Promise<
 
   try {
     const session = await verifyGithubIdToken(idToken);
-    return { ok: true, githubHandle: session.githubHandle };
+    return { ok: true, session };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Invalid sign-in.';
     return {

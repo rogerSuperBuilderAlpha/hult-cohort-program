@@ -11,7 +11,7 @@ import {
 import { getFirebaseAuth } from './client';
 import { isFirebaseConfigured } from './config';
 
-export type GithubAuthProfile = {
+type GithubAuthProfile = {
   user: User;
   photoUrl: string | null;
 };

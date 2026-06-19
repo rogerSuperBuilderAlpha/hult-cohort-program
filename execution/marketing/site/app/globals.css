@@ -69,6 +69,32 @@ body::before {
 main {
   position: relative;
   z-index: 1;
+  scroll-margin-top: 16px;
+}
+
+.skipLink {
+  position: fixed;
+  left: 16px;
+  top: 16px;
+  z-index: 2000;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: white !important;
+  font-weight: 600;
+  border-radius: 2px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.skipLink:focus,
+.skipLink:focus-visible {
+  clip: auto;
+  clip-path: none;
+  overflow: visible;
+  width: auto;
+  height: auto;
 }
 
 a {

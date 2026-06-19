@@ -178,6 +178,23 @@
   background: white;
 }
 
+.secondaryBtn:disabled,
+.reviewLinkRow .secondaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  color: var(--hult-gray);
+  border-color: var(--border);
+  background: var(--bg-elevated);
+}
+
+.secondaryBtn:disabled:hover,
+.reviewLinkRow .secondaryBtn:disabled:hover {
+  border-color: var(--border);
+  color: var(--hult-gray);
+  background: var(--bg-elevated);
+}
+
 .heroMeta {
   display: flex;
   flex-wrap: wrap;

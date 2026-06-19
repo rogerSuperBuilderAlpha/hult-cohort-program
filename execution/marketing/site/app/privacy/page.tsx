@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
-import { getSiteUrl } from '@/lib/site-config';
+import { getSiteDisplayLabel, getSiteUrl } from '@/lib/site-config';
 import styles from '../page.module.css';
 
 export const metadata = {
@@ -10,6 +10,7 @@ export const metadata = {
 
 export default function PrivacyPage() {
   const siteUrl = getSiteUrl();
+  const siteLabel = getSiteDisplayLabel();
 
   return (
     <main className={styles.main}>
@@ -28,7 +29,7 @@ export default function PrivacyPage() {
           <p>
             The Hult Cohort Developer Program is operated by Hult International Business School
             (&quot;Hult&quot;, &quot;we&quot;, &quot;us&quot;). This site (
-            <a href={siteUrl}>{new URL(siteUrl).host}</a> and successor domains) is the admissions
+            <a href={siteUrl}>{siteLabel}</a> and successor domains) is the admissions
             and participant platform for the Fall 2026 cohort.
           </p>
         </section>

@@ -16,6 +16,11 @@ function parseIso(iso: string): Date {
   return new Date(iso);
 }
 
+/** Staff/E2E: set REVIEW_WINDOW_OVERRIDE=open to bypass calendar gates (never in production long-term). */
+function reviewWindowOverrideOpen(): boolean {
+  return process.env.REVIEW_WINDOW_OVERRIDE?.trim() === 'open';
+}
+
 export function getProjectSchedule(project: ProgramProject): ProjectSchedule | null {
   return project.schedule ?? null;
 }
@@ -28,6 +33,7 @@ export function isSubmissionOpen(project: ProgramProject, now = new Date()): boo
 }
 
 export function isReviewWindowOpen(project: ProgramProject, now = new Date()): boolean {
+  if (reviewWindowOverrideOpen()) return true;
   const schedule = getProjectSchedule(project);
   if (!schedule?.reviewOpens || !schedule.reviewCloses) return true;
   const t = now.getTime();
@@ -38,6 +44,7 @@ export function reviewWindowStatus(
   project: ProgramProject,
   now = new Date()
 ): 'open' | 'not-yet' | 'closed' | 'none' {
+  if (reviewWindowOverrideOpen()) return 'open';
   const schedule = getProjectSchedule(project);
   if (!schedule?.reviewOpens || !schedule.reviewCloses) return 'none';
   const t = now.getTime();

@@ -19,7 +19,7 @@ export default async function Home() {
       <SiteHeader
         links={[
           { href: '#program', label: 'Program' },
-          { href: '/program', label: 'Journey' },
+          { href: '#journey', label: 'Journey' },
           { href: '#cost', label: 'Cost' },
           { href: '#faq', label: 'FAQ' },
         ]}
@@ -61,7 +61,7 @@ export default async function Home() {
         </p>
       </section>
 
-      <section className={styles.gridSection}>
+      <section id="journey" className={styles.gridSection}>
         <div className={styles.phaseCard}>
           <span className={styles.phaseTag}>Phase 1 · Weeks 2–8</span>
           <h3>Build your cohort&apos;s tool stack</h3>

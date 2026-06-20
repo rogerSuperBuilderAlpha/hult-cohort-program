@@ -849,6 +849,38 @@
   margin-bottom: 8px;
 }
 
+.dashboardProjectItem,
+.dashboardProjectActive {
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.dashboardProjectActive {
+  background: var(--accent-dim);
+  border-color: rgba(168, 18, 2, 0.32);
+  color: var(--text);
+}
+
+.dashboardProjectActive a {
+  color: var(--text);
+}
+
+.activeProjectBadge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
 .harnessHeader {
   display: flex;
   flex-wrap: wrap;

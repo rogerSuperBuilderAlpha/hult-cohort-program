@@ -119,11 +119,16 @@ function ParticipantDashboard({
       <ul className={styles.onboardingChecklist}>
         {summary.projects.map((project) => {
           const meta = programProjects.find((p) => p.slug === project.slug);
+          const isActiveProject = active?.slug === project.slug;
           return (
-            <li key={project.slug}>
+            <li
+              key={project.slug}
+              className={isActiveProject ? styles.dashboardProjectActive : styles.dashboardProjectItem}
+            >
               <Link href={`/program/${project.slug}`}>
                 <strong>{project.phaseLabel}</strong> — {project.title}
               </Link>
+              {isActiveProject ? <span className={styles.activeProjectBadge}>Active this week</span> : null}
               {project.submissionMerged ? ' · merged PR' : ' · not submitted'}
               {project.reviewsRequired != null && project.reviewsRequired > 0 ? (
                 <>

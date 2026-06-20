@@ -173,7 +173,7 @@ export function buildProjectAgentPrompt(
       ``,
       `## Peer review & vote (review week)`,
       `- ${reviewCount}`,
-      `- Order: try deploy → read PR → file GitHub issue "Review by @{handle}" → then 👍/👎 here`,
+      `- Order: try deploy → read PR → file GitHub issue "Review by @${handle}" → then 👍/👎 here`,
       `- Votes are private; winner = most thumbs up`,
       `- Due: ${project.reviews.dueNote}`
     );

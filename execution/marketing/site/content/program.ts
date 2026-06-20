@@ -217,7 +217,7 @@ export const programProjects: ProgramProject[] = [
     ],
     submission: {
       repoPattern: '{repo}',
-      prTitle: '[Unification] Integration PR — {team}',
+      prTitle: '[Unification] Integration PR — {handle}',
       prBodyMustInclude: ['Demo URL', 'Migration/cutover plan'],
       deadlineNote: 'Before Phase 2 kickoff',
     },

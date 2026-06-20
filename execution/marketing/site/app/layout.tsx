@@ -15,7 +15,7 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SITE_NAME} | Dare Mighty Things`,
+    default: `${SITE_NAME} | Fall 2026`,
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_OG_DESCRIPTION,

@@ -23,8 +23,8 @@ export function SiteFooter() {
         <Link href="/sitemap.xml">Sitemap</Link>
       </nav>
       <p className={styles.legal}>
-        Open source under MIT · Program Agreement and Expectations Acknowledgment required at
-        enrollment · Job placement terms subject to published criteria
+        Platform source code is open under MIT. Enrollment requires the Program Agreement and
+        Expectations Acknowledgment. Placement terms are defined in published program criteria.
       </p>
     </footer>
   );

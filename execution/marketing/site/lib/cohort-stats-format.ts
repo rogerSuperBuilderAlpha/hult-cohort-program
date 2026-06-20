@@ -5,7 +5,7 @@ export function formatPeerReviewRequirement(stats: CohortStats | null | undefine
     return 'one review per other enrolled participant (count updates as the cohort fills)';
   }
   if (stats.peerReviewCount === 0) {
-    return 'peer ratings apply once more participants join';
+    return 'peer reviews apply once more participants are enrolled';
   }
   return `${stats.peerReviewCount}/${stats.peerReviewCount}`;
 }
@@ -18,17 +18,17 @@ export function operatorRoleCount(enrolledCount: number): number {
 
 export function formatPeerReviewsPerProject(stats: CohortStats): string {
   if (stats.enrolledCount <= 1) {
-    return 'one review per other participant once the cohort fills';
+    return 'one review per other participant once the cohort is finalized';
   }
-  return `${stats.peerReviewCount} reviews per project (everyone else in the cohort)`;
+  return `${stats.peerReviewCount} reviews per project (every other enrolled participant)`;
 }
 
 export function formatCohortSizeLine(stats: CohortStats): string {
   if (!stats.available) {
-    return 'Cohort size updating';
+    return 'Cohort enrollment updating';
   }
   if (stats.enrolledCount === 0) {
-    return 'Cohort filling now';
+    return 'Enrollment in progress';
   }
   return `${stats.enrolledCount} enrolled`;
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import type { ProgramProject } from '@/content/program';
+import { VOTE_PRIVACY_NOTE, WINNER_NOTE } from '@/lib/review-week-copy';
 import styles from '../app/page.module.css';
 
 function StatusIcon({ done }: { done: boolean }) {
@@ -15,7 +16,7 @@ function whatsLeft(progress: import('@/lib/project-progress-types').ProjectProgr
   const items: string[] = [];
 
   if (!progress.submission.merged) {
-    items.push('open and merge your submission PR');
+    items.push('submit and merge your submission pull request');
   }
 
   if (progress.reviews) {
@@ -25,17 +26,17 @@ function whatsLeft(progress: import('@/lib/project-progress-types').ProjectProgr
       items.push(`file ${writtenLeft} more written review${writtenLeft === 1 ? '' : 's'}`);
     }
     if (voteLeft > 0) {
-      items.push(`cast ${voteLeft} more private vote${voteLeft === 1 ? '' : 's'} (👍/👎)`);
+      items.push(`cast ${voteLeft} more private vote${voteLeft === 1 ? '' : 's'}`);
     }
   }
 
   if (items.length === 0) {
     return progress.reviews?.voteWeek
-      ? 'All requirements complete. Winner is the repo with the most thumbs up — announced after review week closes.'
+      ? `All requirements complete. ${WINNER_NOTE}`
       : 'All pass-gate requirements complete for this project.';
   }
 
-  return `Still to do: ${items.join('; ')}.`;
+  return `Remaining: ${items.join('; ')}.`;
 }
 
 type Props = {
@@ -65,26 +66,26 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
         <li className={progress.submission.merged ? styles.progressItemDone : styles.progressItemPending}>
           <StatusIcon done={progress.submission.merged} />
           <div>
-            <strong>Submission PR merged</strong>
+            <strong>Submission pull request merged</strong>
             {progress.submission.merged ? (
               <p className={styles.progressDetail}>
                 <a href={progress.submission.prUrl} target="_blank" rel="noopener noreferrer">
-                  View your PR
+                  View your pull request
                 </a>
                 {progress.submission.deployUrl ? (
                   <>
                     {' '}
                     ·{' '}
                     <a href={progress.submission.deployUrl} target="_blank" rel="noopener noreferrer">
-                      deploy
+                      deployment
                     </a>
                   </>
                 ) : null}
               </p>
             ) : (
               <p className={styles.progressDetail}>
-                Open a PR titled <code>{project.submission.prTitle.replace('{handle}', handle)}</code>{' '}
-                in{' '}
+                Open a pull request titled{' '}
+                <code>{project.submission.prTitle.replace('{handle}', handle)}</code> in{' '}
                 <a href={progress.submission.repoUrl} target="_blank" rel="noopener noreferrer">
                   {progress.submission.repo}
                 </a>{' '}
@@ -102,7 +103,8 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 <div>
                   <strong>Review week has not opened</strong>
                   <p className={styles.progressDetail}>
-                    Written reviews and private votes unlock {reviews.reviewOpensFormatted}.
+                    Written reviews and private votes become available{' '}
+                    {reviews.reviewOpensFormatted}.
                   </p>
                 </div>
               </li>
@@ -127,7 +129,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 </strong>
                 <p className={styles.progressDetail}>
                   Written review (GitHub issue) titled <code>Review by @{handle}</code> on each peer
-                  repo (public rubric).
+                  repository.
                 </p>
               </div>
             </li>
@@ -138,10 +140,10 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                   Private votes {reviews.ratingsCompleted}/{reviews.required}
                 </strong>
                 <p className={styles.progressDetail}>
-                  👍 or 👎 on this page after each written review — only you see your votes.
+                  Cast your vote on this page after each written review. {VOTE_PRIVACY_NOTE}
                 </p>
                 <p className={styles.progressDetail}>
-                  <a href="#peer-ratings">Go to review &amp; vote list →</a>
+                  <a href="#peer-ratings">Go to review and vote list →</a>
                 </p>
               </div>
             </li>

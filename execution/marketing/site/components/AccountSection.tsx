@@ -43,9 +43,10 @@ export function AccountSection({ handle, onSignOut, onDelete, onDeleted }: Accou
       <div className={styles.dangerZone}>
         <h3 className={styles.dangerZoneTitle}>Delete account</h3>
         <p className={styles.formNote} style={{ marginTop: 0 }}>
-          Permanently removes your application, roster membership, submissions, written reviews, and
-          votes from this platform, plus your sign-in record. Public GitHub repos, PRs, and issues
-          you created remain on GitHub under your account. This cannot be undone.
+          Permanently removes your application, enrollment record, submissions, written reviews, and
+          votes from this platform, along with your sign-in record. Public GitHub repositories, pull
+          requests, and issues you created remain on GitHub under your account. This action cannot
+          be undone.
         </p>
 
         {!confirmOpen ? (

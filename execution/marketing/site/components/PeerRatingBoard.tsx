@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { PeerReviewCard } from '@/components/PeerReviewCard';
 import { authedFetch } from '@/lib/authed-fetch';
+import { REVIEW_HOW_TO, WINNER_NOTE } from '@/lib/review-week-copy';
 import type { ProjectProgress, PeerRating, PeerRatingTarget } from '@/lib/project-progress-types';
 import styles from '../app/page.module.css';
 
@@ -152,13 +153,13 @@ export function PeerRatingBoard({
   if (peers.length === 0) {
     return (
       <section className={styles.overviewBlock} id="peer-ratings">
-        <h2 className={styles.participantHeading}>Review &amp; vote on peer builds</h2>
+        <h2 className={styles.participantHeading}>Peer review and voting</h2>
         <div className={styles.callout}>
           <p>
             <strong>No eligible peers yet.</strong>{' '}
             {awaitingMerge > 0
-              ? `${awaitingMerge} enrolled peer(s) have not merged a submission PR yet. Your pass gate counts only peers with merged submissions — check back as PRs land.`
-              : 'Waiting for peers to merge submission PRs before review week can begin.'}
+              ? `${awaitingMerge} enrolled peer(s) have not merged a submission pull request. Pass criteria count only peers with merged submissions — check back as pull requests are merged.`
+              : 'Review week will begin once peers merge their submission pull requests.'}
           </p>
           <p className={styles.formNote} style={{ marginBottom: 0 }}>
             <a href={orgReposUrl} target="_blank" rel="noopener noreferrer">
@@ -177,13 +178,14 @@ export function PeerRatingBoard({
 
   return (
     <section className={styles.overviewBlock} id="peer-ratings">
-      <h2 className={styles.participantHeading}>Review &amp; vote on peer builds</h2>
+      <h2 className={styles.participantHeading}>Peer review and voting</h2>
 
       {reviewWindowStatus === 'not-yet' && reviewOpensFormatted ? (
         <div className={styles.callout}>
           <p>
-            <strong>Review week opens {reviewOpensFormatted}.</strong> You can browse peer repos
-            now, but written reviews and private votes unlock when the window opens.
+            <strong>Review week opens {reviewOpensFormatted}.</strong> You may browse peer
+            repositories now; written reviews and private votes become available when the window
+            opens.
           </p>
         </div>
       ) : null}
@@ -198,15 +200,10 @@ export function PeerRatingBoard({
       ) : null}
 
       <div className={styles.reviewHowTo}>
-        <p className={styles.reviewHowToLead}>
-          Work through one peer at a time. For each peer: try their deploy → read their PR → file a
-          written review (GitHub issue) → cast a private 👍/👎 (vote unlocks after the review is
-          saved).
-        </p>
+        <p className={styles.reviewHowToLead}>{REVIEW_HOW_TO}</p>
         {voteWeek ? (
           <p className={styles.privacyNote}>
-            <strong>Winner:</strong> most thumbs up after review week. Live vote totals are never
-            shown during the week.
+            <strong>Selection:</strong> {WINNER_NOTE}
           </p>
         ) : null}
       </div>
@@ -226,7 +223,7 @@ export function PeerRatingBoard({
       {error ? <p className={styles.formError}>{error}</p> : null}
 
       <PeerReviewSection
-        title={`To do (${inProgress.length})`}
+        title={`Pending (${inProgress.length})`}
         peers={inProgress}
         projectSlug={projectSlug}
         reviewerHandle={reviewerHandle}
@@ -246,7 +243,7 @@ export function PeerRatingBoard({
       {complete.length > 0 ? (
         <details className={styles.peerReviewCompleteDetails}>
           <summary className={styles.peerReviewCompleteSummary}>
-            Complete ({complete.length}) — click to expand
+            Complete ({complete.length}) — expand to view
           </summary>
           <div className={styles.peerReviewList}>
             {complete.map((peer) => (

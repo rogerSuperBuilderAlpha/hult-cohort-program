@@ -67,32 +67,34 @@ function TakeHomeSteps({
 }) {
   const headline =
     status === 'take-home-sent'
-      ? 'Take-home assigned — clock is running.'
-      : 'Application on file — start your take-home now.';
+      ? 'Take-home assignment issued.'
+      : 'Application received — proceed to the take-home.';
 
   return (
     <div className={styles.participantPanel}>
       <div className={styles.callout}>
         <p>
-          <strong>{headline}</strong> Complete the take-home PR to finish admissions review.
+          <strong>{headline}</strong> Submit your take-home pull request to complete the admissions
+          review.
         </p>
       </div>
       <ol className={styles.successSteps}>
         <li>
-          Open the repo:{' '}
+          Open the repository:{' '}
           <a href={takeHomeUrl} target="_blank" rel="noopener noreferrer">
             {takeHomeUrl}
           </a>
         </li>
         <li>
-          Clone, fix the bugs, run <code>npm test</code> until green, implement optional DELETE.
+          Clone the repository, resolve the reported defects, run <code>npm test</code> until all
+          tests pass, and implement the optional DELETE endpoint.
         </li>
         <li>
-          Open a PR titled <code>[Admissions] Fix task board — {handle}</code> on branch{' '}
+          Open a pull request titled <code>[Admissions] Fix task board — {handle}</code> from branch{' '}
           <code>admissions/{handle}</code>.
         </li>
-        <li>Fill the PR template completely, including agent usage.</li>
-        <li>Decision within 48 hours of your take-home PR.</li>
+        <li>Complete the pull request template in full, including documentation of agent usage.</li>
+        <li>A decision will be issued within 48 hours of your take-home pull request.</li>
       </ol>
     </div>
   );
@@ -103,9 +105,10 @@ function AdmittedPendingPanel() {
     <div className={styles.participantPanel}>
       <div className={styles.callout}>
         <p>
-          <strong>Admitted — roster pending.</strong> Your application is approved; staff are
-          adding you to the cohort roster. Participant features unlock once your roster row is
-          active (usually within one business day). Check back here or email cohort@hult.edu.
+          <strong>Admitted — enrollment pending.</strong> Your application has been approved. Staff
+          are completing your enrollment in the cohort roster. Participant features will become
+          available once enrollment is confirmed, typically within one business day. Contact{' '}
+          <a href="mailto:cohort@hult.edu">cohort@hult.edu</a> if this status persists.
         </p>
       </div>
     </div>
@@ -202,8 +205,8 @@ export default function ApplyPage() {
 
   const pageTitle = enrolled ? 'Apply' : pendingRoster ? 'Admitted' : 'Apply';
   const pageLead = pendingRoster
-    ? 'You are admitted to Fall 2026. Your roster row is being finalized — participant tools unlock shortly.'
-    : 'Step 1: sign in with GitHub, then complete this form. Step 2: fix the repo and open a PR within 48 hours. Admissions is PR-native — same loop as the program.';
+    ? 'You have been admitted to the Fall 2026 cohort. Enrollment is being finalized; participant tools will become available shortly.'
+    : 'Sign in with GitHub and complete the application form. If admitted to the take-home stage, you will have 48 hours to submit a pull request. Admissions follows the same GitHub-based workflow as the program.';
 
   return (
     <main className={styles.main} id="main-content">
@@ -218,23 +221,24 @@ export default function ApplyPage() {
 
         {!configured ? (
           <div className={styles.callout}>
-            Applications are temporarily unavailable. Firebase is not configured on this deployment.
+            Applications are temporarily unavailable. Platform services are not configured on this
+            deployment.
           </div>
         ) : loading || (profile && statusLoading) ? (
           <p className={styles.formNote}>Loading your account…</p>
         ) : !profile ? (
           <div className={styles.authGate}>
             <p className={styles.authGateLead}>
-              Sign in with GitHub first. Your application is tied to the account you use — the same
-              identity you will ship PRs from all semester.
+              Sign in with GitHub to begin your application. Your application is linked to this
+              account — the same identity you will use for all program submissions.
             </p>
             <button type="button" className={styles.githubSignInBtn} onClick={() => void signIn()}>
               Sign in with GitHub
             </button>
             {authError && <p className={styles.formError}>{authError}</p>}
             <p className={styles.formNote}>
-              We read your public GitHub username only. No repo access is requested at apply time.
-              By signing in you agree to the{' '}
+              We access your public GitHub username only. Repository access is not requested at
+              application time. By signing in, you agree to the{' '}
               <Link href="/terms">Terms of Service</Link> and{' '}
               <Link href="/privacy">Privacy Policy</Link>.
             </p>
@@ -253,17 +257,17 @@ export default function ApplyPage() {
             ) : me?.application?.status === 'take-home-submitted' ? (
               <StatusMessage
                 title="Take-home submitted."
-                body="We are reviewing your admissions PR. You will hear back within 48 hours."
+                body="Your admissions pull request is under review. A decision will be issued within 48 hours."
               />
             ) : me?.application?.status === 'waitlisted' ? (
               <StatusMessage
                 title="Waitlisted."
-                body="We will email you if a spot opens. Questions: cohort@hult.edu."
+                body="You will be notified by email if a place becomes available. For questions, contact cohort@hult.edu."
               />
             ) : me?.application?.status === 'rejected' ? (
               <StatusMessage
                 title="Not admitted this cycle."
-                body="Thank you for applying. You may reapply in a future cohort."
+                body="Thank you for your application. You may reapply in a future cohort."
               />
             ) : inFlight && me ? (
               <TakeHomeSteps
@@ -293,7 +297,7 @@ export default function ApplyPage() {
                 <div className={styles.githubLocked}>
                   <span className={styles.githubLockedLabel}>GitHub account</span>
                   <span className={styles.githubLockedValue}>@{me?.githubHandle ?? '…'}</span>
-                  <span className={styles.githubLockedNote}>From your sign-in — not editable</span>
+                  <span className={styles.githubLockedNote}>Linked to your sign-in — not editable</span>
                 </div>
                 <label>
                   Why this program (200 words max)
@@ -340,15 +344,16 @@ export default function ApplyPage() {
                 </label>
 
                 <fieldset className={styles.confirmFieldset}>
-                  <legend>Confirmations (required)</legend>
+                  <legend>Required confirmations</legend>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmTuition" type="checkbox" required />
-                    I can pay $10,000 tuition and ~$400/month for Cursor + Claude Code for at least 4
-                    months.
+                    I confirm that I can pay $10,000 in tuition and approximately $400 per month
+                    for Cursor and Claude Code for at least four months.
                   </label>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPublicWork" type="checkbox" required />
-                    I understand my code, reviews, and projects will be public on GitHub.
+                    I understand that my code, reviews, and project work will be publicly visible
+                    on GitHub.
                   </label>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPolicies" type="checkbox" required />
@@ -388,8 +393,9 @@ export default function ApplyPage() {
 
         {!enrolled && !pendingRoster && (
           <p className={styles.formNote}>
-            Tuition $10,000 + ~$400/mo tooling. Week-1 full refund. After week 1, free re-enrollment
-            instead of cash refund. See <Link href="/overview">program overview</Link>.
+            Tuition is $10,000 plus approximately $400 per month for required tooling. A full
+            refund is available during week 1; thereafter, re-enrollment is offered in lieu of a
+            cash refund. See the <Link href="/overview">program overview</Link> for details.
           </p>
         )}
       </article>

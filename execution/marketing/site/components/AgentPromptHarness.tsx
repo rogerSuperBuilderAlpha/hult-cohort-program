@@ -25,14 +25,14 @@ export function AgentPromptHarness({ prompt, personalized = true }: Props) {
     <section className={styles.overviewBlock}>
       <div className={styles.harnessHeader}>
         <div>
-          <h2 className={styles.participantHeading}>Agent prompt harness</h2>
+          <h2 className={styles.participantHeading}>Agent prompt template</h2>
           <p className={styles.harnessLead}>
-            Copy into Cursor, Claude Code, or any agent. It will interview you for required
-            details, then create the repo work, open the PR, and push.
+            Copy this prompt into Cursor, Claude Code, or another agent tool. It will gather
+            required details, prepare the repository work, and open the pull request.
           </p>
         </div>
         <button type="button" className={styles.copyHarnessBtn} onClick={() => void copy()}>
-          {copied ? 'Copied!' : 'Copy prompt'}
+          {copied ? 'Copied' : 'Copy prompt'}
         </button>
       </div>
       {!personalized && (

@@ -9,7 +9,7 @@ export function JsonLdOrganization() {
     name: SITE_NAME,
     url: siteUrl,
     description:
-      'Cohort-based developer program at Hult International Business School — GitHub-native proof of work.',
+      'A one-semester developer cohort at Hult International Business School. Participants complete six production projects with verifiable work on GitHub.',
     sameAs: [GITHUB_REPO_URL],
   };
 

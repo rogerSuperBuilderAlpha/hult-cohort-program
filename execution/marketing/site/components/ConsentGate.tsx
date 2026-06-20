@@ -78,8 +78,8 @@ export function ConsentGate() {
       >
         <div className={styles.cookieBannerInner}>
           <p className={styles.cookieBannerText}>
-            We use optional Firebase Analytics cookies to understand site usage. No analytics load
-            until you accept. See our{' '}
+            This site uses optional analytics cookies to measure aggregate usage. Analytics are not
+            loaded until you consent. See our{' '}
             <Link href="/privacy">Privacy Policy</Link>.
           </p>
           <div className={styles.cookieBannerActions}>

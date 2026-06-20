@@ -64,19 +64,19 @@ function EnrolledView({
         <p className={styles.participantBannerLead}>
           {isOnboarding ? (
             <>
-              <strong>{project.phaseLabel}</strong> — your active week. Complete the checklist and
-              open your onboarding PR in the cohort repo.
+              <strong>{project.phaseLabel}</strong> — complete the checklist and submit your
+              onboarding pull request to the cohort repository.
             </>
           ) : project.voteWeek ? (
             <>
-              <strong>{project.phaseLabel}</strong> — contest project with a review week. Build solo,
-              file written reviews on every other participant
+              <strong>{project.phaseLabel}</strong> — Phase 1 project with a review week. Build
+              individually, file written reviews on every other participant
               {stats && stats.peerReviewCount > 0 ? ` (${stats.peerReviewCount} reviews)` : ''},
-              submit a merged PR before the deadline.
+              and submit a merged pull request before the deadline.
             </>
           ) : (
             <>
-              <strong>{project.phaseLabel}</strong> — {project.weeks}. Read requirements now;
+              <strong>{project.phaseLabel}</strong> — {project.weeks}. Review requirements now;
               submission opens on schedule.
             </>
           )}
@@ -144,9 +144,8 @@ function ApplicantInFlightBanner() {
   return (
     <div className={styles.callout}>
       <p>
-        <strong>Application in review</strong> — finish your take-home PR. This is the journey
-        you&apos;re applying to.{' '}
-        <Link href="/dashboard">Back to dashboard →</Link>
+        <strong>Application under review</strong> — complete your take-home pull request.{' '}
+        <Link href="/dashboard">Return to dashboard →</Link>
       </p>
     </div>
   );
@@ -169,8 +168,7 @@ function PublicView({
     <>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
         Template placeholders <code>{'{repo}'}</code>, <code>{'{org}'}</code>, and{' '}
-        <code>{'{handle}'}</code> are replaced after
-        you enroll.
+        <code>{'{handle}'}</code> are replaced after enrollment.
         {stats && stats.enrolledCount > 0 ? (
           <>
             {' '}
@@ -178,7 +176,7 @@ function PublicView({
             {stats.peerReviewCount} peer reviews per Phase 1 project).
           </>
         ) : (
-          <> Peer review counts update from the live roster.</>
+          <> Peer review counts update as the cohort roster is finalized.</>
         )}
         {applicantInFlight ? (
           <>
@@ -214,7 +212,7 @@ function PublicView({
 
       {project.voteWeek && (
         <section className={styles.overviewBlock}>
-          <h2>Winner selection</h2>
+          <h2>Selection criteria</h2>
           <p>{WINNER_SELECTION_PUBLIC}</p>
         </section>
       )}
@@ -255,9 +253,9 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
         <ProgramDescription text={descriptionText} />
         <div className={styles.callout}>
           <p>
-            <strong>Admitted — roster pending.</strong> Your application is approved; participant
-            progress unlocks once staff add you to the roster. Email cohort@hult.edu if this
-            persists.
+            <strong>Admitted — enrollment pending.</strong> Your application has been approved.
+            Participant progress will become available once staff confirm your enrollment. Contact{' '}
+            <a href="mailto:cohort@hult.edu">cohort@hult.edu</a> if this status persists.
           </p>
           <p className={styles.formNote} style={{ marginBottom: 0 }}>
             <Link href="/dashboard">Check your dashboard →</Link>

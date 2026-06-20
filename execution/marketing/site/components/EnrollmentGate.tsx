@@ -15,7 +15,7 @@ type EnrollmentGateProps = {
 };
 
 export function EnrollmentGate({
-  unconfiguredMessage = 'Unavailable — Firebase not configured.',
+  unconfiguredMessage = 'Unavailable — platform services not configured.',
   loadingMessage = 'Loading…',
   signedOut,
   notEnrolled,

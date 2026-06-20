@@ -17,6 +17,6 @@ export function useEnrollmentHub() {
     enrolled,
     href: enrolled ? '/dashboard' : '/apply',
     label: loading ? '…' : enrolled ? 'Dashboard' : 'Apply',
-    heroLabel: loading ? '…' : enrolled ? 'Open your dashboard' : 'Apply for Fall 2026',
+    heroLabel: loading ? '…' : enrolled ? 'Open dashboard' : 'Apply for Fall 2026',
   };
 }

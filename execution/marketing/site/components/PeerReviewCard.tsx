@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { PeerRating, PeerRatingTarget } from '@/lib/project-progress-types';
 import { newReviewIssueUrl } from '@/lib/written-reviews-format';
+import { VOTE_PRIVACY_NOTE } from '@/lib/review-week-copy';
 import styles from '../app/page.module.css';
 
 type Status = 'needs-review' | 'ready-to-vote' | 'complete';
@@ -93,8 +94,8 @@ function WrittenReviewForm({
     <div className={styles.reviewStepBody}>
       {reviewWindowStatus === 'not-yet' && reviewOpensFormatted ? (
         <p className={styles.reviewWindowNotice}>
-          <strong>Review week opens {reviewOpensFormatted}.</strong> You can browse their repo and PR
-          now; saving reviews and votes unlock when the window opens.
+          <strong>Review week opens {reviewOpensFormatted}.</strong> You may browse their repository
+          and pull request now; saving reviews and votes becomes available when the window opens.
         </p>
       ) : null}
       {reviewWindowStatus === 'closed' ? (
@@ -113,10 +114,10 @@ function WrittenReviewForm({
         Open GitHub issue template
       </a>
       <p className={styles.reviewStepHint}>
-        Title must be <code>Review by @{reviewerHandle}</code> on their repo.
+        Title must be <code>Review by @{reviewerHandle}</code> on their repository.
       </p>
       <label className={styles.reviewLinkLabel} htmlFor={`issue-${peer.handle}`}>
-        Then paste the issue URL here:
+        Paste the issue URL here:
       </label>
       <div className={styles.reviewLinkRow}>
         <input
@@ -142,14 +143,14 @@ function WrittenReviewForm({
       </div>
       {!reviewWindowOpen && reviewWindowStatus === 'not-yet' && reviewOpensFormatted ? (
         <p className={styles.reviewStepHint}>
-          Save review unlocks {reviewOpensFormatted}.
+          Save review becomes available {reviewOpensFormatted}.
         </p>
       ) : !reviewWindowOpen ? (
         <p className={styles.reviewStepHint}>Review week is not open — saving is disabled.</p>
       ) : null}
       {error ? <p className={styles.formError}>{error}</p> : null}
       {!githubVerification ? (
-        <p className={styles.reviewStepHint}>Issue must be on @{peer.handle}&apos;s repo.</p>
+        <p className={styles.reviewStepHint}>The issue must be on @{peer.handle}&apos;s repository.</p>
       ) : null}
     </div>
   );
@@ -208,24 +209,26 @@ export function PeerReviewCard({
             <li className={styles.reviewStep}>
               <div className={styles.reviewStepTitle}>
                 <span className={styles.reviewStepNum}>1</span>
-                Try their app
+                Evaluate their deployment
               </div>
               {peer.deployUrl ? (
                 <a href={peer.deployUrl} target="_blank" rel="noopener noreferrer" className={styles.reviewActionBtn}>
-                  Open live deploy →
+                  Open deployment →
                 </a>
               ) : (
-                <p className={styles.reviewStepHint}>No deploy URL on file — use their repo README.</p>
+                <p className={styles.reviewStepHint}>
+                  No deployment URL on file — refer to their repository README.
+                </p>
               )}
             </li>
 
             <li className={styles.reviewStep}>
               <div className={styles.reviewStepTitle}>
                 <span className={styles.reviewStepNum}>2</span>
-                Read their submission PR
+                Read their submission pull request
               </div>
               <a href={peer.prUrl} target="_blank" rel="noopener noreferrer" className={styles.reviewActionBtn}>
-                Open submission PR →
+                Open submission pull request →
               </a>
             </li>
 
@@ -252,7 +255,9 @@ export function PeerReviewCard({
               <div className={styles.reviewStepTitle}>
                 <span className={styles.reviewStepNum}>4</span>
                 Cast private vote
-                {!peer.reviewFiled ? <span className={styles.reviewStepLockLabel}> — unlocks after step 3</span> : null}
+                {!peer.reviewFiled ? (
+                  <span className={styles.reviewStepLockLabel}> — available after step 3</span>
+                ) : null}
               </div>
               <div className={styles.ratingActions}>
                 <button
@@ -289,7 +294,7 @@ export function PeerReviewCard({
                 </button>
               </div>
               {peer.reviewFiled ? (
-                <p className={styles.reviewStepHint}>Only you see your vote. Peers cannot view it.</p>
+                <p className={styles.reviewStepHint}>{VOTE_PRIVACY_NOTE}</p>
               ) : null}
             </li>
           </ol>

@@ -26,15 +26,15 @@ export default async function Home() {
       />
 
       <section className={styles.hero}>
-        <p className={`${styles.eyebrow} animate-in`}>Dare Mighty Things · Fall 2026</p>
+        <p className={`${styles.eyebrow} animate-in`}>Hult Cohort Developer Program · Fall 2026</p>
         <h1 className={`${styles.headline} animate-in delay-1`}>
-          Pay once.<br />
-          Ship six production projects.<br />
-          <em>Get a job offer</em> — or come back free until you do.
+          A one-semester developer cohort<br />
+          evaluated on verifiable work.
         </h1>
         <p className={`${styles.subhead} animate-in delay-2`}>
-          Every skill we teach is verifiable on GitHub. Hiring partners see your work before
-          they interview you.
+          Participants complete six production projects across sixteen weeks. Every contribution is
+          recorded publicly on GitHub, giving hiring partners independent evidence of engineering
+          ability.
         </p>
         <div className={`${styles.heroActions} animate-in delay-3`}>
           <ParticipantCta />
@@ -46,60 +46,75 @@ export default async function Home() {
           <a href={cohortRepoUrl()} target="_blank" rel="noopener noreferrer">
             github.com/{cohortSubmissionRepo()}
           </a>
-          <span>Applications open June 15</span>
-          <span>Starts Sep 8</span>
+          <span>Applications open June 15, 2026</span>
+          <span>Program begins September 8, 2026</span>
         </div>
       </section>
 
       <section id="program" className={styles.section}>
-        <div className={styles.sectionLabel}>The promise</div>
-        <h2 className={styles.sectionTitle}>One fee. Unlimited cohorts until you&apos;re placed.</h2>
+        <div className={styles.sectionLabel}>Program structure</div>
+        <h2 className={styles.sectionTitle}>Tuition, completion, and placement</h2>
         <p className={styles.sectionBody}>
-          You pay <strong>$10,000 once</strong>. Complete the program and receive a qualifying
-          full-time software job offer — or re-enroll at no extra tuition until you do. Withdraw
-          in week 1 for a full refund.
+          Tuition is <strong>$10,000</strong>, paid once. Participants who complete the program and
+          receive a qualifying full-time software job offer satisfy the placement requirement.
+          Those who do not may re-enroll at no additional tuition until placement is achieved. A
+          full refund is available if you withdraw during week 1.
         </p>
       </section>
 
       <section id="journey" className={styles.gridSection}>
         <div className={styles.phaseCard}>
           <span className={styles.phaseTag}>Phase 1 · Weeks 2–8</span>
-          <h3>Build your cohort&apos;s tool stack</h3>
+          <h3>Internal platform development</h3>
           <ul>
             <li>Project management platform</li>
-            <li>Internal comms platform</li>
+            <li>Internal communications platform</li>
             <li>Public showcase for hiring partners</li>
           </ul>
           <p className={styles.phaseNote}>
-            Everyone builds. Everyone files written reviews on GitHub. Everyone votes 👍/👎 in
-            private. Most thumbs up operates the platform.
+            Each participant builds and deploys a production application. During review week,
+            participants file written GitHub reviews on every peer submission and cast a private
+            vote. The submission with the most votes operates the platform for the cohort.
           </p>
         </div>
         <div className={styles.phaseCard}>
           <span className={styles.phaseTag}>Phase 2 · Weeks 9–16</span>
-          <h3>Ship to the world</h3>
+          <h3>External validation</h3>
           <ul>
-            <li>Learning app on Ludwitt/Hult — real users</li>
-            <li>Full venture: plan, investors, production app</li>
-            <li>Open source merges in major repos</li>
+            <li>Learning application with external users</li>
+            <li>Startup venture: business plan, investor materials, production application</li>
+            <li>Open-source contribution to established repositories</li>
           </ul>
           <p className={styles.phaseNote}>
-            Peers judge Phase 1. The market judges Phase 2.
+            Phase 1 is evaluated by peers. Phase 2 is evaluated by users, investors, and upstream
+            maintainers.
           </p>
         </div>
       </section>
 
       <section className={styles.skills}>
-        <h2>What you walk away with</h2>
+        <h2>Program outcomes</h2>
         <p className={styles.sectionBody} style={{ marginBottom: '1.5rem' }}>
-          Agent-native from day one — apply, file written reviews, and cast votes via the web or
-          the cohort MCP server.
+          The program is conducted entirely through GitHub: submissions, peer reviews, and progress
+          tracking. Participants may also interact with the platform through the cohort MCP server.
         </p>
         <div className={styles.skillGrid}>
           {[
-            { n: '01', t: 'GitHub fluency', d: 'Hundreds of reviews, PRs, and merges — all public.' },
-            { n: '02', t: 'Distributed teamwork', d: 'Coordinate without direct interaction.' },
-            { n: '03', t: 'Verifiable proof', d: 'Hiring partners inspect your trail, not our word.' },
+            {
+              n: '01',
+              t: 'Version control proficiency',
+              d: 'Sustained practice with pull requests, code review, and merge workflows.',
+            },
+            {
+              n: '02',
+              t: 'Distributed collaboration',
+              d: 'Coordination across asynchronous, repository-based workflows.',
+            },
+            {
+              n: '03',
+              t: 'Verifiable portfolio',
+              d: 'A public record of work that hiring partners can inspect independently.',
+            },
           ].map((s) => (
             <article key={s.n} className={styles.skillCard}>
               <span className={styles.skillNum}>{s.n}</span>
@@ -115,45 +130,56 @@ export default async function Home() {
         <table className={styles.costTable}>
           <tbody>
             <tr>
-              <td>Program tuition (one-time, unlimited cohorts)</td>
+              <td>Program tuition (one-time; re-enrollment at no additional cost)</td>
               <td>$10,000</td>
             </tr>
             <tr>
-              <td>Tooling — Cursor + Claude Code (~4 months)</td>
+              <td>Required tooling — Cursor and Claude Code (~4 months)</td>
               <td>~$1,600</td>
             </tr>
             <tr>
-              <td>Placement kickback (typical hire)</td>
-              <td className={styles.highlight}>~$5,000 back to you</td>
+              <td>Candidate placement payment (typical hire)</td>
+              <td className={styles.highlight}>~$5,000</td>
             </tr>
           </tbody>
         </table>
         <p className={styles.costNote}>
-          When we place you, you receive 10% of our referral fee — often ~$5,000 on a typical hire.
+          When a participant is placed through a hiring partner, 10% of the program&apos;s referral
+          fee is paid to the candidate — typically approximately $5,000.
         </p>
       </section>
 
       <section id="faq" className={styles.faq}>
-        <h2>FAQ</h2>
+        <h2>Frequently asked questions</h2>
         <dl>
           <div>
-            <dt>Is this a bootcamp?</dt>
+            <dt>How is the program assessed?</dt>
             <dd>
-              No letter grades. Pass/fail. You build production software your cohort actually uses
-              — including the PM tool you track work on.
+              Assessment is pass/fail. There are no letter grades. Participants build production
+              software that the cohort uses throughout the semester, including the project
+              management platform used to track work.
             </dd>
           </div>
           <div>
-            <dt>What if I fail?</dt>
-            <dd>Re-enroll free. Unlimited times on your original payment until you&apos;re placed.</dd>
+            <dt>What happens if I do not pass?</dt>
+            <dd>
+              You may re-enroll at no additional tuition on your original payment until you receive
+              a qualifying placement.
+            </dd>
           </div>
           <div>
-            <dt>What counts as a qualifying offer?</dt>
-            <dd>Full-time software role, $80k+ base, start within 180 days of passing.</dd>
+            <dt>What qualifies as a placement offer?</dt>
+            <dd>
+              A full-time software engineering role with a base salary of $80,000 or more, with a
+              start date within 180 days of program completion.
+            </dd>
           </div>
           <div>
-            <dt>Do I need both Cursor and Claude Code?</dt>
-            <dd>Yes. ~$400/mo total. Both required from day 1.</dd>
+            <dt>What tooling is required?</dt>
+            <dd>
+              Cursor and Claude Code are required from week 1, at a combined cost of approximately
+              $400 per month.
+            </dd>
           </div>
         </dl>
       </section>
@@ -161,11 +187,11 @@ export default async function Home() {
       <section id="apply" className={styles.apply}>
         <h2>Admissions</h2>
         <ol className={styles.steps}>
-          <li>Short application (15 min)</li>
-          <li>48-hour take-home: fix a repo, open a PR</li>
-          <li>Decision within 48 hours of your take-home PR</li>
+          <li>Complete the application form</li>
+          <li>Complete the 48-hour take-home: repair a repository and submit a pull request</li>
+          <li>Receive a decision within 48 hours of your take-home pull request</li>
         </ol>
-        <p>{cohortSizeLine} · Apply by August 15, 2026</p>
+        <p>{cohortSizeLine} · Application deadline: August 15, 2026</p>
         <ParticipantCta />
       </section>
     </main>

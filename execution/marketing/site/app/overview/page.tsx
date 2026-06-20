@@ -11,7 +11,8 @@ import {
 
 export const metadata = {
   title: 'Program Overview | Hult Cohort Developer Program',
-  description: 'Full program structure for students, partners, and university stakeholders.',
+  description:
+    'Program structure, assessment model, and timeline for students, hiring partners, and university stakeholders.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -30,62 +31,87 @@ export default async function OverviewPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Program overview · Fall 2026</p>
-        <h1 className={styles.sectionTitle}>One semester. Two phases. GitHub-native throughout.</h1>
+        <h1 className={styles.sectionTitle}>
+          One semester. Two phases. Work verified on GitHub.
+        </h1>
 
         <section className={styles.overviewBlock}>
-          <h2>The outcome</h2>
+          <h2>Program outcome</h2>
           <p>
-            Students enroll, complete six production projects, and receive a qualifying job offer —
-            or re-enroll at no extra tuition until they do. Every skill leaves a public GitHub trail
-            hiring partners can verify independently.
+            Participants enroll, complete six production projects, and receive a qualifying job
+            offer — or re-enroll at no additional tuition until they do. All work is recorded on
+            GitHub, providing hiring partners with an independently verifiable record of each
+            participant&apos;s contributions.
           </p>
         </section>
 
         <section className={styles.overviewBlock}>
           <h2>Phase 1 · Weeks 2–8 · Internal</h2>
-          <p>Each cohort builds its own tool stack. Same loop three times:</p>
+          <p>
+            Each cohort develops its own internal tool stack through three sequential projects.
+            The assessment cycle repeats for each project:
+          </p>
           <ol>
-            <li>Everyone builds a production deployment</li>
+            <li>Each participant builds and deploys a production application.</li>
             <li>
-              Everyone files a written GitHub review on every peer repo ({peerReviewLine})
+              Each participant files a written GitHub review on every peer submission (
+              {peerReviewLine}).
             </li>
             <li>
-              Everyone casts a private 👍/👎; most thumbs up wins and operates the platform
+              Each participant casts a private vote. The submission with the most votes operates
+              the platform for the cohort.
             </li>
-            <li>Everyone else engages as developer/users (PRs, issues, QA)</li>
+            <li>
+              Participants who do not win contribute as developers and users on the winning
+              platform through pull requests, issues, and quality assurance.
+            </li>
           </ol>
           <ul>
             <li><strong>Project 1:</strong> Project management platform</li>
-            <li><strong>Project 2:</strong> Internal comms platform</li>
+            <li><strong>Project 2:</strong> Internal communications platform</li>
             <li><strong>Project 3:</strong> Public showcase for hiring partners</li>
           </ul>
           <p>
-            Three winners unify their platforms and each draft 10% of the cohort for leadership
-            teams — {operators} in recognized operator roles.
+            The three winning platforms are unified into a single ecosystem. Each winning team
+            selects approximately 10% of the cohort for operator roles — {operators} in
+            recognized leadership positions.
           </p>
         </section>
 
         <section className={styles.overviewBlock}>
           <h2>Phase 2 · Weeks 9–16 · External</h2>
           <ul>
-            <li><strong>Learning app</strong> on Ludwitt/Hult — success = external users</li>
-            <li><strong>Venture</strong> — business plan, investor materials, production app</li>
-            <li><strong>Open source</strong> — merged PRs in major repos (continuous)</li>
+            <li>
+              <strong>Learning application</strong> — registered on the Ludwitt/Hult platform;
+              success measured by external users
+            </li>
+            <li>
+              <strong>Venture</strong> — business plan, investor materials, and production
+              application
+            </li>
+            <li>
+              <strong>Open source</strong> — merged pull requests in established repositories
+              (continuous throughout Phase 2)
+            </li>
           </ul>
-          <p>Judges escalate: peers → users → investors → maintainer communities of strangers.</p>
+          <p>
+            Assessment criteria escalate across phases: peer review in Phase 1, then external users,
+            investors, and upstream maintainers in Phase 2.
+          </p>
         </section>
 
         <section className={styles.overviewBlock}>
           <h2>For hiring partners</h2>
           <ul>
-            <li>Review public work from week 8 via cohort showcase</li>
-            <li>Week 16 hiring showcase (hybrid, Boston anchor)</li>
-            <li>25% referral fee on hire; 90-day clawback; no exclusivity</li>
-            <li>10% of fee paid back to the candidate</li>
+            <li>Review public work from week 8 via the cohort showcase platform</li>
+            <li>Week 16 hiring showcase (hybrid format; Boston anchor campus)</li>
+            <li>25% referral fee on hire; 90-day clawback; no exclusivity requirement</li>
+            <li>10% of the referral fee paid to the placed candidate</li>
           </ul>
           <p>
-            Contact: cohort@hult.edu · Partner materials in program repo{' '}
-            <code>execution/partners/</code>
+            Contact:{' '}
+            <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>. Partner materials are available
+            upon request.
           </p>
         </section>
 
@@ -94,7 +120,7 @@ export default async function OverviewPage() {
           <table className={styles.costTable}>
             <tbody>
               <tr>
-                <td>Tuition (one-time, unlimited cohorts)</td>
+                <td>Tuition (one-time; re-enrollment at no additional cost)</td>
                 <td>$10,000</td>
               </tr>
               <tr>
@@ -102,7 +128,7 @@ export default async function OverviewPage() {
                 <td>~$1,600</td>
               </tr>
               <tr>
-                <td>For hiring partners · typical placement referral (program revenue)</td>
+                <td>Typical placement referral (program revenue from hiring partners)</td>
                 <td>~$45,000</td>
               </tr>
             </tbody>
@@ -112,10 +138,11 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Timeline</h2>
           <p>
-            <strong>Start:</strong> September 8, 2026 · <strong>Showcase:</strong> December 19, 2026
+            <strong>Program start:</strong> September 8, 2026 ·{' '}
+            <strong>Hiring showcase:</strong> December 19, 2026
           </p>
           <p>
-            Full calendar: program documentation <code>operations/calendar.md</code>
+            A detailed academic calendar is provided to enrolled participants at orientation.
           </p>
         </section>
 

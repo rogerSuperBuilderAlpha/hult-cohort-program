@@ -86,7 +86,7 @@ export function ogImageJsx(title: string, subtitle: string) {
           textTransform: 'uppercase',
         }}
       >
-        Dare Mighty Things · Fall 2026
+        Fall 2026 Cohort
       </div>
     </div>
   );

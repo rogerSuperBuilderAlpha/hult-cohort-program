@@ -6,7 +6,7 @@ import { programProjects } from '../../content/program';
 export const metadata = {
   title: 'Program | Hult Cohort Developer Program',
   description:
-    'Every phase and project — what participants build, submit as PRs, and review and vote on.',
+    'Project requirements, submission standards, and assessment criteria for each phase of the cohort.',
 };
 
 export default function ProgramIndexPage() {
@@ -20,11 +20,12 @@ export default function ProgramIndexPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Participant journey</p>
-        <h1 className={styles.sectionTitle}>Every project. Clear expectations. PRs as proof.</h1>
+        <h1 className={styles.sectionTitle}>Projects, requirements, and assessment</h1>
         <p className={styles.overviewLead}>
-          You do not submit links in a form. You open a PR in the cohort org with your deploy URL,
-          metrics, and agent notes. Phase 1 review weeks: file a written GitHub review on every peer
-          build, then cast a private 👍 or 👎. The repo with the most thumbs up wins.
+          Submissions are made through pull requests in the cohort repository, including deploy
+          URLs, metrics, and documentation. During Phase 1 review weeks, participants file a
+          written GitHub review on every peer submission, then cast a private vote. The submission
+          with the most votes is selected to operate the platform.
         </p>
 
         <Section title="Onboarding" projects={onboarding} />

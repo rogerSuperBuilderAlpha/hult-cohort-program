@@ -70,7 +70,7 @@ function ParticipantDashboard({
     <div className={styles.participantPanel}>
       <div className={styles.calloutSuccess}>
         <p>
-          <strong>Fall 2026 cohort dashboard.</strong> Welcome, {greetingName}.
+          <strong>Fall 2026 participant dashboard.</strong> Welcome, {greetingName}.
         </p>
       </div>
 
@@ -86,7 +86,7 @@ function ParticipantDashboard({
               </Link>
             </>
           ) : (
-            ' · Between project windows — browse upcoming deadlines below'
+            ' · Between project windows — see upcoming deadlines below'
           )}
         </p>
       ) : null}
@@ -105,16 +105,16 @@ function ParticipantDashboard({
           {stats.available && stats.enrolledCount > 0 ? (
             <>{stats.enrolledCount} enrolled</>
           ) : (
-            'Enrollment filling'
+            'Enrollment in progress'
           )}
         </dd>
         <dt>Status</dt>
         <dd>Enrolled</dd>
       </dl>
 
-      <h2 className={styles.participantHeading}>Progress across projects</h2>
+      <h2 className={styles.participantHeading}>Project progress</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
-        {submittedCount} of {programProjects.length} projects with merged submission PRs on file.
+        {submittedCount} of {programProjects.length} projects with merged submission pull requests.
       </p>
       <ul className={styles.onboardingChecklist}>
         {summary.projects.map((project) => {
@@ -129,14 +129,14 @@ function ParticipantDashboard({
                 <strong>{project.phaseLabel}</strong> — {project.title}
               </Link>
               {isActiveProject ? <span className={styles.activeProjectBadge}>Active this week</span> : null}
-              {project.submissionMerged ? ' · merged PR' : ' · not submitted'}
+              {project.submissionMerged ? ' · submission merged' : ' · not submitted'}
               {project.reviewsRequired != null && project.reviewsRequired > 0 ? (
                 <>
                   {' '}
                   · reviews {project.reviewsWritten}/{project.reviewsRequired}
                   · votes {project.votesCast}/{project.reviewsRequired}
                   {project.awaitingMerge && project.awaitingMerge > 0
-                    ? ` · ${project.awaitingMerge} peer(s) awaiting merge`
+                    ? ` · ${project.awaitingMerge} peer submission(s) pending merge`
                     : ''}
                 </>
               ) : null}
@@ -148,10 +148,10 @@ function ParticipantDashboard({
         })}
       </ul>
 
-      <h2 className={styles.participantHeading}>Your data</h2>
+      <h2 className={styles.participantHeading}>Data export</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
-        Download a JSON export of platform-held data below. Account deletion is in the Account
-        section. See the <Link href="/privacy">Privacy Policy</Link> for details.
+        Download a JSON export of data held by this platform. Account deletion is available in the
+        Account section. See the <Link href="/privacy">Privacy Policy</Link> for details.
       </p>
       <div className={styles.participantActions} style={{ marginTop: 0, marginBottom: 24 }}>
         <button
@@ -181,11 +181,11 @@ function ParticipantDashboard({
       </div>
 
       <p className={styles.formNote}>
-        Optional:{' '}
+        The{' '}
         <a href={`${GITHUB_REPO_URL}/blob/main/execution/hult-cohort-mcp/README.md`} target="_blank" rel="noopener noreferrer">
           cohort MCP server
         </a>{' '}
-        for agent-driven reviews and votes.
+        provides an optional interface for submitting reviews and votes programmatically.
       </p>
 
       <AccountSection
@@ -240,11 +240,11 @@ export default function DashboardPage() {
         <p className={styles.eyebrow}>Fall 2026 · Participant dashboard</p>
         <h1 className={styles.sectionTitle}>Dashboard</h1>
         <p className={styles.overviewLead}>
-          Your home base for submissions, peer reviews, and where you are in the 16-week arc.
+          Submissions, peer reviews, and program progress for the 16-week cohort.
         </p>
 
         {!configured ? (
-          <div className={styles.callout}>Dashboard unavailable — Firebase not configured.</div>
+          <div className={styles.callout}>Dashboard unavailable — platform services not configured.</div>
         ) : loading || (profile && statusLoading) ? (
           <p className={styles.formNote}>Loading…</p>
         ) : !profile ? (
@@ -259,28 +259,30 @@ export default function DashboardPage() {
           <div className={styles.callout}>
             {isApplicantInFlight(me) ? (
               <p>
-                <strong>Application in review.</strong> Finish your take-home PR on Apply.{' '}
+                <strong>Application under review.</strong> Complete your take-home pull request on
+                the Apply page.{' '}
                 <Link href="/apply">Continue on Apply →</Link>
               </p>
             ) : isAdmittedPendingRoster(me) ? (
               <p>
-                <strong>Admitted — roster pending.</strong> Staff are finalizing your roster row.
-                Participant tools unlock shortly.{' '}
+                <strong>Admitted — enrollment pending.</strong> Staff are finalizing your enrollment.
+                Participant tools will become available shortly.{' '}
                 <Link href="/apply">Check Apply for status →</Link>
               </p>
             ) : me?.application?.status === 'waitlisted' ? (
               <p>
-                <strong>Waitlisted.</strong> We will email you if a spot opens. Questions:{' '}
+                <strong>Waitlisted.</strong> You will be notified by email if a place becomes
+                available. For questions, contact{' '}
                 <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
               </p>
             ) : me?.application?.status === 'rejected' ? (
               <p>
-                <strong>Not admitted this cycle.</strong> Thank you for applying. You may reapply in
-                a future cohort.
+                <strong>Not admitted this cycle.</strong> Thank you for your application. You may
+                reapply in a future cohort.
               </p>
             ) : (
               <p>
-                <strong>Not enrolled yet.</strong>{' '}
+                <strong>Not enrolled.</strong>{' '}
                 <Link href="/apply">Apply for Fall 2026 →</Link>
               </p>
             )}

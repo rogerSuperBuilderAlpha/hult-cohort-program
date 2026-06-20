@@ -25,7 +25,8 @@ export default function TermsPage() {
           <h2>Acceptance</h2>
           <p>
             By signing in with GitHub or submitting an application, you agree to these Terms and our{' '}
-            <Link href="/privacy">Privacy Policy</Link>. If you do not agree, do not use the site.
+            <Link href="/privacy">Privacy Policy</Link>. If you do not agree, do not use this
+            platform.
           </p>
         </section>
 
@@ -34,15 +35,15 @@ export default function TermsPage() {
           <ul>
             <li>
               You sign in with GitHub via Firebase. You are responsible for securing your GitHub
-              account and any activity under your handle.
+              account and any activity conducted under your handle.
             </li>
             <li>
               One GitHub identity per applicant. You may not impersonate others or share account
               access for submissions or votes.
             </li>
             <li>
-              Your application is tied to the GitHub account you use at apply time — the same
-              identity you ship PRs from during the program.
+              Your application is linked to the GitHub account used at application time — the same
+              identity used for all program submissions.
             </li>
           </ul>
         </section>
@@ -53,7 +54,7 @@ export default function TermsPage() {
           <ul>
             <li>Submit false information on applications or progress records</li>
             <li>Attempt to access other participants&apos; private votes or unauthorized data</li>
-            <li>Disrupt the site, scrape enrolled-only APIs, or bypass authentication</li>
+            <li>Disrupt the platform, scrape enrolled-only APIs, or bypass authentication</li>
             <li>Use the platform for harassment, spam, or illegal activity</li>
             <li>Automate votes or reviews in violation of program rules</li>
           </ul>
@@ -66,20 +67,21 @@ export default function TermsPage() {
           </p>
           <ul>
             <li>Program Agreement — tuition, placement commitment, re-enrollment remedy</li>
-            <li>Expectations Acknowledgment — tooling, public GitHub work, pass/fail criteria</li>
+            <li>
+              Expectations Acknowledgment — required tooling, public GitHub work, pass/fail
+              criteria
+            </li>
           </ul>
           <p>
-            Draft templates live in the program repository under{' '}
-            <code>execution/templates/legal/</code>. Published pass/fail and placement criteria are
-            in <code>assessment/</code> and <code>business/</code> in the{' '}
+            Pass/fail and placement criteria are published in the program{' '}
             <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
-              open-source repo
+              open-source repository
             </a>
-            .
+            . Enrollment documents are provided at admission.
           </p>
           <p>
-            Website copy is informational. In a conflict, signed enrollment documents and published
-            governance docs control.
+            Website copy is informational. In the event of a conflict, signed enrollment documents
+            and published program criteria take precedence.
           </p>
         </section>
 
@@ -87,7 +89,7 @@ export default function TermsPage() {
           <h2>Intellectual property</h2>
           <ul>
             <li>
-              Student project code is yours subject to the Program Agreement and open-source
+              Student project code is yours, subject to the Program Agreement and open-source
               requirements of each project.
             </li>
             <li>
@@ -107,7 +109,7 @@ export default function TermsPage() {
         <section className={styles.overviewBlock}>
           <h2>Disclaimers</h2>
           <p>
-            The site is provided &quot;as is&quot; without warranty. We do not guarantee
+            The platform is provided &quot;as is&quot; without warranty. We do not guarantee
             uninterrupted access, error-free operation, or specific admissions or employment
             outcomes. Job placement terms are defined in the Program Agreement and published
             criteria — not guaranteed by use of this website alone.
@@ -118,7 +120,7 @@ export default function TermsPage() {
           <h2>Limitation of liability</h2>
           <p>
             To the fullest extent permitted by law, Hult is not liable for indirect, incidental, or
-            consequential damages arising from use of the site. Our total liability for platform
+            consequential damages arising from use of the platform. Our total liability for platform
             use claims is limited to fees you paid to Hult for the program in the twelve months
             preceding the claim.
           </p>
@@ -128,7 +130,7 @@ export default function TermsPage() {
           <h2>Termination</h2>
           <p>
             We may suspend or revoke platform access for violations of these Terms or program rules.
-            You may stop using the site at any time. Request data deletion per the{' '}
+            You may stop using the platform at any time. Request data deletion per the{' '}
             <Link href="/privacy">Privacy Policy</Link>.
           </p>
         </section>

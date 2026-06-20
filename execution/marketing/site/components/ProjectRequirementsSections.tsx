@@ -28,7 +28,7 @@ export function ProjectRequirementsSections({
   return (
     <>
       <section className={styles.overviewBlock}>
-        <h2 className={headingClass}>What is expected of you</h2>
+        <h2 className={headingClass}>Requirements</h2>
         <ul className={variant === 'enrolled' ? styles.onboardingChecklist : undefined}>
           {project.expectations.map((item) => (
             <li key={item}>{p(item)}</li>
@@ -37,14 +37,15 @@ export function ProjectRequirementsSections({
       </section>
 
       <section className={styles.overviewBlock}>
-        <h2 className={headingClass}>How you submit (PR, not a link form)</h2>
+        <h2 className={headingClass}>Submission instructions</h2>
         {variant === 'enrolled' ? (
           <p className={styles.formNote} style={{ marginTop: 0, marginBottom: 16 }}>
-            Cohort repo:{' '}
+            Cohort repository:{' '}
             <a href={cohortRepoUrl()} target="_blank" rel="noopener noreferrer">
               github.com/{cohortSubmissionRepo()}
             </a>{' '}
-            — fork or branch from <code>main</code> and open a PR with the exact title below.
+            — fork or branch from <code>main</code> and open a pull request with the exact title
+            below.
           </p>
         ) : null}
         <dl className={styles.dl}>
@@ -52,11 +53,11 @@ export function ProjectRequirementsSections({
           <dd>
             <code>{p(project.submission.repoPattern)}</code>
           </dd>
-          <dt>PR title</dt>
+          <dt>Pull request title</dt>
           <dd>
             <code>{p(project.submission.prTitle)}</code>
           </dd>
-          <dt>PR body must include</dt>
+          <dt>Pull request body must include</dt>
           <dd>
             <ul className={variant === 'enrolled' ? styles.onboardingChecklist : undefined}>
               {project.submission.prBodyMustInclude.map((item) => (
@@ -70,14 +71,14 @@ export function ProjectRequirementsSections({
       </section>
 
       <section className={styles.overviewBlock}>
-        <h2 className={headingClass}>Pass gate</h2>
+        <h2 className={headingClass}>Pass criteria</h2>
         {variant === 'enrolled' && progress ? (
           <ul className={styles.progressChecklist}>
             <li className={progress.submission.merged ? styles.progressItemDone : styles.progressItemPending}>
               <span className={progress.submission.merged ? styles.progressIconDone : styles.progressIconPending}>
                 {progress.submission.merged ? '✓' : '○'}
               </span>
-              Submission PR merged or eligible miss documented
+              Submission pull request merged or eligible miss documented
             </li>
             {progress.reviews ? (
               <>
@@ -115,7 +116,7 @@ export function ProjectRequirementsSections({
                   >
                     {progress.reviews.ratingsCompleted >= progress.reviews.required ? '✓' : '○'}
                   </span>
-                  {progress.reviews.ratingsCompleted}/{progress.reviews.required} private votes (👍/👎)
+                  {progress.reviews.ratingsCompleted}/{progress.reviews.required} private votes
                 </li>
               </>
             ) : null}
@@ -139,7 +140,7 @@ export function ProjectRequirementsSections({
 
 function peerReviewLabel(stats: CohortStats | null | undefined): string {
   if (!stats || stats.enrolledCount === 0) {
-    return 'One required review per other enrolled participant (count updates live)';
+    return 'One required review per other enrolled participant (count updates as the cohort fills)';
   }
   return `${stats.peerReviewCount} required reviews (cohort size ${stats.enrolledCount})`;
 }
@@ -161,7 +162,7 @@ export function ProjectPeerReviewSection({
     <section className={styles.overviewBlock}>
       <h2 className={variant === 'enrolled' ? styles.participantHeading : undefined}>Peer review</h2>
       <p>
-        <strong>{peerReviewLabel(stats)}.</strong> Artifact: {p(project.reviews.artifact)}. Due:{' '}
+        <strong>{peerReviewLabel(stats)}.</strong> Deliverable: {p(project.reviews.artifact)}. Due:{' '}
         {project.reviews.dueNote}.
       </p>
     </section>

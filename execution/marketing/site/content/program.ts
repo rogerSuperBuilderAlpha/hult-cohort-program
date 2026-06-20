@@ -86,8 +86,8 @@ export const programProjects: ProgramProject[] = [
     schedule: {
       submissionOpens: '2026-09-15T12:00:00.000Z',
       submissionCloses: '2026-10-02T21:00:00.000Z',
-      reviewOpens: '2026-06-19T12:00:00.000Z',
-      reviewCloses: '2026-06-30T23:59:59.000Z',
+      reviewOpens: '2026-10-02T21:00:00.000Z',
+      reviewCloses: '2026-10-03T18:00:00.000Z',
     },
     expectations: [
       'Build solo; deploy to production HTTPS before deadline',

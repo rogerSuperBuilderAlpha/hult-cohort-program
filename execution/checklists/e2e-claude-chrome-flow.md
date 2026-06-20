@@ -1,4 +1,4 @@
-# E2E test — Claude in Chrome (application → submission)
+# E2E test — Claude in Chrome (application → submission → review → tally)
 
 Copy everything below the line into **Claude in Chrome** (or paste phase-by-phase). This walks the full cohort platform flow using the **Roger Hunt** test identity.
 
@@ -7,25 +7,40 @@ Copy everything below the line into **Claude in Chrome** (or paste phase-by-phas
 **Cohort repo:** https://github.com/rogerSuperBuilderAlpha/hult-cohort-program  
 **Take-home repo:** https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26  
 
+**Last full run (Jun 2026):** Phases 1–8 PASS — apply through staff tally verified in production.
+
 ---
 
-## Pre-flight (staff — already done for this run)
+## Pre-flight (staff)
 
-Roger's platform data was wiped so you can apply fresh:
+Reset Roger for a fresh run:
 
 ```bash
 cd execution/marketing/site
-node scripts/find-user.mjs "Roger Hunt"          # should show 0 matches
-node scripts/delete-user.mjs --handle=rogersuperbuilderalpha --uid=<uid> --confirm  # if re-reset needed
+node scripts/find-user.mjs "Roger Hunt"
+node scripts/delete-user.mjs --handle=rogersuperbuilderalpha --uid=<uid> --confirm
 ```
 
-**Schedule note (Jun 2026):** Program submission/review windows in `content/program.ts` start Sep 2026. For E2E before launch, `phase-1-project-1` review week is temporarily opened **Jun 19–30, 2026** in `program.ts`, or set `REVIEW_WINDOW_OVERRIDE=open` on Vercel. Revert after testing.
+**Open review week before Phase 7** (production schedule is Oct 2026). Pick one:
 
-**GitHub web editor gotcha:** CodeMirror auto-continues markdown task lists (`- [x]`). Paste file content instead of typing line-by-line, or use prose field labels (Phase 6 pattern).
+1. **Env override (preferred):** set `REVIEW_WINDOW_OVERRIDE=open` on Vercel, redeploy.
+2. **Temporary dates:** move `phase-1-project-1` `reviewOpens`/`reviewCloses` in `content/program.ts` to wrap today, deploy, **revert after testing**.
 
-**Pre-merge gate:** Always stop and confirm PR URL/title/files before merging to `main`.
+**Fix peer data if deploy link 404s:** ensure eligible peers have a real `repo` + `deployUrl` in Firestore (Jordan was patched to `rogerSuperBuilderAlpha/hult-cohort-program` + live site URL for E2E).
 
-**Peer note:** After Roger is admitted, `@jordanlee-dev` is the only other roster member — peer review denominator will be **1 peer** until more students are admitted.
+**Peer note:** With 2 enrolled, peer denominator is **1** (`@jordanlee-dev`).
+
+---
+
+## Automation gotchas (learned from live runs)
+
+| Gotcha | Workaround |
+|--------|------------|
+| GitHub web editor auto-continues `- [x]` task lists | Paste file content; use prose labels instead of checklist syntax (Phase 5–6) |
+| Pre-merge on `main` | Stop at step 8; confirm PR URL, title, single-file diff before merge |
+| **Save review** input | **Type** into the field — programmatic fill does not fire React `onChange`; button stays disabled |
+| Staff CLI steps | Agent cannot run `admissions.mjs`; staff runs and reports; agent verifies client state |
+| Live vote totals | Never shown during review week — only your own 1/1 counts |
 
 ---
 
@@ -106,75 +121,64 @@ PASS if: SITE/dashboard loads with greeting, profile shows @rogersuperbuilderalp
 ### Phase 5 — Onboarding submission PR
 
 1. On SITE/program/onboarding, note expected PR title: `[Onboarding] Tooling checklist — rogersuperbuilderalpha`
-2. On GitHub REPO, create branch, add a minimal checklist file or edit README, open PR with exact title above.
-3. Merge PR to main.
-4. Wait ~30s for webhook, refresh onboarding project page.
-5. PASS if: progress checklist shows **Submission PR merged** with link to your PR.
+2. On GitHub REPO, create branch, add a minimal file (paste content — do not type `- [x]` lists).
+3. Open PR with exact title above. STOP: confirm URL, title, single-file diff with staff before merge.
+4. Merge PR to main.
+5. Wait ~30s, refresh onboarding project page.
+6. PASS if: progress shows **Submission PR merged** with "View your PR" link.
 
-If webhook missed:
-```bash
-node scripts/reconcile-submissions.mjs
-```
+If webhook missed: ask staff to run `node scripts/reconcile-submissions.mjs`
 
 ---
 
 ### Phase 6 — Phase 1 project submission (PM platform)
 
 1. Open SITE/program/phase-1-project-1.
-2. Note PR title: `[Project 1] Submission — rogersuperbuilderalpha`
-3. PR body MUST include a line like:
-   ```
-   Production URL: https://your-deploy.vercel.app
-   ```
-   (Webhook parses this into deployUrl for peer review "try deploy" links.)
-4. Merge PR on REPO.
-5. Refresh project page — confirm merged + deploy link appears in progress panel.
-
-PASS if: submission merged; deploy URL visible (if included in PR body).
+2. PR title: `[Project 1] Submission — rogersuperbuilderalpha`
+3. PR body MUST include: `Production URL: https://site-nine-rouge-68.vercel.app`
+4. STOP: confirm PR with staff before merge.
+5. Merge PR, refresh project page.
+6. PASS if: **Submission PR merged** + **deploy** link matches Production URL.
 
 ---
 
-### Phase 7 — Peer review & vote (review week only)
+### Phase 7 — Peer review & vote
 
-**Precondition:** Review window open for phase-1-project-1 (Oct 2–3, 2026 in production schedule, or dates temporarily moved for testing).
+**Precondition:** Staff opened review week (`REVIEW_WINDOW_OVERRIDE=open` or temporary program.ts dates).
 
-Eligible peer: @jordanlee-dev (must have merged submission too).
+Peer: @jordanlee-dev on repo `rogerSuperBuilderAlpha/hult-cohort-program`.
 
-For each peer accordion on SITE/program/phase-1-project-1:
+1. Refresh SITE/program/phase-1-project-1 — review week must be open (not "not yet opened").
+2. Expand @jordanlee-dev accordion; verify deploy link loads.
+3. Create GitHub issue on PEER_REPO titled exactly: `Review by @rogersuperbuilderalpha`
+4. **Type** (do not only paste) the issue URL into **Save review** → submit.
+5. Cast 👍 for @jordanlee-dev.
+6. PASS if: **1/1 written reviews** and **1/1 private votes**; peer card shows Complete.
 
-1. Expand peer card.
-2. Click deploy link (if present) — note if it loads.
-3. Open peer's repo on GitHub, file issue titled `Review by @rogersuperbuilderalpha`.
-4. Paste issue URL into **Save review** field → submit.
-5. Cast 👍 or 👎 — should succeed only after written review saved.
-6. PASS if: progress counts increment (written reviews 1/1, votes 1/1 when one peer eligible).
-
-If review window closed/not-yet: report BLOCKED with window status shown on page.
+If 403 or verification error: report to staff (GITHUB_TOKEN on Vercel).
 
 ---
 
-### Phase 8 — Staff tally (after review week)
+### Phase 8 — Staff tally
 
 Ask staff:
 ```bash
 node scripts/tally-votes.mjs --project=phase-1-project-1
 ```
-PASS if: ranked table prints with Roger and jordanlee-dev vote counts.
+PASS if: ranked table shows vote counts; winner = most 👍.
 
 ---
 
-### Phase 9 — Account cleanup (optional re-test)
+### Phase 9 — Cleanup (optional re-test)
 
-To run this script again from scratch:
 ```bash
-node scripts/find-user.mjs "Roger Hunt"
-node scripts/delete-user.mjs --handle=rogersuperbuilderalpha --uid=<firebaseUid> --confirm
+node scripts/delete-user.mjs --handle=rogersuperbuilderalpha --uid=<uid> --confirm
 ```
-Or use **Delete account** on SITE/apply (type handle to confirm) while signed in.
+Revert `REVIEW_WINDOW_OVERRIDE` and any temporary program.ts dates after testing.
 
 ---
 
-Report a final summary table: Phase | PASS/FAIL/BLOCKED | Notes
+Report: Phase | PASS/FAIL/BLOCKED | Notes
 ```
 
 ---
@@ -197,20 +201,18 @@ Report a final summary table: Phase | PASS/FAIL/BLOCKED | Notes
 ```bash
 cd execution/marketing/site
 
-# List applications
 node scripts/admissions.mjs list
-
-# Advance applicant
 node scripts/admissions.mjs set-status --handle=rogersuperbuilderalpha --status=take-home-submitted --confirm
 node scripts/admissions.mjs admit --handle=rogersuperbuilderalpha --display-name="Roger Hunt" --campus=boston --confirm
-
-# Backfill missed webhooks
 node scripts/reconcile-submissions.mjs
 node scripts/backfill-deploy-urls.mjs --from-github
-
-# Tally winners
-node scripts/tally-votes.mjs --all
-
-# Reset for re-test
+node scripts/tally-votes.mjs --project=phase-1-project-1
 node scripts/delete-user.mjs --handle=rogersuperbuilderalpha --uid=<uid> --confirm
 ```
+
+## Post-test revert checklist
+
+- [ ] Restore production review dates in `content/program.ts` (Oct 2–3 for Project 1)
+- [ ] Remove `REVIEW_WINDOW_OVERRIDE=open` from Vercel if set
+- [ ] Optional: delete test PRs/branches/issues on cohort repo
+- [ ] Optional: reset Roger via `delete-user.mjs` for next run

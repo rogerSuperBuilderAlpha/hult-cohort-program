@@ -27,6 +27,7 @@ import { getCohortStats } from '@/lib/cohort-stats-server';
 1. Written review: GitHub issue `Review by @{voter}` → `POST .../written-reviews`
 2. Vote: `POST .../ratings` with `'up'|'down'` — 403 if no written review
 3. UI: collapsed accordion in `PeerReviewCard.tsx`
+4. Staff tally (post review week): `node scripts/tally-votes.mjs --project=<slug>`
 
 ## Program text
 

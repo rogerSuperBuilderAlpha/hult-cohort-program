@@ -31,7 +31,7 @@ One web surface where applicants apply, admitted participants see every project 
 | Governance & pass gates | [governance/](governance/), [assessment/pass-fail.md](assessment/pass-fail.md) |
 | Staff scripts (tally, roster) | [execution/cohort-scripts/README.md](execution/cohort-scripts/README.md) |
 
-⚠️ **Stale docs:** [PLATFORM.md](PLATFORM.md) and [governance/winner-selection.md](governance/winner-selection.md) still describe ranked-choice top-3 voting. **Implemented platform uses private 👍/👎 after written GitHub reviews.** Treat code + [content/program.ts](execution/marketing/site/content/program.ts) as source of truth until governance docs are updated.
+⚠️ **Legacy docs:** Some curriculum/operations files may still mention ranked-choice ballots. **Implemented platform uses private 👍/👎 after written GitHub reviews.** Treat code + [content/program.ts](execution/marketing/site/content/program.ts) + [governance/winner-selection.md](governance/winner-selection.md) as source of truth.
 
 ---
 
@@ -96,7 +96,7 @@ Firestore (hult-cohorts)
   submissions/fall26/projects/{slug}/entries/{handle}
   peerWrittenReviews/fall26/projects/{slug}/reviewers/{voter}/reviews/{reviewee}
   peerRatings/fall26/projects/{slug}/voters/{voter}  → { ratings: { [reviewee]: 'up'|'down' } }
-  ballots/...          Legacy/eligibility feed (eligible PR list)
+  ballots/...          Legacy ranked-choice (retired — do not write)
 ```
 
 **Peer review flow (per peer, per Phase 1 project):**
@@ -144,10 +144,12 @@ Run from `execution/marketing/site/` with local service account:
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/seed-demo-cohort.mjs` | Demo roster + submissions + ballots |
-| `scripts/seed-peer-reviews.mjs` | Sample peer ratings |
-| `scripts/migrate-peer-ratings.mjs` | Migrate legacy peerReviews → peerRatings |
+| `scripts/seed-demo-cohort.mjs` | Demo roster + submissions |
+| `scripts/seed-peer-reviews.mjs` | Demo written reviews + private votes |
+| `scripts/tally-votes.mjs` | Staff 👍 tally after review week |
+| `scripts/backfill-deploy-urls.mjs` | Backfill `deployUrl` from PR bodies |
 | `scripts/backfill-roster-submissions.mjs` | Backfill submission entries |
+| `scripts/reconcile-submissions.mjs` | Webhook backstop for merged PRs |
 
 Staff admissions: [execution/cohort-scripts/README.md](execution/cohort-scripts/README.md).
 

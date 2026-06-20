@@ -42,6 +42,7 @@ export async function POST(request: Request) {
       number?: number;
       html_url?: string;
       title?: string;
+      body?: string | null;
     };
     repository?: { full_name?: string };
   };
@@ -79,6 +80,7 @@ export async function POST(request: Request) {
       prTitle: pr.title,
       prNumber: pr.number,
       prHtmlUrl: pr.html_url,
+      prBody: pr.body ?? null,
       merged: true,
       mergedAt: pr.merged_at ? new Date(pr.merged_at) : new Date(),
       source: 'webhook',

@@ -43,7 +43,8 @@ export async function getWrittenReviewsMap(
 }
 
 function githubVerificationRequired(): boolean {
-  return process.env.NODE_ENV === 'production';
+  if (process.env.NODE_ENV === 'production') return true;
+  return process.env.ALLOW_UNVERIFIED_REVIEWS?.trim() !== 'true';
 }
 
 async function verifyIssueWithGithub(
@@ -58,6 +59,9 @@ async function verifyIssueWithGithub(
         error: 'Review verification is temporarily unavailable. Contact cohort@hult.edu.',
       };
     }
+    console.warn(
+      '[written-reviews] ALLOW_UNVERIFIED_REVIEWS=true — skipping GitHub issue title check (dev only).'
+    );
     return { ok: true };
   }
 

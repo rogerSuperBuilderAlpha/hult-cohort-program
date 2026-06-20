@@ -80,10 +80,14 @@ One student may win more than one Phase 1 project. Operator obligations stack pe
 
 ## Staff tally
 
-After review week closes, staff run thumbs-up tally from Firestore:
+After review week closes, staff run the thumbs-up tally:
 
 ```bash
-# Uses lib/ratings-server.ts tallyThumbsUp via staff script or Console export
+cd execution/marketing/site
+node scripts/tally-votes.mjs --project=phase-1-project-1
+node scripts/tally-votes.mjs --all --json   # export for records
 ```
+
+Server helper: `tallyThumbsUp()` in `execution/marketing/site/lib/tally-server.ts`.
 
 Publish winner + aggregate thumbs-up count in cohort comms. Do not publish individual ballots (there are none — only per-voter maps).

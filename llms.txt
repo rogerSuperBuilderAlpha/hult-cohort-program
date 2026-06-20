@@ -18,7 +18,7 @@
 - [README.md](README.md): Repository overview
 - [WORKPLAN.md](WORKPLAN.md): Tier status and locked decisions
 - [DEVPLAN.md](DEVPLAN.md): Production hardening checklist
-- [PLATFORM.md](PLATFORM.md): Platform architecture (note: voting section may be stale)
+- [PLATFORM.md](PLATFORM.md): Platform architecture (👍/👎 voting, PR submissions)
 
 ## Platform
 

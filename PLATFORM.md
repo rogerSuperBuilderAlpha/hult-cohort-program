@@ -41,7 +41,7 @@ Firebase
   Authentication              GitHub provider
 
 GitHub org                    source of truth for PRs, written reviews (issues)
-execution/marketing/site/scripts/   reconcile-submissions.mjs, admissions.mjs
+execution/marketing/site/scripts/   reconcile-submissions.mjs, tally-votes.mjs, admissions.mjs
 ```
 
 ### Submission model (PR-first)
@@ -51,11 +51,11 @@ Every deliverable is a **PR**. Firestore `submissions` mirrors merged PRs from G
 | Stage | GitHub | Firestore |
 |-------|--------|-----------|
 | Apply | Take-home PR | `applications` |
-| Phase 1 build | `[Project N] Submission` PR → `main` | `submissions/.../entries/{handle}` |
+| Phase 1 build | `[Project N] Submission` PR → `main` (body includes Production URL) | `submissions/.../entries/{handle}` incl. `deployUrl` |
 | Phase 1 review | `Review by @{you}` issue on peer repo | `peerWrittenReviews/.../entries/{reviewee}` |
 | Phase 1 vote | — | `peerRatings/.../voters/{voter}` → `{ ratings: { [reviewee]: up|down } }` |
 
-**Voting:** After written review on file per peer, cast private 👍/👎 on project page. Winner = most thumbs up. Staff tally via `tallyThumbsUp` in `lib/ratings-server.ts`.
+**Voting:** After written review on file per peer, cast private 👍/👎 on project page. Winner = most thumbs up. Staff tally: `node scripts/tally-votes.mjs --project=<slug>` or `tallyThumbsUp()` in `lib/tally-server.ts`.
 
 ---
 

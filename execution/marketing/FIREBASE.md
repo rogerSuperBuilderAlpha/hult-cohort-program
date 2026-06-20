@@ -114,7 +114,7 @@ Tracks participant submission PRs (GitHub projection).
 }
 ```
 
-Populated by `POST /api/github/webhook` on merged PRs matching `content/program.ts` title patterns, or `scripts/reconcile-submissions.mjs`.
+Populated by `POST /api/github/webhook` on merged PRs matching `content/program.ts` title patterns. `deployUrl` parsed from PR body (`Production URL` label). Backstop: `scripts/reconcile-submissions.mjs` or `scripts/backfill-deploy-urls.mjs`.
 
 ### `peerWrittenReviews/{cohortId}/projects/{projectSlug}/voters/{voterHandle}/entries/{revieweeHandle}`
 
@@ -140,7 +140,7 @@ Private 👍/👎 votes (one doc per voter).
 }
 ```
 
-Vote requires prior written review for that peer. Staff tally: `tallyThumbsUp(projectSlug)` in site code.
+Vote requires prior written review for that peer. Staff tally: `tallyThumbsUp(projectSlug)` in [site/lib/tally-server.ts](site/lib/tally-server.ts) or `node scripts/tally-votes.mjs --project=<slug>`.
 
 ### Legacy (retired — do not write)
 
@@ -174,8 +174,8 @@ Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when
 ### Participants (post week-1 roster lock)
 
 1. Sign in with **GitHub** via Firebase Auth.
-2. API verifies `githubHandle` exists in `roster/{cohortId}/members`.
-3. Access `/vote/{project}` during open ballot windows.
+2. API verifies `githubHandle` exists in `roster/{cohortId}/members` with `active: true`.
+3. Access `/dashboard` and `/program/[slug]` for progress, written reviews, and private 👍/👎 during review weeks.
 
 ---
 
@@ -185,9 +185,9 @@ Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when
 |------|-----|
 | Review applications | Firebase Console → `applications` filter by `status` |
 | Export roster | Firestore export or `firebase firestore:export` |
-| Mark admitted | Update doc `status: 'admitted'`; add to `roster` collection |
-| Open ballot | Set `ballots/.../status: 'open'` after populating `eligiblePrs` |
-| Tally votes | Run `vote-tally.js` against Firestore export |
+| Mark admitted | Update doc `status: 'admitted'`; add to `roster` collection (`scripts/admissions.mjs admit`) |
+| Tally Phase 1 winners | `node scripts/tally-votes.mjs --project=<slug>` or `--all` |
+| Backfill deploy URLs | `node scripts/backfill-deploy-urls.mjs --from-github` |
 | Admissions CSV | Script: query `applications` where `cohort == 'fall26'` |
 
 ---

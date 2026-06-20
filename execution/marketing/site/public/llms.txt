@@ -27,6 +27,7 @@
 - [GitHub — hult-cohort-program](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program)
 - [MCP server setup](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/tree/main/execution/hult-cohort-mcp): apply, reviews, votes from Cursor
 - [AGENTS.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/AGENTS.md): Guide for AI coding agents
+- Staff scripts: `scripts/tally-votes.mjs`, `scripts/seed-demo-cohort.mjs`, `scripts/seed-peer-reviews.mjs`
 - [CONTRIBUTING.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/CONTRIBUTING.md)
 - [LICENSE (MIT)](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/LICENSE)
 - [SECURITY.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/SECURITY.md)

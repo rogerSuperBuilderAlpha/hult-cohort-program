@@ -57,12 +57,15 @@ export function writtenReviewEntryRef(
   return writtenReviewEntriesRef(cohortId, projectSlug, voterHandle).doc(revieweeHandle);
 }
 
-export function peerRatingsVoterRef(cohortId: string, projectSlug: string, voterHandle: string) {
+export function peerRatingsVotersRef(cohortId: string, projectSlug: string) {
   return db()
     .collection('peerRatings')
     .doc(cohortId)
     .collection('projects')
     .doc(projectSlug)
-    .collection('voters')
-    .doc(voterHandle);
+    .collection('voters');
+}
+
+export function peerRatingsVoterRef(cohortId: string, projectSlug: string, voterHandle: string) {
+  return peerRatingsVotersRef(cohortId, projectSlug).doc(voterHandle);
 }

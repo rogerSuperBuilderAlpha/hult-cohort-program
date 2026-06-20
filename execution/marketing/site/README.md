@@ -20,8 +20,8 @@ Open http://localhost:3000
 | `/overview` | Stakeholder summary |
 | `/apply` | Application form → Firestore via API |
 | `/program` | All phases and projects |
-| `/program/[slug]` | Participant expectations per project |
-| `/vote/[project]` | *(planned)* Ranked-choice ballot |
+| `/dashboard` | Enrolled participant home + cross-project progress |
+| `/program/[slug]` | Expectations + progress + peer review/vote UI |
 
 ## Environment
 

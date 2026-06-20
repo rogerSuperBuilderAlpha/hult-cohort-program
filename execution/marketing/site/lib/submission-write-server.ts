@@ -10,9 +10,10 @@ import {
 export async function upsertSubmissionEntry(
   parsed: ParsedSubmissionPr,
   mergedAt: Date,
-  source: 'webhook' | 'reconcile'
+  source: 'webhook' | 'reconcile',
+  prBody?: string | null
 ): Promise<void> {
-  const entry = buildSubmissionEntry(parsed, mergedAt, source);
+  const entry = buildSubmissionEntry(parsed, mergedAt, source, prBody);
   const ref = submissionEntryRef(cohortId(), parsed.projectSlug, parsed.githubHandle);
 
   await ref.set(
@@ -29,6 +30,7 @@ export async function ingestMergedPullRequest(params: {
   prTitle: string;
   prNumber: number;
   prHtmlUrl: string;
+  prBody?: string | null;
   merged: boolean;
   mergedAt: Date;
   source: 'webhook' | 'reconcile';
@@ -40,7 +42,7 @@ export async function ingestMergedPullRequest(params: {
   const parsed = matchMergedPullRequest(params);
   if (!parsed) return { ingested: false };
 
-  await upsertSubmissionEntry(parsed, params.mergedAt, params.source);
+  await upsertSubmissionEntry(parsed, params.mergedAt, params.source, params.prBody);
   return {
     ingested: true,
     projectSlug: parsed.projectSlug,

@@ -24,7 +24,7 @@ Read [AGENTS.md](../../AGENTS.md) for the full task routing table and Firestore 
 2. Never commit secrets (`.env.local`, service account JSON).
 3. Split `firebase-admin` into `*-server.ts` — never import in client components.
 4. Cohort size is dynamic from roster, not hardcoded.
-5. ⚠️ `PLATFORM.md` / `governance/winner-selection.md` describe old ranked-choice voting — **implemented model is 👍/👎** in `ratings-server.ts`.
+5. Phase 1 voting = written GitHub review → private 👍/👎 per peer. Staff tally: `scripts/tally-votes.mjs` / `lib/tally-server.ts`.
 
 ## Before finishing
 

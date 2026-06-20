@@ -21,6 +21,7 @@ Parent guide: [../../../AGENTS.md](../../../AGENTS.md)
 | Progress API | `lib/project-progress-server.ts` |
 | Written reviews | `lib/written-reviews-server.ts`, `lib/written-reviews-format.ts` |
 | Private votes | `lib/ratings-server.ts` |
+| Winner tally | `lib/tally-server.ts` (`tallyThumbsUp`) |
 | Cohort stats | `lib/cohort-stats-server.ts` (server) · `lib/cohort-stats-types.ts` (client-safe) |
 | Agent prompts | `lib/project-agent-prompt.ts`, `components/AgentPromptHarness.tsx` |
 | Branding | `components/SiteHeader.tsx`, `components/HultLogo.tsx` |
@@ -45,12 +46,12 @@ All authenticated routes expect `Authorization: Bearer <Firebase ID token>`.
 - `GET /api/dashboard` — enrolled cross-project progress (requires roster)
 - `GET /api/program/projects` — public program index (MCP + agents)
 - `GET /api/cohort/stats` — public enrolled count
-- `POST /api/github/webhook` — merged PR → submissions (HMAC)
+- `POST /api/github/webhook` — merged PR → submissions + `deployUrl` from PR body (HMAC)
 - `GET /api/program/[slug]/progress` — submission + peer review state
 - `POST /api/program/[slug]/written-reviews` — `{ revieweeHandle, issueUrl }`
 - `POST /api/program/[slug]/ratings` — `{ revieweeHandle, rating: 'up'|'down' }` (403 without written review)
 
-`GITHUB_TOKEN` required in production for review issue verification.
+`GITHUB_TOKEN` required in production for review issue verification. Dev bypass: set `ALLOW_UNVERIFIED_REVIEWS=true` in `.env.local` only when testing without GitHub API access.
 
 ## Firestore (this app writes)
 
@@ -78,6 +79,9 @@ Schema details: [../FIREBASE.md](../FIREBASE.md)
 ```bash
 node scripts/admissions.mjs list              # staff — requires FIREBASE_SERVICE_ACCOUNT_PATH
 node scripts/seed-demo-cohort.mjs             # demo roster + submissions
+node scripts/seed-peer-reviews.mjs            # demo written reviews + votes
+node scripts/tally-votes.mjs --all            # staff thumbs-up tally
+node scripts/backfill-deploy-urls.mjs --from-github
 npm run verify:submissions                    # PR title matcher checks
 npm run check:env                             # production env var names
 ```

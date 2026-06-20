@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 /**
- * Ranked-choice instant runoff tally for Phase 1 votes.
+ * DEPRECATED — legacy ranked-choice instant runoff tally.
+ *
+ * The live cohort platform uses private 👍/👎 votes stored in Firestore
+ * (`peerRatings/...`). Use the staff tally script instead:
+ *
+ *   cd execution/marketing/site
+ *   node scripts/tally-votes.mjs --project=phase-1-project-1
+ *   node scripts/tally-votes.mjs --all
+ *
+ * This script remains for historical CSV exports only.
+ *
  * Input CSV: voter, rank1, rank2, rank3 (GitHub handles)
  * Usage: node vote-tally.js ballots.csv
  */

@@ -69,3 +69,24 @@ export function peerRatingsVotersRef(cohortId: string, projectSlug: string) {
 export function peerRatingsVoterRef(cohortId: string, projectSlug: string, voterHandle: string) {
   return peerRatingsVotersRef(cohortId, projectSlug).doc(voterHandle);
 }
+
+/**
+ * Research survey collections. Documents are keyed by a one-way participant hash (`pid`), never the
+ * GitHub handle, so survey responses are not stored beside identifying records (see survey-server.ts).
+ */
+export function researchConsentRef(cohortId: string, pid: string) {
+  return db().collection('researchConsent').doc(cohortId).collection('participants').doc(pid);
+}
+
+export function surveyResponsesRef(cohortId: string, waveId: string) {
+  return db()
+    .collection('researchSurveys')
+    .doc(cohortId)
+    .collection('waves')
+    .doc(waveId)
+    .collection('responses');
+}
+
+export function surveyResponseRef(cohortId: string, waveId: string, pid: string) {
+  return surveyResponsesRef(cohortId, waveId).doc(pid);
+}

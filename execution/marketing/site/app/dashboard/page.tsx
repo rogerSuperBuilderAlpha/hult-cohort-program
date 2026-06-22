@@ -31,6 +31,35 @@ function ParticipantDashboard({
 }) {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [downloadError, setDownloadError] = useState('');
+  const [survey, setSurvey] = useState<{
+    consented: boolean;
+    openWaveId: string | null;
+    waves: { id: string; shortLabel: string; status: string; completed: boolean }[];
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const idToken = await getIdToken();
+      if (!idToken) return;
+      try {
+        const res = await fetch('/api/research/survey', {
+          headers: { Authorization: `Bearer ${idToken}` },
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled) setSurvey(json);
+      } catch {
+        // Non-blocking: the dashboard works without the survey banner.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [getIdToken]);
+
+  const openWaveSummary = survey?.waves.find((w) => w.id === survey.openWaveId) ?? null;
+  const surveyActionable = Boolean(openWaveSummary && !openWaveSummary.completed);
   const name = me.roster?.displayName ?? `${me.application?.firstName ?? ''} ${me.application?.lastName ?? ''}`.trim();
   const greetingName = name.split(/\s+/).filter(Boolean)[0] || me.githubHandle;
   const stats = me.cohortStats;
@@ -73,6 +102,19 @@ function ParticipantDashboard({
           <strong>Fall 2026 participant dashboard.</strong> Welcome, {greetingName}.
         </p>
       </div>
+
+      {surveyActionable && openWaveSummary ? (
+        <div className={styles.callout}>
+          <p style={{ marginTop: 0 }}>
+            <strong>Research survey open.</strong> The {openWaveSummary.shortLabel.toLowerCase()} survey is
+            open now. It is voluntary, takes about 12 minutes, and has no effect on your standing or
+            assessment.
+          </p>
+          <Link href="/research/survey" className={styles.primaryBtn}>
+            {survey?.consented ? 'Take the survey' : 'Review and take the survey'}
+          </Link>
+        </div>
+      ) : null}
 
       {summary.schedule.cohortWeek ? (
         <p className={styles.formNote}>
@@ -181,11 +223,12 @@ function ParticipantDashboard({
       </div>
 
       <p className={styles.formNote}>
-        The{' '}
+        Program documentation for optional programmatic access to reviews and votes is available in
+        the{' '}
         <a href={`${GITHUB_REPO_URL}/blob/main/execution/hult-cohort-mcp/README.md`} target="_blank" rel="noopener noreferrer">
-          cohort MCP server
-        </a>{' '}
-        provides an optional interface for submitting reviews and votes programmatically.
+          cohort MCP server guide
+        </a>
+        .
       </p>
 
       <AccountSection
@@ -240,7 +283,7 @@ export default function DashboardPage() {
         <p className={styles.eyebrow}>Fall 2026 · Participant dashboard</p>
         <h1 className={styles.sectionTitle}>Dashboard</h1>
         <p className={styles.overviewLead}>
-          Submissions, peer reviews, and program progress for the 16-week cohort.
+          Enrollment record, project progress, and submission status.
         </p>
 
         {!configured ? (

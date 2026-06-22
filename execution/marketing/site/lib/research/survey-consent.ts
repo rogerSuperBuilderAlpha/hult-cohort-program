@@ -11,7 +11,7 @@ import { CONSENT_VERSION } from './survey-instrument';
 export { CONSENT_VERSION };
 
 const PI_NAME = process.env.NEXT_PUBLIC_RESEARCH_PI_NAME?.trim() || 'Roger Hunt';
-const PI_EMAIL = process.env.NEXT_PUBLIC_RESEARCH_PI_EMAIL?.trim() || 'the principal investigator (email on file with the IRB)';
+const PI_EMAIL = process.env.NEXT_PUBLIC_RESEARCH_PI_EMAIL?.trim() || 'rhunt@bentley.edu';
 const IRB_PROTOCOL = process.env.NEXT_PUBLIC_RESEARCH_IRB_PROTOCOL?.trim() || '260511078';
 const IRB_CONTACT = process.env.NEXT_PUBLIC_RESEARCH_IRB_CONTACT?.trim() || 'the Bentley University IRB';
 

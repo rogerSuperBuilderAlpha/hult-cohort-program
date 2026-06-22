@@ -1,8 +1,10 @@
 # Proposal: Hult Cohort Developer Program
 
+> **Archived.** Original EVP proposal (June 2026). Program now runs as a CS for Business UG elective. See [README.md](../../README.md) and live site `/start`.
+
 **Prepared for:** EVP review
 **Date:** June 12, 2026
-**Status:** Draft for approval
+**Status:** Historical — approval complete; do not use for current policy
 
 ---
 

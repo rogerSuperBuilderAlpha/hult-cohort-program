@@ -29,10 +29,10 @@ export function getSiteDisplayLabel(): string {
 
 export const SITE_NAME = 'Hult Cohort Developer Program';
 
-export const SITE_TAGLINE = 'Fall 2026 Cohort';
+export const SITE_TAGLINE = 'CS for Business elective · Fall 2026';
 
 export const GITHUB_REPO_URL =
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program';
 
 export const DEFAULT_OG_DESCRIPTION =
-  'A one-semester developer cohort at Hult International Business School. Participants complete six production projects with verifiable work on GitHub. Fall 2026.';
+  'For-credit CS for Business elective: build on GitHub, peer review, six production projects. Fall 2026.';

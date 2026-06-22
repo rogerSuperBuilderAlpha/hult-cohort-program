@@ -185,16 +185,16 @@ server.registerTool(
       campus: campusEnum,
       referralSource: z.string().describe('How you heard about the program'),
       hultStudentId: z.string().optional(),
-      confirmTuitionAffordable: z
+      confirmToolingAffordable: z
         .boolean()
-        .describe('Confirm $10k tuition + ~$400/mo tooling is affordable'),
+        .describe('Confirm ~$400/mo tooling + Hult course registration'),
       confirmPublicWork: z
         .boolean()
         .describe('Confirm your work will be public on GitHub'),
     },
   },
   async (input) => {
-    if (!input.confirmTuitionAffordable || !input.confirmPublicWork) {
+    if (!input.confirmToolingAffordable || !input.confirmPublicWork) {
       return toolError(new Error('Both confirmations must be true to apply.'));
     }
 
@@ -208,8 +208,9 @@ server.registerTool(
         timezone: input.timezone,
         campus: input.campus,
         referralSource: input.referralSource,
-        confirmTuition: 'on',
+        confirmTooling: 'on',
         confirmPublicWork: 'on',
+        confirmPolicies: 'on',
       };
       if (input.hultStudentId) body.hultStudentId = input.hultStudentId;
 

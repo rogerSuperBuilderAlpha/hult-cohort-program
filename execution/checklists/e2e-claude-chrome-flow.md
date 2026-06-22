@@ -80,7 +80,7 @@ Test applicant profile (use unless I say otherwise):
 ### Phase 2 — Submit application
 
 1. Fill all required fields with the test profile above.
-2. Check all three confirmation checkboxes (tuition, public work, policies).
+2. Check all three confirmation checkboxes (tooling + registration, public work, policies).
 3. Click **Submit application**.
 4. PASS if: page switches to take-home steps (headline mentions take-home / PR). No error banner.
 

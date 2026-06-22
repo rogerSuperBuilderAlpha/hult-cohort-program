@@ -19,7 +19,7 @@ One web surface where applicants apply, admitted participants see every project 
 
 | If you are… | Start here |
 |-------------|------------|
-| New to the repo | This file → [PROPOSAL.md](PROPOSAL.md) → [README.md](README.md) |
+| New to the repo | This file → [README.md](README.md) → live site `/start` → [content/program.ts](execution/marketing/site/content/program.ts) |
 | Changing the Next.js site | [execution/marketing/site/AGENTS.md](execution/marketing/site/AGENTS.md) |
 | Firebase / API / auth | [execution/marketing/FIREBASE.md](execution/marketing/FIREBASE.md) |
 | Program content (weeks, rubrics) | [execution/marketing/site/content/program.ts](execution/marketing/site/content/program.ts) + [curriculum/](curriculum/) |
@@ -39,14 +39,14 @@ One web surface where applicants apply, admitted participants see every project 
 
 ```
 HULT/
-├── PROPOSAL.md              EVP proposal — program vision
+├── docs/archive/            Historical EVP proposal (PROPOSAL-evp-2026.md)
 ├── WORKPLAN.md              Tier status, locked decisions, sign-offs
 ├── DEVPLAN.md               Production checklist (P0–P3)
 ├── PLATFORM.md              Architecture (partially stale — see above)
 ├── curriculum/              16-week curriculum, rubrics, playbooks
 ├── governance/              Voting rules, teams, credentials
 ├── assessment/              Metrics, peer review, pass/fail
-├── business/                Pricing, guarantee, financial model
+├── business/                ARCHIVED standalone commercial model (see ARCHIVED.md)
 ├── partnerships/            Hiring partners, showcase, Ludwitt/Hult
 ├── operations/              Calendar, admissions, lifecycle
 ├── institutional/           Legal risk, Hult policy

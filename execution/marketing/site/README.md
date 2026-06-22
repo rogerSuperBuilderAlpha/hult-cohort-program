@@ -17,6 +17,7 @@ Open http://localhost:3000
 | Path | Purpose |
 |------|---------|
 | `/` | Landing |
+| `/start` | Visual intro for newcomers |
 | `/overview` | Stakeholder summary |
 | `/apply` | Application form → Firestore via API |
 | `/program` | All phases and projects |
@@ -40,8 +41,6 @@ npx vercel
 ```
 
 Root directory in monorepo: `execution/marketing/site`.
-
-⚠️ Do not deploy public marketing until General Counsel clears guarantee language.
 
 ## Build
 

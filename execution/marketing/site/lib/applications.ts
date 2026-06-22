@@ -1,7 +1,7 @@
 import { cohortId } from '@/lib/cohort-config';
 
 export type ApplicationConfirmations = {
-  tuitionAffordable: boolean;
+  toolingAcknowledged: boolean;
   publicWork: boolean;
   policies: boolean;
 };
@@ -45,8 +45,8 @@ export function parseGithubUrlHandle(url: string): string | null {
 }
 
 function parseConfirmations(body: Record<string, string>): ApplicationConfirmations {
-  if (body.confirmTuition !== 'on') {
-    throw new Error('You must confirm tuition and tooling costs.');
+  if (body.confirmTooling !== 'on') {
+    throw new Error('You must confirm required tooling costs.');
   }
   if (body.confirmPublicWork !== 'on') {
     throw new Error('You must confirm your work will be public on GitHub.');
@@ -55,7 +55,7 @@ function parseConfirmations(body: Record<string, string>): ApplicationConfirmati
     throw new Error('You must agree to the Terms of Service and Privacy Policy.');
   }
   return {
-    tuitionAffordable: true,
+    toolingAcknowledged: true,
     publicWork: true,
     policies: true,
   };

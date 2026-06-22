@@ -14,8 +14,9 @@
 
 ## Vision & planning
 
-- [PROPOSAL.md](PROPOSAL.md): Full program proposal
 - [README.md](README.md): Repository overview
+- Live intro: https://site-nine-rouge-68.vercel.app/start
+- [docs/archive/PROPOSAL-evp-2026.md](docs/archive/PROPOSAL-evp-2026.md): Archived EVP proposal
 - [WORKPLAN.md](WORKPLAN.md): Tier status and locked decisions
 - [DEVPLAN.md](DEVPLAN.md): Production hardening checklist
 - [PLATFORM.md](PLATFORM.md): Platform architecture (👍/👎 voting, PR submissions)

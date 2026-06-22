@@ -13,7 +13,7 @@ export { CONSENT_VERSION };
 const PI_NAME = process.env.NEXT_PUBLIC_RESEARCH_PI_NAME?.trim() || 'Roger Hunt';
 const PI_EMAIL = process.env.NEXT_PUBLIC_RESEARCH_PI_EMAIL?.trim() || 'rhunt@bentley.edu';
 const IRB_PROTOCOL = process.env.NEXT_PUBLIC_RESEARCH_IRB_PROTOCOL?.trim() || '260511078';
-const IRB_CONTACT = process.env.NEXT_PUBLIC_RESEARCH_IRB_CONTACT?.trim() || 'the Bentley University IRB';
+const IRB_CONTACT = process.env.NEXT_PUBLIC_RESEARCH_IRB_CONTACT?.trim() || 'AKISZEWSKI@bentley.edu';
 
 export const CONSENT = {
   version: CONSENT_VERSION,

@@ -37,13 +37,19 @@ export type WaveSummary = {
 export type SurveyState = {
   consentVersion: string;
   consented: boolean;
+  /** A consent decision was recorded as "do not take part". Satisfies survey gates (opt-out is allowed). */
+  declined: boolean;
   waves: WaveSummary[];
   openWaveId: SurveyWaveId | null;
 };
 
-export async function hasConsented(pid: string): Promise<boolean> {
+async function consentRecord(pid: string): Promise<{ exists: boolean; consented: boolean }> {
   const doc = await researchConsentRef(cohortId(), pid).get();
-  return doc.exists && doc.data()?.consented === true;
+  return { exists: doc.exists, consented: doc.exists && doc.data()?.consented === true };
+}
+
+export async function hasConsented(pid: string): Promise<boolean> {
+  return (await consentRecord(pid)).consented;
 }
 
 export async function saveConsent(
@@ -74,7 +80,7 @@ async function completedWaveIds(pid: string): Promise<Set<string>> {
 
 export async function getSurveyState(githubHandle: string, now = new Date()): Promise<SurveyState> {
   const pid = participantId(githubHandle);
-  const [consented, completed] = await Promise.all([hasConsented(pid), completedWaveIds(pid)]);
+  const [consent, completed] = await Promise.all([consentRecord(pid), completedWaveIds(pid)]);
 
   const waves: WaveSummary[] = SURVEY_WAVES.map((w) => ({
     id: w.id,
@@ -90,7 +96,8 @@ export async function getSurveyState(githubHandle: string, now = new Date()): Pr
 
   return {
     consentVersion: CONSENT_VERSION,
-    consented,
+    consented: consent.consented,
+    declined: consent.exists && !consent.consented,
     waves,
     openWaveId: open?.id ?? null,
   };

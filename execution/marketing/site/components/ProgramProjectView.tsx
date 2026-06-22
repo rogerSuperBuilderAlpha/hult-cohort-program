@@ -19,6 +19,7 @@ import { personalizeProgramText } from '@/lib/personalize-program';
 import { useCohortStats } from '@/lib/use-cohort-stats';
 import { useProjectProgress } from '@/lib/use-project-progress';
 import { useParticipantStatus } from '@/lib/use-participant-status';
+import { useSurveyState, projectSurveyGate, type ProjectGate } from '@/lib/research/use-survey-state';
 import {
   REVIEW_WEEK_CALLOUT_ENROLLED,
   REVIEW_WEEK_CALLOUT_PUBLIC,
@@ -32,6 +33,51 @@ type Props = {
   nextSlug?: string;
 };
 
+function SurveyGateNotice({ project, gate }: { project: ProgramProject; gate: ProjectGate }) {
+  const waveOpen = gate.wave?.status === 'open';
+  const opensAt = gate.wave?.opensAt
+    ? new Date(gate.wave.opensAt).toLocaleDateString('en-US', {
+        timeZone: 'America/New_York',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : null;
+
+  return (
+    <div className={styles.participantPanel}>
+      <div className={styles.callout}>
+        <p style={{ marginTop: 0 }}>
+          <strong>One step first.</strong> {project.title} unlocks after you complete the{' '}
+          {gate.wave ? gate.wave.shortLabel.toLowerCase() : 'research'} survey.
+        </p>
+        <p className={styles.formNote}>
+          The survey is part of an IRB-approved research study and takes about 12 minutes. Participation
+          is voluntary — if you choose <em>not</em> to take part, that choice also unlocks the project and
+          has no effect on your standing, assessment, or place in the cohort.
+        </p>
+        {waveOpen ? (
+          <Link href="/research/survey" className={styles.primaryBtn}>
+            Go to the survey →
+          </Link>
+        ) : (
+          <p className={styles.formNote} style={{ marginBottom: 0 }}>
+            The survey opens {opensAt ?? 'soon'}. This project will unlock once you have responded.
+          </p>
+        )}
+      </div>
+      <div className={styles.participantActions}>
+        <Link href="/dashboard" className={styles.secondaryBtn}>
+          Dashboard
+        </Link>
+        <Link href="/program" className={styles.secondaryBtn}>
+          All projects
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function EnrolledView({
   project,
   handle,
@@ -39,6 +85,7 @@ function EnrolledView({
   prevSlug,
   nextSlug,
   getIdToken,
+  descriptionText,
 }: {
   project: ProgramProject;
   handle: string;
@@ -46,6 +93,7 @@ function EnrolledView({
   prevSlug?: string;
   nextSlug?: string;
   getIdToken: () => Promise<string | null>;
+  descriptionText: string;
 }) {
   const org = cohortOrg();
   const p = (text: string) => personalizeProgramText(text, handle, org, stats);
@@ -53,8 +101,25 @@ function EnrolledView({
   const agentPrompt = buildProjectAgentPrompt(project, handle, org, stats);
   const { progress, loading: progressLoading, error: progressError, refresh: refreshProgress } =
     useProjectProgress(project.slug, getIdToken, true);
+  const { survey, loading: surveyLoading } = useSurveyState(getIdToken, true);
+  const gate = projectSurveyGate(project.slug, survey);
+
+  if (surveyLoading && survey === null) {
+    return (
+      <>
+        <ProgramDescription text={descriptionText} />
+        <p className={styles.formNote}>Loading your participant view…</p>
+      </>
+    );
+  }
+
+  if (gate.locked) {
+    return <SurveyGateNotice project={project} gate={gate} />;
+  }
 
   return (
+    <>
+    <ProgramDescription text={descriptionText} />
     <div className={styles.participantPanel}>
       <div className={styles.participantBanner}>
         <p className={styles.participantBannerEyebrow}>
@@ -137,6 +202,7 @@ function EnrolledView({
         )}
       </div>
     </div>
+    </>
   );
 }
 
@@ -267,8 +333,6 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
 
   if (enrolled && profile && handle) {
     return (
-      <>
-        <ProgramDescription text={descriptionText} />
       <EnrolledView
         project={project}
         handle={handle}
@@ -276,8 +340,8 @@ export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
         prevSlug={prevSlug}
         nextSlug={nextSlug}
         getIdToken={getIdToken}
+        descriptionText={descriptionText}
       />
-      </>
     );
   }
 

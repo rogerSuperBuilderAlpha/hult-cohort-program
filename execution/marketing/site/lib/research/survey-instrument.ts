@@ -264,11 +264,13 @@ export const SURVEY_WAVES: SurveyWave[] = [
   {
     id: 'w1',
     label: 'Baseline survey',
-    shortLabel: 'Baseline (before week 1)',
+    shortLabel: 'Baseline (before Project 1)',
     intro:
       'These questions ask how you work and how you read the tools and people you work with. There are no right answers. Answer for how things are for you as you begin the program. The wording is the same across all three surveys so we can measure change on the same scale.',
+    // Opens before week 1; stays completable through Project 1's submission window because it gates
+    // access to Project 1 (see SURVEY_GATES). Keeping it open avoids a permanent lock-out.
     opensAt: '2026-09-08T04:00:00.000Z',
-    closesAt: '2026-09-15T03:59:00.000Z',
+    closesAt: '2026-10-02T21:00:00.000Z',
     estimatedMinutes: 12,
     sections: [sec.acs(), sec.ti(), sec.au(), sec.su(), sec.be(), sec.se(), { title: 'Background', intro: 'All optional.', scale: 'CAT', items: DEM_ITEMS }],
   },
@@ -278,8 +280,10 @@ export const SURVEY_WAVES: SurveyWave[] = [
     shortLabel: 'Midpoint (week 4)',
     intro:
       'You have now built a project and gone through review once. Answer for how things are for you now.',
+    // Opens at the week-4 mark; stays completable through Project 2's submission window because it
+    // gates access to Project 2 (see SURVEY_GATES). Keeping it open avoids a permanent lock-out.
     opensAt: '2026-10-03T12:00:00.000Z',
-    closesAt: '2026-10-11T03:59:00.000Z',
+    closesAt: '2026-10-16T21:00:00.000Z',
     estimatedMinutes: 13,
     sections: [sec.acs(), sec.sa(), sec.ti(), sec.au(), sec.po(), sec.tms(), sec.su(), sec.be()],
   },
@@ -328,4 +332,25 @@ export function openWave(now = new Date()): SurveyWave | null {
 /** All item ids expected in a wave, for server-side validation. */
 export function waveItemIds(wave: SurveyWave): string[] {
   return wave.sections.flatMap((s) => s.items.map((i) => i.id));
+}
+
+// ----------------------------------------------------------------------------------------
+// Survey gates — projects that participants cannot open until they have addressed a wave.
+//
+// "Addressed" means either submitted the wave OR declined the study on the survey page. Because
+// the IRB consent guarantees participation is voluntary with no effect on standing, declining must
+// still unlock the project; only *skipping the step entirely* is blocked. Enforced in the UI by
+// ProgramProjectView/EnrolledView.
+// ----------------------------------------------------------------------------------------
+
+export const SURVEY_GATES: Record<string, SurveyWaveId> = {
+  // The baseline survey must be addressed before the Phase 1 project-management build (Project 1).
+  'phase-1-project-1': 'w1',
+  // The week-4 (midpoint) survey must be addressed before the next Phase 1 build (Project 2).
+  'phase-1-project-2': 'w2',
+};
+
+/** The wave that gates a project, if any. */
+export function requiredWaveForProject(slug: string): SurveyWaveId | null {
+  return SURVEY_GATES[slug] ?? null;
 }

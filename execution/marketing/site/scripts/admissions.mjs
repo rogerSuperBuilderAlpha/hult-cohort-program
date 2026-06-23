@@ -4,7 +4,8 @@
  * Usage:
  *   node scripts/admissions.mjs list [--status=submitted]
  *   node scripts/admissions.mjs set-status --handle=<h>|--email=<e> --status=<s> [--confirm]
- *   node scripts/admissions.mjs admit --handle=<h>|--email=<e> [--display-name=...] [--campus=...] [--confirm]
+ *   node scripts/admissions.mjs admit --handle=<h>|--email=<e> [--display-name=...] [--campus=...] [--confirm] [--no-email]
+ *   node scripts/admissions.mjs send-admission-email --handle=<h>|--email=<e> [--confirm]
  *   node scripts/admissions.mjs deactivate --handle=<h> [--confirm]
  *   node scripts/admissions.mjs delete-user --handle=<h> [--uid=<u>] [--confirm]
  *
@@ -19,6 +20,11 @@ import { fileURLToPath } from 'url';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
+import {
+  ADMISSION_EMAIL_SUBJECT,
+  buildAdmissionConfirmationHtml,
+} from '../lib/email-templates.mjs';
+import { getEmailConfig, sendMailgunEmail } from '../lib/mailgun.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
@@ -72,6 +78,32 @@ async function findApplicationDoc(db, { handle, email }) {
     if (doc) return doc;
   }
   return null;
+}
+
+async function sendAdmissionEmail({ email, firstName, githubHandle }) {
+  const skipEmail = process.argv.includes('--no-email');
+  if (skipEmail) {
+    console.log('  admission email: skipped (--no-email)');
+    return;
+  }
+
+  const config = getEmailConfig();
+  if (!config) {
+    console.log('  admission email: skipped (EMAIL_* not configured)');
+    return;
+  }
+
+  await sendMailgunEmail({
+    to: email,
+    subject: ADMISSION_EMAIL_SUBJECT,
+    html: buildAdmissionConfirmationHtml({
+      firstName,
+      githubHandle,
+      fromName: config.fromName,
+    }),
+    config,
+  });
+  console.log(`  admission email: sent to ${email}`);
 }
 
 async function cmdList(db) {
@@ -157,6 +189,7 @@ async function cmdAdmit(db) {
   console.log(`  displayName=${resolvedDisplayName}`);
   console.log(`  campus=${resolvedCampus}`);
   console.log(`  active=true`);
+  console.log(`  admission email: ${confirm ? 'will send if EMAIL_* configured' : 'n/a (dry run)'}`);
 
   if (!confirm) {
     console.log('\nRe-run with --confirm to apply.');
@@ -182,7 +215,49 @@ async function cmdAdmit(db) {
     { merge: true }
   );
 
+  try {
+    await sendAdmissionEmail({
+      email: data.email,
+      firstName: data.firstName,
+      githubHandle,
+    });
+  } catch (err) {
+    console.error(`  admission email failed: ${err instanceof Error ? err.message : err}`);
+  }
+
   console.log('\nApplicant admitted and roster member active.');
+}
+
+async function cmdSendAdmissionEmail(db) {
+  const handle = arg('handle');
+  const email = arg('email');
+  const confirm = confirmFlag();
+
+  if (!handle && !email) throw new Error('Pass --handle=<githubHandle> or --email=<email>');
+
+  const doc = await findApplicationDoc(db, { handle, email });
+  if (!doc) {
+    throw new Error(`No application found for cohort ${COHORT} (${handle ? `@${handle}` : email})`);
+  }
+
+  const data = doc.data();
+  if (data.status !== 'admitted') {
+    throw new Error(`Application status is ${data.status}; only admitted applicants receive this email`);
+  }
+
+  console.log(`send-admission-email mode=${confirm ? 'SEND' : 'DRY RUN'}`);
+  console.log(`  @${data.githubHandle} <${data.email}>`);
+
+  if (!confirm) {
+    console.log('\nRe-run with --confirm to send.');
+    return;
+  }
+
+  await sendAdmissionEmail({
+    email: data.email,
+    firstName: data.firstName,
+    githubHandle: normalizeHandle(data.githubHandle),
+  });
 }
 
 async function cmdDeactivate(db) {
@@ -248,6 +323,9 @@ async function main() {
     case 'admit':
       await cmdAdmit(db);
       break;
+    case 'send-admission-email':
+      await cmdSendAdmissionEmail(db);
+      break;
     case 'deactivate':
       await cmdDeactivate(db);
       break;
@@ -255,7 +333,7 @@ async function main() {
       await cmdDeleteUser();
       break;
     default:
-      console.error('Usage: admissions.mjs list|set-status|admit|deactivate|delete-user');
+      console.error('Usage: admissions.mjs list|set-status|admit|send-admission-email|deactivate|delete-user');
       process.exit(1);
   }
 }

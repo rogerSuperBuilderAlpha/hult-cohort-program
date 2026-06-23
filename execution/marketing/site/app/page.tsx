@@ -23,97 +23,74 @@ export default async function Home() {
       />
 
       <section className={styles.hero}>
-        <p className={`${styles.eyebrow} animate-in`}>CS for Business · Summer Pilot 2026</p>
+        <p className={`${styles.eyebrow} animate-in`}>CS for Business · Summer 2026</p>
         <h1 className={`${styles.headline} animate-in delay-1`}>
-          Build software that has to work.
+          Build the software your<br />
+          cohort actually runs on.
         </h1>
         <p className={`${styles.subhead} animate-in delay-2`}>
-          A for-credit pilot where students design, ship, review, and operate production systems
-          under the same expectations used by professional engineering teams.
+          A six-week, for-credit Hult elective. You build real applications in the frameworks and
+          workflows professional engineering teams use—and the strongest builds go into production
+          for the whole cohort to use.
         </p>
         <div className={`${styles.heroActions} animate-in delay-3`}>
           <ParticipantCta />
           <Link href="/start" className={styles.secondaryBtn}>
-            What is this program?
+            How it works
           </Link>
         </div>
         <div className={`${styles.heroMeta} animate-in delay-4`}>
-          <span>Production deployment</span>
-          <span>Technical review</span>
-          <span>Operational ownership</span>
-          <span>Applications open June 15, 2026</span>
-          <span>Program begins July 9, 2026 at 09:00 Eastern Time</span>
+          <span>Starts July 9, 2026</span>
+          <span>Six weeks</span>
+          <span>Applications open June 15</span>
         </div>
       </section>
 
       <section id="program" className={styles.section}>
-        <div className={styles.sectionLabel}>At a glance</div>
-        <h2 className={styles.sectionTitle}>Six weeks inside a professional delivery loop</h2>
+        <div className={styles.sectionLabel}>How the six weeks work</div>
+        <h2 className={styles.sectionTitle}>
+          You build the tools, then the best ones go live.
+        </h2>
         <p className={styles.sectionBody}>
-          <strong>Weeks 2–5:</strong> participants build project management, communications, and
-          showcase platforms for the cohort, then unify the selected systems into one operating
-          stack. <strong>Week 6:</strong> participants ship externally validated work: a learning app,
-          a venture package, or an accepted open-source contribution.
+          For three weeks the cohort builds the same product each week—first a project management
+          tool, then a communications platform, then a public showcase. Everyone reviews every
+          submission, and a private vote decides which build the cohort actually adopts and operates
+          for the rest of the program.
         </p>
         <p className={styles.sectionBody}>
-          New here?{' '}
-          <Link href="/start">See the visual pilot map and Phase 1 loop →</Link>
+          In the final week you ship for an outside audience: an app with real users, a venture
+          you can pitch, or a merged contribution to a serious open-source project.
+        </p>
+        <p className={styles.sectionBody}>
+          <Link href="/start">See the full week-by-week breakdown →</Link>
         </p>
       </section>
 
       <section id="journey" className={styles.gridSection}>
         <div className={styles.phaseCard}>
-          <span className={styles.phaseTag}>Delivery</span>
-          <h3>Production systems, not exercises</h3>
+          <span className={styles.phaseTag}>What you build</span>
+          <h3>Working products, deployed and used</h3>
           <ul>
-            <li>Deploy working applications over HTTPS</li>
-            <li>Document setup, limitations, and operating assumptions</li>
-            <li>Support real cohort users, deadlines, and workflows</li>
+            <li>Live applications running over HTTPS, not slide decks</li>
+            <li>Real accounts, data, and deadlines for the whole cohort</li>
+            <li>Setup docs and known limitations, written for the next engineer</li>
           </ul>
         </div>
         <div className={styles.phaseCard}>
-          <span className={styles.phaseTag}>Assessment</span>
-          <h3>Reviewed like engineering work</h3>
+          <span className={styles.phaseTag}>How you&apos;re judged</span>
+          <h3>Reviewed like a real engineering team</h3>
           <p className={styles.phaseNote}>
-            Participants evaluate one another’s systems before private votes select which platform
-            operates for the cohort. Pass criteria are published before each project begins.
+            You read your peers&apos; code, test their deployments, and write technical reviews
+            before voting. Pass criteria are published before every project—no surprises, no
+            participation trophies.
           </p>
-        </div>
-      </section>
-
-      <section className={styles.skills}>
-        <h2>Engineering standards practiced</h2>
-        <div className={styles.skillGrid}>
-          {[
-            {
-              n: '01',
-              t: 'System delivery',
-              d: 'Scope a product, implement the core workflows, deploy it, and make it usable by others.',
-            },
-            {
-              n: '02',
-              t: 'Quality and review',
-              d: 'Read peer implementations, identify risks, and give structured technical feedback.',
-            },
-            {
-              n: '03',
-              t: 'Operations and evidence',
-              d: 'Track adoption, reliability, documentation, and handoff quality beyond the demo.',
-            },
-          ].map((s) => (
-            <article key={s.n} className={styles.skillCard}>
-              <span className={styles.skillNum}>{s.n}</span>
-              <h3>{s.t}</h3>
-              <p>{s.d}</p>
-            </article>
-          ))}
         </div>
       </section>
 
       <section id="apply" className={styles.apply}>
         <p className={styles.sectionLabel}>Applications</p>
-        <h2>Summer 2026 is the active cohort</h2>
-        <p>{cohortSizeLine} · Starts July 9, 2026 · Application deadline July 8</p>
+        <h2>Summer 2026 is open.</h2>
+        <p>{cohortSizeLine} · Starts July 9, 2026 · Apply by July 8</p>
         <ApplySectionSignup />
       </section>
     </main>

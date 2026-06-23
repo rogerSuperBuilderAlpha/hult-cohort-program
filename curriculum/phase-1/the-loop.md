@@ -7,14 +7,14 @@
 ## Overview
 
 ```
-BUILD (varies by project: 1–2 weeks)
-  → REVIEW (3 days)
-  → VOTE (closes 48 hrs after review opens)
-  → OPERATE (through semester end)
+BUILD (one week per contest project)
+  → REVIEW (Fri, same week)
+  → VOTE (Fri 16:00)
+  → OPERATE (through pilot end)
   → DEVELOPER/USER (everyone else, continuous)
 ```
 
-Calendar dates: [operations/calendar.md](../../operations/calendar.md)
+Calendar dates: [operations/calendar.md](../../operations/calendar.md) · ISO timestamps: [content/program.ts](../../execution/marketing/site/content/program.ts)
 
 ---
 
@@ -25,16 +25,16 @@ Calendar dates: [operations/calendar.md](../../operations/calendar.md)
 Program director delivers:
 - Project brief (from project folder `requirements.md`)
 - Review rubric preview
-- Deployment deadline
+- Deployment deadline (Thursday 17:00 ET)
 - "Eligible build" checklist
 
-### Build window
+### Build window (Summer Pilot — compressed)
 
-| Project | Build days | Deploy deadline |
-|---------|------------|-----------------|
-| Project 1 (PM) | 10 days (Tue w2 – Thu w4) | Thu Oct 2, 17:00 |
-| Project 2 (comms) | 7 days | Thu Oct 16, 17:00 |
-| Project 3 (showcase) | 7 days | Thu Oct 30, 17:00 |
+| Project | Week | Deploy deadline |
+|---------|------|-----------------|
+| Project 1 (PM) | 2 | Thu Jul 22, 17:00 ET |
+| Project 2 (comms) | 3 | Thu Jul 29, 17:00 ET |
+| Project 3 (showcase) | 4 | Thu Aug 5, 17:00 ET |
 
 ### Eligible build checklist
 
@@ -66,11 +66,10 @@ Unmerged PRs may still receive peer reviews but **cannot appear on the eligible 
 
 ### Mechanics
 
-1. **Mon 10:00:** Review window opens. Platform + `#reviews` post lists all **merged submission PRs** (interim Discord weeks 2–4; cohort PM platform after cutover).
-2. Each student assigned **3 mandatory deep reviews** (different peers) via round-robin; must complete **all 29** by deadline.
+1. **Thu 17:00:** Submission PRs due; review window opens. Platform lists all **merged submission PRs** (interim Discord weeks 1–2; cohort PM platform after week 2 cutover).
+2. Each student assigned **3 mandatory deep reviews** (different peers) via round-robin; must complete **all peers** by deadline.
 3. Reviews filed per [peer-review-system.md](../../assessment/peer-review-system.md).
-4. **Wed 14:00:** Checkpoint — ≥ 10 reviews submitted or student flagged.
-5. **Fri 14:00:** All reviews due.
+4. **Fri 14:00:** All reviews due.
 
 ### Time budget
 
@@ -86,7 +85,7 @@ See [governance/winner-selection.md](../../governance/winner-selection.md).
 - **Self-votes:** Cannot review or vote on own submission
 - **Privacy:** Individual votes private; live tallies never shown during review week
 - **Platform:** `/program/{slug}` → review & vote panel; `POST /api/program/{slug}/ratings`
-- **Closes:** Review window end (see `content/program.ts` schedule per project)
+- **Closes:** Fri 16:00 ET (see `content/program.ts` schedule per project)
 - **Winner announced:** Following Mon 10:00 kickoff
 
 ### Tie-break
@@ -97,7 +96,7 @@ Most thumbs up wins. If tied: higher median rubric score across written reviews.
 
 ## Step 4: Operate (winner)
 
-### Cutover (48 hrs post-announcement)
+### Cutover (before next kickoff)
 
 | Hour | Action |
 |------|--------|
@@ -106,7 +105,7 @@ Most thumbs up wins. If tied: higher median rubric score across written reviews.
 | 24–48 | All cohort members have login; old URLs redirect or deprecated |
 | 48 | Operator on-call; non-operator PRs accepted |
 
-**Interim if cutover fails 48 hr deadline:** Runner-up by vote count operates until original winner completes cutover or is removed.
+**Interim if cutover fails before next kickoff:** Runner-up by vote count operates until original winner completes cutover or is removed.
 
 ### Operator SLAs
 
@@ -126,7 +125,7 @@ Tracked on cohort PM platform once live. Violations → [governance/removal-succ
 
 During operate phase, non-winners:
 - Use the platform daily for cohort work
-- Submit ≥ 2 PRs + 1 issue per 4-week cycle ([github-workflow.md](../onboarding/github-workflow.md))
+- Submit ≥ 2 PRs + 1 issue per weekly cycle during weeks 5–7 ([github-workflow.md](../onboarding/github-workflow.md))
 - Review others' platform PRs (≥ 3 per cycle)
 
 This is the "developer/user" skill — not just consuming internal tools but improving them.

@@ -8,7 +8,7 @@
 
 | Risk | Likelihood | Impact | Mitigation | Owner |
 |------|------------|--------|------------|-------|
-| Placements lag cohort 1 | Medium | High | Partner pipeline before week 16; conservative budget | Placement lead |
+| Placements lag cohort 1 | Medium | High | Partner pipeline before week 8 showcase; conservative budget | Placement lead |
 | Guarantee marketing challenged | Low | High | Counsel-approved language only | GC |
 | Refund policy conflict | Medium | Medium | Week-1-only cash refund ([policy-review.md](policy-review.md)) | GC + Finance |
 | Student-operated platform data breach | Medium | Medium | Expectations doc + incident playbook below | Program director |

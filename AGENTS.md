@@ -43,7 +43,7 @@ HULT/
 ├── WORKPLAN.md              Tier status, locked decisions, sign-offs
 ├── DEVPLAN.md               Production checklist (P0–P3)
 ├── PLATFORM.md              Architecture (partially stale — see above)
-├── curriculum/              16-week curriculum, rubrics, playbooks
+├── curriculum/              Six-week Summer Pilot curriculum, rubrics, playbooks
 ├── governance/              Voting rules, teams, credentials
 ├── assessment/              Metrics, peer review, pass/fail
 ├── business/                ARCHIVED standalone commercial model (see ARCHIVED.md)

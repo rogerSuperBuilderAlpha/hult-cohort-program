@@ -101,18 +101,17 @@ The guarantee ("complete successfully → job offer") is a **commercial enrollme
 
 ## Academic calendar fit
 
-The program requires **16 contiguous instructional weeks** plus a week-16 showcase event. See [operations/calendar.md](../operations/calendar.md) for the mapped schedule.
+The Summer Pilot 2026 runs **6 contiguous instructional weeks** plus an end-of-pilot showcase. See [operations/calendar.md](../operations/calendar.md) for the mapped schedule.
 
-**Recommendation for cohort 1:** Start **Monday, September 8, 2026** (first full week after US Labor Day), ending showcase **Friday, December 19, 2026**. This fits a standard Fall semester with Thanksgiving break (program runs through break — async work continues; no mandatory live sessions that week).
+**Cohort 1:** Start **Thursday, July 9, 2026**; end-of-pilot showcase **Wednesday, August 19, 2026**. This is a compressed summer pilot — six weeks, with Phase 2 deliverables combined in the final sprint — not a standard Fall or Spring semester.
 
-| Hult calendar concern | Handling |
-|-----------------------|----------|
-| Thanksgiving (US, ~week 12) | No live kickoffs/reviews; async-only week; deadlines unchanged |
-| Winter break | Showcase is week 16, before break |
-| UK/EU campus cohorts | Run parallel calendar with local holiday table; same 16-week skeleton |
-| Shortened terms | Do not launch cohort 1 in a term shorter than 16 weeks |
+| Concern | Handling |
+|---------|----------|
+| US Independence Day (Jul 4) | Before pilot start — no impact |
+| UK/EU campus cohorts | Run parallel calendar with local holiday table; same 6-week skeleton |
+| Shortened terms | Summer Pilot is intentionally 6 weeks; longer terms use expanded calendar in future cohorts |
 
-⚠️ **DECISION NEEDED (EVP):** Confirm cohort 1 start date (recommended: September 8, 2026).
+⚠️ **DECISION NEEDED (EVP):** Confirm end-of-pilot showcase format (in-person vs hybrid).
 
 ---
 
@@ -123,12 +122,12 @@ Who must sign off before cohort 1 recruiting opens:
 | Decision | Owner | Deadline (recommended) |
 |----------|-------|------------------------|
 | Program concept approval | **EVP** | Before any public marketing |
-| Continuing-ed certificate creation | **Academic Affairs + Registrar** | 8 weeks before cohort 1 start |
-| Refund schedule adoption | **General Counsel + Finance** | 8 weeks before cohort 1 start |
-| Program Agreement / guarantee language | **General Counsel** | 8 weeks before cohort 1 start |
-| International student repeat-enrollment policy | **International Student Services** | 8 weeks before cohort 1 start |
+| Continuing-ed certificate creation | **Academic Affairs + Registrar** | Two months before cohort 1 start |
+| Refund schedule adoption | **General Counsel + Finance** | Two months before cohort 1 start |
+| Program Agreement / guarantee language | **General Counsel** | Two months before cohort 1 start |
+| International student repeat-enrollment policy | **International Student Services** | Two months before cohort 1 start |
 | Campus space allocation | **Campus Operations** | 6 weeks before cohort 1 start |
-| Billing entity and revenue split | **Finance + EVP** | 8 weeks before cohort 1 start |
+| Billing entity and revenue split | **Finance + EVP** | Two months before cohort 1 start |
 | Marketing copy using "guaranteed" | **General Counsel + Marketing** | Before ads go live |
 | Hiring partner pipeline owner | **EVP** (named individual) | 12 weeks before cohort 1 showcase |
 | Cohort 1 start date | **EVP** | 12 weeks before start |
@@ -138,7 +137,7 @@ Who must sign off before cohort 1 recruiting opens:
 1. EVP approves concept → General Counsel begins Program Agreement draft
 2. Registrar creates certificate program shell in SIS
 3. Finance confirms billing (tuition flows through Hult continuing-ed; referral fees through [TBD entity])
-4. Admissions opens 16 weeks before start (see [operations/admissions.md](../operations/admissions.md))
+4. Admissions opens 3 weeks before start (see [operations/admissions.md](../operations/admissions.md))
 5. General Counsel clears marketing language
 6. Cohort 1 runs
 

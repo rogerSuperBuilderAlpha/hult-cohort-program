@@ -1,10 +1,10 @@
-# Phase 2 Project 1: Learning app (Weeks 9–11)
+# Phase 2 Project 1: Learning app (Week 6)
 
-**Success metric:** ≥ **25 unique external users** on Ludwitt/Hult by Fri Nov 21 ([metrics.md](../../../assessment/metrics.md)).
+**Success metric:** ≥ **25 unique external users** on Ludwitt/Hult by Fri Aug 19 ([metrics.md](../../../assessment/metrics.md)).
 
 ---
 
-## Kickoff brief (Tue Nov 3)
+## Kickoff brief (Tue Aug 13)
 
 > Build a learning app on any topic you know or care about. Integrate it into Ludwitt/Hult. Get 25 real people to use it. The platform counts users — you don't.
 
@@ -22,24 +22,27 @@
 | Language learning for specific audience | Apps requiring licensed content you don't have |
 | Interview prep for specific role | "Todo app" disguised as learning |
 
-Submit 1-paragraph topic to PM platform by Wed Nov 4 for staff visibility (not approval required unless flagged).
+Submit 1-paragraph topic to PM platform by Wed for staff visibility (not approval required unless flagged).
 
 ---
 
-## Week schedule
+## One-week schedule
 
-| Week | Deliverable |
-|------|-------------|
-| 9 | App registered, JWT + events working in sandbox, first external user |
-| 10 | Production listing approved, promotion live |
-| 11 | ≥ 25 users push; snapshot Fri Nov 21 |
+| Day | Action |
+|-----|--------|
+| Tue | Kickoff + Ludwitt/Hult app registration |
+| Wed–Thu | Build + integrate JWT/events |
+| Fri | User push; metrics snapshot at 17:00 ET |
+| Fri 17:00 | Proof PR merged with snapshot |
+
+See [promotion-playbook.md](promotion-playbook.md) for user-acquisition tactics compressed to one week.
 
 ---
 
 ## Components
 
-- [integration-spec.md](integration-spec.md)
 - [promotion-playbook.md](promotion-playbook.md)
+- [integration-spec.md](integration-spec.md)
 
 ## Depends on
 

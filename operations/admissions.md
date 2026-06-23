@@ -4,6 +4,8 @@
 
 More students per cohort improves peer review, voting, and team dynamics. Marginal cost is near zero. The buyout ([business/guarantee-refunds-buyouts.md](../business/guarantee-refunds-buyouts.md)) is the back-pressure for admission mistakes.
 
+**Summer Pilot 2026:** Applications open **June 15**; deadline **July 2**; cohort starts **July 9**.
+
 ---
 
 ## Prerequisites
@@ -17,7 +19,7 @@ Agent-first development lowers the coding bar but does not eliminate it. Every s
 | GitHub account, ≥ 6 months old, with ≥ 5 commits on any repo | Link in application |
 | English working proficiency (written) | Application essays + optional call |
 | Laptop meeting [tooling spec](../curriculum/onboarding/tooling-setup.md): macOS or Linux preferred, 16GB RAM minimum | Self-attestation |
-| Ability to pay $10,000 tuition + $400/month tooling for ≥ 4 months | Payment at week 1 start |
+| Ability to pay $10,000 tuition + $400/month tooling for ≥ 2 months | Payment at week 1 start |
 | Age ≥ 18 | Application |
 
 ### Recommended, not required
@@ -91,7 +93,7 @@ Collected at **`/apply`** → Firestore `applications`. See [execution/marketing
 |-------|------|--------|
 | **Minimum** | **20** | Below 20: peer review pool too thin (19 reviews still works but voting feels small); team picks of 10% get awkward (2 picks) |
 | **Target** | **30** | 29 peer reviews × 3 projects; 3 winners + 9 picks = 12 leaders; matches proposal math |
-| **Maximum** | **40** | Above 40: review window (3 days × 39 reviews) becomes brutal even with agents; operator triage load spikes |
+| **Maximum** | **40** | Above 40: review window (1 day × 39 reviews) becomes brutal even with agents; operator triage load spikes |
 
 If enrollment < 20 at week 1 start: **delay cohort 2 weeks** and continue recruiting, or merge with next campus cohort (online).
 
@@ -114,24 +116,20 @@ If enrollment < 20 at week 1 start: **delay cohort 2 weeks** and continue recrui
 
 ---
 
-## Recruitment channels (cohort 1)
+## Recruitment channels (Summer Pilot 2026)
 
 | Channel | Owner | Launch | Goal |
 |---------|-------|--------|------|
 | Founder network (direct outreach) | Founder | June 2026 | 10 apps |
-| Hult student email / bulletin | Hult marketing | July 2026 | 15 apps |
+| Hult student email / bulletin | Hult marketing | June 2026 | 15 apps |
 | Cursor Boston alumni list | Program director | June 2026 | 10 apps |
-| LinkedIn / X (founder posts) | Founder | June–August 2026 | 10 apps |
-| Dev Twitter / Hacker News "Show HN" | Founder | August 2026 | 5 apps |
-| Hult corporate partner employees (referral) | Partnerships | July 2026 | 5 apps |
-
-**Marketing headline:** *Pay once. Ship six production projects. Get a job offer — or come back free until you do.*
-
-**Subhead:** *Every skill we teach is verifiable on GitHub. Every hiring partner can see your work before they interview you.*
+| LinkedIn / X (founder posts) | Founder | June 2026 | 10 apps |
+| Dev Twitter / Hacker News "Show HN" | Founder | June 2026 | 5 apps |
+| Hult corporate partner employees (referral) | Partnerships | June 2026 | 5 apps |
 
 ### Landing page must disclose
 
-- $10,000 tuition + ~$1,600/semester tooling ($400/month × 4)
+- $10,000 tuition + ~$800 tooling ($400/month × 2 for the Summer Pilot)
 - Pass/fail, not letter grades
 - Public work: cohort platforms, apps, and GitHub activity are visible
 - Week-1 full refund; after week 1, re-enrollment not cash refund
@@ -144,7 +142,7 @@ If enrollment < 20 at week 1 start: **delay cohort 2 weeks** and continue recrui
 
 Every admitted student must sign **Expectations Acknowledgment** before week 1:
 
-1. **Workload:** 40–60 hrs/week; winners carry additional operator load in Phase 2
+1. **Workload:** 40–60 hrs/week; winners carry additional operator load through week 8
 2. **Tooling cost:** $400/month, both tools required, no exceptions
 3. **Public work:** Your code, reviews, and projects are public and used by hiring partners
 4. **Peer review obligation:** ~29 written reviews per Phase 1 project; missing reviews = fail
@@ -155,17 +153,17 @@ Every admitted student must sign **Expectations Acknowledgment** before week 1:
 
 ---
 
-## Admissions calendar (cohort 1)
+## Admissions calendar (Summer Pilot 2026)
 
 | Date | Milestone |
 |------|-----------|
 | June 15, 2026 | Applications open |
-| August 15, 2026 | Application deadline |
-| August 22, 2026 | Final take-home deadline |
-| August 29, 2026 | Admissions decisions sent |
-| September 1, 2026 | Admitted students confirm |
-| September 8, 2026 | Week 1 start; tuition charged |
-| September 12, 2026 | Week 1 refund deadline (Friday 5pm) |
+| July 2, 2026 | Application deadline |
+| July 6, 2026 | Final take-home deadline |
+| July 8, 2026 | Admissions decisions sent |
+| July 8, 2026 | Admitted students confirm |
+| July 9, 2026 | Week 1 start; tuition charged |
+| July 15, 2026 | Week 1 refund deadline (Friday 5pm ET) |
 
 ---
 

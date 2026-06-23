@@ -1,6 +1,6 @@
 # Project 2 Submission — @rogersuperbuilderalpha
 
-E2E test submission (Fall 2026, Project 2 — internal comms platform).
+E2E test submission (Summer Pilot 2026, Project 2 — internal comms platform).
 
 Production URL: https://site-nine-rouge-68.vercel.app
 

@@ -1,8 +1,8 @@
-# Phase 2 Project 3: Open source (Weeks 9–16)
+# Phase 2 Project 3: Open source (Week 6)
 
-**Success metric:** ≥ **1 merged PR** to qualified repo by week 16 ([metrics.md](../../../assessment/metrics.md)).
+**Success metric:** ≥ **1 merged PR** to qualified repo by week 6 / pilot end ([metrics.md](../../../assessment/metrics.md)).
 
-Continuous from week 9 — merge cycles are slow.
+Work begins in week 6 alongside the learning app; merge cycles are slow — start early.
 
 ---
 
@@ -22,10 +22,7 @@ Continuous from week 9 — merge cycles are slow.
 
 | Week | Target |
 |------|--------|
-| 9 | Choose repo; comment on issue; open draft PR or fork |
-| 10–11 | First PR open (while building learning app) |
-| 12–14 | Respond to review (Thanksgiving async OK) |
-| 15–16 | Merge or document stall + open new PR |
+| 6 | Choose repo; comment on issue; open draft PR or fork; merge or document stall + open new PR before Aug 19 |
 
 Track all PRs on PM platform OS board.
 
@@ -33,8 +30,8 @@ Track all PRs on PM platform OS board.
 
 ## Components
 
-- [repo-targeting.md](repo-targeting.md)
 - [contribution-playbook.md](contribution-playbook.md)
+- [../../../execution/templates/qualified-repos.md](../../../execution/templates/qualified-repos.md)
 
 ## Depends on
 

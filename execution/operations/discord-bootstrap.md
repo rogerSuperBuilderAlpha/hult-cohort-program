@@ -49,7 +49,7 @@ Lock all channels to read-only. Do not delete (review history may matter for dis
 
 1. Sep 3: Create server + roles
 2. Sep 5: Email invite links to confirmed roster
-3. Sep 8: Pin links to calendar + GitHub org in `#announcements`
+3. Jul 9: Pin links to calendar + GitHub org in `#announcements`
 
 ---
 

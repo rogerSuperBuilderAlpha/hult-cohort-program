@@ -27,12 +27,12 @@ export const CONSENT = {
     {
       heading: 'Why this study is being done',
       body:
-        'The study looks at how people learn to coordinate their work through software systems — review tools, project platforms, and automated processes — over a sixteen-week program. It measures attitudes and self-assessed skills at three points in time.',
+        'The study looks at how people learn to coordinate their work through software systems — review tools, project platforms, and automated processes — over a six-week Summer Pilot. It measures attitudes and self-assessed skills at three points in time.',
     },
     {
       heading: 'What you will be asked to do',
       body:
-        'If you agree, you will complete three short surveys: one before the program\u2019s first working week, one around week 4, and one at the end of the session. Each takes about 10 to 15 minutes. There are no right or wrong answers.',
+        'If you agree, you will complete three short surveys: one before the pilot\u2019s first working week, one after the first review cycle, and one at the end of week 6. Each takes about 10 to 15 minutes. There are no right or wrong answers.',
     },
     {
       heading: 'Voluntary participation',

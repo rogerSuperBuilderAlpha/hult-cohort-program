@@ -34,16 +34,16 @@ Each operator picks **3 students** (10% of 30 = 3).
 
 ---
 
-## Timing (week 8)
+## Timing (week 5)
 
 | When | Event |
 |------|-------|
-| Fri Nov 7, 17:30 | Unified ecosystem demo passes |
-| Fri Nov 7, 18:00 | **Draft ceremony** (live, 30 min, streamed in comms) |
-| Fri Nov 7, 19:00 | Teams announced; `#team-pm`, `#team-comms`, `#team-showcase` channels created |
-| Mon Nov 10 | Teams begin operating under operator SLAs |
+| Fri Aug 12, 17:30 | Unified ecosystem demo passes |
+| Fri Aug 12, 18:00 | **Draft ceremony** (live, 30 min, streamed in comms) |
+| Fri Aug 12, 19:00 | Teams announced; `#team-pm`, `#team-comms`, `#team-showcase` channels created |
+| Mon Aug 17 | Teams begin operating under operator SLAs |
 
-If unification demo fails: draft moves to Mon Nov 10 10:00.
+If unification demo fails: draft moves to Mon Aug 17 10:00.
 
 ---
 

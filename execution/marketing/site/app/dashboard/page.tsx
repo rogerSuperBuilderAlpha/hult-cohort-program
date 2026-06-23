@@ -99,7 +99,7 @@ function ParticipantDashboard({
     <div className={styles.participantPanel}>
       <div className={styles.calloutSuccess}>
         <p>
-          <strong>Fall 2026 participant dashboard.</strong> Welcome, {greetingName}.
+          <strong>Summer Pilot participant dashboard.</strong> Welcome, {greetingName}.
         </p>
       </div>
 
@@ -280,7 +280,7 @@ export default function DashboardPage() {
       <SiteHeader links={[{ href: '/program', label: 'Program' }, { href: '/', label: 'Home' }]} />
 
       <article className={styles.overview}>
-        <p className={styles.eyebrow}>Fall 2026 · Participant dashboard</p>
+        <p className={styles.eyebrow}>Summer Pilot 2026 · Participant dashboard</p>
         <h1 className={styles.sectionTitle}>Dashboard</h1>
         <p className={styles.overviewLead}>
           Enrollment record, project progress, and submission status.
@@ -326,7 +326,7 @@ export default function DashboardPage() {
             ) : (
               <p>
                 <strong>Not enrolled.</strong>{' '}
-                <Link href="/apply">Apply for Fall 2026 →</Link>
+                <Link href="/apply">Apply for the Summer Pilot →</Link>
               </p>
             )}
           </div>

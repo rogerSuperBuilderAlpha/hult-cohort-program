@@ -24,7 +24,7 @@
 | Metrics dashboard | User counts, merged PRs (Phase 2) |
 | Partner login | Gated student contact info |
 | Search/filter | By skill, project, metric |
-| Event RSVP | Week 16 showcase registration |
+| Event RSVP | Week 6 end-of-pilot showcase registration |
 
 ---
 

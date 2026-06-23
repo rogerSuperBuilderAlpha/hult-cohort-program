@@ -8,7 +8,7 @@ import styles from '../page.module.css';
 export const metadata = {
   title: 'What is this program? | Hult Cohort',
   description:
-    'Visual intro to the CS for Business elective: semester timeline, Phase 1 peer review loop, and how to enroll.',
+    'Visual intro to the CS for Business elective: six-week Summer Pilot timeline, Phase 1 peer review loop, and how to enroll.',
 };
 
 export default function StartPage() {

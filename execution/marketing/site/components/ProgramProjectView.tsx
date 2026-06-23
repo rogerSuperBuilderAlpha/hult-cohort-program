@@ -123,7 +123,7 @@ function EnrolledView({
     <div className={styles.participantPanel}>
       <div className={styles.participantBanner}>
         <p className={styles.participantBannerEyebrow}>
-          Enrolled · Fall 2026 · @{handle}
+          Enrolled · Summer Pilot 2026 · @{handle}
           {stats && stats.enrolledCount > 0 ? ` · Cohort ${stats.enrolledCount}` : ''}
         </p>
         <p className={styles.participantBannerLead}>

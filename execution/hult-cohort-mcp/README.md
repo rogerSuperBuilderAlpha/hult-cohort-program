@@ -12,7 +12,7 @@
 | `list_program_projects` | No | All project slugs and summaries |
 | `get_me` | Yes | Application + roster + submissions |
 | `get_project_progress` | Yes | Peers, reviews, votes for a project |
-| `submit_application` | Yes | Apply for Fall 2026 |
+| `submit_application` | Yes | Apply for Summer Pilot 2026 |
 | `prepare_review_issue` | Yes | GitHub issue template + peer links |
 | `save_written_review` | Yes | Save issue URL (unlocks vote) |
 | `cast_peer_vote` | Yes | Private 👍/👎 after review |

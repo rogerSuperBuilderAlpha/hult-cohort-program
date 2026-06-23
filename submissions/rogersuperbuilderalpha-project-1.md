@@ -1,6 +1,6 @@
 # Project 1 Submission — @rogersuperbuilderalpha
 
-E2E test submission (Fall 2026, Project 1 — PM platform).
+E2E test submission (Summer Pilot 2026, Project 1 — PM platform).
 
 Production URL: https://site-nine-rouge-68.vercel.app
 

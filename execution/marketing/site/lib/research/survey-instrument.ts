@@ -269,32 +269,32 @@ export const SURVEY_WAVES: SurveyWave[] = [
       'These questions ask how you work and how you read the tools and people you work with. There are no right answers. Answer for how things are for you as you begin the program. The wording is the same across all three surveys so we can measure change on the same scale.',
     // Opens before week 1; stays completable through Project 1's submission window because it gates
     // access to Project 1 (see SURVEY_GATES). Keeping it open avoids a permanent lock-out.
-    opensAt: '2026-09-08T04:00:00.000Z',
-    closesAt: '2026-10-02T21:00:00.000Z',
+    opensAt: '2026-07-09T04:00:00.000Z',
+    closesAt: '2026-07-22T21:00:00.000Z',
     estimatedMinutes: 12,
     sections: [sec.acs(), sec.ti(), sec.au(), sec.su(), sec.be(), sec.se(), { title: 'Background', intro: 'All optional.', scale: 'CAT', items: DEM_ITEMS }],
   },
   {
     id: 'w2',
     label: 'Midpoint survey',
-    shortLabel: 'Midpoint (week 4)',
+    shortLabel: 'Midpoint (week 3)',
     intro:
       'You have now built a project and gone through review once. Answer for how things are for you now.',
-    // Opens at the week-4 mark; stays completable through Project 2's submission window because it
+    // Opens after the first review; stays completable through Project 2's submission window because it
     // gates access to Project 2 (see SURVEY_GATES). Keeping it open avoids a permanent lock-out.
-    opensAt: '2026-10-03T12:00:00.000Z',
-    closesAt: '2026-10-16T21:00:00.000Z',
+    opensAt: '2026-07-23T18:00:00.000Z',
+    closesAt: '2026-07-29T21:00:00.000Z',
     estimatedMinutes: 13,
     sections: [sec.acs(), sec.sa(), sec.ti(), sec.au(), sec.po(), sec.tms(), sec.su(), sec.be()],
   },
   {
     id: 'w3',
     label: 'End-of-session survey',
-    shortLabel: 'End of session (week 16)',
+    shortLabel: 'End of session (week 6)',
     intro:
       'This is the last survey. Answer for how things are for you now, at the end of the program.',
-    opensAt: '2026-12-14T05:00:00.000Z',
-    closesAt: '2026-12-22T04:59:00.000Z',
+    opensAt: '2026-08-17T13:00:00.000Z',
+    closesAt: '2026-08-20T03:59:00.000Z',
     estimatedMinutes: 15,
     sections: [
       sec.acs(), sec.sa(), sec.ti(), sec.au(), sec.po(), sec.tms(), sec.su(), sec.be(), sec.se(),

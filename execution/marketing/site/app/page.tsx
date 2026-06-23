@@ -24,13 +24,13 @@ export default async function Home() {
       />
 
       <section className={styles.hero}>
-        <p className={`${styles.eyebrow} animate-in`}>CS for Business elective · Fall 2026</p>
+        <p className={`${styles.eyebrow} animate-in`}>CS for Business · Summer Pilot 2026</p>
         <h1 className={`${styles.headline} animate-in delay-1`}>
           Build software on GitHub.<br />
-          Prove it in one semester.
+          Prove it in six weeks.
         </h1>
         <p className={`${styles.subhead} animate-in delay-2`}>
-          A for-credit developer elective: six production projects, peer review, and a public portfolio
+          A for-credit developer pilot: cohort-owned platforms, peer review, and a public portfolio
           hiring partners can inspect—not self-reported résumé lines.
         </p>
         <div className={`${styles.heroActions} animate-in delay-3`}>
@@ -44,7 +44,7 @@ export default async function Home() {
             github.com/{cohortSubmissionRepo()}
           </a>
           <span>Applications open June 15, 2026</span>
-          <span>Program begins September 8, 2026</span>
+          <span>Program begins July 9, 2026 at 09:00 Eastern Time</span>
         </div>
       </section>
 
@@ -52,14 +52,15 @@ export default async function Home() {
         <div className={styles.sectionLabel}>At a glance</div>
         <h2 className={styles.sectionTitle}>Two phases, one GitHub trail</h2>
         <p className={styles.sectionBody}>
-          <strong>Phase 1 (weeks 2–8):</strong> the cohort builds PM, comms, and showcase platforms.
+          <strong>Phase 1 (weeks 2–5):</strong> the cohort builds PM, comms, and showcase platforms,
+          then unifies the winning stack.
           Written reviews and private 👍/👎 votes pick the operator for each project.{' '}
-          <strong>Phase 2 (weeks 9–16):</strong> learning apps with real users, a venture track, and
-          open-source contributions.
+          <strong>Week 6 final sprint:</strong> learning apps with real users, a venture package, and
+          open-source contribution evidence.
         </p>
         <p className={styles.sectionBody}>
           New here?{' '}
-          <Link href="/start">See the visual semester map and Phase 1 loop →</Link>
+          <Link href="/start">See the visual pilot map and Phase 1 loop →</Link>
         </p>
       </section>
 
@@ -100,7 +101,7 @@ export default async function Home() {
             {
               n: '03',
               t: 'External proof',
-              d: 'Phase 2 adds users, investors, and maintainers as judges.',
+              d: 'The final sprint adds users, investors, and maintainers as judges.',
             },
           ].map((s) => (
             <article key={s.n} className={styles.skillCard}>
@@ -146,7 +147,7 @@ export default async function Home() {
           <li>Finish the 48-hour take-home: fix a repo and open a PR</li>
           <li>Decision within ~48 hours of take-home submission</li>
         </ol>
-        <p>{cohortSizeLine} · Application deadline: August 15, 2026</p>
+        <p>{cohortSizeLine} · Application deadline: July 8, 2026</p>
         <ParticipantCta />
       </section>
     </main>

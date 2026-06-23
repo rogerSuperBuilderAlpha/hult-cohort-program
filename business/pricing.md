@@ -33,7 +33,7 @@ $10k one-time with job guarantee + unlimited terms is **aggressive but defensibl
 | Installments (2 × $5k) | Optional if Finance approves |
 | ISA | **No** — complicates guarantee |
 
-Charge date: **Monday week 1** (Sep 8, 2026). Not at application.
+Charge date: **Thursday week 1** (Jul 9, 2026). Not at application.
 
 Billing: **Hult continuing-ed** ([policy-review.md](../institutional/policy-review.md)).
 
@@ -41,14 +41,14 @@ Billing: **Hult continuing-ed** ([policy-review.md](../institutional/policy-revi
 
 ## Total cost of attendance (disclose on landing page)
 
-| Line | Amount (1 semester) |
+| Line | Amount (Summer Pilot) |
 |------|---------------------|
 | Tuition (one-time, amortize mentally) | $10,000 |
-| Tooling (4 mo × $400) | $1,600 |
+| Tooling (2 mo × $400) | $800 |
 | Living | Student responsibility |
-| **Typical first semester cash outlay** | **~$11,600** + living |
+| **Typical first pilot cash outlay** | **~$10,800** + living |
 
-Repeat semesters: **$1,600 tooling only** (tuition already paid).
+Repeat cohorts: **~$800–$1,600 tooling** per term (tuition already paid).
 
 ---
 

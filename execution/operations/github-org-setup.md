@@ -32,7 +32,7 @@ Students create `pm-{handle}`, etc. themselves week 2+.
 | `students` | Write on own repos; triage on platform repos | All students |
 | `operators` | Maintain on `*-platform` repos | 3 winners + teams (week 5+) |
 | `staff` | Admin | Program director |
-| `alumni` | Read all | Graduates (post week 16) |
+| `alumni` | Read all | Graduates (post week 8) |
 
 Use GitHub Team sync or manual adds.
 
@@ -59,7 +59,7 @@ On `pm-platform`, `comms-platform`, `showcase-platform`:
 
 ## Week 1 invites
 
-Sep 8 AM: invite all confirmed students by GitHub username from admissions spreadsheet.
+Jul 9 AM: invite all confirmed students by GitHub username from admissions spreadsheet.
 
 Template message:
 

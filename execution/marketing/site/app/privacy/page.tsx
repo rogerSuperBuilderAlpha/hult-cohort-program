@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             The Hult Cohort Developer Program is operated by Hult International Business School
             (&quot;Hult&quot;, &quot;we&quot;, &quot;us&quot;). This site (
             <a href={siteUrl}>{siteLabel}</a> and successor domains) is the admissions and
-            participant platform for the Fall 2026 cohort.
+            participant platform for the Summer Pilot cohort.
           </p>
         </section>
 

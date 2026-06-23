@@ -86,7 +86,7 @@ Submitted at registration:
 
 **You do not self-count.** Platform exports official count at snapshot ([metrics.md](../../../assessment/metrics.md)):
 
-- **≥ 25 unique external users** by Fri Nov 21, 2026
+- **≥ 25 unique external users** by Fri Aug 19, 2026 (week 6)
 
 Promote the **platform listing URL**, not raw Vercel URL, so users are authenticated and counted.
 

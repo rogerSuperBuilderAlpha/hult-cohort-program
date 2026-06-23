@@ -86,7 +86,7 @@ export function ogImageJsx(title: string, subtitle: string) {
           textTransform: 'uppercase',
         }}
       >
-        Fall 2026 Cohort
+        Summer Pilot 2026
       </div>
     </div>
   );

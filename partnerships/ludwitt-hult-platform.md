@@ -59,7 +59,7 @@ Alternative rejected: monorepo plugins (too much coupling for 30 different apps 
 - [ ] No malicious iframe behavior
 - [ ] Content appropriate (no hate, illegal, etc.)
 
-Review SLA: **48 hrs** during weeks 9–11.
+Review SLA: **48 hrs** during weeks 6–7.
 
 ---
 

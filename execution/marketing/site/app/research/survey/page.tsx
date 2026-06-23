@@ -25,11 +25,11 @@ export default function ResearchSurveyPage() {
       />
 
       <article className={styles.overview}>
-        <p className={styles.eyebrow}>Fall 2026 · Research</p>
+        <p className={styles.eyebrow}>Summer Pilot 2026 · Research</p>
         <h1 className={styles.sectionTitle}>Cohort research survey</h1>
         <p className={styles.overviewLead}>
           A voluntary research study, approved by the Bentley University Institutional Review Board, on how
-          people learn to coordinate through software systems. Three short surveys over the program.
+          people learn to coordinate through software systems. Three short surveys over the six-week pilot.
           Taking part has no effect on your standing or assessment.
         </p>
 
@@ -58,7 +58,7 @@ export default function ResearchSurveyPage() {
               </p>
             ) : (
               <p>
-                <strong>Enrolled participants only.</strong> <Link href="/apply">Apply for Fall 2026 →</Link>
+                <strong>Enrolled participants only.</strong> <Link href="/apply">Apply for the Summer Pilot →</Link>
               </p>
             )}
           </div>

@@ -32,7 +32,7 @@ The cohort's PM platform doesn't exist until **week 4 cutover**. Weeks 1–4 use
 
 **Discord is interim, not the comms platform.** It is explicitly labeled "bootstrap tooling" in week 1 kickoff. The comms platform winner's job includes migrating cohort comms off Discord.
 
-Staff post in Discord weeks 1–4 only. After comms cutover (week 6), staff use the cohort's comms platform like everyone else.
+Staff post in Discord weeks 1–2 only. After comms cutover (week 3), staff use the cohort's comms platform like everyone else.
 
 ---
 
@@ -48,7 +48,7 @@ Prior cohort showcase sites remain live as **portfolio archives** — marketing 
 
 ## End-of-cohort ownership
 
-| Asset | After week 16 |
+| Asset | After week 8 (pilot end) |
 |-------|---------------|
 | `pm-platform`, `comms-platform`, `showcase-platform` | **Operator + team maintain through placement window** (6 mo); then archived or handed to alumni association — operator decides |
 | Personal build repos (`pm-{handle}`, etc.) | Student owns forever |

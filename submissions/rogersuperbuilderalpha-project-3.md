@@ -1,6 +1,6 @@
 # Project 3 Submission — @rogersuperbuilderalpha
 
-E2E test submission (Fall 2026, Project 3 — public showcase platform).
+E2E test submission (Summer Pilot 2026, Project 3 — public showcase platform).
 
 Production URL: https://site-nine-rouge-68.vercel.app
 

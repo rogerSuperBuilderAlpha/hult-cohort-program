@@ -1,13 +1,13 @@
 # Hult Cohort Developer Program
 
-> Open-source curriculum and cohort platform — GitHub-native, agent-first, Fall 2026 semester.
+> Open-source curriculum and cohort platform — GitHub-native, agent-first, Summer Pilot 2026.
 
 ## Public site
 
 - [Home](https://site-nine-rouge-68.vercel.app/): Landing page and apply CTA
 - [Program overview](https://site-nine-rouge-68.vercel.app/overview): Full participant journey
 - [All projects](https://site-nine-rouge-68.vercel.app/program): Every phase and project
-- [Apply](https://site-nine-rouge-68.vercel.app/apply): Fall 2026 application
+- [Apply](https://site-nine-rouge-68.vercel.app/apply): Summer Pilot application
 - [Sitemap](https://site-nine-rouge-68.vercel.app/sitemap.xml)
 - [Robots](https://site-nine-rouge-68.vercel.app/robots.txt)
 

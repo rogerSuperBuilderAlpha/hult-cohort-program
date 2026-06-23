@@ -207,7 +207,7 @@ export default function ApplyPage() {
 
   const pageTitle = enrolled ? 'Apply' : pendingRoster ? 'Admitted' : 'Apply';
   const pageLead = pendingRoster
-    ? 'You have been admitted to the Fall 2026 cohort. Enrollment is being finalized; participant tools will become available shortly.'
+    ? 'You have been admitted to the Summer Pilot. Enrollment is being finalized; participant tools will become available shortly.'
     : 'Sign in with GitHub and complete the application form. If admitted to the take-home stage, you will have 48 hours to submit a pull request. Admissions follows the same GitHub-based workflow as the program.';
 
   return (
@@ -216,7 +216,7 @@ export default function ApplyPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>
-          Fall 2026 · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : 'Applications open June 15'}
+          Summer Pilot 2026 · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : 'Applications open June 15'}
         </p>
         <h1 className={styles.sectionTitle}>{pageTitle}</h1>
         <p className={styles.overviewLead}>{pageLead}</p>
@@ -350,7 +350,7 @@ export default function ApplyPage() {
                   <label className={styles.checkboxLabel}>
                     <input name="confirmTooling" type="checkbox" required />
                     I confirm I can cover approximately $400 per month for Cursor and Claude Code for
-                    at least four months, and that I am registered (or will register) for this elective
+                    the six-week pilot, and that I am registered (or will register) for this elective
                     through Hult.
                   </label>
                   <label className={styles.checkboxLabel}>

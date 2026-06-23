@@ -15,7 +15,7 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SITE_NAME} | Fall 2026`,
+    default: `${SITE_NAME} | Summer Pilot 2026`,
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_OG_DESCRIPTION,
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     'Hult',
     'developer cohort',
     'GitHub',
-    'Fall 2026',
+    'Summer Pilot 2026',
     'software engineering',
     'open source',
   ],

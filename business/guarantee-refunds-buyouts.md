@@ -111,7 +111,7 @@ When a student is a poor fit — disruptive, repeatedly failing obligations, or 
 | Scenario | Exposure | Mitigation |
 |----------|----------|------------|
 | 100% week-1 refund | $300,000 | Stagger admissions confirmation; charge at week 1 start not application |
-| 30 pass, 0 placements in 12 months | $0 cash (guarantee = continued enrollment, not cash payout) + staff placement cost | Build partner pipeline before week 16; showcase is contractual partner touchpoint |
+| 30 pass, 0 placements in 12 months | $0 cash (guarantee = continued enrollment, not cash payout) + staff placement cost | Build partner pipeline before week 8 showcase; showcase is contractual partner touchpoint |
 | 10 buyouts in one cohort | $50,000 | Strict admissions filter + week-1 exit; buyout is last resort |
 | 30 pass, all re-enroll 3× | $0 incremental tuition; ~$3,600/student tooling only (student-paid) | Near-zero marginal cost assumption holds |
 | Referral fee clawback after kickback paid | Net loss = 90% of fee retained if clawed back within clawback window | Clawback passed through per placement agreement |

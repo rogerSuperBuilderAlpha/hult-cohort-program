@@ -266,8 +266,8 @@ export function ResearchSurvey({ getIdToken }: { getIdToken: () => Promise<strin
     return (
       <div>
         <p className={page.formNote}>
-          No research survey is open right now. Surveys open before week 1, around week 4, and at the end
-          of the session. You will be notified when the next one opens.
+          No research survey is open right now. Surveys open before week 1, after the first review cycle,
+          and at the end of week 6. You will be notified when the next one opens.
         </p>
         {scheduleList}
       </div>

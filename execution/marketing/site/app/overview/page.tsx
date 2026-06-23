@@ -7,7 +7,7 @@ import { formatPeerReviewsPerProject, operatorRoleCount } from '@/lib/cohort-sta
 export const metadata = {
   title: 'Program Overview | Hult Cohort',
   description:
-    'Stakeholder summary: semester structure, peer review model, and timeline for Fall 2026.',
+    'Stakeholder summary: six-week Summer Pilot structure, peer review model, and July 2026 timeline.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -30,8 +30,8 @@ export default async function OverviewPage() {
       />
 
       <article className={styles.overview}>
-        <p className={styles.eyebrow}>Stakeholder overview · Fall 2026</p>
-        <h1 className={styles.sectionTitle}>CS for Business elective · GitHub-native semester</h1>
+        <p className={styles.eyebrow}>Stakeholder overview · Summer Pilot 2026</p>
+        <h1 className={styles.sectionTitle}>CS for Business elective · GitHub-native six-week pilot</h1>
         <p className={styles.overviewLead}>
           For a quick visual map, send students to{' '}
           <Link href="/start">What is this program?</Link>. This page is a longer summary for faculty
@@ -41,13 +41,13 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Outcome</h2>
           <p>
-            Participants complete six production projects with work recorded on GitHub. Assessment is
+            Participants complete eight tracked deliverables with work recorded on GitHub. Assessment is
             pass/fail on published criteria; credit follows degree enrollment.
           </p>
         </section>
 
         <section className={styles.overviewBlock}>
-          <h2>Phase 1 · Weeks 2–8</h2>
+          <h2>Phase 1 · Weeks 2–5</h2>
           <ol>
             <li>Each participant builds and deploys a production application.</li>
             <li>
@@ -75,7 +75,7 @@ export default async function OverviewPage() {
         </section>
 
         <section className={styles.overviewBlock}>
-          <h2>Phase 2 · Weeks 9–16</h2>
+          <h2>Final sprint · Week 6</h2>
           <ul>
             <li>
               <strong>Learning app</strong> — Ludwitt/Hult metrics; external users
@@ -92,8 +92,8 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>For hiring partners</h2>
           <ul>
-            <li>Public showcase from week 8</li>
-            <li>Week 16 hiring showcase (Boston anchor)</li>
+            <li>Public showcase built in week 4 and unified in week 5</li>
+            <li>Week 6 hiring showcase (Boston anchor)</li>
             <li>Inspect GitHub history directly—no self-reported claims</li>
           </ul>
           <p>
@@ -104,7 +104,8 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Timeline</h2>
           <p>
-            <strong>Start:</strong> September 8, 2026 · <strong>Showcase:</strong> December 19, 2026
+            <strong>Start:</strong> July 9, 2026 at 09:00 Eastern Time · <strong>Showcase:</strong>{' '}
+            August 19, 2026
           </p>
         </section>
 

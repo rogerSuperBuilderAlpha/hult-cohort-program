@@ -86,9 +86,9 @@ function buildStudents(count) {
 }
 
 function mergedAtForProject(projectIndex) {
-  // Stagger merges by project week (Sep 2026 baseline)
-  const base = new Date('2026-09-15T17:00:00Z');
-  base.setDate(base.getDate() + projectIndex * 14);
+  // Stagger demo merges by Summer Pilot week (17:00 Eastern Time deadlines).
+  const base = new Date('2026-07-15T21:00:00Z');
+  base.setDate(base.getDate() + projectIndex * 7);
   return Timestamp.fromDate(base);
 }
 

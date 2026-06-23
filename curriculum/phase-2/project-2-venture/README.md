@@ -1,25 +1,23 @@
-# Phase 2 Project 2: Venture (Weeks 12–15)
+# Phase 2 Project 2: Venture (Week 6)
 
-**Success metrics:** ≥ **25 external users** + ≥ **1 qualified investor touchpoint** by Fri Dec 12 ([metrics.md](../../../assessment/metrics.md)).
+**Success metrics:** ≥ **25 external users** + ≥ **1 qualified investor touchpoint** by Wed Aug 19 at 17:00 Eastern Time ([metrics.md](../../../assessment/metrics.md)).
 
 **Individual only.** May **extend learning app** into venture (same codebase OK) or build new product.
 
 ---
 
-## Sequencing (parallel tracks)
+## One-week schedule
 
-| Week | Research track | Build track | Investor track |
-|------|----------------|-------------|----------------|
-| **12** | Customer discovery (5 interviews) | MVP scope from research | Investor list (20 targets) |
-| **13** | Market sizing + competitive map | Core product build | Pitch deck v1 |
-| **14** | Business plan draft | Production deploy | Outreach: 10 emails |
-| **15** | Final plan + financials | User push | Calls + week 16 prep |
-
-Thanksgiving week 12: async only — interviews and build continue, no live sessions.
+| Day | Research | Build | Investor |
+|-----|----------|-------|----------|
+| **Tue** | Customer discovery (3 interviews) | MVP scope | Investor list (20 targets) |
+| **Wed** | Market sizing draft | Core product build | Pitch deck v1 |
+| **Thu** | Business plan draft | Production deploy | Outreach: 10 emails |
+| **Fri** | Final deck + financials | User push | Log touchpoints; proof PR merged |
 
 ---
 
-## Deliverables (all due Fri Dec 12)
+## Deliverables (all due Wed week 6)
 
 | Artifact | Location |
 |----------|----------|

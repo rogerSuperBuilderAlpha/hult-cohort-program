@@ -7,7 +7,7 @@ export function buildApplicationConfirmationHtml({
 }) {
   return `
     <p>Hi ${firstName},</p>
-    <p>We received your application for the Fall 2026 Cohort Developer Program.</p>
+    <p>We received your application for the Summer Pilot Cohort Developer Program.</p>
     <p><strong>Next step:</strong> Complete the 48-hour take-home.</p>
     <ul>
       <li>Repo: <a href="${takeHomeRepoUrl}">${takeHomeRepoUrl}</a></li>
@@ -30,11 +30,11 @@ export function buildAdmissionConfirmationHtml({
 
   return `
     <p>Hi ${firstName},</p>
-    <p>You're admitted to the <strong>Fall 2026 Cohort Developer Program</strong> (CS for Business elective).</p>
+    <p>You're admitted to the <strong>Summer Pilot Cohort Developer Program</strong> (CS for Business elective).</p>
     <p><strong>Your GitHub:</strong> @${githubHandle}</p>
     <p><strong>Participant dashboard:</strong> <a href="${dashboardUrl}">${dashboardUrl}</a></p>
     <p>Sign in with the same GitHub account you used to apply. Project pages, submission tracking, and peer review tools unlock immediately.</p>
-    <p><strong>Before week 1 (September 8, 2026):</strong></p>
+    <p><strong>Before week 1 (July 9, 2026 at 09:00 Eastern Time):</strong></p>
     <ul>
       <li>Register for the elective through Hult (dual enrollment required)</li>
       <li>Review project expectations on the <a href="${programUrl}">program page</a></li>
@@ -46,4 +46,4 @@ export function buildAdmissionConfirmationHtml({
 }
 
 export const APPLICATION_EMAIL_SUBJECT = 'Hult Cohort — application received';
-export const ADMISSION_EMAIL_SUBJECT = "You're in — Hult Cohort Fall 2026";
+export const ADMISSION_EMAIL_SUBJECT = "You're in — Hult Cohort Summer Pilot";

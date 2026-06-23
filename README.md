@@ -3,13 +3,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-a81202.svg)](LICENSE)
 [![CI](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions/workflows/marketing-site.yml/badge.svg)](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions)
 
-A for-credit developer elective within the Hult **Computer Science for Business** undergraduate degree—GitHub-native projects over one semester.
+A for-credit developer elective within the Hult **Computer Science for Business** undergraduate degree—GitHub-native projects in a six-week Summer Pilot.
 
 **Open source:** curriculum, governance docs, and platform code are published under the [MIT License](LICENSE). Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## What it is
 
-Students in the elective complete six production projects on GitHub: peer review in Phase 1, external users and maintainers in Phase 2. The cohort platform tracks submissions, written reviews, and private votes.
+Students in the elective complete eight tracked deliverables on GitHub: peer review in Phase 1, external users and maintainers in the final sprint. The cohort platform tracks submissions, written reviews, and private votes.
 
 ## Start here
 
@@ -26,15 +26,15 @@ Program design docs are expanded; **backend:** Firebase (Firestore + Auth). See 
 Every leaf file states what's decided and carries a `To flesh out` checklist — each one is a self-contained work unit.
 
 ```
-curriculum/                  The 16-week program itself
+curriculum/                  The six-week Summer Pilot program
   onboarding/                Week 1: agent setup, GitHub workflow, tooling
-  phase-1/                   Weeks 2–8: internal — the cohort builds its own stack
+  phase-1/                   Weeks 2–5: internal — the cohort builds its own stack
     the-loop.md              The build → review → operate cycle
     project-1-pm-platform/   Requirements, review rubric, operator handbook
     project-2-comms-platform/
     project-3-public-showcase/
     ecosystem-unification.md Winners merge the three platforms
-  phase-2/                   Weeks 9–16: external — judged by the market
+  phase-2/                   Week 6: external — judged by the market
     project-1-learning-app/  Build on Ludwitt/Hult; metric: users
     project-2-venture/       Market research, plan, investor materials, app
     project-3-open-source/   Merged PRs in large repos (continuous)
@@ -47,7 +47,7 @@ assessment/                  Metrics, peer review system, pass/fail,
 
 business/                    ARCHIVED — retired standalone pricing/guarantee model (see ARCHIVED.md)
 
-partnerships/                Hiring partners, week-16 showcase event,
+partnerships/                Hiring partners, week-6 showcase event,
                              Ludwitt/Hult platform readiness
 
 operations/                  Cohort lifecycle, admissions, calendar,

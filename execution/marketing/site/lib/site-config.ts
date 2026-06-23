@@ -29,7 +29,7 @@ export function getSiteDisplayLabel(): string {
 
 export const SITE_NAME = 'Hult Cohort Developer Program';
 
-export const SITE_TAGLINE = 'CS for Business elective · Fall 2026';
+export const SITE_TAGLINE = 'CS for Business · Summer Pilot 2026';
 
 export const GITHUB_REPO_URL =
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program';
@@ -42,4 +42,4 @@ export const ALGORITHMACY_LAB_URL =
 export const ALGORITHMACY_CONFERENCE_URL = 'https://algorithmacy.org';
 
 export const DEFAULT_OG_DESCRIPTION =
-  'For-credit CS for Business elective: build on GitHub, peer review, six production projects. Fall 2026.';
+  'For-credit CS for Business pilot: build on GitHub, peer review, and ship verifiable work in six weeks.';

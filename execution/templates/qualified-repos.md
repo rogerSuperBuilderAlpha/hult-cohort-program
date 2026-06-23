@@ -1,4 +1,4 @@
-# Qualified open source repos — Fall 2026
+# Qualified open source repos — Summer Pilot 2026
 
 Maintained by program director. Repos qualify if listed here **or** meeting API thresholds in [repo-targeting.md](../../curriculum/phase-2/project-3-open-source/repo-targeting.md).
 

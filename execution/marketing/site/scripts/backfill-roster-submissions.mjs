@@ -38,8 +38,8 @@ function initDb() {
 }
 
 function mergedAtForProject(projectIndex) {
-  const base = new Date('2026-09-15T17:00:00Z');
-  base.setDate(base.getDate() + projectIndex * 14);
+  const base = new Date('2026-07-15T21:00:00Z');
+  base.setDate(base.getDate() + projectIndex * 7);
   return Timestamp.fromDate(base);
 }
 

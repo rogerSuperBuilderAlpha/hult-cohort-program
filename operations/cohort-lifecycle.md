@@ -1,6 +1,8 @@
 # Cohort lifecycle
 
-**Purpose:** End-to-end stage map for running one cohort from recruitment through placement. Owners and timing for cohort 1 (Fall 2026).
+**Purpose:** End-to-end stage map for running one cohort from recruitment through placement. Owners and timing for cohort 1 (**Summer Pilot 2026**).
+
+Firestore cohort id: `fall26` (unchanged from initial launch configuration).
 
 ---
 
@@ -8,27 +10,27 @@
 
 | Stage | Timing | Owner | Key outputs |
 |-------|--------|-------|-------------|
-| **Recruitment** | Jun–Aug 2026 | Founder + marketing | Landing page, applications |
-| **Admissions** | Jun 15 – Aug 29 | Program director | 25–30 confirmed students |
-| **Pre-cohort prep** | Sep 1–7 | Students + staff | Tooling verified, org invites sent |
-| **Onboarding** | Week 1 | Program director | Agents, GitHub, deploy test |
-| **Phase 1** | Weeks 2–8 | Cohort (staff facilitates) | 3 live platforms, unified ecosystem, 12 leaders |
-| **Phase 2** | Weeks 9–16 | Cohort | Apps, ventures, open source PRs |
-| **Showcase** | Week 16 | Placement lead | Partner review event |
-| **Assessment** | Week 16 | Program director | Pass/fail determinations |
-| **Placement** | Weeks 17–52 | Placement lead | Offers, referral fees, guarantee fulfillment |
+| **Recruitment** | Jun 2026 | Founder + marketing | Landing page, applications |
+| **Admissions** | Jun 15 – Jul 8 | Program director | 25–30 confirmed students |
+| **Pre-cohort prep** | Jul 7–8 | Students + staff | Tooling verified, org invites sent |
+| **Onboarding** | Week 1 (Jul 9–15) | Program director | Agents, GitHub, deploy test |
+| **Phase 1** | Weeks 2–5 | Cohort (staff facilitates) | 3 live platforms, unified ecosystem, operators named |
+| **Phase 2** | Week 6 | Cohort | Learning app, venture, open source PR |
+| **Showcase** | Week 6 (Aug 19) | Placement lead | Partner review event |
+| **Assessment** | Week 6 | Program director | Pass/fail determinations |
+| **Placement** | Weeks 7–42 | Placement lead | Offers, referral fees, guarantee fulfillment |
 | **Alumni** | Ongoing | Placement lead (light) | Emeritus org access, repeat enrollment option |
 
 ---
 
-## Pre-cohort prep (Sep 1–7)
+## Pre-cohort prep (Jul 7–8)
 
 | Day | Action |
 |-----|--------|
-| Sep 1 | Admitted students confirm; Pre-Cohort Setup email sent |
-| Sep 3 | GitHub org `hult-cohort-fall26-boston` created; template repo seeded |
-| Sep 5 | Discord bootstrap server created; invites sent |
-| Sep 7 | Staff verify roster ≥ 20; if not, 2-week delay decision |
+| Jul 7 | Admitted students confirm; Pre-Cohort Setup email sent |
+| Jul 7 | GitHub org `hult-cohort-fall26-boston` created; template repo seeded |
+| Jul 8 | Discord bootstrap server created; invites sent |
+| Jul 8 | Staff verify roster ≥ 20; if not, 2-week delay decision |
 
 See [tooling-setup.md](../curriculum/onboarding/tooling-setup.md) for student checklist.
 
@@ -53,14 +55,14 @@ Repo naming: [github-workflow.md](../curriculum/onboarding/github-workflow.md)
 
 ---
 
-## Placement phase (weeks 17–52)
+## Placement phase (post-pilot)
 
 | Milestone | Timing |
 |-----------|--------|
-| Pass determinations published | Dec 20, 2026 |
-| Partner intro routing active | Dec 20 |
+| Pass determinations published | Aug 20, 2026 |
+| Partner intro routing active | Aug 20 |
 | 180-day guarantee clock starts | Pass date |
-| First placement target | 90 days (Mar 2027) |
+| First placement target | 90 days (Dec 2026) |
 | Kickback payments | Net 30 after fee collection |
 | Guarantee fulfillment audit | Monthly |
 
@@ -74,7 +76,7 @@ Self-sourced offers: student submits offer letter → placement lead verifies ag
 |-----------------|------------------------|
 | Student's $10k enrollment agreement | Live platforms |
 | Alumni org read access | Discord bootstrap |
-| Credentials / showcase archive | Google Forms ballots |
+| Credentials / showcase archive | Legacy ballot data |
 | Repeat enrollment rights | PM/comms/showcase operators |
 
 Next cohort gets a **fresh org**, fresh bootstrap, fresh builds. Returners start from zero on platforms but keep their skills and GitHub history.
@@ -85,12 +87,12 @@ Next cohort gets a **fresh org**, fresh bootstrap, fresh builds. Returners start
 
 | Phase | Cadence |
 |-------|---------|
-| Cohort 1 | Fall 2026 only |
-| Cohort 2+ | **One new cohort per semester per campus** (Fall + Spring) |
+| Cohort 1 | Summer Pilot 2026 (6 weeks) |
+| Cohort 2+ | **One new cohort per term per campus** (Fall + Spring when scaled) |
 | Parallel cohorts | Allowed across campuses (Boston + London) — separate orgs |
 | Repeat enrollees | Join any campus cohort with open seat |
 
-Target by Fall 2027: 2 campuses × 30 students = 60 new + 10–15 returners.
+Target by Fall 2027: 2 campuses × 30 students = 60 new + 10–15 returners per term.
 
 ---
 
@@ -99,9 +101,9 @@ Target by Fall 2027: 2 campuses × 30 students = 60 new + 10–15 returners.
 | Weeks | Staff focus |
 |-------|-------------|
 | 1 | Onboarding, setup verification, bootstrap Discord |
-| 2–8 | Kickoffs, review admin, vote tally, cutover support, dispute mediation |
-| 9–15 | Light touch — market judges Phase 2; placement lead ramps partner intros |
-| 16 | Showcase event, pass/fail, placement handoff |
+| 2–5 | Kickoffs, review admin, vote tally, cutover support, unification demo |
+| 6 | Ludwitt/Hult API monitoring, venture deck review, OSS verification, showcase event |
+| 7 | Pass/fail, placement handoff |
 
 Detail: [staffing.md](staffing.md) (Tier 7).
 

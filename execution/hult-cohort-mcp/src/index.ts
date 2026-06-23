@@ -174,7 +174,7 @@ server.registerTool(
   'submit_application',
   {
     description:
-      'Submit Fall 2026 cohort application (requires GitHub sign-in token matching your account).',
+      'Submit Summer Pilot cohort application (requires GitHub sign-in token matching your account).',
     inputSchema: {
       firstName: z.string(),
       lastName: z.string(),

@@ -2,7 +2,7 @@
 
 **Purpose:** Build and operate the employer pipeline that makes the job guarantee real and generates referral fee revenue. Partners review cohort work, hire graduates, and pay ~25% of first-year base salary on successful hire.
 
-The hiring partner pipeline must be **contractually engaged before cohort 1 week 16** (December 19, 2026). Recruiting partners starts **12 weeks before cohort 1 start** (target: June 2026).
+The hiring partner pipeline must be **contractually engaged before cohort 1 week 8 showcase** (September 2, 2026). Recruiting partners starts **4 weeks before cohort 1 start** (target: June 2026).
 
 ---
 
@@ -43,18 +43,18 @@ The hiring partner pipeline must be **contractually engaged before cohort 1 week
 
 1. **The proof problem:** Resumes lie; GitHub doesn't. Show a sample cohort showcase and a graduate's six-project trail.
 2. **What graduates can do:** Review others' work, ship production apps, land open source merges, operate live platforms with real users.
-3. **How hiring works:** Week-16 showcase → async portfolio review → intro requests → your interview process → hire → fee on start date.
+3. **How hiring works:** Week-6 showcase → async portfolio review → intro requests → your interview process → hire → fee on start date.
 4. **Commercial terms:** 25% of first-year base salary, 90-day clawback, 10% kickback to candidate (shows we align with them, not against them).
 
 ### Fee justification
 
-At $200k hire → $50k fee. Partner gets: 16 weeks of observable work, peer-reviewed builds, production deployments, open source merges, and showcase access. Comparable agency fee: 20–30% with less signal.
+At $200k hire → $50k fee. Partner gets: 6 weeks of observable work, peer-reviewed builds, production deployments, open source merges, and showcase access. Comparable agency fee: 20–30% with less signal.
 
 ---
 
 ## First-10-partners plan
 
-**Goal:** 10 signed partner agreements before cohort 1 week 16. **Minimum viable:** 5 signed, 3 committed to attend showcase.
+**Goal:** 10 signed partner agreements before cohort 1 week 8 showcase. **Minimum viable:** 5 signed, 3 committed to attend showcase.
 
 | # | Target source | Owner | Outreach start | Signed-by deadline |
 |---|---------------|-------|----------------|-------------------|
@@ -163,9 +163,9 @@ Self-sourced offers: student notifies placement lead → offer verified → guar
 
 | Metric | Target |
 |--------|--------|
-| Signed partners (pre week 16) | ≥ 5 (stretch: 10) |
+| Signed partners (pre week 8) | ≥ 5 (stretch: 10) |
 | Partners attending showcase | ≥ 3 |
-| Partner intro requests (week 16–28) | ≥ 30 (1 per student) |
+| Partner intro requests (weeks 8–20 post-pilot) | ≥ 30 (1 per student) |
 | Offers within 180 days of pass | ≥ 70% of passing students |
 | Hires through partner network | ≥ 50% of placed students |
 | Referral fee revenue per placed student (avg) | ≥ $40,000 |

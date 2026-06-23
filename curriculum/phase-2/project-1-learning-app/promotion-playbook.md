@@ -1,16 +1,16 @@
 # Learning app: promotion playbook
 
-**Purpose:** Students promote learning apps to hit ≥ 25 external users by Fri Nov 21. Distribution is graded — this is the curriculum.
+**Purpose:** Students promote learning apps to hit ≥ 25 external users by Fri week 6. Distribution is graded — this is the curriculum.
 
 ---
 
-## Promotion timeline (weeks 9–11)
+## Promotion timeline (week 6 — one week)
 
-| Week | Focus |
-|------|-------|
-| **9** | Integrate + soft launch to 5 friends for QA |
-| **10** | Public launch; primary promotion push |
-| **11** | Optimize funnel; snapshot Fri Nov 21 |
+| Day | Focus |
+|-----|-------|
+| **Tue** | Integrate + soft launch to 5 friends for QA |
+| **Wed–Thu** | Public launch; primary promotion push |
+| **Fri** | Optimize funnel; snapshot at 17:00 ET |
 
 ---
 
@@ -48,7 +48,7 @@ Track: listing views → launches → lesson_started events.
 
 ---
 
-## Launch checklist (week 10 Tuesday)
+## Launch checklist (Wednesday week 6)
 
 - [ ] App approved and listed in directory
 - [ ] Launch post drafted (LinkedIn + 1 community)

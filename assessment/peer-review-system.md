@@ -128,7 +128,7 @@ When votes tie, **median total rubric score** across all 29 reviews for each tie
 |--------|---------|--------|
 | Platform PR reviews | Continuous | GitHub review |
 | Operator responsiveness rating | Monthly | 1–5 form, optional comment |
-| Team member peer rating | Week 8, week 16 | Anonymous 1–5: "Would you work with them again?" |
+| Team member peer rating | Week 5, week 8 | Anonymous 1–5: "Would you work with them again?" |
 
 Ongoing signals feed [job-offer-readiness.md](job-offer-readiness.md), not pass/fail directly.
 

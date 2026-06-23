@@ -51,7 +51,7 @@ Per 4-week cycle on live platforms ([github-workflow.md](../curriculum/onboardin
 | **Platform issues** | Issues filed (bug/feature) | ≥ 1 |
 | **Platform PR reviews** | Reviews on others' platform PRs | ≥ 3 |
 
-Cycles: weeks 5–8, 9–12, 13–16. Must pass **2/3 cycles** to pass cohort.
+Cycles: weeks 5–7 (one per week during unification and Phase 2 kickoff). Must pass **2/3 cycles** to pass cohort.
 
 ---
 
@@ -59,7 +59,7 @@ Cycles: weeks 5–8, 9–12, 13–16. Must pass **2/3 cycles** to pass cohort.
 
 | Metric | Definition | Collection | Pass gate |
 |--------|------------|------------|-----------|
-| **User count** | **Unique external users** completing ≥ 1 learning action (lesson start, quiz submit, or ≥ 2 min session) | Ludwitt/Hult platform analytics (primary) or self-hosted Plausible with UTM | ≥ **25 users** by Fri week 11 snapshot |
+| **User count** | **Unique external users** completing ≥ 1 learning action (lesson start, quiz submit, or ≥ 2 min session) | Ludwitt/Hult platform analytics (primary) or self-hosted Plausible with UTM | ≥ **25 users** by Fri week 6 snapshot |
 | **Integration** | App listed and reachable via Ludwitt/Hult launcher | Platform admin check | Required for metric to count |
 
 ### User definition (anti-gaming)
@@ -79,7 +79,7 @@ Cohort members **must not** register as users on each other's apps. Honor code +
 
 | Metric | Definition | Collection | Pass gate |
 |--------|------------|------------|-----------|
-| **Venture users** | Same as learning app | App analytics | ≥ **25 external users** by Fri week 14 |
+| **Venture users** | Same as learning app | App analytics | ≥ **25 external users** by Fri week 7 |
 | **Investor interest** | ≥ 1 **qualified investor touchpoint** | Placement lead verification | ≥ 1 |
 
 ### Investor interest definition
@@ -99,7 +99,7 @@ Log in venture repo `INVESTOR_LOG.md` with date, name, firm, outcome. Placement 
 
 | Metric | Definition | Collection | Pass gate |
 |--------|------------|------------|-----------|
-| **Merged PRs** | PR merged to repo with ≥ **1,000 stars** OR ≥ **50 contributors** in last 90 days | GitHub public API | ≥ **1 merged PR** by week 16 |
+| **Merged PRs** | PR merged to repo with ≥ **1,000 stars** OR ≥ **50 contributors** in last 90 days | GitHub public API | ≥ **1 merged PR** by week 8 (pilot end) |
 | **Quality PRs (distinction)** | Merged PR changing ≥ 10 lines excluding docs | GitHub API | Advisory |
 
 ### Repo qualification
@@ -118,12 +118,12 @@ Checked at PR open time:
 | Phase | Dashboard location |
 |-------|-------------------|
 | Weeks 1–4 | Staff spreadsheet `cohort-metrics-fall26` |
-| Weeks 5–16 | **Cohort PM platform** metrics module (operator builds or seeds manually week 5) |
-| Week 16+ | Showcase platform public profiles |
+| Weeks 5–6 | **Cohort PM platform** metrics module (operator builds or seeds manually week 5) |
+| Week 6+ | Showcase platform public profiles |
 
 Automated feeds:
 - GitHub org webhook → PM platform (or nightly cron script in `cohort-scripts` repo)
-- Ludwitt/Hult analytics API → PM platform (week 9+)
+- Ludwitt/Hult analytics API → PM platform (week 6+)
 
 ---
 

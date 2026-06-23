@@ -17,7 +17,7 @@ Pass requires **all** of the following:
 | Project 3 reviews | `{peerCount}/{peerCount}` on eligible peers |
 | Private votes | `{peerCount}/{peerCount}` per contest project (after written review each) |
 | Builds | ≥ **2/3** builds eligible at deadline |
-| Developer/user cycles | ≥ **2/3** four-week cycles meet minimums ([metrics.md](metrics.md)) |
+| Developer/user cycles | ≥ **2/3** Phase 1 platform cycles meet minimums ([metrics.md](metrics.md)) |
 
 ### Phase 2 (3 checks)
 
@@ -43,7 +43,7 @@ Pass requires **all** of the following:
 | | Pass | Job-offer ready |
 |---|------|-----------------|
 | **Gate** | Metric thresholds above | Pass + [job-offer-readiness.md](job-offer-readiness.md) checklist |
-| **When** | Week 16 | Week 16 + rolling |
+| **When** | Week 6 (Aug 19) | Week 6 + rolling |
 | **Effect** | Certificate + placement pool | Active partner promotion |
 
 Student may **pass but not yet ready** — still in placement pool, guarantee active.
@@ -67,9 +67,9 @@ No partial pass certificate cohort 1.
 
 | When | Action |
 |------|--------|
-| Dec 19, 18:00 | Private email: pass or fail + metric breakdown |
-| Dec 20 | Re-enrollment form link (Spring 2027 cohort) |
-| Dec 20 | Pass students: placement kickoff calendar invite |
+| Aug 19, 18:00 | Private email: pass or fail + metric breakdown |
+| Aug 20 | Re-enrollment form link (next cohort) |
+| Aug 20 | Pass students: placement kickoff calendar invite |
 
 Appeals: 48 hr window; program director reviews only for metric collection errors (GitHub API bug, etc.).
 

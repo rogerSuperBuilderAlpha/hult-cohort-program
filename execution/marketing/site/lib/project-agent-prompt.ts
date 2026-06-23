@@ -135,7 +135,7 @@ export function buildProjectAgentPrompt(
   const workflow = workflowSteps(project, handle, org);
 
   const lines: string[] = [
-    `You are my agent for the Hult Cohort Developer Program (Fall 2026).`,
+    `You are my agent for the Hult Cohort Developer Program Summer Pilot 2026.`,
     ``,
     `## Project`,
     `- **${project.phaseLabel}:** ${project.title}`,
@@ -183,7 +183,7 @@ export function buildProjectAgentPrompt(
     lines.push(
       ``,
       `## Selection criteria`,
-      `- The submission with the most votes after review week closes is selected.`,
+      `- The submission with the most votes after review closes is selected.`,
       `- Written reviews are public on GitHub; private votes remain confidential until results are announced.`,
       `- I cannot vote on my own submission.`
     );

@@ -1,17 +1,17 @@
 /** Public copy for /start — newcomer intro (single source of truth). */
 
 export const programIntro = {
-  eyebrow: 'CS for Business · Fall 2026 elective',
+  eyebrow: 'CS for Business · Summer Pilot 2026',
   title: 'What is this program?',
   lead:
-    'A one-semester, for-credit elective where you build real software on GitHub. Peers review your work; external users and maintainers judge Phase 2. Everything leaves a public trail employers can inspect.',
+    'A six-week, for-credit pilot where you build real software on GitHub. Peers review your work; external users and maintainers judge the final sprint. Everything leaves a public trail employers can inspect.',
   electiveNote:
     'Offered within the Hult Computer Science for Business undergraduate degree. Tuition and academic policies follow your degree enrollment—not a separate commercial cohort product.',
   dualEnrollment:
     'You need both: register for the course through Hult, and complete platform onboarding (apply, take-home, staff approval) to unlock project pages and submissions.',
   toolingNote:
     'Cursor and Claude Code are required from week 1 (~$400/month combined). Your work is public on GitHub.',
-  ctaApply: 'Apply for Fall 2026',
+  ctaApply: 'Apply for Summer Pilot',
   ctaProgram: 'Project list',
 } as const;
 
@@ -32,20 +32,20 @@ export const introTimeline: TimelineSegment[] = [
   {
     id: 'p1',
     label: 'Phase 1',
-    weeks: 'Weeks 2–8',
+    weeks: 'Weeks 2–4',
     detail: 'Three platforms: PM, comms, showcase. Same build → review → vote loop each time.',
   },
   {
     id: 'uni',
     label: 'Unification',
-    weeks: 'Week 8',
+    weeks: 'Week 5',
     detail: 'Winning builds merge into one cohort stack.',
   },
   {
     id: 'p2',
     label: 'Phase 2',
-    weeks: 'Weeks 9–16',
-    detail: 'Learning app (real users), venture track, open-source contributions.',
+    weeks: 'Week 6',
+    detail: 'Learning app, venture package, and open-source contribution in the final sprint.',
   },
 ];
 

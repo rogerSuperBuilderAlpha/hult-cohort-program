@@ -1,7 +1,9 @@
-# Week 16: Hiring partner showcase
+# Week 6: Hiring partner showcase — Summer Pilot 2026
 
-**Date:** **Friday, December 19, 2026, 10:00–16:00** (hybrid)
+**Date:** **Wednesday, August 19, 2026, 10:00–16:00 Eastern Time** (hybrid)<br>
 **Venue:** Hult Boston campus (primary) + livestream via showcase platform
+
+This is the end-of-pilot showcase — week 6 of the Summer Pilot, not a separate semester finale.
 
 ---
 
@@ -22,7 +24,7 @@
 
 ## Student presentation
 
-Each student presents **six-project arc in 90 sec**, led by strongest artifact:
+Each student presents their **eight-project arc in 90 sec**, led by strongest artifact:
 
 1. Phase 1: best build or operator role
 2. Learning app user count
@@ -34,7 +36,7 @@ Template: `showcase-template/LIGHTNING_DECK.pptx` (1 slide).
 
 ---
 
-## Platform operator duties (week 16)
+## Platform operator duties (week 6)
 
 - 100% uptime during event
 - Partner login working
@@ -51,7 +53,7 @@ Template: `showcase-template/LIGHTNING_DECK.pptx` (1 slide).
 | In-person | Hult Boston; 30 students, ≥ 5 partners target |
 | Virtual | Partner stream + student Discord/comms backup rooms |
 | Recording | Record lightning demos; post to showcase within 48 hr |
-| RSVP | Partners RSVP via showcase by Dec 12 |
+| RSVP | Partners RSVP via showcase by Aug 12 |
 
 ---
 
@@ -59,8 +61,8 @@ Template: `showcase-template/LIGHTNING_DECK.pptx` (1 slide).
 
 | Day | Action |
 |-----|--------|
-| Dec 20 | Pass/fail published; placement window opens |
-| Dec 20–27 | Placement lead sends partner recap + student availability |
+| Aug 20 | Pass/fail published; placement window opens |
+| Aug 20–27 | Placement lead sends partner recap + student availability |
 | Weekly | Intro routing per [hiring-partners.md](hiring-partners.md) |
 | Monthly | Conversion report: intros → interviews → offers |
 

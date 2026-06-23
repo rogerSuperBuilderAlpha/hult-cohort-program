@@ -4,7 +4,7 @@
 
 **URL:** `cohort.hult.edu` (or subdomain TBD)
 **Applications open:** June 15, 2026
-**Cohort start:** September 8, 2026
+**Cohort start:** July 9, 2026 at 09:00 Eastern Time
 
 ---
 
@@ -14,7 +14,7 @@
 
 **Subhead:** Every skill we teach is verifiable on GitHub. Hiring partners see your work before they interview you.
 
-**CTA primary:** Apply for Fall 2026
+**CTA primary:** Apply for Summer Pilot 2026
 **CTA secondary:** Read the program overview (PDF / PROPOSAL link for partners)
 
 ---
@@ -27,14 +27,14 @@ Withdraw in week 1 for a full refund.
 
 ---
 
-## What you'll do (16 weeks)
+## What you'll do (6 weeks)
 
 **Phase 1 — Build your cohort's tool stack**
 - Project management platform
 - Internal comms platform
 - Public showcase for hiring partners
 
-Your cohort builds, reviews, and selects winners. The winners operate live platforms the whole semester runs on.
+Your cohort builds, reviews, and selects winners. The winners operate live platforms the pilot runs on.
 
 **Phase 2 — Ship to the world**
 - Learning app on Ludwitt/Hult (real users)
@@ -58,7 +58,7 @@ Plus: Hult Cohort Developer Certificate and platform winner credentials.
 | Item | Amount |
 |------|--------|
 | Program tuition (one-time, unlimited cohorts) | $10,000 |
-| Tooling (Cursor + Claude Code, ~4 months) | ~$1,600 |
+| Tooling (Cursor + Claude Code, ~2 months) | ~$800 |
 | Living expenses | Your responsibility |
 
 When we place you, you receive **10% of our referral fee back** — often ~$5,000 on a typical hire.
@@ -83,7 +83,7 @@ When we place you, you receive **10% of our referral fee back** — often ~$5,00
 3. Decision within 2 weeks
 
 **Cohort size:** 30 students (Boston anchor; online welcome)
-**Apply by:** August 15, 2026
+**Apply by:** July 8, 2026
 
 ---
 
@@ -108,7 +108,7 @@ Yes. Same process. Same bar.
 
 ## Footer CTA
 
-Apply for Fall 2026 · Questions: cohort@hult.edu
+Apply for Summer Pilot 2026 · Questions: cohort@hult.edu
 
 *Program Agreement and Expectations Acknowledgment required at enrollment. See full terms.*
 
@@ -117,4 +117,4 @@ Apply for Fall 2026 · Questions: cohort@hult.edu
 ## Meta / SEO
 
 **Title:** Hult Cohort Developer Program | GitHub-Native, Job Guarantee
-**Description:** One semester. Six production projects. Unlimited cohorts on one fee. Every skill verifiable on GitHub. Apply Fall 2026.
+**Description:** Six weeks. Eight tracked deliverables. Unlimited cohorts on one fee. Every skill verifiable on GitHub. Apply for the Summer Pilot.

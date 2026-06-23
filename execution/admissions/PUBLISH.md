@@ -14,7 +14,7 @@ cd ../admissions-task-board-fall26-publish
 npm ci && npm run test:ci
 git init
 git add README.md package.json package-lock.json src tests .github .gitignore scripts
-git commit -m "Admissions take-home Fall 2026"
+git commit -m "Admissions take-home Summer Pilot 2026"
 git remote add origin git@github.com:rogerSuperBuilderAlpha/admissions-task-board-fall26.git
 git push -u origin main
 ```

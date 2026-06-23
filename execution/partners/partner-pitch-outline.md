@@ -8,7 +8,7 @@ Use for warm outreach and partner calls. Full terms: [partner-referral-agreement
 
 **Headline:** Resumes lie. GitHub doesn't.
 
-- 30 developers, 16 weeks, six production projects each
+- 30 developers, 6 weeks, eight tracked deliverables (platform builds, unification, final-sprint market work, and OSS)
 - Every review, deploy, and merged PR is public
 - You evaluate candidates before the first interview — on their actual work
 
@@ -20,7 +20,7 @@ Use for warm outreach and partner calls. Full terms: [partner-referral-agreement
 
 **Headline:** Trained on what you actually hire for.
 
-1. Review others' work — 87 peer reviews per student
+1. Review others' work — peer reviews across three Phase 1 contest weeks
 2. Ship production software — cohort runs on platforms they built
 3. Contribute to codebases they don't own — open source merges in major repos
 
@@ -36,8 +36,8 @@ Agent-first workflow: Cursor + Claude Code daily from week 1.
 
 | Step | When |
 |------|------|
-| Browse showcase (read-only) | Week 8 onward |
-| Week 16 showcase | Dec 19, 2026 — Boston + virtual |
+| Browse showcase (read-only) | Week 5 onward |
+| Week 6 showcase | Aug 19, 2026 — Boston + virtual |
 | Request intro | Anytime via platform |
 | Your interview process | You run it |
 | Hire | You extend offer |
@@ -58,6 +58,6 @@ No exclusivity. No upfront cost. 90-day clawback if hire doesn't stick.
 - 12-month non-circumvention on introduced candidates
 - Target hire profile: agent-fluent full-stack / platform engineers
 
-**CTA:** Sign partner agreement → RSVP Dec 19 showcase → receive cohort access week 8
+**CTA:** Sign partner agreement → RSVP Aug 19 showcase → receive cohort access week 5
 
 Contact: [placement lead name / email]

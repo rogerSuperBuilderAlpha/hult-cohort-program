@@ -39,11 +39,11 @@ Student must **pass** plus demonstrate the three program abilities with evidence
 
 | Step | When | Owner |
 |------|------|-------|
-| Auto-compute checklist from metrics | Dec 17 | Script + program director |
-| Director review borderline cases | Dec 18 | Program director |
-| Student self-nomination optional | Dec 17–18 | Student adds 200-word "ready statement" on showcase |
-| Readiness list published | Dec 19 pre-showcase | Placement lead |
-| Partner packet sent | Dec 20 | Placement lead |
+| Auto-compute checklist from metrics | Aug 18 | Script + program director |
+| Director review borderline cases | Aug 18 | Program director |
+| Student self-nomination optional | Aug 18 | Student adds 200-word "ready statement" on showcase |
+| Readiness list published | Aug 19 pre-showcase | Placement lead |
+| Partner packet sent | Aug 20 | Placement lead |
 
 **Borderline:** Pass but misses 1 readiness item → "developing" tier; still get intros, lower featured priority.
 

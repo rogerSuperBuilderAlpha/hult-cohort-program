@@ -12,7 +12,7 @@ Implement the application form from [application-form.md](application-form.md). 
 
 ### Recommended: Typeform
 
-1. Create form **Hult Cohort Fall 2026 Application**
+1. Create form **Hult Cohort Summer Pilot 2026 Application**
 2. Add fields in order (see application-form.md)
 3. Settings → Self notifications → cohort@hult.edu
 4. Integrations → Webhooks → optional Zapier/Google Sheets for roster

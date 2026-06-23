@@ -1,10 +1,10 @@
-# Project 3: Public-facing cohort showcase (Weeks 7–8)
+# Project 3: Public-facing cohort showcase (Week 4)
 
-**Purpose:** Same [loop](../the-loop.md), outward-facing. Platform promotes the cohort to hiring partners and the public. Functionally the **public side of the PM platform** — forces [ecosystem unification](../ecosystem-unification.md) with PM and comms winners.
+**Purpose:** Same [loop](../the-loop.md), outward-facing. Platform promotes the cohort to hiring partners and the public. Functionally the **public side of the PM platform** — sets up [ecosystem unification](../ecosystem-unification.md) in week 5.
 
 ---
 
-## Kickoff brief (Tuesday week 7, 10:00)
+## Kickoff brief (Tuesday week 4, 10:00)
 
 > **Audience:** Hiring partners evaluating whether to hire from this cohort. Secondary: public, press, Hult community.
 >
@@ -14,20 +14,21 @@
 >
 > **Partner needs:** Browse students, filter by skill/project, request intro ([hiring-partners.md](../../../partnerships/hiring-partners.md)).
 >
-> **Timeline collision:** You are building, reviewing, AND unifying simultaneously weeks 7–8. Plan for integration from day 1 — don't treat unification as week 8 surprise.
+> **Timeline:** One week to build, review, and vote — same compressed rhythm as Projects 1 and 2. Plan integration hooks from day 1; unification is week 5.
 
 ---
 
-## Overlap: build + unification + team selection
+## Week schedule
 
-| Week | Parallel tracks |
-|------|-----------------|
-| **7** | Build showcase + daily unification syncs (30 min) + operators draft integration spec |
-| **8 Mon–Tue** | Review + vote (showcase) |
-| **8 Wed** | Winner announced; **team draft** (Fri Nov 7 deadline per [calendar](../../../operations/calendar.md)) |
-| **8 Thu–Fri** | Unified ecosystem demo Fri 17:00 |
+| Day | Action |
+|-----|--------|
+| Tue | Kickoff |
+| Thu 17:00 | Submission PR due |
+| Fri 14:00 | Reviews due |
+| Fri 16:00 | Vote closes |
+| Mon | Winner announced; unification planning begins |
 
-Showcase winner must have **MVP partner portal** by Fri Nov 7 demo (login, student list, request intro button — can be manual backend).
+Showcase winner must have **MVP partner portal** by week 5 unification demo (login, student list, request intro button — manual backend OK initially).
 
 ---
 
@@ -36,10 +37,10 @@ Showcase winner must have **MVP partner portal** by Fri Nov 7 demo (login, stude
 Partners need to see ([hiring-partners.md](../../../partnerships/hiring-partners.md)):
 
 - Student name, photo, campus
-- Links: GitHub, PM/comms contributions, Phase 2 apps (stub OK until week 9)
+- Links: GitHub, PM/comms contributions, Phase 2 apps (stub OK until week 6)
 - Phase 1 build repos (pm-, comms-, showcase-)
 - "Request intro" → emails placement lead
-- RSVP for week 16 showcase event
+- RSVP for week 8 end-of-pilot showcase event
 
 ---
 

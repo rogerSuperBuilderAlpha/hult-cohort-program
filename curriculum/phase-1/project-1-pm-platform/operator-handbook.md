@@ -1,6 +1,6 @@
 # PM platform: operator handbook
 
-**Purpose:** Obligations, rights, and SLAs for the Project 1 winner operating the cohort's live PM system from week 5 through week 16.
+**Purpose:** Obligations, rights, and SLAs for the Project 1 winner operating the cohort's live PM system from week 3 through week 8 (pilot end).
 
 ---
 

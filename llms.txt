@@ -1,6 +1,6 @@
 # Hult Cohort Program
 
-> Open-source curriculum and Next.js cohort platform for the Hult Cohort Developer Program — GitHub-native, agent-first, semester timeline.
+> Open-source curriculum and Next.js cohort platform for the Hult Cohort Developer Program — GitHub-native, agent-first, six-week Summer Pilot.
 
 ## Agent entry points
 
@@ -30,7 +30,7 @@
 
 ## Curriculum
 
-- [curriculum/](curriculum/): 16-week program
+- [curriculum/](curriculum/): six-week Summer Pilot program
 - [governance/](governance/): Voting, teams, credentials
 - [assessment/](assessment/): Metrics, pass/fail
 

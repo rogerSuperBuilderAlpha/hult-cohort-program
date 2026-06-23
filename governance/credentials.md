@@ -22,17 +22,17 @@ Platforms: `pm`, `comms`, `showcase`.
 
 | When | Who issues | Where displayed |
 |------|------------|-----------------|
-| Week 16 pass | Program director | Hult certificate PDF + showcase badge |
-| Week 4/6/8 (win) | Auto on vote announcement | Showcase profile immediately |
-| Week 16 (operator) | Program director after SLA audit | Showcase badge |
-| Week 8 (leadership) | Auto on draft | Showcase profile |
+| Week 6 pass | Program director | Hult certificate PDF + showcase badge |
+| Week 2/3/4 (win) | Auto on vote announcement | Showcase profile immediately |
+| Week 6 (operator) | Program director after SLA audit | Showcase badge |
+| Week 6 (leadership) | Auto on draft | Showcase profile |
 
 ### Showcase badge format
 
 ```json
 {
   "credential": "hult-cohort-operator-pm-fall26",
-  "issued": "2026-12-19",
+  "issued": "2026-08-19",
   "evidence": "https://github.com/hult-cohort-fall26-boston/pm-platform",
   "verify": "https://showcase.hult-cohort.fall26.boston/verify/abc123"
 }

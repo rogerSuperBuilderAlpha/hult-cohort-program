@@ -72,7 +72,7 @@ Cohort member user IDs and user_ids containing your GitHub handle are not counte
 ## Admin snapshot
 
 ```bash
-curl http://localhost:4000/v1/admin/cohorts/fall26/snapshots/2026-11-21 \
+curl http://localhost:4000/v1/admin/cohorts/fall26/snapshots/2026-08-19 \
   -H "Authorization: Bearer dev-admin-key"
 ```
 

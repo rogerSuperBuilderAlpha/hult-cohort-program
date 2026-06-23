@@ -3,13 +3,14 @@
  * Usage: npx tsx scripts/verify-submission-titles.ts
  */
 
-import { matchMergedPullRequest } from '../lib/submission-ingest-server';
+import { extractDeployUrl, matchMergedPullRequest } from '../lib/submission-ingest-server';
 import {
   normalizeSubmissionTitle,
   resolveHandleFromSubmissionTitle,
   submissionTitlesMatch,
 } from '../lib/submission-title-match';
 
+process.env.COHORT_ID = process.env.COHORT_ID || 'summer26';
 process.env.NEXT_PUBLIC_COHORT_REPO =
   process.env.NEXT_PUBLIC_COHORT_REPO || 'rogerSuperBuilderAlpha/hult-cohort-program';
 process.env.NEXT_PUBLIC_COHORT_ORG =
@@ -87,5 +88,38 @@ const notMerged = matchMergedPullRequest({
   merged: false,
 });
 assert(notMerged === null, 'unmerged PR ignored');
+
+process.env.ALLOW_LEGACY_MAIN_SUBMISSIONS = 'false';
+const wrongBase = matchMergedPullRequest({
+  ...BASE,
+  prTitle: '[Project 1] Submission — alice',
+  baseRef: 'main',
+});
+assert(wrongBase === null, 'main base rejected when legacy disabled');
+
+const correctBase = matchMergedPullRequest({
+  ...BASE,
+  prTitle: '[Project 1] Submission — alice',
+  baseRef: 'projects/summer26/phase-1-project-1',
+});
+assert(correctBase?.projectSlug === 'phase-1-project-1', 'project branch base accepted');
+
+process.env.ALLOW_LEGACY_MAIN_SUBMISSIONS = 'true';
+const legacyMain = matchMergedPullRequest({
+  ...BASE,
+  prTitle: '[Project 1] Submission — alice',
+  baseRef: 'main',
+});
+assert(legacyMain?.projectSlug === 'phase-1-project-1', 'legacy main base accepted when enabled');
+
+assert(
+  extractDeployUrl('Production URL: https://app.example.com') === 'https://app.example.com',
+  'deploy url inline'
+);
+assert(
+  extractDeployUrl('**Production URL**\nhttps://app.example.com') === 'https://app.example.com',
+  'deploy url on next line'
+);
+assert(extractDeployUrl('no url here') === null, 'no deploy url');
 
 console.log('All submission title checks passed.');

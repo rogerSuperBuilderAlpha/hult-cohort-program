@@ -23,6 +23,7 @@ export function SiteFooter() {
           <nav className={styles.footerLinks} aria-label="Site">
             <Link href="/program">Program</Link>
             <Link href={hub.href}>{hub.loading ? '…' : hub.enrolled ? 'Dashboard' : 'Apply'}</Link>
+            {hub.signedIn ? <Link href="/history">History</Link> : null}
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
             <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">

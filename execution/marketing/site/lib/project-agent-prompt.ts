@@ -1,21 +1,13 @@
 import type { ProgramProject } from '@/content/program';
 import type { CohortStats } from './cohort-stats-types';
-import { cohortSubmissionRepo } from './cohort-config';
+import {
+  cohortId,
+  cohortSubmissionRepo,
+  participantBranch,
+  projectBranch,
+} from './cohort-config';
 import { cohortRepoUrl } from './github-urls';
 import { personalizeProgramText } from './personalize-program';
-
-function branchName(slug: string, handle: string): string {
-  switch (slug) {
-    case 'onboarding':
-      return `onboarding/${handle}`;
-    case 'phase-1-unification':
-      return `integration/${handle}`;
-    case 'phase-2-open-source':
-      return `oss-tracking/${handle}`;
-    default:
-      return `submission/${handle}`;
-  }
-}
 
 function extraInterviewQuestions(project: ProgramProject): string[] {
   switch (project.slug) {
@@ -78,12 +70,14 @@ function extraInterviewQuestions(project: ProgramProject): string[] {
 }
 
 function workflowSteps(project: ProgramProject, handle: string, org: string): string[] {
-  const branch = branchName(project.slug, handle);
+  const id = cohortId();
+  const headBranch = participantBranch(id, project.slug, handle);
+  const baseBranch = projectBranch(id, project.slug);
   const prTitle = personalizeProgramText(project.submission.prTitle, handle, org);
 
   const common = [
     `Confirm I can open PRs on \`${cohortSubmissionRepo()}\` (collaborator access or fork → upstream PR).`,
-    `Create branch \`${branch}\` from \`main\`.`,
+    `Create branch \`${headBranch}\` from \`${baseBranch}\` (or from \`cohorts/${id}\` if the project branch is not created yet).`,
   ];
 
   switch (project.slug) {
@@ -92,7 +86,7 @@ function workflowSteps(project: ProgramProject, handle: string, org: string): st
         ...common,
         `Add or update my tooling checklist (markdown) under \`participants/${handle}.md\` or as specified in the roster repo README.`,
         'Include Expectations Acknowledgment confirmation and agent workflow notes.',
-        `Open PR titled \`${prTitle}\` → \`main\`.`,
+        `Open PR titled \`${prTitle}\` → \`${baseBranch}\`.`,
         'Push branch and give me the PR URL. Do not merge unless I say so.',
       ];
     case 'phase-2-open-source':
@@ -100,14 +94,14 @@ function workflowSteps(project: ProgramProject, handle: string, org: string): st
         ...common,
         'Open a tracking PR in the cohort repo linking upstream repo + PR (do not confuse with upstream merge).',
         'Do not push to upstream unless I explicitly authorize upstream PR creation.',
-        `Open tracking PR titled \`${prTitle}\` → \`main\`.`,
+        `Open tracking PR titled \`${prTitle}\` → \`${baseBranch}\`.`,
         'Push and return PR URL.',
       ];
     case 'phase-1-unification':
       return [
         ...common,
         'Coordinate integration changes via PRs to the cohort monorepo.',
-        `Open PR titled \`${prTitle}\` → \`main\`.`,
+        `Open PR titled \`${prTitle}\` → \`${baseBranch}\`.`,
         'Push and return PR URL.',
       ];
     default:
@@ -116,7 +110,7 @@ function workflowSteps(project: ProgramProject, handle: string, org: string): st
         'Implement or update the project to meet pass-gate requirements.',
         'Deploy to production HTTPS if this project requires a live URL.',
         'Verify fresh-clone setup when applicable (`npm install`, env example, tests).',
-        `Open submission PR titled \`${prTitle}\` → \`main\` with a complete PR body.`,
+        `Open submission PR titled \`${prTitle}\` → \`${baseBranch}\` with a complete PR body.`,
         'Push branch and give me the PR URL. Do not merge unless I say so.',
       ];
   }
@@ -151,7 +145,8 @@ export function buildProjectAgentPrompt(
     `- GitHub handle: \`${handle}\``,
     `- Cohort repo: \`${cohortSubmissionRepo()}\` (${cohortRepoUrl()})`,
     `- PR title: \`${prTitle}\``,
-    `- Branch: \`${branchName(project.slug, handle)}\``,
+    `- Branch: \`${participantBranch(cohortId(), project.slug, handle)}\``,
+    `- Target base branch: \`${projectBranch(cohortId(), project.slug)}\``,
     ``,
     `## Required details — ask me for each, then record in the PR body`,
     ...interview.map((q, i) => `${i + 1}. ${q}`),

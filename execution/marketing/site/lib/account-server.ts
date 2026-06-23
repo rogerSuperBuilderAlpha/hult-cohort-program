@@ -1,10 +1,11 @@
 import { getAdminAuth, getAdminDb } from '@/lib/firebase/admin';
-import { cohortId } from '@/lib/cohort-config';
+import { cohortId, nextCohortId } from '@/lib/cohort-config';
 import { programProjects } from '@/content/program';
 import {
   peerRatingsVoterRef,
   rosterMemberRef,
   submissionEntryRef,
+  cohortInterestRef,
   writtenReviewEntriesRef,
   writtenReviewVoterRef,
 } from '@/lib/firestore-paths';
@@ -15,6 +16,7 @@ export type AccountDeletionResult = {
   submissionsDeleted: number;
   writtenReviewsDeleted: number;
   ratingsDeleted: number;
+  cohortInterestRemoved: boolean;
   authUserDeleted: boolean;
 };
 
@@ -39,6 +41,7 @@ export async function deleteParticipantAccount(params: {
     submissionsDeleted: 0,
     writtenReviewsDeleted: 0,
     ratingsDeleted: 0,
+    cohortInterestRemoved: false,
     authUserDeleted: false,
   };
 
@@ -83,6 +86,16 @@ export async function deleteParticipantAccount(params: {
       }
     })
   );
+
+  const upcoming = nextCohortId();
+  if (upcoming) {
+    const interestRef = cohortInterestRef(upcoming, githubHandle);
+    const interestDoc = await interestRef.get();
+    if (interestDoc.exists) {
+      await interestRef.delete();
+      result.cohortInterestRemoved = true;
+    }
+  }
 
   if (firebaseUid) {
     try {

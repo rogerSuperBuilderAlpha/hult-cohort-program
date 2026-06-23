@@ -1,30 +1,27 @@
 /**
- * Idempotent submission reconcile — backstop when GitHub webhook misses events.
- * Creates submission entries for roster members missing Firestore records.
- * Does NOT fabricate ballot/eligiblePrs data (legacy ranked-choice removed).
+ * GitHub-backed submission reconcile — compares Firestore cache to GitHub truth.
+ * Usage: node scripts/reconcile-submissions.mjs [--write-cache]
  *
- * Usage: node scripts/reconcile-submissions.mjs
+ * Without --write-cache: report-only diff.
+ * With --write-cache: upsert Firestore submission entries from GitHub (cache only).
  */
 
 import { readFileSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
-const REPO = process.env.NEXT_PUBLIC_COHORT_REPO?.trim() || 'rogerSuperBuilderAlpha/hult-cohort-program';
+const WRITE_CACHE = process.argv.includes('--write-cache');
 
-const PROJECTS = [
-  { slug: 'onboarding', prTitle: (h) => `[Onboarding] Tooling checklist — ${h}` },
-  { slug: 'phase-1-project-1', prTitle: (h) => `[Project 1] Submission — ${h}` },
-  { slug: 'phase-1-project-2', prTitle: (h) => `[Project 2] Submission — ${h}` },
-  { slug: 'phase-1-project-3', prTitle: (h) => `[Project 3] Submission — ${h}` },
-  { slug: 'phase-2-learning-app', prTitle: (h) => `[P2-L1] Submission — ${h}` },
-  { slug: 'phase-2-venture', prTitle: (h) => `[P2-Venture] Submission — ${h}` },
-  { slug: 'phase-2-open-source', prTitle: (h) => `[P2-OSS] Tracking — ${h}` },
-];
+process.env.COHORT_ID = process.env.COHORT_ID?.trim() || 'fall26';
+process.env.NEXT_PUBLIC_COHORT_REPO =
+  process.env.NEXT_PUBLIC_COHORT_REPO?.trim() || 'rogerSuperBuilderAlpha/hult-cohort-program';
+process.env.ALLOW_LEGACY_MAIN_SUBMISSIONS =
+  process.env.ALLOW_LEGACY_MAIN_SUBMISSIONS?.trim() || 'true';
+
+const COHORT = process.env.COHORT_ID;
 
 function loadServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
@@ -40,47 +37,93 @@ function initDb() {
   return getFirestore();
 }
 
+async function loadGithubModule() {
+  const modPath = path.join(__dirname, '../lib/github-cohort-server.ts');
+  return import(pathToFileURL(modPath).href);
+}
+
+async function loadProgramModule() {
+  const modPath = path.join(__dirname, '../content/program.ts');
+  return import(pathToFileURL(modPath).href);
+}
+
 async function main() {
   const db = initDb();
-  const rosterSnap = await db.collection('roster').doc(COHORT).collection('members').get();
-  const handles = rosterSnap.docs
-    .filter((d) => d.data().active !== false)
-    .map((d) => d.id);
+  const { listMergedProjectSubmissions } = await loadGithubModule();
+  const { programProjects } = await loadProgramModule();
 
-  console.log(`Reconciling submissions for ${handles.length} active roster members`);
+  let githubCount = 0;
+  let missingInFirestore = 0;
+  let staleInFirestore = 0;
+  let written = 0;
 
-  let created = 0;
-  for (const handle of handles) {
-    for (const [projectIndex, project] of PROJECTS.entries()) {
+  for (const project of programProjects) {
+    const githubRows = await listMergedProjectSubmissions(COHORT, project.slug);
+    githubCount += githubRows.length;
+
+    for (const row of githubRows) {
       const entryRef = db
         .collection('submissions')
         .doc(COHORT)
         .collection('projects')
         .doc(project.slug)
         .collection('entries')
-        .doc(handle);
-      const existing = await entryRef.get();
-      if (existing.exists) continue;
+        .doc(row.githubHandle);
 
-      const prNumber = 50 + projectIndex;
-      const repo = REPO;
-      await entryRef.set({
-        githubHandle: handle,
-        repo,
-        prNumber,
-        prUrl: `https://github.com/${repo}/pull/${prNumber}`,
-        prTitle: project.prTitle(handle),
-        merged: true,
-        mergedAt: Timestamp.fromDate(new Date()),
-        deployUrl: null,
-        source: 'reconcile',
-      });
-      created += 1;
+      const existing = await entryRef.get();
+      if (!existing.exists) {
+        missingInFirestore += 1;
+        console.log(`MISSING cache: ${row.githubHandle} ${project.slug} → ${row.prUrl}`);
+        if (WRITE_CACHE) {
+          await entryRef.set({
+            githubHandle: row.githubHandle,
+            repo: row.repo,
+            prNumber: row.prNumber,
+            prUrl: row.prUrl,
+            prTitle: row.prTitle,
+            merged: true,
+            mergedAt: Timestamp.fromDate(new Date(row.mergedAt)),
+            deployUrl: row.deployUrl,
+            source: 'reconcile',
+            baseRef: row.baseRef,
+            updatedAt: new Date(),
+          });
+          written += 1;
+        }
+        continue;
+      }
+
+      const data = existing.data();
+      if (data.prNumber !== row.prNumber || data.prUrl !== row.prUrl) {
+        staleInFirestore += 1;
+        console.log(`STALE cache: ${row.githubHandle} ${project.slug} firestore=${data.prUrl} github=${row.prUrl}`);
+        if (WRITE_CACHE) {
+          await entryRef.set(
+            {
+              prNumber: row.prNumber,
+              prUrl: row.prUrl,
+              prTitle: row.prTitle,
+              merged: true,
+              mergedAt: Timestamp.fromDate(new Date(row.mergedAt)),
+              deployUrl: row.deployUrl,
+              source: 'reconcile',
+              baseRef: row.baseRef,
+              updatedAt: new Date(),
+            },
+            { merge: true }
+          );
+          written += 1;
+        }
+      }
     }
   }
 
-  console.log(`Reconcile complete. Created ${created} missing entries.`);
-  console.log('Primary path: POST /api/github/webhook on merged PRs.');
+  console.log('\nReconcile summary');
+  console.log(`  GitHub merged submissions: ${githubCount}`);
+  console.log(`  Missing Firestore cache rows: ${missingInFirestore}`);
+  console.log(`  Stale Firestore cache rows: ${staleInFirestore}`);
+  if (WRITE_CACHE) console.log(`  Cache rows written: ${written}`);
+  else console.log('  Run with --write-cache to upsert Firestore cache from GitHub.');
 }
 
 main().catch((err) => {

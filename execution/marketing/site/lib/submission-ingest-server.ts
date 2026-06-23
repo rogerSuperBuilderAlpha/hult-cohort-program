@@ -1,6 +1,10 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { programProjects } from '@/content/program';
-import { getCohortContext } from '@/lib/cohort-config';
+import {
+  allowLegacyMainSubmissions,
+  getCohortContext,
+  projectBranch,
+} from '@/lib/cohort-config';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import type { CohortStats } from '@/lib/cohort-stats-types';
 import {
@@ -15,6 +19,9 @@ export type ParsedSubmissionPr = {
   prNumber: number;
   prUrl: string;
   prTitle: string;
+  baseRef?: string;
+  headRef?: string;
+  authorLogin?: string | null;
 };
 
 export function verifyGithubWebhookSignature(
@@ -86,7 +93,7 @@ export function extractDeployUrl(prBody: string | null | undefined): string | nu
 }
 
 const EMPTY_STATS: CohortStats = {
-  cohortId: 'fall26',
+  cohortId: 'summer26',
   enrolledCount: 0,
   peerReviewCount: 0,
   available: true,
@@ -98,6 +105,9 @@ export function matchMergedPullRequest(params: {
   prNumber: number;
   prHtmlUrl: string;
   merged: boolean;
+  baseRef?: string;
+  headRef?: string;
+  authorLogin?: string | null;
 }): ParsedSubmissionPr | null {
   if (!params.merged) return null;
 
@@ -118,6 +128,12 @@ export function matchMergedPullRequest(params: {
     );
     if (!submissionTitlesMatch(params.prTitle, expectedTitle)) continue;
 
+    if (params.baseRef) {
+      const expectedBase = projectBranch(cohortId, project.slug);
+      const legacyMain = allowLegacyMainSubmissions() && params.baseRef === 'main';
+      if (params.baseRef !== expectedBase && !legacyMain) continue;
+    }
+
     return {
       projectSlug: project.slug,
       githubHandle: handle,
@@ -125,6 +141,9 @@ export function matchMergedPullRequest(params: {
       prNumber: params.prNumber,
       prUrl: params.prHtmlUrl,
       prTitle: params.prTitle,
+      baseRef: params.baseRef,
+      headRef: params.headRef,
+      authorLogin: params.authorLogin,
     };
   }
 

@@ -1,4 +1,4 @@
-import { isEligiblePeer } from '@/lib/eligible-peers-server';
+import { getEligiblePeerRow } from '@/lib/eligible-peers-server';
 import type { PeerRating } from '@/lib/project-progress-types';
 import { requireReviewRouteAccess } from '@/lib/review-window-guard';
 import { setPeerRating } from '@/lib/ratings-server';
@@ -37,12 +37,12 @@ export async function POST(
     return Response.json({ error: 'You cannot rate your own submission.' }, { status: 400 });
   }
 
-  const eligible = await isEligiblePeer(slug, githubHandle, revieweeHandle);
-  if (!eligible) {
+  const peer = await getEligiblePeerRow(slug, githubHandle, revieweeHandle);
+  if (!peer) {
     return Response.json({ error: 'That peer has no eligible merged submission.' }, { status: 400 });
   }
 
-  const reviewOnFile = await hasWrittenReview(slug, githubHandle, revieweeHandle);
+  const reviewOnFile = await hasWrittenReview(slug, githubHandle, revieweeHandle, peer.repo);
   if (!reviewOnFile) {
     return Response.json(
       {

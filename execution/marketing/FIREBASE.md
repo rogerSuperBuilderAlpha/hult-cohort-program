@@ -78,6 +78,22 @@ Written by `POST /api/applications` via Admin SDK.
 
 Staff update `status` and `takeHomePrUrl` manually or via script — no admin UI in cohort 1.
 
+### `cohortInterest/{cohortId}/interested/{githubHandle}`
+
+Lightweight next-cohort interest (not a full application).
+
+```typescript
+{
+  githubHandle: string;
+  firebaseUid?: string | null;
+  githubOAuthUid?: string | null;
+  indicatedAt: Timestamp;
+  updatedAt: Timestamp;
+}
+```
+
+Written by `POST /api/cohort-interest`. Shown on `/apply` and home apply section when `NEXT_PUBLIC_NEXT_COHORT_ID` is set.
+
 ### `roster/{cohortId}/members/{githubHandle}`
 
 Enrolled participants after week 1 roster lock.
@@ -98,7 +114,7 @@ Used to gate participant APIs (`/api/program/*`, `/api/dashboard`).
 
 ### `submissions/{cohortId}/projects/{projectSlug}/entries/{githubHandle}`
 
-Tracks participant submission PRs (GitHub projection).
+**Cache / migration fallback** — GitHub merged PRs are canonical. Firestore entries may be written by webhook or `scripts/reconcile-submissions.mjs --write-cache` for faster reads during migration.
 
 ```typescript
 {
@@ -110,11 +126,12 @@ Tracks participant submission PRs (GitHub projection).
   merged: boolean;
   mergedAt?: Timestamp;
   deployUrl?: string | null;
+  baseRef?: string;
   source?: 'webhook' | 'reconcile';
 }
 ```
 
-Populated by `POST /api/github/webhook` on merged PRs matching `content/program.ts` title patterns. `deployUrl` parsed from PR body (`Production URL` label). Backstop: `scripts/reconcile-submissions.mjs` or `scripts/backfill-deploy-urls.mjs`.
+Discovery: `lib/github-cohort-server.ts` reads merged PRs from project branches (`projects/{cohortId}/{slug}`). Webhook: `POST /api/github/webhook` validates base branch + title. Backstop: `node scripts/reconcile-submissions.mjs --write-cache`.
 
 ### `peerWrittenReviews/{cohortId}/projects/{projectSlug}/voters/{voterHandle}/entries/{revieweeHandle}`
 

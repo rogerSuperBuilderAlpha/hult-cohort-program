@@ -2,7 +2,12 @@
 
 import type { ProgramProject } from '@/content/program';
 import type { CohortStats } from '@/lib/cohort-stats-types';
-import { cohortSubmissionRepo } from '@/lib/cohort-config';
+import {
+  cohortId,
+  cohortSubmissionRepo,
+  participantBranch,
+  projectBranch,
+} from '@/lib/cohort-config';
 import { cohortRepoUrl } from '@/lib/github-urls';
 import type { ProjectProgress } from '@/lib/project-progress-types';
 import styles from '../app/page.module.css';
@@ -44,14 +49,22 @@ export function ProjectRequirementsSections({
             <a href={cohortRepoUrl()} target="_blank" rel="noopener noreferrer">
               github.com/{cohortSubmissionRepo()}
             </a>{' '}
-            — fork or branch from <code>main</code> and open a pull request with the exact title
-            below.
+            — branch from <code>{projectBranch(cohortId(), project.slug)}</code> and open a pull
+            request targeting that branch with the exact title below.
           </p>
         ) : null}
         <dl className={styles.dl}>
           <dt>Repo</dt>
           <dd>
             <code>{p(project.submission.repoPattern)}</code>
+          </dd>
+          <dt>Target branch</dt>
+          <dd>
+            <code>{projectBranch(cohortId(), project.slug)}</code>
+          </dd>
+          <dt>Your branch</dt>
+          <dd>
+            <code>{participantBranch(cohortId(), project.slug, p('{handle}'))}</code>
           </dd>
           <dt>Pull request title</dt>
           <dd>

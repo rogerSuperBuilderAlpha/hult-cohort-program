@@ -28,23 +28,50 @@ function writtenRef(projectSlug: string, voterHandle: string, revieweeHandle: st
   return writtenReviewEntryRef(cohortId(), projectSlug, voterHandle, revieweeHandle);
 }
 
-export async function getWrittenReviewsMap(
-  projectSlug: string,
-  voterHandle: string
-): Promise<Record<string, string>> {
-  const snap = await writtenReviewEntriesRef(cohortId(), projectSlug, voterHandle).get();
-
-  const out: Record<string, string> = {};
-  for (const doc of snap.docs) {
-    const url = doc.data()?.issueUrl;
-    if (typeof url === 'string' && url.trim()) out[doc.id] = url.trim();
-  }
-  return out;
+function githubHeaders(): HeadersInit {
+  const token = process.env.GITHUB_TOKEN?.trim();
+  return {
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'hult-cohort-platform',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 }
 
 function githubVerificationRequired(): boolean {
   if (process.env.NODE_ENV === 'production') return true;
   return process.env.ALLOW_UNVERIFIED_REVIEWS?.trim() !== 'true';
+}
+
+function reviewTitleMatches(issueTitle: string, reviewerHandle: string): boolean {
+  const title = issueTitle.toLowerCase();
+  const handle = reviewerHandle.toLowerCase();
+  return title.includes(`review by @${handle}`) || title.includes(`review by ${handle}`);
+}
+
+/** Search peer repo for a review issue filed by this voter (GitHub source of truth). */
+export async function discoverWrittenReviewOnGithub(
+  peerRepo: string,
+  reviewerHandle: string
+): Promise<string | null> {
+  const token = process.env.GITHUB_TOKEN?.trim();
+  if (!token) return null;
+
+  const q = encodeURIComponent(
+    `repo:${peerRepo} is:issue "Review by @${reviewerHandle}" in:title`
+  );
+  const res = await fetch(`https://api.github.com/search/issues?q=${q}&per_page=5`, {
+    headers: githubHeaders(),
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as { items?: { html_url?: string; title?: string }[] };
+  for (const item of data.items ?? []) {
+    if (item.html_url && reviewTitleMatches(item.title ?? '', reviewerHandle)) {
+      return item.html_url;
+    }
+  }
+  return null;
 }
 
 async function verifyIssueWithGithub(
@@ -72,13 +99,7 @@ async function verifyIssueWithGithub(
 
   const res = await fetch(
     `https://api.github.com/repos/${parsed.repo}/issues/${parsed.issueNumber}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json',
-        'User-Agent': 'hult-cohort-platform',
-      },
-    }
+    { headers: githubHeaders() }
   );
 
   if (!res.ok) {
@@ -90,12 +111,7 @@ async function verifyIssueWithGithub(
     return { ok: false, error: 'Link must be an issue, not a pull request.' };
   }
 
-  const title = (issue.title ?? '').toLowerCase();
-  const handle = reviewerHandle.toLowerCase();
-  const validTitle =
-    title.includes(`review by @${handle}`) || title.includes(`review by ${handle}`);
-
-  if (!validTitle) {
+  if (!reviewTitleMatches(issue.title ?? '', reviewerHandle)) {
     return {
       ok: false,
       error: `Issue title must include "Review by @${reviewerHandle}".`,
@@ -103,6 +119,20 @@ async function verifyIssueWithGithub(
   }
 
   return { ok: true };
+}
+
+export async function getWrittenReviewsMap(
+  projectSlug: string,
+  voterHandle: string
+): Promise<Record<string, string>> {
+  const snap = await writtenReviewEntriesRef(cohortId(), projectSlug, voterHandle).get();
+
+  const out: Record<string, string> = {};
+  for (const doc of snap.docs) {
+    const url = doc.data()?.issueUrl;
+    if (typeof url === 'string' && url.trim()) out[doc.id] = url.trim();
+  }
+  return out;
 }
 
 export async function saveWrittenReview(
@@ -132,11 +162,33 @@ export async function saveWrittenReview(
   return { issueUrl: trimmed };
 }
 
+/** True when a verified written review exists on GitHub (Firestore is optional cache). */
 export async function hasWrittenReview(
   projectSlug: string,
   voterHandle: string,
-  revieweeHandle: string
+  revieweeHandle: string,
+  peerRepo?: string
 ): Promise<boolean> {
   const doc = await writtenRef(projectSlug, voterHandle, revieweeHandle).get();
-  return doc.exists && Boolean(doc.data()?.issueUrl);
+  const cachedUrl = doc.exists ? (doc.data()?.issueUrl as string | undefined) : undefined;
+
+  if (cachedUrl?.trim()) {
+    const verified = await verifyIssueWithGithub(cachedUrl.trim(), voterHandle);
+    if (verified.ok) return true;
+  }
+
+  if (peerRepo) {
+    const discovered = await discoverWrittenReviewOnGithub(peerRepo, voterHandle);
+    if (discovered) {
+      await writtenRef(projectSlug, voterHandle, revieweeHandle).set({
+        issueUrl: discovered,
+        revieweeHandle,
+        voterHandle,
+        updatedAt: new Date(),
+      });
+      return true;
+    }
+  }
+
+  return false;
 }

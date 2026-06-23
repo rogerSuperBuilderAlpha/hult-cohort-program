@@ -12,8 +12,8 @@ Parent guide: [../../../AGENTS.md](../../../AGENTS.md)
 
 | Area | Path |
 |------|------|
-| Routes | `app/` — `/`, `/apply`, `/dashboard`, `/overview`, `/program`, `/program/[slug]` |
-| Core libs | `lib/cohort-config.ts`, `lib/enrollment-server.ts`, `lib/eligible-peers-server.ts`, `lib/program-schedule.ts` |
+| Routes | `app/` — `/`, `/apply`, `/dashboard`, `/history`, `/overview`, `/program`, `/program/[slug]` |
+| Core libs | `lib/cohort-config.ts`, `lib/github-cohort-server.ts`, `lib/submissions-resolve-server.ts`, `lib/enrollment-server.ts`, `lib/eligible-peers-server.ts`, `lib/program-schedule.ts` |
 | Program content | `content/program.ts` — titles, descriptions, pass gates |
 | Participant UI | `components/ProgramProjectView.tsx`, `ProjectProgressPanel.tsx`, `PeerReviewCard.tsx` |
 | Auth hook | `lib/firebase/use-github-auth.ts` |
@@ -42,7 +42,9 @@ CI uses placeholder Firebase env vars — build must pass without real credentia
 All authenticated routes expect `Authorization: Bearer <Firebase ID token>`.
 
 - `POST /api/applications` — apply (Admin SDK)
+- `POST /api/cohort-interest` — indicate interest in next cohort (GitHub sign-in)
 - `GET /api/me` — profile + enrollment state + cohort stats
+- `GET /api/history` — cross-cohort merged PR history (GitHub-derived; any signed-in user)
 - `GET /api/dashboard` — enrolled cross-project progress (requires roster)
 - `GET /api/program/projects` — public program index (MCP + agents)
 - `GET /api/cohort/stats` — public enrolled count
@@ -55,7 +57,7 @@ All authenticated routes expect `Authorization: Bearer <Firebase ID token>`.
 
 ## Firestore (this app writes)
 
-- `applications`, `roster/{cohortId}/members`, `submissions/.../entries`
+- `applications`, `roster/{cohortId}/members`, `submissions/.../entries` *(cache / migration fallback — GitHub is canonical)*
 - `peerWrittenReviews/{cohortId}/projects/{slug}/voters/{voter}/entries/{reviewee}`
 - `peerRatings/{cohortId}/projects/{slug}/voters/{voter}`
 
@@ -78,7 +80,9 @@ Schema details: [../FIREBASE.md](../FIREBASE.md)
 
 ```bash
 node scripts/admissions.mjs list              # staff — requires FIREBASE_SERVICE_ACCOUNT_PATH
-node scripts/seed-demo-cohort.mjs             # demo roster + submissions
+node scripts/seed-demo-cohort.mjs             # demo roster (submissions from GitHub)
+node scripts/reconcile-submissions.mjs           # diff GitHub vs Firestore cache
+node scripts/reconcile-submissions.mjs --write-cache
 node scripts/seed-peer-reviews.mjs            # demo written reviews + votes
 node scripts/tally-votes.mjs --all            # staff thumbs-up tally
 node scripts/backfill-deploy-urls.mjs --from-github

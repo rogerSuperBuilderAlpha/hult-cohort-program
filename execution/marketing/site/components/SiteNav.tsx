@@ -23,6 +23,9 @@ export function SiteNav({ links }: SiteNavProps) {
         </Link>
       ))}
       {profile ? (
+        <Link href="/history">History</Link>
+      ) : null}
+      {profile ? (
         <button type="button" className={styles.navSignOut} onClick={() => void signOut()}>
           Sign out
         </button>

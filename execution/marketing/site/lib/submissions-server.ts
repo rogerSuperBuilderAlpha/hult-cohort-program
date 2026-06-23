@@ -1,6 +1,6 @@
 import { programProjects } from '@/content/program';
 import { isAdminConfigured } from '@/lib/firebase/admin';
-import { submissionEntryRef } from '@/lib/firestore-paths';
+import { getParticipantSubmissionsResolved } from '@/lib/submissions-resolve-server';
 import type { SubmissionEntry } from './submissions-types';
 
 export async function getParticipantSubmissions(
@@ -8,15 +8,23 @@ export async function getParticipantSubmissions(
   githubHandle: string
 ): Promise<SubmissionEntry[]> {
   if (!isAdminConfigured()) return [];
+  return getParticipantSubmissionsResolved(cohortId, githubHandle);
+}
 
+/** @deprecated Use getParticipantSubmissions — kept for scripts importing programProjects path. */
+export async function getParticipantSubmissionsLegacyFirestore(
+  cohortId: string,
+  githubHandle: string
+): Promise<SubmissionEntry[]> {
+  if (!isAdminConfigured()) return [];
+
+  const { submissionEntryRef } = await import('@/lib/firestore-paths');
   const results: SubmissionEntry[] = [];
 
   await Promise.all(
     programProjects.map(async (project) => {
       const doc = await submissionEntryRef(cohortId, project.slug, githubHandle).get();
-
       if (!doc.exists) return;
-
       const data = doc.data()!;
       results.push({
         projectSlug: project.slug,

@@ -1,14 +1,14 @@
 import { getProject } from '@/content/program';
 import { isAdminConfigured } from '@/lib/firebase/admin';
-import { cohortId, cohortSubmissionRepo } from '@/lib/cohort-config';
+import { cohortId, cohortSubmissionRepo, projectBranch } from '@/lib/cohort-config';
 import type { CohortStats } from '@/lib/cohort-stats-types';
 import { getEligiblePeerRows, mergePeerProgress } from '@/lib/eligible-peers-server';
 import { formatScheduleDate, reviewWindowStatus } from '@/lib/program-schedule';
 import type { ProjectProgress } from './project-progress-types';
 import { cohortSubmissionBrowseUrl } from './project-progress-format';
 import { githubRepoUrl } from '@/lib/github-urls';
-import { submissionEntryRef } from '@/lib/firestore-paths';
 import { getVoterRatingsMap } from './ratings-server';
+import { resolveParticipantSubmission } from '@/lib/submissions-resolve-server';
 import { getWrittenReviewsMap } from './written-reviews-server';
 
 export async function getProjectProgress(
@@ -25,9 +25,7 @@ export async function getProjectProgress(
   const repo = cohortSubmissionRepo();
   const repoUrl = githubRepoUrl(repo);
 
-  const submissionDoc = await submissionEntryRef(id, projectSlug, githubHandle).get();
-
-  const submissionData = submissionDoc.exists ? submissionDoc.data()! : null;
+  const submissionData = await resolveParticipantSubmission(projectSlug, githubHandle, id);
 
   let reviews: ProjectProgress['reviews'] = null;
   if (project.reviews) {
@@ -57,7 +55,7 @@ export async function getProjectProgress(
         project.schedule.reviewCloses ?? project.schedule.submissionCloses
       ),
       peers,
-      orgReposUrl: cohortSubmissionBrowseUrl(repo, projectSlug),
+      orgReposUrl: cohortSubmissionBrowseUrl(repo, projectSlug, id),
       voteWeek: project.voteWeek,
       githubVerification: Boolean(process.env.GITHUB_TOKEN?.trim()),
       reviewWindowStatus: windowStatus,
@@ -78,6 +76,7 @@ export async function getProjectProgress(
       deployUrl: submissionData?.deployUrl ?? null,
       repo,
       repoUrl,
+      baseBranch: projectBranch(id, projectSlug),
     },
     reviews,
   };

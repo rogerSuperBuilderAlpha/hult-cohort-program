@@ -22,6 +22,7 @@ export type ProjectProgress = {
     deployUrl?: string | null;
     repo: string;
     repoUrl: string;
+    baseBranch?: string;
   };
   reviews: {
     /** Eligible peers with merged submissions — pass-gate denominator */

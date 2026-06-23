@@ -29,6 +29,10 @@ export type ProgramProject = {
   submission: {
     repoPattern: string;
     prTitle: string;
+    /** Target branch for merged submission PRs (derived from cohort + slug at runtime). */
+    baseBranchPattern: string;
+    /** Participant working branch pattern (derived from cohort + slug + handle). */
+    headBranchPattern: string;
     prBodyMustInclude: string[];
     deadlineNote: string;
   };
@@ -64,6 +68,8 @@ export const programProjects: ProgramProject[] = [
     submission: {
       repoPattern: '{repo}',
       prTitle: '[Onboarding] Tooling checklist — {handle}',
+      baseBranchPattern: 'projects/{cohortId}/{slug}',
+      headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: [
         'Tooling verification checklist (Cursor, Claude Code, GitHub SSH)',
         'Expectations Acknowledgment signed',
@@ -102,6 +108,8 @@ export const programProjects: ProgramProject[] = [
     submission: {
       repoPattern: '{repo}',
       prTitle: '[Project 1] Submission — {handle}',
+      baseBranchPattern: 'projects/{cohortId}/{slug}',
+      headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: [
         'Production URL',
         'Setup steps verified on fresh clone',
@@ -109,7 +117,7 @@ export const programProjects: ProgramProject[] = [
         'Known limitations',
         'Agent usage summary',
       ],
-      deadlineNote: 'Pull request merged to main by Wednesday week 2, 17:00 Eastern Time — unmerged pull requests are ineligible for review',
+      deadlineNote: 'Pull request merged to the project branch by Wednesday week 2, 17:00 Eastern Time — unmerged pull requests are ineligible for review',
     },
     reviews: {
       artifact:
@@ -147,6 +155,8 @@ export const programProjects: ProgramProject[] = [
     submission: {
       repoPattern: '{repo}',
       prTitle: '[Project 2] Submission — {handle}',
+      baseBranchPattern: 'projects/{cohortId}/{slug}',
+      headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: ['Production URL', 'PM platform integration notes', 'Agent usage'],
       deadlineNote: 'Pull request merged by Wednesday week 3, 17:00 Eastern Time',
     },
@@ -185,6 +195,8 @@ export const programProjects: ProgramProject[] = [
     submission: {
       repoPattern: '{repo}',
       prTitle: '[Project 3] Submission — {handle}',
+      baseBranchPattern: 'projects/{cohortId}/{slug}',
+      headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: ['Production URL', 'Sample profile URLs', 'Partner-facing README'],
       deadlineNote: 'Pull request merged by Wednesday week 4, 17:00 Eastern Time',
     },
@@ -221,6 +233,8 @@ export const programProjects: ProgramProject[] = [
     submission: {
       repoPattern: '{repo}',
       prTitle: '[Unification] Integration PR — {handle}',
+      baseBranchPattern: 'projects/{cohortId}/{slug}',
+      headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: ['Demo URL', 'Migration/cutover plan'],
       deadlineNote: 'Before Phase 2 begins',
     },
@@ -249,6 +263,8 @@ export const programProjects: ProgramProject[] = [
     submission: {
       repoPattern: '{repo}',
       prTitle: '[P2-L1] Submission — {handle}',
+      baseBranchPattern: 'projects/{cohortId}/{slug}',
+      headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: [
         'Ludwitt/Hult app ID',
         'Production listing URL',
@@ -282,6 +298,8 @@ export const programProjects: ProgramProject[] = [
     submission: {
       repoPattern: '{repo}',
       prTitle: '[P2-Venture] Submission — {handle}',
+      baseBranchPattern: 'projects/{cohortId}/{slug}',
+      headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: [
         'Investor deck link (in repo)',
         'Business plan path',
@@ -316,6 +334,8 @@ export const programProjects: ProgramProject[] = [
     submission: {
       repoPattern: '{repo}',
       prTitle: '[P2-OSS] Tracking — {handle}',
+      baseBranchPattern: 'projects/{cohortId}/{slug}',
+      headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: [
         'Upstream repo URL',
         'Upstream PR URL',

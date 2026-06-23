@@ -34,6 +34,9 @@ export async function ingestMergedPullRequest(params: {
   merged: boolean;
   mergedAt: Date;
   source: 'webhook' | 'reconcile';
+  baseRef?: string;
+  headRef?: string;
+  authorLogin?: string | null;
 }): Promise<{ ingested: boolean; projectSlug?: string; handle?: string }> {
   if (!isAdminConfigured()) {
     throw new Error('Admin SDK not configured');

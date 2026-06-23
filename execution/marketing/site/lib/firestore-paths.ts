@@ -90,3 +90,8 @@ export function surveyResponsesRef(cohortId: string, waveId: string) {
 export function surveyResponseRef(cohortId: string, waveId: string, pid: string) {
   return surveyResponsesRef(cohortId, waveId).doc(pid);
 }
+
+/** Lightweight next-cohort interest list (not a full application). */
+export function cohortInterestRef(cohortId: string, githubHandle: string) {
+  return db().collection('cohortInterest').doc(cohortId).collection('interested').doc(githubHandle);
+}

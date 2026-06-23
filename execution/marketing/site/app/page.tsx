@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
+import { ApplySectionSignup } from '@/components/ApplySectionSignup';
 import { SiteHeader } from '@/components/SiteHeader';
 import { cohortSubmissionRepo } from '@/lib/cohort-config';
 import { cohortRepoUrl } from '@/lib/github-urls';
@@ -148,7 +149,7 @@ export default async function Home() {
           <li>Decision within ~48 hours of take-home submission</li>
         </ol>
         <p>{cohortSizeLine} · Application deadline: July 8, 2026</p>
-        <ParticipantCta />
+        <ApplySectionSignup />
       </section>
     </main>
   );

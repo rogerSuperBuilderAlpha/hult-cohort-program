@@ -31,6 +31,11 @@ export type ParticipantMe = {
     roles: string[];
     active: boolean;
   } | null;
+  nextCohortInterest: {
+    cohortId: string;
+    interested: boolean;
+    indicatedAt?: string;
+  } | null;
 };
 
 export function isEnrolled(me: ParticipantMe | null): boolean {

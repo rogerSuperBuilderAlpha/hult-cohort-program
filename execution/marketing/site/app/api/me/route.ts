@@ -1,6 +1,7 @@
 import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
 import { getCohortStats } from '@/lib/cohort-stats-server';
+import { getNextCohortInterest } from '@/lib/cohort-interest-server';
 import { resolveEnrollment } from '@/lib/enrollment-server';
 import { rosterMemberRef } from '@/lib/firestore-paths';
 import { getParticipantSubmissions } from '@/lib/submissions-server';
@@ -23,11 +24,12 @@ export async function GET(request: Request) {
     const db = getAdminDb();
     const id = cohortId();
 
-    const [appSnap, rosterDoc, cohortStats, submissions] = await Promise.all([
+    const [appSnap, rosterDoc, cohortStats, submissions, nextCohortInterest] = await Promise.all([
       db.collection('applications').where('githubHandle', '==', githubHandle).limit(5).get(),
       rosterMemberRef(id, githubHandle).get(),
       getCohortStats(id),
       getParticipantSubmissions(id, githubHandle),
+      getNextCohortInterest(githubHandle),
     ]);
 
     const applicationDoc = appSnap.docs.find((d) => d.data().cohort === id);
@@ -64,6 +66,7 @@ export async function GET(request: Request) {
             active: rosterData.active !== false,
           }
         : null,
+      nextCohortInterest,
     };
 
     return Response.json(payload);

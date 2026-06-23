@@ -15,6 +15,7 @@ export function useEnrollmentHub() {
   return {
     loading,
     enrolled,
+    signedIn: Boolean(profile),
     href: enrolled ? '/dashboard' : '/apply',
     label: loading ? '…' : enrolled ? 'Dashboard' : 'Apply',
     heroLabel: loading ? '…' : enrolled ? 'Open dashboard' : 'Apply for Summer Pilot',

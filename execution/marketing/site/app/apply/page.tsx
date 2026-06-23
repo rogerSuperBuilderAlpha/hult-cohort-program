@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { AccountSection } from '@/components/AccountSection';
+import { ApplyNextCohortSection } from '@/components/ApplyNextCohortSection';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import {
   isApplicantInFlight,
@@ -400,6 +401,8 @@ export default function ApplyPage() {
             runs ~$400/month. Details: <Link href="/start">program intro</Link>.
           </p>
         )}
+
+        <ApplyNextCohortSection />
       </article>
     </main>
   );

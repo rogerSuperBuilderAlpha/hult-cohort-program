@@ -220,6 +220,9 @@ function ParticipantDashboard({
         <Link href="/program" className={styles.secondaryBtn}>
           View all projects
         </Link>
+        <Link href="/history" className={styles.secondaryBtn}>
+          Submission history
+        </Link>
       </div>
 
       <p className={styles.formNote}>
@@ -327,6 +330,8 @@ export default function DashboardPage() {
               <p>
                 <strong>Not enrolled.</strong>{' '}
                 <Link href="/apply">Apply for the Summer Pilot →</Link>
+                {' · '}
+                <Link href="/history">View your submission history →</Link>
               </p>
             )}
           </div>

@@ -43,6 +43,9 @@ export async function POST(request: Request) {
       html_url?: string;
       title?: string;
       body?: string | null;
+      base?: { ref?: string };
+      head?: { ref?: string };
+      user?: { login?: string };
     };
     repository?: { full_name?: string };
   };
@@ -84,6 +87,9 @@ export async function POST(request: Request) {
       merged: true,
       mergedAt: pr.merged_at ? new Date(pr.merged_at) : new Date(),
       source: 'webhook',
+      baseRef: pr.base?.ref,
+      headRef: pr.head?.ref,
+      authorLogin: pr.user?.login ?? null,
     });
 
     logApi(ROUTE, 'info', 'Webhook processed', {

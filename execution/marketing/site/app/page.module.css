@@ -404,14 +404,15 @@
 
 .apply {
   padding: 80px 0;
-  text-align: center;
+  text-align: left;
   border-top: 1px solid var(--border);
 }
 
 .apply h2 {
   font-family: var(--serif);
   font-size: 2.5rem;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  max-width: 680px;
 }
 
 .steps {
@@ -427,6 +428,58 @@
 .apply p {
   margin-bottom: 28px;
   color: var(--text-muted);
+}
+
+.applyGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  gap: 20px;
+  align-items: stretch;
+  margin-top: 28px;
+}
+
+.applyCard,
+.applyCardPrimary {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 28px;
+  text-align: left;
+}
+
+.applyCardPrimary {
+  border-top: 4px solid var(--accent);
+}
+
+.applyCard {
+  border-top: 4px solid var(--border-strong);
+}
+
+.applyCard h3,
+.applyCardPrimary h3 {
+  font-family: var(--serif);
+  font-size: 1.55rem;
+  line-height: 1.2;
+  margin: 10px 0 12px;
+}
+
+.applyCard p,
+.applyCardPrimary p {
+  margin-bottom: 18px;
+}
+
+.interestInline {
+  color: var(--text-muted);
+}
+
+.interestInline p {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 760px) {
+  .applyGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .footer {

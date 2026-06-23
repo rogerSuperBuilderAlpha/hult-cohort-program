@@ -25,13 +25,11 @@ export default async function Home() {
       <section className={styles.hero}>
         <p className={`${styles.eyebrow} animate-in`}>CS for Business · Summer Pilot 2026</p>
         <h1 className={`${styles.headline} animate-in delay-1`}>
-          Build production software.<br />
-          Learn professional engineering practice.
+          Build software that has to work.
         </h1>
         <p className={`${styles.subhead} animate-in delay-2`}>
-          A for-credit developer pilot where students design, deploy, review, and operate real
-          applications using the same frameworks and delivery workflows relied on by professional
-          engineering teams.
+          A for-credit pilot where students design, ship, review, and operate production systems
+          under the same expectations used by professional engineering teams.
         </p>
         <div className={`${styles.heroActions} animate-in delay-3`}>
           <ParticipantCta />
@@ -40,7 +38,9 @@ export default async function Home() {
           </Link>
         </div>
         <div className={`${styles.heroMeta} animate-in delay-4`}>
-          <span>Production systems, technical review, and deployment practice</span>
+          <span>Production deployment</span>
+          <span>Technical review</span>
+          <span>Operational ownership</span>
           <span>Applications open June 15, 2026</span>
           <span>Program begins July 9, 2026 at 09:00 Eastern Time</span>
         </div>
@@ -48,13 +48,12 @@ export default async function Home() {
 
       <section id="program" className={styles.section}>
         <div className={styles.sectionLabel}>At a glance</div>
-        <h2 className={styles.sectionTitle}>Two phases, real operating software</h2>
+        <h2 className={styles.sectionTitle}>Six weeks inside a professional delivery loop</h2>
         <p className={styles.sectionBody}>
-          <strong>Phase 1 (weeks 2–5):</strong> the cohort builds PM, comms, and showcase platforms,
-          then unifies the winning stack.
-          Written technical reviews and private votes select the operator for each project.{' '}
-          <strong>Week 6 final sprint:</strong> learning apps with real users, a venture package, and
-          open-source contribution evidence.
+          <strong>Weeks 2–5:</strong> participants build project management, communications, and
+          showcase platforms for the cohort, then unify the selected systems into one operating
+          stack. <strong>Week 6:</strong> participants ship externally validated work: a learning app,
+          a venture package, or an accepted open-source contribution.
         </p>
         <p className={styles.sectionBody}>
           New here?{' '}
@@ -64,42 +63,42 @@ export default async function Home() {
 
       <section id="journey" className={styles.gridSection}>
         <div className={styles.phaseCard}>
-          <span className={styles.phaseTag}>Enrollment</span>
-          <h3>Dual enrollment</h3>
+          <span className={styles.phaseTag}>Delivery</span>
+          <h3>Production systems, not exercises</h3>
           <ul>
-            <li>Register for the elective through Hult</li>
-            <li>Apply on this site and complete the technical take-home</li>
-            <li>Staff admit unlocks project pages and submissions</li>
+            <li>Deploy working applications over HTTPS</li>
+            <li>Document setup, limitations, and operating assumptions</li>
+            <li>Support real cohort users, deadlines, and workflows</li>
           </ul>
         </div>
         <div className={styles.phaseCard}>
-          <span className={styles.phaseTag}>Tooling</span>
-          <h3>What you pay for yourself</h3>
+          <span className={styles.phaseTag}>Assessment</span>
+          <h3>Reviewed like engineering work</h3>
           <p className={styles.phaseNote}>
-            Cursor and Claude Code (~$400/month combined) from week 1. Course tuition follows your degree
-            bill—not a separate cohort fee on this site.
+            Participants evaluate one another’s systems before private votes select which platform
+            operates for the cohort. Pass criteria are published before each project begins.
           </p>
         </div>
       </section>
 
       <section className={styles.skills}>
-        <h2>What you practice</h2>
+        <h2>Engineering standards practiced</h2>
         <div className={styles.skillGrid}>
           {[
             {
               n: '01',
-              t: 'Production delivery',
-              d: 'Every project is deployed, documented, and reviewed against published criteria.',
+              t: 'System delivery',
+              d: 'Scope a product, implement the core workflows, deploy it, and make it usable by others.',
             },
             {
               n: '02',
-              t: 'Engineering review',
-              d: 'Participants review each other’s systems before voting on which one operates.',
+              t: 'Quality and review',
+              d: 'Read peer implementations, identify risks, and give structured technical feedback.',
             },
             {
               n: '03',
-              t: 'External validation',
-              d: 'The final sprint adds users, investors, and maintainers as real-world evaluators.',
+              t: 'Operations and evidence',
+              d: 'Track adoption, reliability, documentation, and handoff quality beyond the demo.',
             },
           ].map((s) => (
             <article key={s.n} className={styles.skillCard}>
@@ -111,41 +110,10 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="faq" className={styles.faq}>
-        <h2>Frequently asked questions</h2>
-        <dl>
-          <div>
-            <dt>How is the program assessed?</dt>
-            <dd>
-              Pass/fail on published project criteria. Letter grades follow your course syllabus; the
-              platform tracks submissions, reviews, and votes.
-            </dd>
-          </div>
-          <div>
-            <dt>What tooling is required?</dt>
-            <dd>
-              Cursor and Claude Code from week 1 (~$400/month combined). Students work in modern
-              development environments and production deployment workflows.
-            </dd>
-          </div>
-          <div>
-            <dt>Where do I learn more?</dt>
-            <dd>
-              <Link href="/start">Start with the visual intro</Link>, then browse{' '}
-              <Link href="/program">project expectations</Link>.
-            </dd>
-          </div>
-        </dl>
-      </section>
-
       <section id="apply" className={styles.apply}>
-        <h2>Platform apply</h2>
-        <ol className={styles.steps}>
-          <li>Complete the application form</li>
-          <li>Finish the 48-hour technical take-home</li>
-          <li>Decision within ~48 hours of take-home submission</li>
-        </ol>
-        <p>{cohortSizeLine} · Application deadline: July 8, 2026</p>
+        <p className={styles.sectionLabel}>Applications</p>
+        <h2>Summer 2026 is the active cohort</h2>
+        <p>{cohortSizeLine} · Starts July 9, 2026 · Application deadline July 8</p>
         <ApplySectionSignup />
       </section>
     </main>

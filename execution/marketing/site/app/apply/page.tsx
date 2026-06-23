@@ -206,10 +206,14 @@ export default function ApplyPage() {
     }
   }
 
-  const pageTitle = enrolled ? 'Apply' : pendingRoster ? 'Admitted' : 'Apply';
+  const pageTitle = enrolled
+    ? 'Apply'
+    : pendingRoster
+      ? 'Admitted'
+      : 'Apply for Summer 2026';
   const pageLead = pendingRoster
     ? 'You have been admitted to the Summer Pilot. Enrollment is being finalized; participant tools will become available shortly.'
-    : 'Complete the application form with your engineering account. If admitted to the take-home stage, you will have 48 hours to complete a focused technical assignment using the same review workflow used in the program.';
+    : 'Complete the application form for the July 9 cohort. Qualified applicants receive a focused 48-hour technical take-home before admission decisions are made.';
 
   return (
     <main className={styles.main} id="main-content">
@@ -232,8 +236,8 @@ export default function ApplyPage() {
         ) : !profile ? (
           <div className={styles.authGate}>
             <p className={styles.authGateLead}>
-              Sign in to begin your application. Your application is linked to this account — the
-              same engineering identity you will use for program submissions.
+              Sign in to begin. Your application is tied to the engineering identity used for
+              submissions, reviews, and cohort records.
             </p>
             <button type="button" className={styles.githubSignInBtn} onClick={() => void signIn()}>
               Sign in with GitHub
@@ -397,8 +401,8 @@ export default function ApplyPage() {
 
         {!enrolled && !pendingRoster && (
           <p className={styles.formNote}>
-            Register for the course through Hult and complete this platform apply + take-home. Tooling
-            runs ~$400/month. Details: <Link href="/start">program intro</Link>.
+            Register for the course through Hult and complete this application plus the technical
+            take-home. Tooling runs ~$400/month. Details: <Link href="/start">program intro</Link>.
           </p>
         )}
 

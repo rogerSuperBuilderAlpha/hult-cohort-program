@@ -57,7 +57,7 @@ export function NextCohortInterestPanel({
     }
   }
 
-  const wrapperClass = variant === 'card' ? styles.callout : styles.formNote;
+  const wrapperClass = variant === 'card' ? styles.callout : styles.interestInline;
 
   if (active.interested) {
     return (
@@ -85,8 +85,8 @@ export function NextCohortInterestPanel({
   return (
     <div className={wrapperClass}>
       <p style={{ marginTop: 0 }}>
-        <strong>{nextLabel} cohort.</strong> Dates and curriculum are not finalized yet. Sign in with
-        GitHub to indicate interest — we will notify you when Fall 2026 applications open.
+        <strong>{nextLabel} cohort.</strong> Dates and curriculum are not finalized yet. Indicate
+        interest and we will notify you when applications open.
       </p>
       {!configured ? (
         <p className={styles.formNote} style={{ marginBottom: 0 }}>
@@ -99,7 +99,7 @@ export function NextCohortInterestPanel({
       ) : !profile ? (
         <>
           <button type="button" className={styles.secondaryBtn} onClick={() => void signIn()}>
-            Sign in to indicate interest
+            Indicate interest
           </button>
           {authError ? <p className={styles.formError}>{authError}</p> : null}
         </>

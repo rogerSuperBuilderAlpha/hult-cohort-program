@@ -62,7 +62,7 @@ Written by `POST /api/applications` via Admin SDK.
   hultStudentId?: string;
   referralSource: string;
   confirmations: {
-    tuitionAffordable: boolean;
+    toolingAcknowledged: boolean;
     publicWork: boolean;
     toolingAssistance?: boolean;
   };

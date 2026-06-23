@@ -1534,3 +1534,207 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* —— Program intro (/start) —— */
+
+.introPage {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+.introLead {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--text);
+  margin: 0 0 1rem;
+}
+
+.introNote {
+  padding: 16px 20px;
+  margin: 0 0 2.5rem;
+  background: color-mix(in srgb, var(--hult-sage) 12%, var(--hult-ivory));
+  border-left: 3px solid var(--hult-sage);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.introSection {
+  margin-bottom: 3rem;
+}
+
+.introSectionTitle {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  margin: 0 0 1.25rem;
+  color: var(--hult-black);
+}
+
+.introList {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+
+.introList li + li {
+  margin-top: 0.75rem;
+}
+
+.introTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .introTimeline {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+  }
+}
+
+.introTimelineItem {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+.introTimelineConnector {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .introTimelineConnector {
+    display: block;
+    position: absolute;
+    left: -8px;
+    top: 28px;
+    width: calc(100% + 16px);
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  .introTimelineItem:first-child .introTimelineConnector {
+    display: none;
+  }
+}
+
+.introTimelineNode {
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+  background: var(--hult-ivory);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  height: 100%;
+}
+
+@media (min-width: 640px) {
+  .introTimelineItem + .introTimelineItem .introTimelineNode {
+    margin-left: 8px;
+  }
+}
+
+.introTimelineWeeks {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hult-red);
+  margin-bottom: 4px;
+}
+
+.introTimelineLabel {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.introTimelineDetail {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.introLoop {
+  display: grid;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+@media (min-width: 720px) {
+  .introLoop {
+    grid-template-columns: repeat(4, 1fr);
+    align-items: stretch;
+  }
+}
+
+.introLoopStep {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+@media (min-width: 720px) {
+  .introLoopStep {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.introLoopArrow {
+  display: none;
+  color: var(--hult-sage);
+  font-size: 1.25rem;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 720px) {
+  .introLoopArrow {
+    display: block;
+    min-width: 1.25rem;
+    text-align: center;
+  }
+}
+
+.introLoopCard {
+  flex: 1;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--hult-ivory);
+}
+
+.introLoopNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--hult-red);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.introLoopTitle {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-family: var(--serif);
+}
+
+.introLoopBody {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}

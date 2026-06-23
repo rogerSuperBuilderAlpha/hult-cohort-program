@@ -346,9 +346,10 @@ export default function ApplyPage() {
                 <fieldset className={styles.confirmFieldset}>
                   <legend>Required confirmations</legend>
                   <label className={styles.checkboxLabel}>
-                    <input name="confirmTuition" type="checkbox" required />
-                    I confirm that I can pay $10,000 in tuition and approximately $400 per month
-                    for Cursor and Claude Code for at least four months.
+                    <input name="confirmTooling" type="checkbox" required />
+                    I confirm I can cover approximately $400 per month for Cursor and Claude Code for
+                    at least four months, and that I am registered (or will register) for this elective
+                    through Hult.
                   </label>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPublicWork" type="checkbox" required />
@@ -393,9 +394,8 @@ export default function ApplyPage() {
 
         {!enrolled && !pendingRoster && (
           <p className={styles.formNote}>
-            Tuition is $10,000 plus approximately $400 per month for required tooling. A full
-            refund is available during week 1; thereafter, re-enrollment is offered in lieu of a
-            cash refund. See the <Link href="/overview">program overview</Link> for details.
+            Register for the course through Hult and complete this platform apply + take-home. Tooling
+            runs ~$400/month. Details: <Link href="/start">program intro</Link>.
           </p>
         )}
       </article>

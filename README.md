@@ -3,33 +3,23 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-a81202.svg)](LICENSE)
 [![CI](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions/workflows/marketing-site.yml/badge.svg)](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions)
 
-A cohort-based developer program at Hult International University, modeled on the Cursor Boston cohorts over a one-semester timeline.
+A for-credit developer elective within the Hult **Computer Science for Business** undergraduate degree—GitHub-native projects over one semester.
 
 **Open source:** curriculum, governance docs, and platform code are published under the [MIT License](LICENSE). Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## The goal
+## What it is
 
-Someone comes into the program, completes it successfully, and gets a job offer. That's the whole arc.
-
-What they walk away with — practiced many times across both phases, not learned once:
-
-1. **A deep practical understanding of GitHub.** Every project runs through it: repos, PRs, reviews, issues, merges.
-2. **A deep understanding of working on a distributed team.** Coordination without direct interaction — the essence of algorithmacy.
-3. **The three concrete abilities that make a distributed teammate valuable:** review others' work, produce work others will approve, contribute at a high level.
-
-Every project re-drills the same skills against progressively less forgiving judges: peers, then live users, then investors, then open source communities of strangers.
-
-A core operating principle: **each cohort owns its entire tool stack** — PM platform, comms, public showcase — built, selected, and operated by the cohort itself.
+Students in the elective complete six production projects on GitHub: peer review in Phase 1, external users and maintainers in Phase 2. The cohort platform tracks submissions, written reviews, and private votes.
 
 ## Start here
 
-- **[PROPOSAL.md](PROPOSAL.md)** — the full program proposal (EVP handoff document)
-- **[WORKPLAN.md](WORKPLAN.md)** — tier status, locked decisions, ⚠️ sign-offs
-- **[execution/](execution/)** — launch artifacts: legal drafts, templates, admissions repo, API spec, checklists
+- **Live site:** https://site-nine-rouge-68.vercel.app/start — visual intro for newcomers
+- **[execution/marketing/site/content/program.ts](execution/marketing/site/content/program.ts)** — project copy (source of truth for weeks)
+- **[AGENTS.md](AGENTS.md)** — map for AI agents and contributors
+- **[WORKPLAN.md](WORKPLAN.md)** · **[DEVPLAN.md](DEVPLAN.md)** — launch status and production checklist
+- **Archive:** [docs/archive/PROPOSAL-evp-2026.md](docs/archive/PROPOSAL-evp-2026.md) (historical EVP proposal)
 
-Program design docs are **complete**. **Backend:** Firebase (Firestore + Auth). See [execution/marketing/FIREBASE.md](execution/marketing/FIREBASE.md).
-
-Next: Firebase credentials → wire Admin SDK → deploy on Vercel.
+Program design docs are expanded; **backend:** Firebase (Firestore + Auth). See [execution/marketing/FIREBASE.md](execution/marketing/FIREBASE.md).
 
 ## Repository map
 
@@ -55,9 +45,7 @@ governance/                  Winner voting, team formation (3 winners + 10% pick
 assessment/                  Metrics, peer review system, pass/fail,
                              job-offer readiness
 
-business/                    Pricing ($10k one-time), guarantee/refunds/buyouts,
-                             placement referral fees + 10% student kickback,
-                             subsidies, financial model
+business/                    ARCHIVED — retired standalone pricing/guarantee model (see ARCHIVED.md)
 
 partnerships/                Hiring partners, week-16 showcase event,
                              Ludwitt/Hult platform readiness

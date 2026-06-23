@@ -4,7 +4,7 @@ Target start: **Monday, September 8, 2026**
 
 ## −16 weeks (May 2026)
 
-- [ ] EVP approves program concept ([PROPOSAL.md](../../PROPOSAL.md))
+- [ ] Registrar alignment for CS for Business elective (course code, dual enrollment with platform)
 - [ ] EVP names hiring partner pipeline owner
 - [ ] General Counsel begins [Program Agreement](../templates/legal/program-agreement.md) review
 - [ ] Finance approves $245k reserve ([financial-model.md](../../business/financial-model.md))
@@ -13,10 +13,10 @@ Target start: **Monday, September 8, 2026**
 ## −12 weeks (June 15, 2026)
 
 - [ ] Applications open ([admissions.md](../../operations/admissions.md))
-- [ ] Landing page live with cost of attendance disclosure
+- [ ] Landing page live (elective positioning; link to `/start` intro)
 - [ ] Admissions take-home repo published ([admissions-take-home](../admissions-take-home/))
 - [ ] Founder begins first-5 partner outreach ([hiring-partners.md](../../partnerships/hiring-partners.md))
-- [ ] Marketing cleared by GC (word "guaranteed")
+- [ ] Marketing cleared by GC (course policies, public GitHub work — not job guarantee)
 
 ## −8 weeks (July 2026)
 

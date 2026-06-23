@@ -63,25 +63,17 @@ export default function TermsPage() {
         <section className={styles.overviewBlock}>
           <h2>Program terms</h2>
           <p>
-            Admission and enrollment are governed by separate documents signed at enrollment:
-          </p>
-          <ul>
-            <li>Program Agreement — tuition, placement commitment, re-enrollment remedy</li>
-            <li>
-              Expectations Acknowledgment — required tooling, public GitHub work, pass/fail
-              criteria
-            </li>
-          </ul>
-          <p>
-            Pass/fail and placement criteria are published in the program{' '}
+            Academic requirements, credit, and pass/fail rules follow your course syllabus and
+            Hult policies. The platform tracks submissions, written peer reviews, and private votes
+            per published program criteria in the{' '}
             <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
               open-source repository
             </a>
-            . Enrollment documents are provided at admission.
+            .
           </p>
           <p>
-            Website copy is informational. In the event of a conflict, signed enrollment documents
-            and published program criteria take precedence.
+            Website copy is informational. In the event of a conflict, official university policies
+            and your course syllabus take precedence.
           </p>
         </section>
 
@@ -111,8 +103,7 @@ export default function TermsPage() {
           <p>
             The platform is provided &quot;as is&quot; without warranty. We do not guarantee
             uninterrupted access, error-free operation, or specific admissions or employment
-            outcomes. Job placement terms are defined in the Program Agreement and published
-            criteria — not guaranteed by use of this website alone.
+            outcomes. Employment results are not guaranteed by use of this website alone.
           </p>
         </section>
 
@@ -121,8 +112,8 @@ export default function TermsPage() {
           <p>
             To the fullest extent permitted by law, Hult is not liable for indirect, incidental, or
             consequential damages arising from use of the platform. Our total liability for platform
-            use claims is limited to fees you paid to Hult for the program in the twelve months
-            preceding the claim.
+            use claims is limited to direct tuition you paid to Hult for this course in the twelve
+            months preceding the claim, where applicable law permits such a cap.
           </p>
         </section>
 

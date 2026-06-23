@@ -44,7 +44,7 @@ Program docs (Tiers 1–7) are expanded. Launch artifacts live in [execution/](e
 
 | Decision | Source | Recommendation |
 |----------|--------|----------------|
-| Program concept approval | PROPOSAL.md | Approve |
+| Program concept approval | docs/archive/PROPOSAL-evp-2026.md | Done (superseded by UG elective) |
 | Cohort 1 start: Sep 8, 2026 | operations/calendar.md | Confirm |
 | Hiring partner pipeline owner | partnerships/hiring-partners.md | Name by Jun 2026 |
 | Hult student $2,500 tuition discount | operations/admissions.md, business/pricing.md | Optional |

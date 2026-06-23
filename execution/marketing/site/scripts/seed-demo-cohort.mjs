@@ -138,7 +138,7 @@ async function main() {
         campus: student.campus,
         referralSource: 'demo-seed',
         confirmations: {
-          tuitionAffordable: true,
+          toolingAcknowledged: true,
           publicWork: true,
         },
         status: 'admitted',

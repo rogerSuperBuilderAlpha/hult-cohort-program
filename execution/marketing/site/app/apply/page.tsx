@@ -86,11 +86,13 @@ function TakeHomeSteps({
           </a>
         </li>
         <li>
-          Clone the repository, resolve the reported defects, run <code>npm test</code> until all
-          tests pass, and implement the optional DELETE endpoint.
+          Fork the repository to your GitHub account, clone your fork locally, resolve the reported
+          defects, run <code>npm test</code> until all tests pass, and implement the optional DELETE
+          endpoint.
         </li>
         <li>
-          Open a pull request titled <code>[Admissions] Fix task board — {handle}</code> from branch{' '}
+          Open a pull request to the upstream repository titled{' '}
+          <code>[Admissions] Fix task board — {handle}</code> from branch{' '}
           <code>admissions/{handle}</code>.
         </li>
         <li>Complete the pull request template in full, including documentation of agent usage.</li>

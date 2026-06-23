@@ -1,6 +1,6 @@
 # Hult Cohort Developer Program
 
-> Open-source curriculum and cohort platform — GitHub-native, agent-first, Summer Pilot 2026.
+> Production software curriculum and cohort platform — engineering practice, deployment, review, and operations for Summer Pilot 2026.
 
 ## Public site
 
@@ -25,8 +25,8 @@
 ## Open-source repository
 
 - [GitHub — hult-cohort-program](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program)
-- [MCP server setup](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/tree/main/execution/hult-cohort-mcp): apply, reviews, votes from Cursor
-- [AGENTS.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/AGENTS.md): Guide for AI coding agents
+- [MCP server setup](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/tree/main/execution/hult-cohort-mcp): programmatic access for applications, reviews, and votes
+- [AGENTS.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/AGENTS.md): Repository guide for development tools
 - Staff scripts: `scripts/tally-votes.mjs`, `scripts/seed-demo-cohort.mjs`, `scripts/seed-peer-reviews.mjs`
 - [CONTRIBUTING.md](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/CONTRIBUTING.md)
 - [LICENSE (MIT)](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/blob/main/LICENSE)

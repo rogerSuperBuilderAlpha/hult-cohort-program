@@ -22,10 +22,10 @@ export default function ProgramIndexPage() {
         <p className={styles.eyebrow}>Participant journey</p>
         <h1 className={styles.sectionTitle}>Projects, requirements, and assessment</h1>
         <p className={styles.overviewLead}>
-          Submissions are made through pull requests in the cohort repository, including deploy
-          URLs, metrics, and documentation. During Phase 1 review weeks, participants file a
-          written GitHub review on every peer submission, then cast a private vote. The submission
-          with the most votes is selected to operate the platform.
+          Each project requires a working software system, production deployment evidence,
+          documentation, and peer technical review. During Phase 1 review weeks, participants
+          evaluate every peer submission, then cast a private vote. The selected system operates
+          for the cohort.
         </p>
 
         <Section title="Onboarding" projects={onboarding} />

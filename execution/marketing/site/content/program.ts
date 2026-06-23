@@ -53,7 +53,7 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Configure required tooling, establish the pull-request workflow, and complete orientation activities before cohort platforms are available.',
     description:
-      'Week 1 focuses on preparation rather than project development. Participants confirm Cursor and Claude Code subscriptions, obtain write access to the cohort repository, and submit their first pull request to `hult-cohort-program`. Following the refund window, the roster is finalized and the six-week Summer Pilot moves into Phase 1.',
+      'Week 1 focuses on preparation rather than project development. Participants confirm Cursor and Claude Code subscriptions, configure their development environment, learn the cohort delivery workflow, and complete a first structured code submission. Following the refund window, the roster is finalized and the six-week Summer Pilot moves into Phase 1.',
     voteWeek: false,
     schedule: {
       submissionOpens: '2026-07-09T13:00:00.000Z',
@@ -61,8 +61,8 @@ export const programProjects: ProgramProject[] = [
     },
     expectations: [
       'Cursor and Claude Code active (~$400/mo combined)',
-      'GitHub account linked; collaborator access on cohort repository (or fork workflow)',
-      'Complete repository exploration workshop',
+      'Engineering account linked; collaborator access on the cohort codebase (or fork workflow)',
+      'Complete codebase exploration workshop',
       'Attend live orientation sessions; refund window closes at 17:00 Eastern Time',
     ],
     submission: {
@@ -88,7 +88,7 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Develop a project management platform that the cohort will use to track projects, tasks, and assignments for the remainder of the pilot.',
     description:
-      'Each participant builds and deploys a production project management platform in one week. Submit a merged pull request to `{repo}` containing your deploy URL and supporting documentation. The selected submission becomes the live system for the cohort — supporting accounts for every enrolled participant, with real projects and deadlines. This is operational infrastructure, not a portfolio demonstration. Following review, the submission with the most private votes operates the cohort project management stack for the rest of the pilot.',
+      'Each participant builds and deploys a production project management platform in one week. The selected submission becomes the live system for the cohort — supporting accounts for every enrolled participant, with real projects and deadlines. This is operational infrastructure, not a portfolio demonstration. Following review, the submission with the most private votes operates the cohort project management stack for the rest of the pilot.',
     voteWeek: true,
     schedule: {
       submissionOpens: '2026-07-16T13:00:00.000Z',
@@ -98,12 +98,12 @@ export const programProjects: ProgramProject[] = [
     },
     expectations: [
       'Build individually; deploy to production over HTTPS before the deadline',
-      'Submit merged pull request to `{repo}` with production URL in the body',
+      'Submit production deployment evidence, setup instructions, and architecture documentation',
       'Support all enrolled accounts, projects, tasks, assignments, and status workflows',
-      'File a written review (GitHub issue) on each peer repository, then cast a private vote',
+      'File a written technical review on each peer submission, then cast a private vote',
       'The submission with the most votes after review closes is selected to operate the platform',
       'Private votes are available only after the written review is recorded for that peer',
-      'Participants whose submissions are not selected contribute to the winning platform (minimum 2 pull requests per cycle)',
+      'Participants whose submissions are not selected contribute fixes and improvements to the winning platform',
     ],
     submission: {
       repoPattern: '{repo}',
@@ -121,7 +121,7 @@ export const programProjects: ProgramProject[] = [
     },
     reviews: {
       artifact:
-        'Written review (GitHub issue titled `Review by @{you}`) on each peer repository, then a private vote on this platform',
+        'Written technical review on each peer submission, then a private vote on this platform',
       dueNote: 'Thursday week 2, 14:00 Eastern Time',
     },
     passGate: [
@@ -150,7 +150,7 @@ export const programProjects: ProgramProject[] = [
     expectations: [
       'Build and deploy a communications platform; integrate with the selected project management platform where appropriate',
       'Support real-time or asynchronous communication for all enrolled participants',
-      'File a written review (GitHub issue) on each peer submission, then cast a private vote',
+      'File a written technical review on each peer submission, then cast a private vote',
     ],
     submission: {
       repoPattern: '{repo}',
@@ -161,7 +161,7 @@ export const programProjects: ProgramProject[] = [
       deadlineNote: 'Pull request merged by Wednesday week 3, 17:00 Eastern Time',
     },
     reviews: {
-      artifact: 'Written review (GitHub issue) per peer, then a private vote',
+      artifact: 'Written technical review per peer, then a private vote',
       dueNote: 'Thursday week 3, 14:00 Eastern Time',
     },
     passGate: [
@@ -179,7 +179,7 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Develop a public-facing website presenting the cohort to hiring partners and external audiences.',
     description:
-      'This project produces the cohort\'s public presence. Each participant\'s submission includes a profile page linking to their GitHub contributions, projects, and deploy URLs. Hiring partners review this platform before the final showcase. The winning submission operates the public showcase for the cohort. Profiles must cover every enrolled participant; the submission pull request must include a partner-facing README and sample profile URLs.',
+      'This project produces the cohort\'s public presence. Each participant\'s submission includes profile pages, project evidence, deployment links, and partner-facing documentation. Hiring partners review this platform before the final showcase. The winning submission operates the public showcase for the cohort. Profiles must cover every enrolled participant and include sample profile URLs.',
     voteWeek: true,
     schedule: {
       submissionOpens: '2026-07-30T13:00:00.000Z',
@@ -188,9 +188,9 @@ export const programProjects: ProgramProject[] = [
       reviewCloses: '2026-08-06T18:00:00.000Z',
     },
     expectations: [
-      'Submit merged pull request to `{repo}` with production URL and sample profile links',
-      'Public profiles linking GitHub contributions for every cohort member',
-      'Written review (GitHub issue) and private vote for each peer submission',
+      'Submit production URL, sample profile links, and partner-facing documentation',
+      'Public profiles showing production work for every cohort member',
+      'Written technical review and private vote for each peer submission',
     ],
     submission: {
       repoPattern: '{repo}',
@@ -201,7 +201,7 @@ export const programProjects: ProgramProject[] = [
       deadlineNote: 'Pull request merged by Wednesday week 4, 17:00 Eastern Time',
     },
     reviews: {
-      artifact: 'Written review (GitHub issue) per peer, then a private vote',
+      artifact: 'Written technical review per peer, then a private vote',
       dueNote: 'Thursday week 4, 14:00 Eastern Time',
     },
     passGate: [

@@ -3,11 +3,11 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Apply | Hult Cohort Developer Program',
   description:
-    'Apply for the Summer Pilot — application form, 48-hour GitHub take-home, decision within 48 hours of your pull request.',
+    'Apply for the Summer Pilot — application form, 48-hour technical take-home, and production software assessment.',
   openGraph: {
     title: 'Apply — Hult Cohort Developer Program',
     description:
-      'Summer Pilot application — complete the form and submit a take-home pull request within 48 hours.',
+      'Summer Pilot application — complete the form and technical take-home for a production software cohort.',
   },
   robots: {
     index: true,

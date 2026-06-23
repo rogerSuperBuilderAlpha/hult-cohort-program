@@ -7,7 +7,7 @@ import { formatPeerReviewsPerProject, operatorRoleCount } from '@/lib/cohort-sta
 export const metadata = {
   title: 'Program Overview | Hult Cohort',
   description:
-    'Stakeholder summary: six-week Summer Pilot structure, peer review model, and July 2026 timeline.',
+    'Stakeholder summary: six-week Summer Pilot structure, production software outcomes, and July 2026 timeline.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -31,7 +31,7 @@ export default async function OverviewPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Stakeholder overview · Summer Pilot 2026</p>
-        <h1 className={styles.sectionTitle}>CS for Business elective · GitHub-native six-week pilot</h1>
+        <h1 className={styles.sectionTitle}>CS for Business elective · production software pilot</h1>
         <p className={styles.overviewLead}>
           For a quick visual map, send students to{' '}
           <Link href="/start">What is this program?</Link>. This page is a longer summary for faculty
@@ -41,8 +41,9 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Outcome</h2>
           <p>
-            Participants complete eight tracked deliverables with work recorded on GitHub. Assessment is
-            pass/fail on published criteria; credit follows degree enrollment.
+            Participants complete eight tracked deliverables by building, deploying, reviewing, and
+            operating production-grade software. Assessment is pass/fail on published criteria;
+            credit follows degree enrollment.
           </p>
         </section>
 
@@ -51,12 +52,12 @@ export default async function OverviewPage() {
           <ol>
             <li>Each participant builds and deploys a production application.</li>
             <li>
-              Written GitHub review on every peer submission ({peerReviewLine}).
+              Written technical review on every peer submission ({peerReviewLine}).
             </li>
             <li>
-              Private 👍/👎 after each review. Most 👍 operates the platform for the cohort.
+              Private votes after each review determine which system operates for the cohort.
             </li>
-            <li>Non-winners contribute on the winning platform via PRs and QA.</li>
+            <li>Non-winners contribute to the selected platform through review, QA, and follow-on changes.</li>
           </ol>
           <ul>
             <li>
@@ -84,7 +85,7 @@ export default async function OverviewPage() {
               <strong>Venture</strong> — plan, materials, production app
             </li>
             <li>
-              <strong>Open source</strong> — merged upstream PRs
+              <strong>Open source</strong> — accepted upstream contribution
             </li>
           </ul>
         </section>
@@ -94,7 +95,7 @@ export default async function OverviewPage() {
           <ul>
             <li>Public showcase built in week 4 and unified in week 5</li>
             <li>Week 6 hiring showcase (Boston anchor)</li>
-            <li>Inspect GitHub history directly—no self-reported claims</li>
+            <li>Review deployed systems, technical documentation, and contribution history directly</li>
           </ul>
           <p>
             Contact: <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>

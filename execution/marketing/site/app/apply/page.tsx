@@ -96,7 +96,7 @@ function TakeHomeSteps({
           <code>[Admissions] Fix task board — {handle}</code> from branch{' '}
           <code>admissions/{handle}</code>.
         </li>
-        <li>Complete the pull request template in full, including documentation of agent usage.</li>
+        <li>Complete the submission template in full, including tooling notes and test evidence.</li>
         <li>A decision will be issued within 48 hours of your take-home pull request.</li>
       </ol>
     </div>
@@ -209,7 +209,7 @@ export default function ApplyPage() {
   const pageTitle = enrolled ? 'Apply' : pendingRoster ? 'Admitted' : 'Apply';
   const pageLead = pendingRoster
     ? 'You have been admitted to the Summer Pilot. Enrollment is being finalized; participant tools will become available shortly.'
-    : 'Sign in with GitHub and complete the application form. If admitted to the take-home stage, you will have 48 hours to submit a pull request. Admissions follows the same GitHub-based workflow as the program.';
+    : 'Complete the application form with your engineering account. If admitted to the take-home stage, you will have 48 hours to complete a focused technical assignment using the same review workflow used in the program.';
 
   return (
     <main className={styles.main} id="main-content">
@@ -232,8 +232,8 @@ export default function ApplyPage() {
         ) : !profile ? (
           <div className={styles.authGate}>
             <p className={styles.authGateLead}>
-              Sign in with GitHub to begin your application. Your application is linked to this
-              account — the same identity you will use for all program submissions.
+              Sign in to begin your application. Your application is linked to this account — the
+              same engineering identity you will use for program submissions.
             </p>
             <button type="button" className={styles.githubSignInBtn} onClick={() => void signIn()}>
               Sign in with GitHub
@@ -356,8 +356,8 @@ export default function ApplyPage() {
                   </label>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPublicWork" type="checkbox" required />
-                    I understand that my code, reviews, and project work will be publicly visible
-                    on GitHub.
+                    I understand that my code, reviews, and project work will be visible for
+                    assessment and partner review.
                   </label>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPolicies" type="checkbox" required />

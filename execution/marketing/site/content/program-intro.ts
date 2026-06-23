@@ -4,13 +4,13 @@ export const programIntro = {
   eyebrow: 'CS for Business · Summer Pilot 2026',
   title: 'What is this program?',
   lead:
-    'A six-week, for-credit pilot where you build real software on GitHub. Peers review your work; external users and maintainers judge the final sprint. Everything leaves a public trail employers can inspect.',
+    'A six-week, for-credit pilot where students build production-grade software using professional frameworks, deployment practices, review workflows, and operational expectations. Peers review the systems; external users and maintainers evaluate the final sprint.',
   electiveNote:
     'Offered within the Hult Computer Science for Business undergraduate degree. Tuition and academic policies follow your degree enrollment—not a separate commercial cohort product.',
   dualEnrollment:
     'You need both: register for the course through Hult, and complete platform onboarding (apply, take-home, staff approval) to unlock project pages and submissions.',
   toolingNote:
-    'Cursor and Claude Code are required from week 1 (~$400/month combined). Your work is public on GitHub.',
+    'Cursor and Claude Code are required from week 1 (~$400/month combined). Students work in modern development environments and production delivery workflows.',
   ctaApply: 'Apply for Summer Pilot',
   ctaProgram: 'Project list',
 } as const;
@@ -27,7 +27,7 @@ export const introTimeline: TimelineSegment[] = [
     id: 'onboard',
     label: 'Onboarding',
     weeks: 'Week 1',
-    detail: 'Tooling, GitHub workflow, first merged PR in the cohort repo.',
+    detail: 'Tooling, development environment setup, and the first structured code submission.',
   },
   {
     id: 'p1',
@@ -59,12 +59,12 @@ export const phase1Loop: LoopStep[] = [
   {
     step: 1,
     title: 'Build & deploy',
-    body: 'Merge a submission PR with your production app.',
+    body: 'Ship a production application with deployment notes and operating documentation.',
   },
   {
     step: 2,
     title: 'Review every peer',
-    body: 'File a GitHub issue on each repo; paste the link on the platform.',
+    body: 'File a structured technical review for each peer system; record it on the platform.',
   },
   {
     step: 3,
@@ -74,7 +74,7 @@ export const phase1Loop: LoopStep[] = [
   {
     step: 4,
     title: 'Operate the winner',
-    body: 'Most 👍 runs the cohort platform; everyone else contributes via PRs.',
+    body: 'The selected system operates for the cohort; everyone else contributes fixes and improvements.',
   },
 ];
 
@@ -84,8 +84,8 @@ export const introFaq: { q: string; a: string }[] = [
     a: 'Pass/fail on published program criteria—no letter grades on the platform. See your course syllabus for credit.',
   },
   {
-    q: 'Do I need GitHub experience?',
-    a: 'You should be comfortable with repos and PRs by week 2. Week 1 onboarding covers cohort workflow.',
+    q: 'What engineering experience is expected?',
+    a: 'You should be ready to learn standard repository, branch, review, deployment, and debugging workflows. Week 1 covers the cohort process before project delivery begins.',
   },
   {
     q: 'Can I use the platform without registering for the course?',

@@ -42,4 +42,4 @@ export const ALGORITHMACY_LAB_URL =
 export const ALGORITHMACY_CONFERENCE_URL = 'https://algorithmacy.org';
 
 export const DEFAULT_OG_DESCRIPTION =
-  'For-credit CS for Business pilot: build on GitHub, peer review, and ship verifiable work in six weeks.';
+  'For-credit CS for Business pilot: build, deploy, review, and operate production-grade software in six weeks.';

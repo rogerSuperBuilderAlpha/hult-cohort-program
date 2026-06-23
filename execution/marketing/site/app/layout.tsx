@@ -22,10 +22,10 @@ export const metadata: Metadata = {
   keywords: [
     'Hult',
     'developer cohort',
-    'GitHub',
     'Summer Pilot 2026',
     'software engineering',
-    'open source',
+    'production software',
+    'engineering practice',
   ],
   authors: [{ name: 'Hult International Business School' }],
   creator: SITE_NAME,

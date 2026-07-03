@@ -12,6 +12,7 @@
     "check:env": "node scripts/check-production-env.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1079.0",
     "firebase": "^12.14.0",
     "firebase-admin": "^14.0.0",
     "next": "^15.1.0",

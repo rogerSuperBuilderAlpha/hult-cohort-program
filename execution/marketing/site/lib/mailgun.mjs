@@ -20,15 +20,21 @@ export function getEmailConfig() {
 }
 
 /**
- * @param {{ to: string; subject: string; html: string; config: NonNullable<ReturnType<typeof getEmailConfig>> }} params
+ * @param {{ to: string; subject: string; html: string; headers?: Record<string,string>;
+ *           config: NonNullable<ReturnType<typeof getEmailConfig>> }} params
  */
-export async function sendMailgunEmail({ to, subject, html, config }) {
+export async function sendMailgunEmail({ to, subject, html, headers, config }) {
   const body = new URLSearchParams({
     from: `${config.fromName} <${config.fromEmail}>`,
     to,
     subject,
     html,
   });
+
+  // Mailgun sets arbitrary MIME headers via `h:<Name>` form fields.
+  for (const [name, value] of Object.entries(headers ?? {})) {
+    body.append(`h:${name}`, String(value));
+  }
 
   const res = await fetch(`${config.apiBase}/${config.domain}/messages`, {
     method: 'POST',

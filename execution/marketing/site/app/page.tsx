@@ -18,7 +18,6 @@ export default async function Home() {
         links={[
           { href: '/start', label: 'What is this?' },
           { href: '/program', label: 'Projects' },
-          { href: '#apply', label: 'Apply' },
         ]}
       />
 

@@ -8,7 +8,10 @@ import {
 import { cohortId } from '@/lib/cohort-config';
 import { getAdminDb } from '@/lib/firebase/admin';
 import { logApi, logApiError } from '@/lib/api-log';
-import { sendApplicationConfirmationEmail } from '@/lib/email-server';
+import {
+  sendApplicationConfirmationEmail,
+  sendApplicationNotificationEmail,
+} from '@/lib/email-server';
 import { checkRateLimit, clientIp } from '@/lib/rate-limit';
 import { requireGithubSession } from '@/lib/require-enrolled';
 
@@ -111,6 +114,19 @@ async function handlePost(request: Request) {
       firstName: input.firstName,
       takeHomeRepoUrl: takeHomeRepoUrl(),
     }).catch((err) => logApiError(`${ROUTE} email`, err));
+
+    void sendApplicationNotificationEmail({
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email,
+      githubHandle: record.githubHandle,
+      githubUrl: input.githubUrl,
+      campus: input.campus,
+      timezone: input.timezone,
+      referralSource: input.referralSource,
+      motivation: input.motivation,
+      project1Idea: input.project1Idea,
+    }).catch((err) => logApiError(`${ROUTE} notify`, err));
 
     logApi(ROUTE, 'info', 'Application submitted', {
       applicationId,

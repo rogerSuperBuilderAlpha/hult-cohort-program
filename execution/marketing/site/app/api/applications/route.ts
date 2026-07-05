@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { after } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import {
   buildApplicationRecord,
@@ -121,24 +122,31 @@ async function handlePost(request: Request) {
 
     await db.collection('applications').doc(applicationId).set(doc);
 
-    void sendApplicationConfirmationEmail({
-      email: input.email,
-      firstName: input.firstName,
-      takeHomeRepoUrl: takeHomeRepoUrl(),
-    }).catch((err) => logApiError(`${ROUTE} email`, err));
+    // Send emails via after() so they run once the response is flushed AND the
+    // serverless function stays alive until they finish. A bare `void send()`
+    // is not guaranteed to complete on Vercel — the runtime can freeze/kill the
+    // invocation after the response returns, silently dropping the applicant
+    // confirmation and the staff notification.
+    after(async () => {
+      await sendApplicationConfirmationEmail({
+        email: input.email,
+        firstName: input.firstName,
+        takeHomeRepoUrl: takeHomeRepoUrl(),
+      }).catch((err) => logApiError(`${ROUTE} email`, err));
 
-    void sendApplicationNotificationEmail({
-      firstName: input.firstName,
-      lastName: input.lastName,
-      email: input.email,
-      githubHandle: record.githubHandle,
-      githubUrl: input.githubUrl,
-      campus: input.campus,
-      timezone: input.timezone,
-      referralSource: input.referralSource,
-      motivation: input.motivation,
-      project1Idea: input.project1Idea,
-    }).catch((err) => logApiError(`${ROUTE} notify`, err));
+      await sendApplicationNotificationEmail({
+        firstName: input.firstName,
+        lastName: input.lastName,
+        email: input.email,
+        githubHandle: record.githubHandle,
+        githubUrl: input.githubUrl,
+        campus: input.campus,
+        timezone: input.timezone,
+        referralSource: input.referralSource,
+        motivation: input.motivation,
+        project1Idea: input.project1Idea,
+      }).catch((err) => logApiError(`${ROUTE} notify`, err));
+    });
 
     logApi(ROUTE, 'info', 'Application submitted', {
       applicationId,

@@ -42,7 +42,8 @@ type AdmissionEmailParams = {
 function requireMailer() {
   const config = getMailerConfig();
   if (!config) {
-    logApi('email', 'info', 'Email not configured — skipping send', {
+    logApi('email', 'warn', 'Email not configured — skipping send', {
+      provider: process.env.EMAIL_PROVIDER?.trim() || 'mailgun',
       hint: 'Set EMAIL_PROVIDER (mailgun|ses) and its provider env (see lib/mailer.mjs / lib/ses.mjs)',
     });
     return null;

@@ -15,7 +15,7 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WRITE_CACHE = process.argv.includes('--write-cache');
 
-process.env.COHORT_ID = process.env.COHORT_ID?.trim() || 'fall26';
+process.env.COHORT_ID = process.env.COHORT_ID?.trim() || 'summer26';
 process.env.NEXT_PUBLIC_COHORT_REPO =
   process.env.NEXT_PUBLIC_COHORT_REPO?.trim() || 'rogerSuperBuilderAlpha/hult-cohort-program';
 process.env.ALLOW_LEGACY_MAIN_SUBMISSIONS =

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
+import { cohortMarketing } from '@/content/program';
 import { AccountSection } from '@/components/AccountSection';
 import { ApplyNextCohortSection } from '@/components/ApplyNextCohortSection';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
@@ -213,7 +214,7 @@ export default function ApplyPage() {
       : 'Apply for Summer 2026';
   const pageLead = pendingRoster
     ? 'You have been admitted to the Summer Pilot. Enrollment is being finalized; participant tools will become available shortly.'
-    : 'Complete the application form for the July 9 cohort. Qualified applicants receive a focused 48-hour technical take-home before admission decisions are made.';
+    : `Complete the application form for the ${cohortMarketing.cohortStart.replace(', 2026', '')} cohort. Qualified applicants receive a focused 48-hour technical take-home before admission decisions are made.`;
 
   return (
     <main className={styles.main} id="main-content">
@@ -221,7 +222,7 @@ export default function ApplyPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>
-          Summer Pilot 2026 · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : 'Applications open June 15'}
+          Summer Pilot 2026 · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : `Applications open ${cohortMarketing.applicationsOpen.replace(', 2026', '')}`}
         </p>
         <h1 className={styles.sectionTitle}>{pageTitle}</h1>
         <p className={styles.overviewLead}>{pageLead}</p>

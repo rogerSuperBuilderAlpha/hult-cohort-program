@@ -53,8 +53,8 @@ export function reviewWindowStatus(
   return 'open';
 }
 
-/** Summer Pilot kickoff Thu Jul 9, 2026 at 09:00 Eastern Time — week 1 */
-const COHORT_START = parseIso('2026-07-09T13:00:00.000Z');
+/** Summer Pilot kickoff Mon Jul 13, 2026 at 09:00 Eastern Time — week 1 */
+const COHORT_START = parseIso('2026-07-13T13:00:00.000Z');
 
 export function cohortWeekNumber(now = new Date()): number | null {
   if (now < COHORT_START) return null;

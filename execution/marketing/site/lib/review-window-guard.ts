@@ -18,19 +18,34 @@ export async function requireReviewRouteAccess(
   ratePrefix: string
 ): Promise<ReviewRouteGuardResult> {
   const ip = clientIp(request);
-  const rate = checkRateLimit(`${ratePrefix}:${ip}`, 60, 60_000);
-  if (!rate.allowed) {
+  const ipRate = checkRateLimit(`${ratePrefix}:ip:${ip}`, 60, 60_000);
+  if (!ipRate.allowed) {
     return {
       ok: false,
       response: Response.json(
         { error: 'Too many requests. Try again shortly.' },
-        { status: 429, headers: { 'Retry-After': String(rate.retryAfterSec) } }
+        { status: 429, headers: { 'Retry-After': String(ipRate.retryAfterSec) } }
       ),
     };
   }
 
   const guard = await requireEnrolledSession(request);
   if (!guard.ok) return guard;
+
+  const handleRate = checkRateLimit(
+    `${ratePrefix}:handle:${guard.session.githubHandle}`,
+    120,
+    60_000
+  );
+  if (!handleRate.allowed) {
+    return {
+      ok: false,
+      response: Response.json(
+        { error: 'Too many requests. Try again shortly.' },
+        { status: 429, headers: { 'Retry-After': String(handleRate.retryAfterSec) } }
+      ),
+    };
+  }
 
   const project = getProject(slug);
   if (!project?.reviews) {

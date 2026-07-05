@@ -28,20 +28,29 @@ export async function setPeerRating(
   rating: PeerRating
 ): Promise<Record<string, PeerRating>> {
   const ref = ratingsRef(projectSlug, voterHandle);
-  const existing = await ref.get();
-  const ratings: Record<string, PeerRating> = existing.exists
-    ? { ...(existing.data()?.ratings ?? {}) }
-    : {};
+  const fieldPath = `ratings.${revieweeHandle}`;
 
-  ratings[revieweeHandle] = rating;
-
-  await ref.set(
-    {
-      ratings,
+  try {
+    await ref.update({
+      [fieldPath]: rating,
       updatedAt: new Date(),
-    },
-    { merge: true }
-  );
+    });
+  } catch (err) {
+    const code =
+      err && typeof err === 'object' && 'code' in err
+        ? String((err as { code: string }).code)
+        : '';
+    if (code !== 'not-found' && code !== '5') {
+      throw err;
+    }
+    await ref.set(
+      {
+        ratings: { [revieweeHandle]: rating },
+        updatedAt: new Date(),
+      },
+      { merge: true }
+    );
+  }
 
-  return ratings;
+  return getVoterRatingsMap(projectSlug, voterHandle);
 }

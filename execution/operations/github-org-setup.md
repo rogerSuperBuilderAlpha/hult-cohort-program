@@ -59,7 +59,7 @@ On `pm-platform`, `comms-platform`, `showcase-platform`:
 
 ## Week 1 invites
 
-Jul 9 AM: invite all confirmed students by GitHub username from admissions spreadsheet.
+Jul 13 AM: invite all confirmed students by GitHub username from admissions spreadsheet.
 
 Template message:
 

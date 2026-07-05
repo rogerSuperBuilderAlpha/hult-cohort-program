@@ -26,9 +26,9 @@ Subsidies for need-based students start cohort 2 ([business/subsidies.md](../../
 
 ---
 
-## Pre-cohort prep (complete before Jul 9, 2026)
+## Pre-cohort prep (complete before Jul 13, 2026)
 
-Sent to admitted students **July 7** in the Pre-Cohort Setup email.
+Sent to admitted students **July 11** in the Pre-Cohort Setup email.
 
 ### Step 1: GitHub (30 min)
 

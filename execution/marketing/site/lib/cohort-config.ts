@@ -16,7 +16,7 @@ export type SubmissionsSource = 'github' | 'firestore' | 'github-with-fallback';
 
 const DEFAULT_COHORT_REPO = 'rogerSuperBuilderAlpha/hult-cohort-program';
 
-/** Active cohort document id in Firestore (Summer 2026 · starts July 9). */
+/** Active cohort document id in Firestore (Summer 2026 · starts July 13). */
 export function cohortId(): string {
   return process.env.COHORT_ID?.trim() || 'summer26';
 }

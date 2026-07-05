@@ -4,18 +4,33 @@
  * (scripts/blast.mjs) and the unsubscribe API route reuse the same logic.
  */
 
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { readFileSync } from 'fs';
 import { buildBlastHtml, renderMergeFields } from './email-templates.mjs';
 import { siteUrl } from './mailgun.mjs';
 
 /** Shared secret for unsubscribe HMAC — MUST match between the sender and the site. */
 function unsubSecret() {
-  return (
-    process.env.UNSUBSCRIBE_SECRET?.trim() ||
-    process.env.EMAIL_API_KEY?.trim() ||
-    'hult-cohort-unsubscribe'
-  );
+  const secret = process.env.UNSUBSCRIBE_SECRET?.trim();
+  if (secret) return secret;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('UNSUBSCRIBE_SECRET is required in production.');
+  }
+  return process.env.EMAIL_API_KEY?.trim() || 'hult-cohort-unsubscribe-dev-only';
+}
+
+function tokensForEmail(email) {
+  const digest = createHmac('sha256', unsubSecret()).update(normalizeEmail(email)).digest('hex');
+  return { full: digest, legacy: digest.slice(0, 20) };
+}
+
+function timingSafeTokenMatch(given, expected) {
+  if (!given || !expected || given.length !== expected.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(given), Buffer.from(expected));
+  } catch {
+    return false;
+  }
 }
 
 export function normalizeEmail(email) {
@@ -28,14 +43,13 @@ export function suppressionDocId(email) {
 }
 
 export function unsubscribeToken(email) {
-  return createHmac('sha256', unsubSecret())
-    .update(normalizeEmail(email))
-    .digest('hex')
-    .slice(0, 20);
+  return tokensForEmail(email).full;
 }
 
 export function verifyUnsubscribeToken(email, token) {
-  return Boolean(token) && token === unsubscribeToken(email);
+  if (!token) return false;
+  const { full, legacy } = tokensForEmail(email);
+  return timingSafeTokenMatch(token, full) || timingSafeTokenMatch(token, legacy);
 }
 
 export function unsubscribeUrl(email) {

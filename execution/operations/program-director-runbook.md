@@ -2,9 +2,11 @@
 
 One-page-per-week checklist. Full detail in linked docs. Timezone: **Boston (ET)**.
 
+> ⚠️ **Cadence redesign needed:** Cohort start moved Thu Jul 9 → **Mon Jul 13** (+4 days). Week ranges below are re-anchored to Jul 13, but the intra-week Thursday-kickoff / Wednesday-submission / Thursday-review / Friday-announce rhythm still reflects the old Thursday start and needs re-mapping to the Monday anchor (see [calendar.md](../../operations/calendar.md)). A straight +4 shift lands build/deadline days on the weekend.
+
 ---
 
-## Before start (May–Jul 8)
+## Before start (May–Jul 12)
 
 See [cohort-1-launch.md](../checklists/cohort-1-launch.md).
 
@@ -16,7 +18,7 @@ See [cohort-1-launch.md](../checklists/cohort-1-launch.md).
 
 ---
 
-## Week 1 · Jul 9–15 · Onboarding
+## Week 1 · Jul 13–19 · Onboarding
 
 | Day | You do |
 |-----|--------|
@@ -31,7 +33,7 @@ See [cohort-1-launch.md](../checklists/cohort-1-launch.md).
 
 ---
 
-## Week 2 · Jul 16–22 · PM platform (build + review + vote)
+## Week 2 · Jul 20–26 · PM platform (build + review + vote)
 
 | Day | You do |
 |-----|--------|
@@ -46,7 +48,7 @@ Publish org template repo if not done.
 
 ---
 
-## Week 3 · Jul 23–29 · Comms platform (build + review + vote)
+## Week 3 · Jul 27 – Aug 2 · Comms platform (build + review + vote)
 
 | Day | You do |
 |-----|--------|
@@ -60,7 +62,7 @@ Confirm PM platform seeded with calendar + Project 3.
 
 ---
 
-## Week 4 · Jul 30 – Aug 5 · Showcase platform (build + review + vote)
+## Week 4 · Aug 3–9 · Showcase platform (build + review + vote)
 
 | Day | You do |
 |-----|--------|
@@ -72,7 +74,7 @@ Confirm PM platform seeded with calendar + Project 3.
 
 ---
 
-## Week 5 · Aug 6–12 · Unification
+## Week 5 · Aug 10–16 · Unification
 
 | Day | You do |
 |-----|--------|
@@ -83,7 +85,7 @@ Confirm Ludwitt/Hult API staging ready for week 6.
 
 ---
 
-## Week 6 · Aug 13–19 · Phase 2 sprint + finale
+## Week 6 · Aug 17–23 · Phase 2 sprint + finale
 
 - Thu: Phase 2 learning app, venture, and OSS kickoff
 - Students register apps on Ludwitt/Hult platform

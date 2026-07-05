@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { NextCohortInterestPanel } from '@/components/NextCohortInterestPanel';
+import { cohortMarketing } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import styles from '../app/page.module.css';
@@ -21,8 +22,8 @@ export function ApplySectionSignup() {
   return (
     <div className={styles.applyGrid}>
       <div className={styles.applyCardPrimary}>
-        <span className={styles.phaseTag}>Summer 2026</span>
-        <h3>Apply for the July 9 cohort</h3>
+        <span className={styles.phaseTag}>{cohortMarketing.label}</span>
+        <h3>Apply for the {cohortMarketing.cohortStart.replace(', 2026', '')} cohort</h3>
         <p>
           Complete the application, then the 48-hour technical take-home. Admitted students join the
           active six-week pilot.

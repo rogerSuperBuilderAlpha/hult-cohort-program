@@ -118,7 +118,7 @@ export function NextCohortInterestPanel({
       )}
       {variant === 'inline' ? null : (
         <p className={styles.formNote} style={{ marginBottom: 0 }}>
-          Applying for Summer 2026 (July 9 start)?{' '}
+          Applying for Summer 2026 (July 13 start)?{' '}
           <Link href="/apply">Complete the Summer cohort application →</Link>
         </p>
       )}

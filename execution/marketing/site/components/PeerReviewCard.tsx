@@ -106,7 +106,7 @@ function WrittenReviewForm({
         </p>
       ) : null}
       <a
-        href={newReviewIssueUrl(peer.repo, reviewerHandle)}
+        href={newReviewIssueUrl(peer.repo, reviewerHandle, peer.handle)}
         target="_blank"
         rel="noopener noreferrer"
         className={styles.reviewActionBtn}
@@ -114,7 +114,8 @@ function WrittenReviewForm({
         Open GitHub issue template
       </a>
       <p className={styles.reviewStepHint}>
-        Title must be <code>Review by @{reviewerHandle}</code> on their repository.
+        Title must be <code>Review by @{reviewerHandle}: @{peer.handle}</code> on the cohort
+        repository.
       </p>
       <label className={styles.reviewLinkLabel} htmlFor={`issue-${peer.handle}`}>
         Paste the issue URL here:
@@ -150,7 +151,9 @@ function WrittenReviewForm({
       ) : null}
       {error ? <p className={styles.formError}>{error}</p> : null}
       {!githubVerification ? (
-        <p className={styles.reviewStepHint}>The issue must be on @{peer.handle}&apos;s repository.</p>
+        <p className={styles.reviewStepHint}>
+          The issue must be on the cohort repository ({peer.repo}).
+        </p>
       ) : null}
     </div>
   );

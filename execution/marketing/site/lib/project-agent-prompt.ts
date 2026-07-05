@@ -8,6 +8,11 @@ import {
 } from './cohort-config';
 import { cohortRepoUrl } from './github-urls';
 import { personalizeProgramText } from './personalize-program';
+import { reviewIssueTitle } from './written-reviews-format';
+
+function resolveCohortId(stats?: CohortStats | null): string {
+  return stats?.cohortId?.trim() || cohortId();
+}
 
 function extraInterviewQuestions(project: ProgramProject): string[] {
   switch (project.slug) {
@@ -69,8 +74,13 @@ function extraInterviewQuestions(project: ProgramProject): string[] {
   }
 }
 
-function workflowSteps(project: ProgramProject, handle: string, org: string): string[] {
-  const id = cohortId();
+function workflowSteps(
+  project: ProgramProject,
+  handle: string,
+  org: string,
+  activeCohortId: string
+): string[] {
+  const id = activeCohortId;
   const headBranch = participantBranch(id, project.slug, handle);
   const baseBranch = projectBranch(id, project.slug);
   const prTitle = personalizeProgramText(project.submission.prTitle, handle, org);
@@ -126,7 +136,8 @@ export function buildProjectAgentPrompt(
   const prTitle = p(project.submission.prTitle);
   const interview = extraInterviewQuestions(project);
   const prBodyItems = project.submission.prBodyMustInclude;
-  const workflow = workflowSteps(project, handle, org);
+  const activeCohortId = resolveCohortId(stats);
+  const workflow = workflowSteps(project, handle, org, activeCohortId);
 
   const lines: string[] = [
     `You are my agent for the Hult Cohort Developer Program Summer Pilot 2026.`,
@@ -145,8 +156,8 @@ export function buildProjectAgentPrompt(
     `- GitHub handle: \`${handle}\``,
     `- Cohort repo: \`${cohortSubmissionRepo()}\` (${cohortRepoUrl()})`,
     `- PR title: \`${prTitle}\``,
-    `- Branch: \`${participantBranch(cohortId(), project.slug, handle)}\``,
-    `- Target base branch: \`${projectBranch(cohortId(), project.slug)}\``,
+    `- Branch: \`${participantBranch(activeCohortId, project.slug, handle)}\``,
+    `- Target base branch: \`${projectBranch(activeCohortId, project.slug)}\``,
     ``,
     `## Required details — ask me for each, then record in the PR body`,
     ...interview.map((q, i) => `${i + 1}. ${q}`),
@@ -168,7 +179,7 @@ export function buildProjectAgentPrompt(
       ``,
       `## Peer review and voting (review week)`,
       `- ${reviewCount}`,
-      `- Order: evaluate deployment → read pull request → file GitHub issue "Review by @${handle}" → cast private vote here`,
+      `- Order: evaluate deployment → read pull request → file GitHub issue "${reviewIssueTitle(handle, 'peer-handle')}" → cast private vote here`,
       `- Votes are private; the submission with the most votes is selected`,
       `- Due: ${project.reviews.dueNote}`
     );

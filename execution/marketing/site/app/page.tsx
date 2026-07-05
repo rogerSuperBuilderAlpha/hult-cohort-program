@@ -5,6 +5,7 @@ import { ApplySectionSignup } from '@/components/ApplySectionSignup';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
+import { cohortMarketing } from '@/content/program';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,9 +40,9 @@ export default async function Home() {
           </Link>
         </div>
         <div className={`${styles.heroMeta} animate-in delay-4`}>
-          <span>Starts July 9, 2026</span>
+          <span>Starts {cohortMarketing.cohortStart}</span>
           <span>Six weeks</span>
-          <span>Applications open June 15</span>
+          <span>Applications open {cohortMarketing.applicationsOpen.replace(', 2026', '')}</span>
         </div>
       </section>
 
@@ -89,7 +90,7 @@ export default async function Home() {
       <section id="apply" className={styles.apply}>
         <p className={styles.sectionLabel}>Applications</p>
         <h2>Summer 2026 is open.</h2>
-        <p>{cohortSizeLine} · Starts July 9, 2026 · Apply by July 8</p>
+        <p>{cohortSizeLine} · Starts {cohortMarketing.cohortStart} · Apply by {cohortMarketing.applicationDeadline.replace(', 2026', '')}</p>
         <ApplySectionSignup />
       </section>
     </main>

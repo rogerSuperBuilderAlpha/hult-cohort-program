@@ -45,6 +45,20 @@ export async function ingestMergedPullRequest(params: {
   const parsed = matchMergedPullRequest(params);
   if (!parsed) return { ingested: false };
 
+  if (params.authorLogin?.trim()) {
+    const author = params.authorLogin.trim().toLowerCase();
+    const expected = parsed.githubHandle.toLowerCase();
+    if (author !== expected) {
+      console.warn('[submission-ingest] PR author does not match title handle', {
+        authorLogin: params.authorLogin,
+        titleHandle: parsed.githubHandle,
+        prNumber: params.prNumber,
+        prTitle: params.prTitle,
+      });
+      return { ingested: false };
+    }
+  }
+
   await upsertSubmissionEntry(parsed, params.mergedAt, params.source, params.prBody);
   return {
     ingested: true,

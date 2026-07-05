@@ -1,4 +1,5 @@
 import { getEligiblePeerRow } from '@/lib/eligible-peers-server';
+import { parseGithubHandle } from '@/lib/firebase/github-handle';
 import { requireReviewRouteAccess } from '@/lib/review-window-guard';
 import { saveWrittenReview } from '@/lib/written-reviews-server';
 import { logApiError } from '@/lib/api-log';
@@ -20,7 +21,7 @@ export async function POST(
     return Response.json({ error: 'Invalid JSON body.' }, { status: 400 });
   }
 
-  const revieweeHandle = body.revieweeHandle?.trim().toLowerCase();
+  const revieweeHandle = parseGithubHandle(body.revieweeHandle);
   const issueUrl = body.issueUrl?.trim();
   const githubHandle = guard.githubHandle;
 

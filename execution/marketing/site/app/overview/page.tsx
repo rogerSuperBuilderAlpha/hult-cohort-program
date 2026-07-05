@@ -105,7 +105,7 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Timeline</h2>
           <p>
-            <strong>Start:</strong> July 9, 2026 at 09:00 Eastern Time · <strong>Showcase:</strong>{' '}
+            <strong>Start:</strong> July 13, 2026 at 09:00 Eastern Time · <strong>Showcase:</strong>{' '}
             August 19, 2026
           </p>
         </section>

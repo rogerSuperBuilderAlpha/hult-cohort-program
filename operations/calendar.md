@@ -2,8 +2,10 @@
 
 **Purpose:** Map the 6-week pilot onto fixed dates with weekly rhythm, hard deadlines, and buffer policy. Program directors run cohort 1 from this document.
 
-**Cohort 1 start:** **Thursday, July 9, 2026**<br>
-**Pilot end:** **Wednesday, August 19, 2026** (week 6 submission close + end-of-pilot showcase)
+**Cohort 1 start:** **Monday, July 13, 2026**<br>
+**Pilot end:** **Sunday, August 23, 2026** (week 6 submission close + end-of-pilot showcase)
+
+> ⚠️ **Cadence redesign needed:** Start moved from Thu Jul 9 → **Mon Jul 13** (+4 days). The week-by-week dates and the Thursday-kickoff / Wednesday-submission / Thursday-review rhythm below still reflect the old Thursday anchor. A straight +4-day shift lands build days on the weekend and submissions on Sunday, so program directors should choose the new Monday-anchored weekly cadence rather than mechanically shift. The applicant-facing site + emails and the app's schedule engine (`program-schedule.ts`, `program.ts`) are already updated to the Jul 13 anchor.
 
 Firestore cohort id remains `fall26`; public name is **Summer Pilot 2026**.
 
@@ -63,7 +65,7 @@ The Summer Pilot runs contiguously — no Thanksgiving or winter-break pauses. I
 
 | Concern | Handling |
 |---------|----------|
-| US Independence Day (Jul 4, before start) | No impact — pilot starts Jul 9 |
+| US Independence Day (Jul 4, before start) | No impact — pilot starts Jul 13 |
 | UK/EU local holidays | Online/async substitution; contest-week deadlines hold |
 | Religious observances | Individual accommodations via program director |
 
@@ -100,15 +102,15 @@ The Summer Pilot runs contiguously — no Thanksgiving or winter-break pauses. I
 |------|-------|
 | Jun 15 | Applications open |
 | Jul 2 | Application deadline |
-| Jul 8 | Admissions complete; cohort ≥ 20 confirmed |
-| Jul 9 | Week 1 start; tuition charged |
-| Jul 15 | Refund window closes; final roster locked |
-| Jul 24 | PM platform live (week 2 winner) |
-| Jul 31 | Comms platform live |
-| Aug 7 | Showcase platform live |
-| Aug 12 | Unified ecosystem demo |
-| Aug 19 | Final metrics freeze; learning app, venture, OSS gates close; hiring partner showcase |
-| Aug 20 | Pass/fail computed; placement window opens |
+| Jul 12 | Admissions complete; cohort ≥ 20 confirmed |
+| Jul 13 | Week 1 start; tuition charged |
+| Jul 19 | Refund window closes; final roster locked |
+| Jul 28 | PM platform live (week 2 winner) |
+| Aug 4 | Comms platform live |
+| Aug 11 | Showcase platform live |
+| Aug 16 | Unified ecosystem demo |
+| Aug 23 | Final metrics freeze; learning app, venture, OSS gates close; hiring partner showcase |
+| Aug 24 | Pass/fail computed; placement window opens |
 
 ---
 

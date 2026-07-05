@@ -72,7 +72,8 @@ Run locally after pulling env: `npm run check:env`
 - [x] OG image, favicon, robots.txt, sitemap
 - [x] Structured API logging (`lib/api-log.ts`)
 - [x] Firestore backup script (`scripts/backup-firestore.mjs`)
-- [x] Rate limiting on API routes
+- [x] Rate limiting on API routes (per-IP + per-handle on applications and peer-review POSTs)
+- [ ] **Distributed rate limiting** (Upstash/Firestore counters) — deferred; in-memory limiter is per serverless instance
 - [ ] **GC sign-off** on guarantee language (blocking for public marketing)
 - [ ] **Verify Mailgun DKIM** in production if using email
 - [ ] **Confirm Vercel env** via dashboard + `npm run check:env` against pulled production env

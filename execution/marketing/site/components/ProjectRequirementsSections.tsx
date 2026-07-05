@@ -2,12 +2,7 @@
 
 import type { ProgramProject } from '@/content/program';
 import type { CohortStats } from '@/lib/cohort-stats-types';
-import {
-  cohortId,
-  cohortSubmissionRepo,
-  participantBranch,
-  projectBranch,
-} from '@/lib/cohort-config';
+import { cohortSubmissionRepo, participantBranch, projectBranch } from '@/lib/cohort-config';
 import { cohortRepoUrl } from '@/lib/github-urls';
 import type { ProjectProgress } from '@/lib/project-progress-types';
 import styles from '../app/page.module.css';
@@ -27,6 +22,7 @@ export function ProjectRequirementsSections({
   variant,
   progress,
 }: Props) {
+  const activeCohortId = stats?.cohortId?.trim() || 'summer26';
   const headingClass =
     variant === 'enrolled' ? styles.participantHeading : undefined;
 
@@ -49,7 +45,7 @@ export function ProjectRequirementsSections({
             <a href={cohortRepoUrl()} target="_blank" rel="noopener noreferrer">
               github.com/{cohortSubmissionRepo()}
             </a>{' '}
-            — branch from <code>{projectBranch(cohortId(), project.slug)}</code> and open a pull
+            — branch from <code>{projectBranch(activeCohortId, project.slug)}</code> and open a pull
             request targeting that branch with the exact title below.
           </p>
         ) : null}
@@ -60,11 +56,11 @@ export function ProjectRequirementsSections({
           </dd>
           <dt>Target branch</dt>
           <dd>
-            <code>{projectBranch(cohortId(), project.slug)}</code>
+            <code>{projectBranch(activeCohortId, project.slug)}</code>
           </dd>
           <dt>Your branch</dt>
           <dd>
-            <code>{participantBranch(cohortId(), project.slug, p('{handle}'))}</code>
+            <code>{participantBranch(activeCohortId, project.slug, p('{handle}'))}</code>
           </dd>
           <dt>Pull request title</dt>
           <dd>

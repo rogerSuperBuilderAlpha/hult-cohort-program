@@ -13,7 +13,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = 'fall26';
+const COHORT = process.env.COHORT_ID?.trim() || 'summer26';
 
 function loadServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();

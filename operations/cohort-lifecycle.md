@@ -11,26 +11,26 @@ Firestore cohort id: `fall26` (unchanged from initial launch configuration).
 | Stage | Timing | Owner | Key outputs |
 |-------|--------|-------|-------------|
 | **Recruitment** | Jun 2026 | Founder + marketing | Landing page, applications |
-| **Admissions** | Jun 15 – Jul 8 | Program director | 25–30 confirmed students |
-| **Pre-cohort prep** | Jul 7–8 | Students + staff | Tooling verified, org invites sent |
-| **Onboarding** | Week 1 (Jul 9–15) | Program director | Agents, GitHub, deploy test |
+| **Admissions** | Jun 15 – Jul 12 | Program director | 25–30 confirmed students |
+| **Pre-cohort prep** | Jul 11–12 | Students + staff | Tooling verified, org invites sent |
+| **Onboarding** | Week 1 (Jul 13–19) | Program director | Agents, GitHub, deploy test |
 | **Phase 1** | Weeks 2–5 | Cohort (staff facilitates) | 3 live platforms, unified ecosystem, operators named |
 | **Phase 2** | Week 6 | Cohort | Learning app, venture, open source PR |
-| **Showcase** | Week 6 (Aug 19) | Placement lead | Partner review event |
+| **Showcase** | Week 6 (Aug 23) | Placement lead | Partner review event |
 | **Assessment** | Week 6 | Program director | Pass/fail determinations |
 | **Placement** | Weeks 7–42 | Placement lead | Offers, referral fees, guarantee fulfillment |
 | **Alumni** | Ongoing | Placement lead (light) | Emeritus org access, repeat enrollment option |
 
 ---
 
-## Pre-cohort prep (Jul 7–8)
+## Pre-cohort prep (Jul 11–12)
 
 | Day | Action |
 |-----|--------|
-| Jul 7 | Admitted students confirm; Pre-Cohort Setup email sent |
-| Jul 7 | GitHub org `hult-cohort-fall26-boston` created; template repo seeded |
-| Jul 8 | Discord bootstrap server created; invites sent |
-| Jul 8 | Staff verify roster ≥ 20; if not, 2-week delay decision |
+| Jul 11 | Admitted students confirm; Pre-Cohort Setup email sent |
+| Jul 11 | GitHub org `hult-cohort-fall26-boston` created; template repo seeded |
+| Jul 12 | Discord bootstrap server created; invites sent |
+| Jul 12 | Staff verify roster ≥ 20; if not, 2-week delay decision |
 
 See [tooling-setup.md](../curriculum/onboarding/tooling-setup.md) for student checklist.
 
@@ -59,8 +59,8 @@ Repo naming: [github-workflow.md](../curriculum/onboarding/github-workflow.md)
 
 | Milestone | Timing |
 |-----------|--------|
-| Pass determinations published | Aug 20, 2026 |
-| Partner intro routing active | Aug 20 |
+| Pass determinations published | Aug 24, 2026 |
+| Partner intro routing active | Aug 24 |
 | 180-day guarantee clock starts | Pass date |
 | First placement target | 90 days (Dec 2026) |
 | Kickback payments | Net 30 after fee collection |

@@ -86,6 +86,18 @@ export async function DELETE(request: Request) {
   const { githubHandle, firebaseUid } = guard.session;
 
   try {
+    const db = getAdminDb();
+    const rosterDoc = await rosterMemberRef(cohortId(), githubHandle).get();
+    if (rosterDoc.exists && rosterDoc.data()?.active !== false) {
+      return Response.json(
+        {
+          error:
+            'Enrolled participants cannot delete their account here. Email cohort@hult.edu for help.',
+        },
+        { status: 403 }
+      );
+    }
+
     const result = await deleteParticipantAccount({ githubHandle, firebaseUid });
     return Response.json({ ok: true, deleted: result });
   } catch (err) {

@@ -1,8 +1,10 @@
 import { getEligiblePeerRow } from '@/lib/eligible-peers-server';
+import { parseGithubHandle } from '@/lib/firebase/github-handle';
 import type { PeerRating } from '@/lib/project-progress-types';
 import { requireReviewRouteAccess } from '@/lib/review-window-guard';
 import { setPeerRating } from '@/lib/ratings-server';
 import { hasWrittenReview } from '@/lib/written-reviews-server';
+import { reviewIssueTitle } from '@/lib/written-reviews-format';
 import { logApiError } from '@/lib/api-log';
 
 export const runtime = 'nodejs';
@@ -22,7 +24,7 @@ export async function POST(
     return Response.json({ error: 'Invalid JSON body.' }, { status: 400 });
   }
 
-  const revieweeHandle = body.revieweeHandle?.trim().toLowerCase();
+  const revieweeHandle = parseGithubHandle(body.revieweeHandle);
   const rating = body.rating;
   const githubHandle = guard.githubHandle;
 
@@ -46,8 +48,7 @@ export async function POST(
   if (!reviewOnFile) {
     return Response.json(
       {
-        error:
-          'File your GitHub review first (issue titled "Review by @{you}" on their repo), then vote.',
+        error: `File your GitHub review first (issue titled "${reviewIssueTitle(githubHandle, 'peer-handle')}" on the cohort repo), then vote.`,
       },
       { status: 403 }
     );

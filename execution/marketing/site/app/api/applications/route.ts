@@ -47,6 +47,18 @@ async function handlePost(request: Request) {
   const guard = await requireGithubSession(request);
   if (!guard.ok) return guard.response;
 
+  const handleRate = checkRateLimit(
+    `applications:handle:${guard.session.githubHandle}`,
+    5,
+    60_000
+  );
+  if (!handleRate.allowed) {
+    return Response.json(
+      { error: 'Too many applications from this account. Try again shortly.' },
+      { status: 429, headers: { 'Retry-After': String(handleRate.retryAfterSec) } }
+    );
+  }
+
   let body: Record<string, string>;
   try {
     body = await request.json();

@@ -30,16 +30,16 @@ Questions: cohort@hult.edu
 
 Hi {First name},
 
-You're admitted to the Hult Cohort Developer Program, starting **July 9, 2026**.
+You're admitted to the Hult Cohort Developer Program, starting **July 13, 2026**.
 
-**Confirm by:** July 8 — reply to this email or use the enrollment link: {enrollment_link}
+**Confirm by:** July 12 — reply to this email or use the enrollment link: {enrollment_link}
 
 **Before day 1:**
 - Complete [Pre-Cohort Setup checklist](link to tooling-setup.md)
 - Sign Program Agreement + Expectations Acknowledgment (attached)
 - Budget $400/month for Cursor + Claude Code
 
-Tuition ($10,000) charges on **July 9**. Full refund available through **July 15, 5pm ET** if you withdraw during week 1.
+Tuition ($10,000) charges on **July 13**. Full refund available through **July 19, 5pm ET** if you withdraw during week 1.
 
 Welcome.
 
@@ -61,13 +61,13 @@ You're welcome to reapply for a future cohort. Tips: focus on repo exploration i
 
 ---
 
-## 4. Pre-Cohort Setup (Jul 7)
+## 4. Pre-Cohort Setup (Jul 11)
 
-**Subject:** Start Thursday — Pre-Cohort Setup due Jul 8
+**Subject:** Start Monday — Pre-Cohort Setup due Jul 12
 
 Hi cohort,
 
-Week 1 starts **Thursday, July 9**. Complete by **Wednesday Jul 8**:
+Week 1 starts **Monday, July 13**. Complete by **Sunday Jul 12**:
 
 - [ ] GitHub 2FA on
 - [ ] Cursor $200/mo tier active
@@ -75,7 +75,7 @@ Week 1 starts **Thursday, July 9**. Complete by **Wednesday Jul 8**:
 - [ ] Vercel account + test deploy
 - [ ] Accept GitHub org invite (sent Wednesday AM)
 
-Post verification in Discord `#setup-verification` by **Friday Jul 15, 2pm ET**.
+Post verification in Discord `#setup-verification` by **Sunday Jul 19, 2pm ET**.
 
 Full guide: {tooling_setup_url}
 

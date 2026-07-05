@@ -20,7 +20,16 @@ import {
  * to a dictionary attack on the small, known handle space — set it in production.
  */
 export function participantId(githubHandle: string): string {
-  const salt = process.env.RESEARCH_HASH_SALT?.trim() || 'hult-cohort-research-salt';
+  const salt = process.env.RESEARCH_HASH_SALT?.trim();
+  if (!salt) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('RESEARCH_HASH_SALT is required in production.');
+    }
+    return createHash('sha256')
+      .update(`hult-cohort-research-dev:${githubHandle.toLowerCase()}`)
+      .digest('hex')
+      .slice(0, 32);
+  }
   return createHash('sha256').update(`${salt}:${githubHandle.toLowerCase()}`).digest('hex').slice(0, 32);
 }
 

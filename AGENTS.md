@@ -11,7 +11,7 @@ Instructions for AI coding agents (Cursor, Claude Code, Copilot, etc.) working i
 One web surface where applicants apply, admitted participants see every project with clear expectations, submit work as **GitHub PRs**, file **written peer reviews** on GitHub, and cast **private 👍/👎 votes** during Phase 1 contest weeks. Winner = most thumbs up after review week.
 
 **Live deploy:** https://site-nine-rouge-68.vercel.app (Vercel project `hult-cohort`)  
-**Firebase project:** `hult-cohorts` · **Cohort id:** `fall26`
+**Firebase project:** `hult-cohorts` · **Cohort id:** `summer26`
 
 ---
 

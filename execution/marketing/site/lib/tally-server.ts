@@ -67,6 +67,7 @@ export async function tallyThumbsUp(projectSlug: string): Promise<TallyResult | 
   const downCounts = new Map<string, number>();
 
   for (const voterDoc of votersSnap.docs) {
+    if (!activeHandles.has(voterDoc.id)) continue;
     const ratings = voterDoc.data()?.ratings ?? {};
     for (const [revieweeHandle, value] of Object.entries(ratings)) {
       if (!mergedAtByHandle.has(revieweeHandle)) continue;

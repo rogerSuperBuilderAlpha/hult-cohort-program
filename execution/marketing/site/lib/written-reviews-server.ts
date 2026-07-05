@@ -3,6 +3,7 @@ import {
   writtenReviewEntriesRef,
   writtenReviewEntryRef,
 } from '@/lib/firestore-paths';
+import { reviewIssueTitle } from '@/lib/written-reviews-format';
 
 function parseGithubIssueUrl(
   issueUrl: string
@@ -42,41 +43,46 @@ function githubVerificationRequired(): boolean {
   return process.env.ALLOW_UNVERIFIED_REVIEWS?.trim() !== 'true';
 }
 
-function reviewTitleMatches(issueTitle: string, reviewerHandle: string): boolean {
-  const title = issueTitle.toLowerCase();
-  const handle = reviewerHandle.toLowerCase();
-  return title.includes(`review by @${handle}`) || title.includes(`review by ${handle}`);
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/** Search peer repo for a review issue filed by this voter (GitHub source of truth). */
-export async function discoverWrittenReviewOnGithub(
-  peerRepo: string,
-  reviewerHandle: string
-): Promise<string | null> {
-  const token = process.env.GITHUB_TOKEN?.trim();
-  if (!token) return null;
-
-  const q = encodeURIComponent(
-    `repo:${peerRepo} is:issue "Review by @${reviewerHandle}" in:title`
+/** Title must be exactly `Review by @{voter}: @{reviewee}` (optional @ on handles). */
+export function reviewTitleMatches(
+  issueTitle: string,
+  reviewerHandle: string,
+  revieweeHandle: string
+): boolean {
+  const reviewer = reviewerHandle.toLowerCase();
+  const reviewee = revieweeHandle.toLowerCase();
+  const pattern = new RegExp(
+    `^review by @?${escapeRegex(reviewer)}:\\s*@?${escapeRegex(reviewee)}\\b`,
+    'i'
   );
-  const res = await fetch(`https://api.github.com/search/issues?q=${q}&per_page=5`, {
+  return pattern.test(issueTitle.trim());
+}
+
+type GithubIssuePayload = {
+  title?: string;
+  pull_request?: unknown;
+  user?: { login?: string };
+};
+
+async function fetchGithubIssue(
+  repo: string,
+  issueNumber: number
+): Promise<GithubIssuePayload | null> {
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
     headers: githubHeaders(),
-    next: { revalidate: 60 },
   });
   if (!res.ok) return null;
-
-  const data = (await res.json()) as { items?: { html_url?: string; title?: string }[] };
-  for (const item of data.items ?? []) {
-    if (item.html_url && reviewTitleMatches(item.title ?? '', reviewerHandle)) {
-      return item.html_url;
-    }
-  }
-  return null;
+  return (await res.json()) as GithubIssuePayload;
 }
 
 async function verifyIssueWithGithub(
   issueUrl: string,
-  reviewerHandle: string
+  reviewerHandle: string,
+  revieweeHandle: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const token = process.env.GITHUB_TOKEN?.trim();
   if (!token) {
@@ -87,7 +93,7 @@ async function verifyIssueWithGithub(
       };
     }
     console.warn(
-      '[written-reviews] ALLOW_UNVERIFIED_REVIEWS=true — skipping GitHub issue title check (dev only).'
+      '[written-reviews] ALLOW_UNVERIFIED_REVIEWS=true — skipping GitHub issue check (dev only).'
     );
     return { ok: true };
   }
@@ -97,28 +103,68 @@ async function verifyIssueWithGithub(
     return { ok: false, error: 'Invalid GitHub issue URL.' };
   }
 
-  const res = await fetch(
-    `https://api.github.com/repos/${parsed.repo}/issues/${parsed.issueNumber}`,
-    { headers: githubHeaders() }
-  );
-
-  if (!res.ok) {
+  const issue = await fetchGithubIssue(parsed.repo, parsed.issueNumber);
+  if (!issue) {
     return { ok: false, error: 'GitHub issue not found or not accessible.' };
   }
 
-  const issue = (await res.json()) as { title?: string; pull_request?: unknown };
   if (issue.pull_request) {
     return { ok: false, error: 'Link must be an issue, not a pull request.' };
   }
 
-  if (!reviewTitleMatches(issue.title ?? '', reviewerHandle)) {
+  const authorLogin = issue.user?.login?.trim().toLowerCase();
+  if (!authorLogin || authorLogin !== reviewerHandle.toLowerCase()) {
     return {
       ok: false,
-      error: `Issue title must include "Review by @${reviewerHandle}".`,
+      error: `The issue must be opened from your GitHub account (@${reviewerHandle}).`,
+    };
+  }
+
+  if (!reviewTitleMatches(issue.title ?? '', reviewerHandle, revieweeHandle)) {
+    const expected = reviewIssueTitle(reviewerHandle, revieweeHandle);
+    return {
+      ok: false,
+      error: `Issue title must be exactly "${expected}".`,
     };
   }
 
   return { ok: true };
+}
+
+/** Search peer repo for a per-reviewee review issue filed by this voter. */
+export async function discoverWrittenReviewOnGithub(
+  peerRepo: string,
+  reviewerHandle: string,
+  revieweeHandle: string
+): Promise<string | null> {
+  const token = process.env.GITHUB_TOKEN?.trim();
+  if (!token) return null;
+
+  const titleQuery = reviewIssueTitle(reviewerHandle, revieweeHandle);
+  const q = encodeURIComponent(
+    `repo:${peerRepo} is:issue author:${reviewerHandle} "${titleQuery}" in:title`
+  );
+  const res = await fetch(`https://api.github.com/search/issues?q=${q}&per_page=5`, {
+    headers: githubHeaders(),
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as {
+    items?: { html_url?: string; title?: string; user?: { login?: string } }[];
+  };
+
+  for (const item of data.items ?? []) {
+    if (!item.html_url) continue;
+    const author = item.user?.login?.trim().toLowerCase();
+    if (author !== reviewerHandle.toLowerCase()) continue;
+    if (!reviewTitleMatches(item.title ?? '', reviewerHandle, revieweeHandle)) continue;
+
+    const verified = await verifyIssueWithGithub(item.html_url, reviewerHandle, revieweeHandle);
+    if (verified.ok) return item.html_url;
+  }
+
+  return null;
 }
 
 export async function getWrittenReviewsMap(
@@ -147,7 +193,7 @@ export async function saveWrittenReview(
     throw new Error(`Issue URL must be on the peer repo: ${expectedRepo}`);
   }
 
-  const githubCheck = await verifyIssueWithGithub(trimmed, voterHandle);
+  const githubCheck = await verifyIssueWithGithub(trimmed, voterHandle, revieweeHandle);
   if (!githubCheck.ok) {
     throw new Error(githubCheck.error);
   }
@@ -162,7 +208,7 @@ export async function saveWrittenReview(
   return { issueUrl: trimmed };
 }
 
-/** True when a verified written review exists on GitHub (Firestore is optional cache). */
+/** True when a written review exists. Grandfathered Firestore cache entries skip re-verification. */
 export async function hasWrittenReview(
   projectSlug: string,
   voterHandle: string,
@@ -173,12 +219,15 @@ export async function hasWrittenReview(
   const cachedUrl = doc.exists ? (doc.data()?.issueUrl as string | undefined) : undefined;
 
   if (cachedUrl?.trim()) {
-    const verified = await verifyIssueWithGithub(cachedUrl.trim(), voterHandle);
-    if (verified.ok) return true;
+    return true;
   }
 
   if (peerRepo) {
-    const discovered = await discoverWrittenReviewOnGithub(peerRepo, voterHandle);
+    const discovered = await discoverWrittenReviewOnGithub(
+      peerRepo,
+      voterHandle,
+      revieweeHandle
+    );
     if (discovered) {
       await writtenRef(projectSlug, voterHandle, revieweeHandle).set({
         issueUrl: discovered,

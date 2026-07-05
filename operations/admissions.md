@@ -4,7 +4,7 @@
 
 More students per cohort improves peer review, voting, and team dynamics. Marginal cost is near zero. The buyout ([business/guarantee-refunds-buyouts.md](../business/guarantee-refunds-buyouts.md)) is the back-pressure for admission mistakes.
 
-**Summer Pilot 2026:** Applications open **June 15**; deadline **July 2**; cohort starts **July 9**.
+**Summer Pilot 2026:** Applications open **June 15**; deadline **July 12**; cohort starts **July 13**.
 
 ---
 
@@ -160,9 +160,9 @@ Every admitted student must sign **Expectations Acknowledgment** before week 1:
 | June 15, 2026 | Applications open |
 | July 2, 2026 | Application deadline |
 | July 6, 2026 | Final take-home deadline |
-| July 8, 2026 | Admissions decisions sent |
-| July 8, 2026 | Admitted students confirm |
-| July 9, 2026 | Week 1 start; tuition charged |
+| July 12, 2026 | Admissions decisions sent |
+| July 12, 2026 | Admitted students confirm |
+| July 13, 2026 | Week 1 start; tuition charged |
 | July 15, 2026 | Week 1 refund deadline (Friday 5pm ET) |
 
 ---

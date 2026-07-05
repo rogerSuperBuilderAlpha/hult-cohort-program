@@ -56,8 +56,8 @@ export const programProjects: ProgramProject[] = [
       'Week 1 focuses on preparation rather than project development. Participants confirm Cursor and Claude Code subscriptions, configure their development environment, learn the cohort delivery workflow, and complete a first structured code submission. Following the refund window, the roster is finalized and the six-week Summer Pilot moves into Phase 1.',
     voteWeek: false,
     schedule: {
-      submissionOpens: '2026-07-09T13:00:00.000Z',
-      submissionCloses: '2026-07-15T21:00:00.000Z',
+      submissionOpens: '2026-07-13T13:00:00.000Z',
+      submissionCloses: '2026-07-19T21:00:00.000Z',
     },
     expectations: [
       'Cursor and Claude Code active (~$400/mo combined)',
@@ -75,7 +75,7 @@ export const programProjects: ProgramProject[] = [
         'Expectations Acknowledgment signed',
         'Agent workflow dry-run noted',
       ],
-      deadlineNote: 'Cohort roster finalized July 15, following the week 1 refund window (17:00 Eastern Time)',
+      deadlineNote: 'Cohort roster finalized July 19, following the week 1 refund window (17:00 Eastern Time)',
     },
     passGate: ['100% tooling verification', 'Expectations Acknowledgment signed'],
   },
@@ -91,10 +91,10 @@ export const programProjects: ProgramProject[] = [
       'Each participant builds and deploys a production project management platform in one week. The selected submission becomes the live system for the cohort — supporting accounts for every enrolled participant, with real projects and deadlines. This is operational infrastructure, not a portfolio demonstration. Following review, the submission with the most private votes operates the cohort project management stack for the rest of the pilot.',
     voteWeek: true,
     schedule: {
-      submissionOpens: '2026-07-16T13:00:00.000Z',
-      submissionCloses: '2026-07-22T21:00:00.000Z',
-      reviewOpens: '2026-07-22T21:00:00.000Z',
-      reviewCloses: '2026-07-23T18:00:00.000Z',
+      submissionOpens: '2026-07-20T13:00:00.000Z',
+      submissionCloses: '2026-07-26T21:00:00.000Z',
+      reviewOpens: '2026-07-26T21:00:00.000Z',
+      reviewCloses: '2026-07-27T18:00:00.000Z',
     },
     expectations: [
       'Build individually; deploy to production over HTTPS before the deadline',
@@ -142,10 +142,10 @@ export const programProjects: ProgramProject[] = [
       'Discord serves as the interim channel during week 1. Project 2 requires a production communications platform for the cohort: channels, direct messages, notifications, or asynchronous threads — the design is at the participant\'s discretion, but the platform must support every enrolled participant. Integration with the selected project management platform is required where appropriate (deep links, shared authentication, task notifications). The winning submission operates cohort communications for the remainder of the pilot.',
     voteWeek: true,
     schedule: {
-      submissionOpens: '2026-07-23T13:00:00.000Z',
-      submissionCloses: '2026-07-29T21:00:00.000Z',
-      reviewOpens: '2026-07-29T21:00:00.000Z',
-      reviewCloses: '2026-07-30T18:00:00.000Z',
+      submissionOpens: '2026-07-27T13:00:00.000Z',
+      submissionCloses: '2026-08-02T21:00:00.000Z',
+      reviewOpens: '2026-08-02T21:00:00.000Z',
+      reviewCloses: '2026-08-03T18:00:00.000Z',
     },
     expectations: [
       'Build and deploy a communications platform; integrate with the selected project management platform where appropriate',
@@ -182,10 +182,10 @@ export const programProjects: ProgramProject[] = [
       'This project produces the cohort\'s public presence. Each participant\'s submission includes profile pages, project evidence, deployment links, and partner-facing documentation. Hiring partners review this platform before the final showcase. The winning submission operates the public showcase for the cohort. Profiles must cover every enrolled participant and include sample profile URLs.',
     voteWeek: true,
     schedule: {
-      submissionOpens: '2026-07-30T13:00:00.000Z',
-      submissionCloses: '2026-08-05T21:00:00.000Z',
-      reviewOpens: '2026-08-05T21:00:00.000Z',
-      reviewCloses: '2026-08-06T18:00:00.000Z',
+      submissionOpens: '2026-08-03T13:00:00.000Z',
+      submissionCloses: '2026-08-09T21:00:00.000Z',
+      reviewOpens: '2026-08-09T21:00:00.000Z',
+      reviewCloses: '2026-08-10T18:00:00.000Z',
     },
     expectations: [
       'Submit production URL, sample profile links, and partner-facing documentation',
@@ -222,8 +222,8 @@ export const programProjects: ProgramProject[] = [
       'The three Phase 1 winning teams collaborate to unify the project management, communications, and showcase platforms into a single linked ecosystem — with shared navigation, single sign-on or deep links, and a migration plan for the remainder of the cohort. All other participants contribute pull requests to the winning platforms.',
     voteWeek: false,
     schedule: {
-      submissionOpens: '2026-08-06T13:00:00.000Z',
-      submissionCloses: '2026-08-12T21:00:00.000Z',
+      submissionOpens: '2026-08-10T13:00:00.000Z',
+      submissionCloses: '2026-08-16T21:00:00.000Z',
     },
     expectations: [
       'Winning teams collaborate via pull requests to `{repo}`',
@@ -252,8 +252,8 @@ export const programProjects: ProgramProject[] = [
       'Participants select a subject area — algorithms, finance, language, interview preparation, or another topic — and develop a production learning application registered on the Ludwitt/Hult platform during the week 6 sprint. The assessment criterion is verified external usage: a minimum of 25 external users recorded by the platform API on the deadline date. Self-reported metrics are not accepted. External user adoption determines whether the application meets the standard.',
     voteWeek: false,
     schedule: {
-      submissionOpens: '2026-08-13T13:00:00.000Z',
-      submissionCloses: '2026-08-19T21:00:00.000Z',
+      submissionOpens: '2026-08-17T13:00:00.000Z',
+      submissionCloses: '2026-08-23T21:00:00.000Z',
     },
     expectations: [
       'Register application via Ludwitt/Hult API; JWT authentication and event tracking operational',
@@ -287,8 +287,8 @@ export const programProjects: ProgramProject[] = [
       'Participants prepare a venture as they would for a startup: market research, business plan, investor materials, and a production application with a minimum of 25 verified external users — the same metric standard as Project 4. At least one documented investor engagement (pitch email, call, or meeting — redact personally identifiable information in the pull request) is required. The application may be built in any repository; pass-gate tracking is conducted through a merged proof-of-work pull request to `{repo}` containing deck paths, application URL, and metrics. This work runs inside the week 6 sprint.',
     voteWeek: false,
     schedule: {
-      submissionOpens: '2026-08-13T13:00:00.000Z',
-      submissionCloses: '2026-08-19T21:00:00.000Z',
+      submissionOpens: '2026-08-17T13:00:00.000Z',
+      submissionCloses: '2026-08-23T21:00:00.000Z',
     },
     expectations: [
       'Venture documentation and application — submit proof via merged pull request to `{repo}`',
@@ -322,8 +322,8 @@ export const programProjects: ProgramProject[] = [
       'Participants contribute to established open-source projects following standard professional practice: select an upstream repository, submit a pull request, and obtain a merge. Progress is tracked through a pull request to `{repo}` linking upstream work.\n\n**Suggested starting targets** (suitable for an early contribution while working toward larger repositories):\n- [cursorboston.com](https://cursorboston.com) — community site with a graphical interface; suitable for a first merge\n- [algorithmacy.org](https://algorithmacy.org) — research and education project; contributions may include documentation, server-side code, or repository-only work\n\nParticipants may also target major repositories (≥1,000 stars) or staff-approved equivalents. Contributions to libraries, command-line tools, APIs, and research repositories are accepted. The pass gate requires one merged upstream pull request before the pilot closes.',
     voteWeek: false,
     schedule: {
-      submissionOpens: '2026-08-13T13:00:00.000Z',
-      submissionCloses: '2026-08-19T21:00:00.000Z',
+      submissionOpens: '2026-08-17T13:00:00.000Z',
+      submissionCloses: '2026-08-23T21:00:00.000Z',
     },
     expectations: [
       'Open tracking pull request in `{repo}` linking upstream repository and pull request',
@@ -351,3 +351,11 @@ export const programProjects: ProgramProject[] = [
 export function getProject(slug: string): ProgramProject | undefined {
   return programProjects.find((p) => p.slug === slug);
 }
+
+/** Participant-facing admissions dates (single source for marketing copy). */
+export const cohortMarketing = {
+  label: 'Summer 2026',
+  applicationsOpen: 'June 15, 2026',
+  applicationDeadline: 'July 12, 2026',
+  cohortStart: 'July 13, 2026',
+} as const;

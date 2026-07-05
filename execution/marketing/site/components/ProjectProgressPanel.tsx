@@ -2,6 +2,7 @@
 
 import type { ProgramProject } from '@/content/program';
 import { VOTE_PRIVACY_NOTE, WINNER_NOTE } from '@/lib/review-week-copy';
+import { reviewIssueTitle } from '@/lib/written-reviews-format';
 import styles from '../app/page.module.css';
 
 function StatusIcon({ done }: { done: boolean }) {
@@ -52,6 +53,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
   const votesDone =
     !reviews || reviews.required === 0 || reviews.ratingsCompleted >= reviews.required;
   const allDone = progress.submission.merged && writtenDone && votesDone;
+  const reviewTitleExample = reviewIssueTitle(handle, 'peer-handle');
 
   return (
     <section
@@ -63,7 +65,14 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
       <p className={styles.progressSummary}>{whatsLeft(progress)}</p>
 
       <ul className={styles.progressChecklist}>
-        <li className={progress.submission.merged ? styles.progressItemDone : styles.progressItemPending}>
+        <li
+          className={progress.submission.merged ? styles.progressItemDone : styles.progressItemPending}
+          aria-label={
+            progress.submission.merged
+              ? 'Submission pull request merged: complete'
+              : 'Submission pull request merged: incomplete'
+          }
+        >
           <StatusIcon done={progress.submission.merged} />
           <div>
             <strong>Submission pull request merged</strong>
@@ -98,7 +107,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
         {reviews ? (
           <>
             {reviews.reviewWindowStatus === 'not-yet' && reviews.reviewOpensFormatted ? (
-              <li className={styles.progressItemPending}>
+              <li className={styles.progressItemPending} aria-label="Review week: not yet open">
                 <StatusIcon done={false} />
                 <div>
                   <strong>Review week has not opened</strong>
@@ -109,7 +118,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 </div>
               </li>
             ) : reviews.reviewWindowStatus === 'closed' ? (
-              <li className={styles.progressItemPending}>
+              <li className={styles.progressItemPending} aria-label="Review week: closed">
                 <StatusIcon done={false} />
                 <div>
                   <strong>Review week closed</strong>
@@ -121,19 +130,26 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 </div>
               </li>
             ) : null}
-            <li className={writtenDone ? styles.progressItemDone : styles.progressItemPending}>
+            <li
+              className={writtenDone ? styles.progressItemDone : styles.progressItemPending}
+              aria-label={`Written reviews: ${reviews.writtenCompleted} of ${reviews.required} linked (verified at vote time)`}
+            >
               <StatusIcon done={writtenDone} />
               <div>
                 <strong>
                   Written reviews {reviews.writtenCompleted}/{reviews.required}
                 </strong>
                 <p className={styles.progressDetail}>
-                  Written review (GitHub issue) titled <code>Review by @{handle}</code> on each peer
-                  repository.
+                  GitHub issue titled <code>{reviewTitleExample}</code> on the cohort repository for
+                  each peer. Links shown here are saved on the platform; votes re-verify the issue
+                  when cast.
                 </p>
               </div>
             </li>
-            <li className={votesDone ? styles.progressItemDone : styles.progressItemPending}>
+            <li
+              className={votesDone ? styles.progressItemDone : styles.progressItemPending}
+              aria-label={`Private votes: ${reviews.ratingsCompleted} of ${reviews.required} complete`}
+            >
               <StatusIcon done={votesDone} />
               <div>
                 <strong>

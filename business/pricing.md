@@ -33,7 +33,7 @@ $10k one-time with job guarantee + unlimited terms is **aggressive but defensibl
 | Installments (2 × $5k) | Optional if Finance approves |
 | ISA | **No** — complicates guarantee |
 
-Charge date: **Thursday week 1** (Jul 9, 2026). Not at application.
+Charge date: **Monday week 1** (Jul 13, 2026). Not at application.
 
 Billing: **Hult continuing-ed** ([policy-review.md](../institutional/policy-review.md)).
 

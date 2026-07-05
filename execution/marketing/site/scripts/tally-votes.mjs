@@ -90,6 +90,7 @@ async function tallyProject(db, cohortId, projectSlug) {
   const downCounts = new Map();
 
   for (const voterDoc of votersSnap.docs) {
+    if (!activeHandles.has(voterDoc.id)) continue;
     const ratings = voterDoc.data()?.ratings ?? {};
     for (const [revieweeHandle, value] of Object.entries(ratings)) {
       if (!mergedAtByHandle.has(revieweeHandle)) continue;
@@ -129,7 +130,16 @@ function printTable(result) {
   console.log('─'.repeat(56));
   if (result.winner) {
     const top = result.rows[0];
+    const tied =
+      result.rows.length > 1 &&
+      result.rows[1].up === top.up &&
+      result.rows[1].down === top.down;
     console.log(`Winner: @${result.winner} (${top.up} up, ${top.down} down)`);
+    if (tied) {
+      console.log(
+        'TIE — apply rubric median per governance/winner-selection.md (code tie-break is earliest mergedAt, then handle).'
+      );
+    }
   } else {
     console.log('Winner: (no eligible merged submissions)');
   }

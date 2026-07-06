@@ -9,6 +9,7 @@ import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import type { ParticipantMe } from '@/lib/participant-status';
 import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
 import { formatScheduleDate } from '@/lib/program-schedule';
+import { personalizeProgramText } from '@/lib/personalize-program';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import { GITHUB_REPO_URL } from '@/lib/site-config';
 import type { DashboardSummary } from '@/lib/dashboard-server';
@@ -64,7 +65,20 @@ function ParticipantDashboard({
   const greetingName = name.split(/\s+/).filter(Boolean)[0] || me.githubHandle;
   const stats = me.cohortStats;
   const active = summary.schedule.activeProject;
+  const activeProjects = summary.schedule.activeProjects;
+  const activeSlugs = new Set(activeProjects.map((p) => p.slug));
   const submittedCount = summary.projects.filter((p) => p.submissionMerged).length;
+
+  // Platform-tracked pass-gate requirements: merged submission plus, on vote-week projects,
+  // full written reviews and votes. Staff-verified gates (tooling checks, unification demo,
+  // Phase 2 outcome metrics) are called out separately below.
+  const isTrackedComplete = (p: DashboardSummary['projects'][number]) =>
+    p.submissionMerged &&
+    (p.reviewsRequired == null ||
+      p.reviewsRequired === 0 ||
+      ((p.reviewsWritten ?? 0) >= p.reviewsRequired &&
+        (p.votesCast ?? 0) >= p.reviewsRequired));
+  const trackedCompleteCount = summary.projects.filter(isTrackedComplete).length;
 
   async function downloadMyData() {
     setDownloadStatus('loading');
@@ -119,13 +133,18 @@ function ParticipantDashboard({
       {summary.schedule.cohortWeek ? (
         <p className={styles.formNote}>
           Cohort week {summary.schedule.cohortWeek}
-          {active ? (
+          {activeProjects.length > 0 ? (
             <>
               {' '}
-              · Active focus:{' '}
-              <Link href={`/program/${active.slug}`}>
-                {active.phaseLabel} — {active.title}
-              </Link>
+              · Active {activeProjects.length > 1 ? 'projects' : 'focus'}:{' '}
+              {activeProjects.map((p, i) => (
+                <span key={p.slug}>
+                  {i > 0 ? ', ' : ''}
+                  <Link href={`/program/${p.slug}`}>
+                    {p.phaseLabel} — {p.title}
+                  </Link>
+                </span>
+              ))}
             </>
           ) : (
             ' · Between project windows — see upcoming deadlines below'
@@ -162,7 +181,7 @@ function ParticipantDashboard({
       <ul className={styles.onboardingChecklist}>
         {summary.projects.map((project) => {
           const meta = programProjects.find((p) => p.slug === project.slug);
-          const isActiveProject = active?.slug === project.slug;
+          const isActiveProject = activeSlugs.has(project.slug);
           return (
             <li
               key={project.slug}
@@ -190,6 +209,39 @@ function ParticipantDashboard({
           );
         })}
       </ul>
+
+      <h2 className={styles.participantHeading}>Completion standing</h2>
+      <p className={styles.formNote} style={{ marginTop: 0 }}>
+        {trackedCompleteCount} of {summary.projects.length} projects have every platform-tracked
+        requirement complete (merged submission, plus all written reviews and votes on contest
+        weeks).
+      </p>
+      <ul className={styles.onboardingChecklist}>
+        {summary.projects.map((project) => {
+          const meta = programProjects.find((p) => p.slug === project.slug);
+          if (!meta) return null;
+          const done = isTrackedComplete(project);
+          return (
+            <li key={project.slug} className={styles.dashboardProjectItem}>
+              <span aria-hidden>{done ? '✓' : '○'}</span>{' '}
+              <Link href={`/program/${project.slug}`} className={styles.dashboardProjectLink}>
+                {meta.title}
+              </Link>
+              {' — pass gate: '}
+              {meta.passGate
+                .map((gate) => personalizeProgramText(gate, me.githubHandle, undefined, stats))
+                .join('; ')}
+            </li>
+          );
+        })}
+      </ul>
+      <p className={styles.formNote}>
+        Staff-verified gates — onboarding tooling verification, the unification demo, and the
+        Phase 2 outcome metrics (qualified users, investor touches, upstream merges) — are
+        confirmed by staff at the end of the cohort and are not tracked live on this page. Final
+        pass/fail standing is issued after week 6. Questions:{' '}
+        <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
+      </p>
 
       <h2 className={styles.participantHeading}>Data export</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
@@ -260,7 +312,10 @@ export default function DashboardPage() {
     let cancelled = false;
     void (async () => {
       const idToken = await getIdToken();
-      if (!idToken) return;
+      if (!idToken) {
+        if (!cancelled) setSummaryError('Could not read your session. Refresh the page to try again.');
+        return;
+      }
       try {
         const res = await fetch('/api/dashboard', {
           headers: { Authorization: `Bearer ${idToken}` },
@@ -315,6 +370,12 @@ export default function DashboardPage() {
                 <strong>Admitted — enrollment pending.</strong> Staff are finalizing your enrollment.
                 Participant tools will become available shortly.{' '}
                 <Link href="/apply">Check Apply for status →</Link>
+              </p>
+            ) : me?.enrollment.state === 'inactive' ? (
+              <p>
+                <strong>Enrollment deactivated.</strong> Your participation in this cohort has
+                been paused by staff. If you believe this is an error, contact{' '}
+                <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
               </p>
             ) : me?.application?.status === 'waitlisted' ? (
               <p>

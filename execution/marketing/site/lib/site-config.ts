@@ -1,12 +1,29 @@
+const FALLBACK_SITE_URL = 'https://site-nine-rouge-68.vercel.app';
+
+let warnedSiteUrlFallback = false;
+
+function warnSiteUrlFallback(reason: string): void {
+  if (warnedSiteUrlFallback) return;
+  warnedSiteUrlFallback = true;
+  console.warn(
+    `[site-config] NEXT_PUBLIC_SITE_URL unset — using fallback (${reason}). ` +
+      'Set NEXT_PUBLIC_SITE_URL=https://cohorts.algorithmacy.org in Vercel production.'
+  );
+}
+
 /** Canonical public site URL (no trailing slash). */
 export function getSiteUrl(): string {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (fromEnv) return fromEnv.replace(/\/$/, '');
 
   const vercel = process.env.VERCEL_URL?.trim();
-  if (vercel) return `https://${vercel.replace(/\/$/, '')}`;
+  if (vercel) {
+    warnSiteUrlFallback('VERCEL_URL present but NEXT_PUBLIC_SITE_URL empty');
+    return `https://${vercel.replace(/\/$/, '')}`;
+  }
 
-  return 'https://site-nine-rouge-68.vercel.app';
+  warnSiteUrlFallback('no env set');
+  return FALLBACK_SITE_URL;
 }
 
 /**

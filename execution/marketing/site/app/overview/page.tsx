@@ -26,6 +26,7 @@ export default async function OverviewPage() {
         links={[
           { href: '/', label: 'Home' },
           { href: '/start', label: 'Visual intro' },
+          { href: '/program', label: 'Program' },
         ]}
       />
 

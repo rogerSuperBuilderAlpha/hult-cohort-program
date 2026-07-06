@@ -7,7 +7,10 @@ export type ProgramPhase = 'onboarding' | 'phase-1' | 'phase-2';
 
 export type ScheduleContext = {
   now: Date;
+  /** First active project (back-compat). Prefer `activeProjects` — Phase 2 runs three at once. */
   activeProject: ProgramProject | null;
+  /** Every project whose window contains `now`. Phase 2's three projects share one window. */
+  activeProjects: ProgramProject[];
   activePhase: ProgramPhase | null;
   cohortWeek: number | null;
 };
@@ -64,6 +67,8 @@ export function cohortWeekNumber(now = new Date()): number | null {
 
 export function resolveScheduleContext(now = new Date()): ScheduleContext {
   const week = cohortWeekNumber(now);
+  const t = now.getTime();
+  const activeProjects: ProgramProject[] = [];
 
   for (const project of programProjects) {
     const schedule = getProjectSchedule(project);
@@ -75,21 +80,16 @@ export function resolveScheduleContext(now = new Date()): ScheduleContext {
       ? parseIso(schedule.reviewCloses).getTime()
       : closes;
 
-    const t = now.getTime();
     if (t >= opens && t <= reviewCloses) {
-      return {
-        now,
-        activeProject: project,
-        activePhase: project.phase,
-        cohortWeek: week,
-      };
+      activeProjects.push(project);
     }
   }
 
   return {
     now,
-    activeProject: null,
-    activePhase: null,
+    activeProject: activeProjects[0] ?? null,
+    activeProjects,
+    activePhase: activeProjects[0]?.phase ?? null,
     cohortWeek: week,
   };
 }

@@ -17,7 +17,7 @@ export default function StartPage() {
       <SiteHeader
         links={[
           { href: '/', label: 'Home' },
-          { href: '/program', label: 'Projects' },
+          { href: '/program', label: 'Program' },
         ]}
       />
 
@@ -28,7 +28,7 @@ export default function StartPage() {
         <p className={styles.introNote}>{programIntro.electiveNote}</p>
 
         <section className={styles.introSection}>
-          <h2 className={styles.introSectionTitle}>Sixteen weeks at a glance</h2>
+          <h2 className={styles.introSectionTitle}>Six weeks at a glance</h2>
           <ProgramIntroTimeline />
         </section>
 

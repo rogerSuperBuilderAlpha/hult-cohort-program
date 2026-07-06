@@ -114,7 +114,27 @@ function EnrolledView({
   }
 
   if (gate.locked) {
-    return <SurveyGateNotice project={project} gate={gate} />;
+    return (
+      <>
+        <ProgramDescription text={descriptionText} />
+        <SurveyGateNotice project={project} gate={gate} />
+        <div className={styles.participantPanel}>
+          <p className={styles.formNote} style={{ marginTop: 0 }}>
+            Requirements below are visible now. Submission tracking and peer review unlock after
+            you complete the survey (or decline participation).
+          </p>
+          <ProjectRequirementsSections
+            project={project}
+            p={p}
+            stats={stats}
+            variant="enrolled"
+          />
+          {project.reviews ? (
+            <ProjectPeerReviewSection project={project} p={p} stats={stats} variant="enrolled" />
+          ) : null}
+        </div>
+      </>
+    );
   }
 
   return (

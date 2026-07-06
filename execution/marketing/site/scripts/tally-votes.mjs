@@ -9,13 +9,15 @@
  * Requires FIREBASE_SERVICE_ACCOUNT_PATH or FIREBASE_SERVICE_ACCOUNT_JSON.
  */
 
+import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { initDb, cohortIdFromEnv } from './lib/firebase-admin.mjs';
 
-const VOTE_WEEK_PROJECTS = [
-  'phase-1-project-1',
-  'phase-1-project-2',
-  'phase-1-project-3',
-];
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const VOTE_WEEK_PROJECTS = JSON.parse(
+  readFileSync(path.join(__dirname, '../content/vote-week-projects.json'), 'utf8')
+);
 
 function parseArgs() {
   const projectArg = process.argv.find((a) => a.startsWith('--project='));
@@ -111,11 +113,17 @@ async function tallyProject(db, cohortId, projectSlug) {
     }))
     .sort(compareRows);
 
+  const top = rows[0] ?? null;
+  const tiedAtTop =
+    top &&
+    rows.filter((row) => row.up === top.up && row.down === top.down).map((row) => row.handle);
+
   return {
     projectSlug,
     cohortId,
     rows,
-    winner: rows[0]?.handle ?? null,
+    winner: tiedAtTop && tiedAtTop.length === 1 ? tiedAtTop[0] : null,
+    tiedHandles: tiedAtTop && tiedAtTop.length > 1 ? tiedAtTop : [],
   };
 }
 
@@ -130,15 +138,13 @@ function printTable(result) {
   console.log('─'.repeat(56));
   if (result.winner) {
     const top = result.rows[0];
-    const tied =
-      result.rows.length > 1 &&
-      result.rows[1].up === top.up &&
-      result.rows[1].down === top.down;
     console.log(`Winner: @${result.winner} (${top.up} up, ${top.down} down)`);
-    if (tied) {
-      console.log(
-        'TIE — apply rubric median per governance/winner-selection.md (code tie-break is earliest mergedAt, then handle).'
-      );
+  } else if (result.tiedHandles?.length) {
+    console.log(
+      `TIE at ${result.rows[0].up} up / ${result.rows[0].down} down — resolve via rubric median per governance/winner-selection.md:`
+    );
+    for (const handle of result.tiedHandles) {
+      console.log(`  @${handle}`);
     }
   } else {
     console.log('Winner: (no eligible merged submissions)');

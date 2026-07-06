@@ -1,4 +1,5 @@
 import { logApi, logApiError } from '@/lib/api-log';
+import { ingestTakeHomePullRequest } from '@/lib/admissions-ingest-server';
 import { checkRateLimit, clientIp } from '@/lib/rate-limit';
 import { ingestMergedPullRequest } from '@/lib/submission-write-server';
 import {
@@ -67,12 +68,39 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, ignored: true, reason: 'not pull_request' });
   }
 
+  const repoFullName = event.repository?.full_name;
+  const pr = event.pull_request;
+
+  // Take-home admissions repo: PR opened/reopened → mark application take-home-submitted.
+  if (
+    repoFullName &&
+    pr?.html_url &&
+    pr.number &&
+    (event.action === 'opened' || event.action === 'reopened')
+  ) {
+    try {
+      const takeHome = await ingestTakeHomePullRequest({
+        repoFullName,
+        authorLogin: pr.user?.login,
+        prNumber: pr.number,
+        prHtmlUrl: pr.html_url,
+      });
+      logApi(ROUTE, 'info', 'Take-home webhook processed', {
+        repo: repoFullName,
+        pr: pr.number,
+        ...takeHome,
+      });
+      return Response.json({ ok: true, takeHome });
+    } catch (err) {
+      logApiError(ROUTE, err, { repo: repoFullName, pr: pr.number, kind: 'take-home' });
+      return Response.json({ error: 'Take-home ingest failed.' }, { status: 500 });
+    }
+  }
+
   if (event.action !== 'closed' || !event.pull_request?.merged) {
     return Response.json({ ok: true, ignored: true, reason: 'not merged close' });
   }
 
-  const repoFullName = event.repository?.full_name;
-  const pr = event.pull_request;
   if (!repoFullName || !pr?.html_url || !pr.title || !pr.number) {
     return Response.json({ error: 'Incomplete payload.' }, { status: 400 });
   }

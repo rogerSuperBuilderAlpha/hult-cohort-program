@@ -2,6 +2,7 @@
 
 import type { ProgramProject } from '@/content/program';
 import { VOTE_PRIVACY_NOTE, WINNER_NOTE } from '@/lib/review-week-copy';
+import { personalizeProgramText } from '@/lib/personalize-program';
 import { reviewIssueTitle } from '@/lib/written-reviews-format';
 import styles from '../app/page.module.css';
 
@@ -94,7 +95,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
             ) : (
               <p className={styles.progressDetail}>
                 Open a pull request titled{' '}
-                <code>{project.submission.prTitle.replace('{handle}', handle)}</code> in{' '}
+                <code>{personalizeProgramText(project.submission.prTitle, handle)}</code> in{' '}
                 <a href={progress.submission.repoUrl} target="_blank" rel="noopener noreferrer">
                   {progress.submission.repo}
                 </a>{' '}
@@ -132,7 +133,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
             ) : null}
             <li
               className={writtenDone ? styles.progressItemDone : styles.progressItemPending}
-              aria-label={`Written reviews: ${reviews.writtenCompleted} of ${reviews.required} linked (verified at vote time)`}
+              aria-label={`Written reviews: ${reviews.writtenCompleted} of ${reviews.required} linked (verified when saved and re-checked at vote time)`}
             >
               <StatusIcon done={writtenDone} />
               <div>
@@ -141,8 +142,8 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 </strong>
                 <p className={styles.progressDetail}>
                   GitHub issue titled <code>{reviewTitleExample}</code> on the cohort repository for
-                  each peer. Links shown here are saved on the platform; votes re-verify the issue
-                  when cast.
+                  each peer. Links are verified when saved and re-checked when you cast a vote, so
+                  keep the issue intact until review week closes.
                 </p>
               </div>
             </li>

@@ -51,8 +51,4 @@ export async function sendMailgunEmail({ to, subject, html, headers, config }) {
   }
 }
 
-export function siteUrl() {
-  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (fromEnv) return fromEnv.replace(/\/$/, '');
-  return 'https://site-nine-rouge-68.vercel.app';
-}
+export { siteUrl } from './site-url.mjs';

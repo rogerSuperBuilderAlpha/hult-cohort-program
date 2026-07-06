@@ -11,7 +11,7 @@ import { getMailerConfig, sendEmail } from '@/lib/mailer.mjs';
 
 /** Staff address(es) notified on each new application. Comma-separated env override. */
 const ADMISSIONS_NOTIFY_EMAIL =
-  process.env.ADMISSIONS_NOTIFY_EMAIL?.trim() || 'roger@ludwitt.com';
+  process.env.ADMISSIONS_NOTIFY_EMAIL?.trim() || 'cohort@hult.edu';
 
 type ApplicationEmailParams = {
   email: string;

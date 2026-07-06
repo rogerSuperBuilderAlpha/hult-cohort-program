@@ -17,8 +17,7 @@ import { readApplicationApiError } from '@/lib/read-application-api-error';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import styles from '../page.module.css';
 
-const DEFAULT_TAKE_HOME =
-  'https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26';
+import { DEFAULT_TAKE_HOME_REPO_URL } from '@/lib/applications';
 
 function SignedInBar({
   handle,
@@ -54,6 +53,54 @@ function SignedInBar({
           Use a different account
         </button>
       </div>
+    </div>
+  );
+}
+
+function CharCountTextarea({
+  name,
+  label,
+  maxLength,
+  rows,
+  required,
+}: {
+  name: string;
+  label: string;
+  maxLength: number;
+  rows: number;
+  required?: boolean;
+}) {
+  const [length, setLength] = useState(0);
+
+  return (
+    <label>
+      {label} ({length}/{maxLength} characters)
+      <textarea
+        name={name}
+        required={required}
+        rows={rows}
+        maxLength={maxLength}
+        onInput={(e) => setLength(e.currentTarget.value.length)}
+      />
+    </label>
+  );
+}
+
+function ApplicationSubmittedPanel({ takeHomeUrl }: { takeHomeUrl: string }) {
+  return (
+    <div className={styles.participantPanel}>
+      <div className={styles.calloutSuccess}>
+        <p style={{ marginTop: 0 }}>
+          <strong>Application submitted.</strong> Check your email for the take-home link, or open
+          the repository below.
+        </p>
+      </div>
+      <p className={styles.formNote}>
+        Take-home repo:{' '}
+        <a href={takeHomeUrl} target="_blank" rel="noopener noreferrer">
+          {takeHomeUrl}
+        </a>
+      </p>
     </div>
   );
 }
@@ -139,13 +186,16 @@ export default function ApplyPage() {
     getIdToken,
     Boolean(profile)
   );
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
 
   const enrolled = isEnrolled(me);
   const pendingRoster = isAdmittedPendingRoster(me);
   const inFlight = isApplicantInFlight(me);
-  const takeHomeUrl = me?.application?.takeHomeRepoUrl || DEFAULT_TAKE_HOME;
+  const takeHomeUrl =
+    me?.application?.takeHomeRepoUrl ||
+    process.env.NEXT_PUBLIC_TAKE_HOME_REPO_URL ||
+    DEFAULT_TAKE_HOME_REPO_URL;
   const terminalApplication =
     me?.application?.status === 'waitlisted' || me?.application?.status === 'rejected';
   const showAccountSection = Boolean(me?.githubHandle) && !terminalApplication;
@@ -200,7 +250,7 @@ export default function ApplyPage() {
 
       await refresh();
       form.reset();
-      setSubmitStatus('idle');
+      setSubmitStatus('success');
     } catch (err) {
       setSubmitStatus('error');
       setSubmitMessage(err instanceof Error ? err.message : 'Something went wrong');
@@ -214,7 +264,7 @@ export default function ApplyPage() {
       : 'Apply for Summer 2026';
   const pageLead = pendingRoster
     ? 'You have been admitted to the Summer Pilot. Enrollment is being finalized; participant tools will become available shortly.'
-    : `Complete the application form for the ${cohortMarketing.cohortStart.replace(', 2026', '')} cohort. Qualified applicants receive a focused 48-hour technical take-home before admission decisions are made.`;
+    : `Complete the application form for the ${cohortMarketing.cohortStart.replace(', 2026', '')} cohort. After you submit, you receive a focused 48-hour technical take-home before admission decisions are made.`;
 
   return (
     <main className={styles.main} id="main-content">
@@ -277,6 +327,8 @@ export default function ApplyPage() {
                 title="Not admitted this cycle."
                 body="Thank you for your application. You may reapply in a future cohort."
               />
+            ) : submitStatus === 'success' && !inFlight ? (
+              <ApplicationSubmittedPanel takeHomeUrl={takeHomeUrl} />
             ) : inFlight && me ? (
               <TakeHomeSteps
                 takeHomeUrl={takeHomeUrl}
@@ -287,7 +339,6 @@ export default function ApplyPage() {
               />
             ) : (
               <form className={styles.applyForm} onSubmit={onSubmit}>
-                <input type="hidden" name="githubHandle" value={me?.githubHandle ?? ''} />
                 <div className={styles.nameRow}>
                   <label>
                     First name
@@ -307,14 +358,20 @@ export default function ApplyPage() {
                   <span className={styles.githubLockedValue}>@{me?.githubHandle ?? '…'}</span>
                   <span className={styles.githubLockedNote}>Linked to your sign-in — not editable</span>
                 </div>
-                <label>
-                  Why this program (200 words max)
-                  <textarea name="motivation" required rows={5} maxLength={1500} />
-                </label>
-                <label>
-                  Project 1 PM platform idea (100 words)
-                  <textarea name="project1Idea" required rows={3} maxLength={800} />
-                </label>
+                <CharCountTextarea
+                  name="motivation"
+                  label="Why this program"
+                  maxLength={1500}
+                  rows={5}
+                  required
+                />
+                <CharCountTextarea
+                  name="project1Idea"
+                  label="Project 1 PM platform idea"
+                  maxLength={800}
+                  rows={3}
+                  required
+                />
                 <label>
                   Timezone
                   <input name="timezone" type="text" required placeholder="America/New_York" />

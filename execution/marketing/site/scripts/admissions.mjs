@@ -24,7 +24,7 @@ import {
   ADMISSION_EMAIL_SUBJECT,
   buildAdmissionConfirmationHtml,
 } from '../lib/email-templates.mjs';
-import { getEmailConfig, sendMailgunEmail } from '../lib/mailgun.mjs';
+import { sendEmail } from '../lib/mailer.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const COHORT = process.env.COHORT_ID?.trim() || 'summer26';
@@ -87,13 +87,13 @@ async function sendAdmissionEmail({ email, firstName, githubHandle }) {
     return;
   }
 
-  const config = getEmailConfig();
+  const config = await requireMailerConfig();
   if (!config) {
     console.log('  admission email: skipped (EMAIL_* not configured)');
     return;
   }
 
-  await sendMailgunEmail({
+  const result = await sendEmail({
     to: email,
     subject: ADMISSION_EMAIL_SUBJECT,
     html: buildAdmissionConfirmationHtml({
@@ -101,9 +101,17 @@ async function sendAdmissionEmail({ email, firstName, githubHandle }) {
       githubHandle,
       fromName: config.fromName,
     }),
-    config,
   });
-  console.log(`  admission email: sent to ${email}`);
+  if (result.skipped) {
+    console.log(`  admission email: skipped (${result.reason ?? 'mailer not configured'})`);
+    return;
+  }
+  console.log(`  admission email: sent to ${email} via ${result.provider ?? 'mailer'}`);
+}
+
+async function requireMailerConfig() {
+  const { getMailerConfig } = await import('../lib/mailer.mjs');
+  return getMailerConfig();
 }
 
 async function cmdList(db) {
@@ -119,8 +127,12 @@ async function cmdList(db) {
 
   console.log(`Applications (${COHORT}): ${rows.length}`);
   for (const row of rows) {
+    const submittedAt = row.takeHomeSubmittedAt?.toDate?.();
+    const takeHomeNote = submittedAt
+      ? ` take-home PR ${submittedAt.toISOString().slice(0, 10)}`
+      : '';
     console.log(
-      `  ${row.status?.padEnd(18)} @${row.githubHandle} ${row.firstName} ${row.lastName} <${row.email}> id=${row.id}`
+      `  ${row.status?.padEnd(18)} @${row.githubHandle} ${row.firstName} ${row.lastName} <${row.email}> id=${row.id}${takeHomeNote}`
     );
   }
 }

@@ -3,7 +3,11 @@
  * Usage: npx tsx scripts/verify-submission-titles.ts
  */
 
+import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { extractDeployUrl, matchMergedPullRequest } from '../lib/submission-ingest-server';
+import { programProjects } from '../content/program';
 import {
   normalizeSubmissionTitle,
   resolveHandleFromSubmissionTitle,
@@ -121,5 +125,18 @@ assert(
   'deploy url on next line'
 );
 assert(extractDeployUrl('no url here') === null, 'no deploy url');
+
+const voteWeekFromProgram = programProjects.filter((p) => p.voteWeek).map((p) => p.slug);
+const voteWeekFromJson = JSON.parse(
+  readFileSync(
+    path.join(path.dirname(fileURLToPath(import.meta.url)), '../content/vote-week-projects.json'),
+    'utf8'
+  )
+) as string[];
+assert(
+  voteWeekFromProgram.length === voteWeekFromJson.length &&
+    voteWeekFromProgram.every((slug) => voteWeekFromJson.includes(slug)),
+  'vote-week-projects.json matches program.ts voteWeek flags'
+);
 
 console.log('All submission title checks passed.');

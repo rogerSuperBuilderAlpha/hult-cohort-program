@@ -1,4 +1,5 @@
 import { siteUrl } from './mailgun.mjs';
+import { COHORT_WEEK1_START_LABEL } from './cohort-dates.mjs';
 
 export function escapeHtml(value) {
   return String(value ?? '')
@@ -50,7 +51,7 @@ export function buildAdmissionConfirmationHtml({
     <p><strong>Your GitHub:</strong> @${safeHandle}</p>
     <p><strong>Participant dashboard:</strong> <a href="${dashboardUrl}">${dashboardUrl}</a></p>
     <p>Sign in with the same GitHub account you used to apply. Project pages, submission tracking, and peer review tools unlock immediately.</p>
-    <p><strong>Before week 1 (July 13, 2026 at 09:00 Eastern Time):</strong></p>
+    <p><strong>Before week 1 (${COHORT_WEEK1_START_LABEL}):</strong></p>
     <ul>
       <li>Register for the elective through Hult (dual enrollment required)</li>
       <li>Review project expectations on the <a href="${programUrl}">program page</a></li>

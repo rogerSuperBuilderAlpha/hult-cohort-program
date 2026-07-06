@@ -661,13 +661,42 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 12px;
-  padding: 16px 0;
+  padding: 16px 12px;
+  margin: 0 -12px;
   border-bottom: 1px solid var(--border);
+  border-radius: 8px;
   color: var(--text);
+  transition: background 0.15s ease;
 }
 
-.programLink:hover .programTitle {
+.programLink::after {
+  content: "→";
+  margin-left: auto;
+  align-self: center;
+  font-family: var(--mono);
+  color: var(--text-muted);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.programLink:hover,
+.programLink:focus-visible {
+  background: var(--accent-dim);
+}
+
+.programLink:hover .programTitle,
+.programLink:focus-visible .programTitle {
   color: var(--accent);
+}
+
+.programLink:hover::after,
+.programLink:focus-visible::after {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+.programLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .programWeeks {
@@ -1008,8 +1037,15 @@
   color: var(--text);
 }
 
-.dashboardProjectActive a {
-  color: var(--text);
+.dashboardProjectLink {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboardProjectLink:hover,
+.dashboardProjectLink:focus-visible {
+  text-decoration: underline;
 }
 
 .activeProjectBadge {

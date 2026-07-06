@@ -157,6 +157,7 @@ function ParticipantDashboard({
       <h2 className={styles.participantHeading}>Project progress</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
         {submittedCount} of {programProjects.length} projects with merged submission pull requests.
+        Open a project to see its requirements, deadline, and how to submit your pull request.
       </p>
       <ul className={styles.onboardingChecklist}>
         {summary.projects.map((project) => {
@@ -167,7 +168,7 @@ function ParticipantDashboard({
               key={project.slug}
               className={isActiveProject ? styles.dashboardProjectActive : styles.dashboardProjectItem}
             >
-              <Link href={`/program/${project.slug}`}>
+              <Link href={`/program/${project.slug}`} className={styles.dashboardProjectLink}>
                 <strong>{project.phaseLabel}</strong> — {project.title}
               </Link>
               {isActiveProject ? <span className={styles.activeProjectBadge}>Active this week</span> : null}

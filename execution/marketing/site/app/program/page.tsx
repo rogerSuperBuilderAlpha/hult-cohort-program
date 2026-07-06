@@ -27,6 +27,9 @@ export default function ProgramIndexPage() {
           evaluate every peer submission, then cast a private vote. The selected system operates
           for the cohort.
         </p>
+        <p className={styles.formNote}>
+          Select any project to open its full requirements, deadlines, and submission steps.
+        </p>
 
         <Section title="Onboarding" projects={onboarding} />
         <Section title="Phase 1 · Internal (review weeks)" projects={phase1} />

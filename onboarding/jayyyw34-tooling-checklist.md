@@ -6,8 +6,8 @@ Summer Pilot 2026 · Week 1 onboarding submission.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Cursor (active & billed) | ✅ Verified | Active subscription confirmed by participant |
-| Claude Code (active & billed) | ⏳ Pending | Not yet set up — required before week 1 Tuesday per [tooling-setup.md](../curriculum/onboarding/tooling-setup.md) |
+| Cursor (active & billed) | ✅ Verified | Cursor Pro ($20/mo); Composer 2.5 Fast |
+| Claude Code (active & billed) | ✅ Waived | Operator-approved Cursor-only workflow (Roger, WhatsApp) — see [jayyyw34-agent-setup.md](jayyyw34-agent-setup.md) |
 | GitHub SSH | ✅ Verified | Participant confirmed working (`ssh -T git@github.com`) |
 | Cohort repo access | ✅ Fork workflow | PR from participant fork → upstream `projects/summer26/onboarding` |
 | Expectations Acknowledgment | ✅ Signed | Reviewed and acknowledged via program page: https://site-nine-rouge-68.vercel.app/program |
@@ -16,8 +16,8 @@ Summer Pilot 2026 · Week 1 onboarding submission.
 
 ## Checklist
 
-- [x] Cursor active and billed
-- [ ] Claude Code active and billed *(pending setup)*
+- [x] Cursor active and billed (Pro · Composer 2.5 Fast)
+- [x] Agent tooling verified — Cursor-only workflow (Claude Code Max waived per operator)
 - [x] GitHub SSH / fork access verified
 - [x] Expectations Acknowledgment link recorded — https://site-nine-rouge-68.vercel.app/program
 - [x] Agent workflow dry-run completed
@@ -34,5 +34,4 @@ End-to-end steps completed in this session:
 
 ## Next actions (before pass gate)
 
-- [ ] Subscribe to Claude Code (Max tier) and verify CLI session
 - [ ] Post week 1 verification in `#setup-verification` per tooling-setup.md

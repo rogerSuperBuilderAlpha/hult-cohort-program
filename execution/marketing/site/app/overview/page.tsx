@@ -32,9 +32,9 @@ export default async function OverviewPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Stakeholder overview · Summer Pilot 2026</p>
-        <h1 className={styles.sectionTitle}>CS for Business elective · production software pilot</h1>
+        <h1 className={styles.sectionTitle}>Open community program · production software pilot</h1>
         <p className={styles.overviewLead}>
-          For a quick visual map, send students to{' '}
+          For a quick visual map, send participants to{' '}
           <Link href="/start">What is this program?</Link>. This page is a longer summary for faculty
           and partners.
         </p>
@@ -43,8 +43,8 @@ export default async function OverviewPage() {
           <h2>Outcome</h2>
           <p>
             Participants complete eight tracked deliverables by building, deploying, reviewing, and
-            operating production-grade software. Assessment is pass/fail on published criteria;
-            credit follows degree enrollment.
+            operating production-grade software. Assessment is pass/fail on published criteria.
+            Summer Pilot 2026 is open-access—formal academic credit and certificates are deferred.
           </p>
         </section>
 

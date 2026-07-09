@@ -22,5 +22,13 @@ service cloud.firestore {
     match /peerRatings/{cohortId}/projects/{projectSlug}/voters/{voter} {
       allow read, write: if false;
     }
+
+    match /acknowledgments/{cohortId}/members/{handle} {
+      allow read, write: if false;
+    }
+
+    match /projectOutcomes/{cohortId}/projects/{projectSlug} {
+      allow read, write: if false;
+    }
   }
 }

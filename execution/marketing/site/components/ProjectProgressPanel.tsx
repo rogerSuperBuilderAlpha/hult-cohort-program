@@ -49,6 +49,7 @@ type Props = {
 
 export function ProjectProgressPanel({ project, progress, handle }: Props) {
   const reviews = progress.reviews;
+  const schedule = progress.schedule;
   const writtenDone =
     !reviews || reviews.required === 0 || reviews.writtenCompleted >= reviews.required;
   const votesDone =
@@ -66,6 +67,38 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
       <p className={styles.progressSummary}>{whatsLeft(progress)}</p>
 
       <ul className={styles.progressChecklist}>
+        {schedule && schedule.submissionWindowStatus !== 'none' ? (
+          <li
+            className={
+              schedule.submissionWindowStatus === 'open'
+                ? styles.progressItemPending
+                : styles.progressItemDone
+            }
+            aria-label={`Submission window: ${schedule.submissionWindowStatus}`}
+          >
+            <StatusIcon done={schedule.submissionWindowStatus === 'closed' && progress.submission.merged} />
+            <div>
+              <strong>
+                {schedule.submissionWindowStatus === 'not-yet'
+                  ? 'Submission window not yet open'
+                  : schedule.submissionWindowStatus === 'closed'
+                    ? 'Submission window closed'
+                    : 'Submission window open'}
+              </strong>
+              <p className={styles.progressDetail}>
+                {schedule.submissionWindowStatus === 'not-yet' && schedule.submissionOpensFormatted
+                  ? `Opens ${schedule.submissionOpensFormatted}.`
+                  : null}
+                {schedule.submissionWindowStatus === 'open' && schedule.submissionClosesFormatted
+                  ? `Merge by ${schedule.submissionClosesFormatted}. ${schedule.deadlineNote ?? ''}`
+                  : null}
+                {schedule.submissionWindowStatus === 'closed' && schedule.submissionClosesFormatted
+                  ? `Closed ${schedule.submissionClosesFormatted}. Unmerged pull requests are ineligible.`
+                  : null}
+              </p>
+            </div>
+          </li>
+        ) : null}
         <li
           className={progress.submission.merged ? styles.progressItemDone : styles.progressItemPending}
           aria-label={

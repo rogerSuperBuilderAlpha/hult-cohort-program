@@ -5,6 +5,7 @@ import type { ProgramProject } from '@/content/program';
 import { ProgramDescription } from '@/components/ProgramDescription';
 import { AgentPromptHarness } from '@/components/AgentPromptHarness';
 import { PeerRatingBoard } from '@/components/PeerRatingBoard';
+import { ProjectOutcomeBanner, UnificationWinnersPanel } from '@/components/ProjectOutcomeBanner';
 import { ProjectProgressPanel } from '@/components/ProjectProgressPanel';
 import {
   ProjectPeerReviewSection,
@@ -18,6 +19,8 @@ import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/
 import { personalizeProgramText } from '@/lib/personalize-program';
 import { useCohortStats } from '@/lib/use-cohort-stats';
 import { useProjectProgress } from '@/lib/use-project-progress';
+import { useAuthedFetch } from '@/lib/use-authed-fetch';
+import type { ProjectOutcome } from '@/lib/project-outcomes-types';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import { useSurveyState, projectSurveyGate, type ProjectGate } from '@/lib/research/use-survey-state';
 import {
@@ -98,9 +101,16 @@ function EnrolledView({
   const org = cohortOrg();
   const p = (text: string) => personalizeProgramText(text, handle, org, stats);
   const isOnboarding = project.slug === 'onboarding';
+  const isUnification = project.slug === 'phase-1-unification';
   const agentPrompt = buildProjectAgentPrompt(project, handle, org, stats);
   const { progress, loading: progressLoading, error: progressError, refresh: refreshProgress } =
     useProjectProgress(project.slug, getIdToken, true);
+  const { data: outcomesData } = useAuthedFetch<{ outcomes: ProjectOutcome[] }>(
+    isUnification,
+    '/api/program/outcomes',
+    getIdToken,
+    'Could not load contest outcomes.'
+  );
   const { survey, loading: surveyLoading } = useSurveyState(getIdToken, true);
   const gate = projectSurveyGate(project.slug, survey);
 
@@ -173,6 +183,14 @@ function EnrolledView({
           <strong>Review week.</strong> {REVIEW_WEEK_CALLOUT_ENROLLED}
         </div>
       )}
+
+      {progress?.outcome ? (
+        <ProjectOutcomeBanner outcome={progress.outcome} viewerHandle={handle} />
+      ) : null}
+
+      {isUnification ? (
+        <UnificationWinnersPanel outcomes={outcomesData?.outcomes ?? []} />
+      ) : null}
 
       {progressLoading ? (
         <p className={styles.formNote}>Loading your progress…</p>

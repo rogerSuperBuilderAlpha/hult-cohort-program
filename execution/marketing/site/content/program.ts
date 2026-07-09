@@ -117,12 +117,13 @@ export const programProjects: ProgramProject[] = [
         'Known limitations',
         'Agent usage summary',
       ],
-      deadlineNote: 'Pull request merged to the project branch by Wednesday week 2, 17:00 Eastern Time — unmerged pull requests are ineligible for review',
+      deadlineNote:
+        'Pull request merged to the project branch by Sunday week 2, 17:00 Eastern Time — unmerged pull requests are ineligible for review',
     },
     reviews: {
       artifact:
         'Written technical review on each peer submission, then a private vote on this platform',
-      dueNote: 'Thursday week 2, 14:00 Eastern Time',
+      dueNote: 'Monday week 3, 14:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Submission pull request merged or eligible miss documented',
@@ -158,11 +159,11 @@ export const programProjects: ProgramProject[] = [
       baseBranchPattern: 'projects/{cohortId}/{slug}',
       headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: ['Production URL', 'PM platform integration notes', 'Agent usage'],
-      deadlineNote: 'Pull request merged by Wednesday week 3, 17:00 Eastern Time',
+      deadlineNote: 'Pull request merged by Sunday week 3, 17:00 Eastern Time',
     },
     reviews: {
       artifact: 'Written technical review per peer, then a private vote',
-      dueNote: 'Thursday week 3, 14:00 Eastern Time',
+      dueNote: 'Monday week 4, 14:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Merged submission pull request',
@@ -198,11 +199,11 @@ export const programProjects: ProgramProject[] = [
       baseBranchPattern: 'projects/{cohortId}/{slug}',
       headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: ['Production URL', 'Sample profile URLs', 'Partner-facing README'],
-      deadlineNote: 'Pull request merged by Wednesday week 4, 17:00 Eastern Time',
+      deadlineNote: 'Pull request merged by Sunday week 4, 17:00 Eastern Time',
     },
     reviews: {
       artifact: 'Written technical review per peer, then a private vote',
-      dueNote: 'Thursday week 4, 14:00 Eastern Time',
+      dueNote: 'Monday week 5, 14:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Merged submission pull request',

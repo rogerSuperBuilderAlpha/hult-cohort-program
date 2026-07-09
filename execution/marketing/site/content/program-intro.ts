@@ -1,16 +1,16 @@
 /** Public copy for /start — newcomer intro (single source of truth). */
 
 export const programIntro = {
-  eyebrow: 'CS for Business · Summer Pilot 2026',
+  eyebrow: 'Open community · Summer Pilot 2026',
   title: 'What is this program?',
   lead:
-    'A six-week, for-credit pilot where students build production-grade software using professional frameworks, deployment practices, review workflows, and operational expectations. Peers review the systems; external users and maintainers evaluate the final sprint.',
-  electiveNote:
-    'Offered within the Hult Computer Science for Business undergraduate degree. Tuition and academic policies follow your degree enrollment—not a separate commercial cohort product.',
-  dualEnrollment:
-    'You need both: register for the course through Hult, and complete platform onboarding (apply, take-home, staff approval) to unlock project pages and submissions.',
+    'A six-week, open-access community program where participants build production-grade software using professional frameworks, deployment practices, review workflows, and operational expectations. Peers review the systems; external users and maintainers evaluate the final sprint.',
+  communityNote:
+    'Anyone can apply. Admission is through a short take-home and staff review—no degree enrollment required for Summer Pilot 2026.',
+  enrollmentNote:
+    'Complete platform onboarding (apply, take-home, staff approval) to unlock project pages and submissions.',
   toolingNote:
-    'Cursor and Claude Code are required from week 1 (~$400/month combined). Students work in modern development environments and production delivery workflows.',
+    'Cursor and Claude Code are required from week 1 (~$400/month combined). Participants work in modern development environments and production delivery workflows.',
   ctaApply: 'Apply for Summer Pilot',
   ctaProgram: 'Project list',
 } as const;
@@ -80,15 +80,15 @@ export const phase1Loop: LoopStep[] = [
 
 export const introFaq: { q: string; a: string }[] = [
   {
-    q: 'How is it graded?',
-    a: 'Pass/fail on published program criteria—no letter grades on the platform. See your course syllabus for credit.',
+    q: 'How is completion measured?',
+    a: 'Pass/fail on published program criteria—no letter grades on the platform. Every pass gate is listed on each project page before you submit.',
   },
   {
     q: 'What engineering experience is expected?',
     a: 'You should be ready to learn standard repository, branch, review, deployment, and debugging workflows. Week 1 covers the cohort process before project delivery begins.',
   },
   {
-    q: 'Can I use the platform without registering for the course?',
-    a: 'No. Dual enrollment: Hult course registration plus platform apply/admit.',
+    q: 'Do I need to be a Hult student?',
+    a: 'No for Summer Pilot 2026. Apply on the platform, complete the take-home, and get admitted to the roster. Academic credit and formal certificates are not part of this open-access cohort.',
   },
 ];

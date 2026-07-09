@@ -1,9 +1,10 @@
 import { getProject } from '@/content/program';
+import { getProjectOutcome } from '@/lib/project-outcomes-server';
 import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId, cohortSubmissionRepo, projectBranch } from '@/lib/cohort-config';
 import type { CohortStats } from '@/lib/cohort-stats-types';
 import { getEligiblePeerRows, mergePeerProgress } from '@/lib/eligible-peers-server';
-import { formatScheduleDate, reviewWindowStatus } from '@/lib/program-schedule';
+import { formatScheduleDate, reviewWindowStatus, submissionWindowStatus } from '@/lib/program-schedule';
 import type { ProjectProgress } from './project-progress-types';
 import { cohortSubmissionBrowseUrl } from './project-progress-format';
 import { githubRepoUrl } from '@/lib/github-urls';
@@ -68,6 +69,17 @@ export async function getProjectProgress(
     };
   }
 
+  const scheduleBlock = project.schedule
+    ? {
+        submissionWindowStatus: submissionWindowStatus(project),
+        submissionOpensFormatted: formatScheduleDate(project.schedule.submissionOpens),
+        submissionClosesFormatted: formatScheduleDate(project.schedule.submissionCloses),
+        deadlineNote: project.submission.deadlineNote,
+      }
+    : null;
+
+  const outcome = project.voteWeek ? await getProjectOutcome(projectSlug, id) : null;
+
   return {
     projectSlug,
     submission: {
@@ -78,6 +90,8 @@ export async function getProjectProgress(
       repoUrl,
       baseBranch: projectBranch(id, projectSlug),
     },
+    schedule: scheduleBlock,
+    outcome,
     reviews,
   };
 }

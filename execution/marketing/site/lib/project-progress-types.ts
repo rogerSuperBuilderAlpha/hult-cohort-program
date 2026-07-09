@@ -1,3 +1,5 @@
+import type { ProjectOutcome } from './project-outcomes-types';
+
 export type PeerRating = 'up' | 'down';
 
 export type PeerRatingTarget = {
@@ -24,6 +26,13 @@ export type ProjectProgress = {
     repoUrl: string;
     baseBranch?: string;
   };
+  schedule: {
+    submissionWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
+    submissionOpensFormatted?: string;
+    submissionClosesFormatted?: string;
+    deadlineNote?: string;
+  } | null;
+  outcome: ProjectOutcome | null;
   reviews: {
     /** Eligible peers with merged submissions — pass-gate denominator */
     required: number;

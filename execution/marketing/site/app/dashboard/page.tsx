@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { AccountSection } from '@/components/AccountSection';
+import { ExpectationsAcknowledgmentPanel } from '@/components/ExpectationsAcknowledgmentPanel';
 import { programProjects } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import type { ParticipantMe } from '@/lib/participant-status';
@@ -22,6 +23,7 @@ function ParticipantDashboard({
   signOut,
   deleteAccount,
   onAccountDeleted,
+  onAckSigned,
 }: {
   me: ParticipantMe;
   summary: DashboardSummary;
@@ -29,6 +31,7 @@ function ParticipantDashboard({
   signOut: () => void;
   deleteAccount: () => Promise<{ ok: boolean; error?: string }>;
   onAccountDeleted: () => void;
+  onAckSigned: () => void;
 }) {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [downloadError, setDownloadError] = useState('');
@@ -130,6 +133,28 @@ function ParticipantDashboard({
         </div>
       ) : null}
 
+      {!summary.expectationsAcknowledgmentSigned ? (
+        <ExpectationsAcknowledgmentPanel getIdToken={getIdToken} onSigned={onAckSigned} />
+      ) : null}
+
+      {summary.schedule.activePhase === 'phase-2' ? (
+        <div className={styles.callout}>
+          <p style={{ marginTop: 0 }}>
+            <strong>Week 6 — all three Phase 2 deliverables are required.</strong> Plan time for the
+            learning app (external users), venture package (users + investor touch), and open-source
+            contribution. Staff verify outcome metrics after the sprint — self-reported counts are not
+            accepted.
+          </p>
+          <p className={styles.formNote} style={{ marginBottom: 0 }}>
+            <Link href="/program/phase-2-learning-app">Learning app</Link>
+            {' · '}
+            <Link href="/program/phase-2-venture">Venture</Link>
+            {' · '}
+            <Link href="/program/phase-2-open-source">Open source</Link>
+          </p>
+        </div>
+      ) : null}
+
       {summary.schedule.cohortWeek ? (
         <p className={styles.formNote}>
           Cohort week {summary.schedule.cohortWeek}
@@ -202,6 +227,9 @@ function ParticipantDashboard({
                     : ''}
                 </>
               ) : null}
+              {project.outcome?.winnerHandle ? (
+                <> · winner @{project.outcome.winnerHandle}</>
+              ) : null}
               {meta?.schedule.reviewCloses ? (
                 <> · review deadline {formatScheduleDate(meta.schedule.reviewCloses)}</>
               ) : null}
@@ -238,8 +266,9 @@ function ParticipantDashboard({
       <p className={styles.formNote}>
         Staff-verified gates — onboarding tooling verification, the unification demo, and the
         Phase 2 outcome metrics (qualified users, investor touches, upstream merges) — are
-        confirmed by staff at the end of the cohort and are not tracked live on this page. Final
-        pass/fail standing is issued after week 6. Questions:{' '}
+        confirmed by staff at the end of the cohort and are not tracked live on this page.
+        Expectations Acknowledgment is tracked here once you sign above. Final pass/fail standing
+        is issued after week 6. Questions:{' '}
         <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
       </p>
 
@@ -307,27 +336,31 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [summaryError, setSummaryError] = useState('');
 
+  async function loadSummary() {
+    const idToken = await getIdToken();
+    if (!idToken) {
+      setSummaryError('Could not read your session. Refresh the page to try again.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/dashboard', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const json = (await res.json()) as DashboardSummary & { error?: string };
+      if (!res.ok) throw new Error(json.error || 'Could not load dashboard.');
+      setSummary(json);
+      setSummaryError('');
+    } catch (err) {
+      setSummaryError(err instanceof Error ? err.message : 'Could not load dashboard.');
+    }
+  }
+
   useEffect(() => {
     if (!profile || !isEnrolled(me)) return;
     let cancelled = false;
     void (async () => {
-      const idToken = await getIdToken();
-      if (!idToken) {
-        if (!cancelled) setSummaryError('Could not read your session. Refresh the page to try again.');
-        return;
-      }
-      try {
-        const res = await fetch('/api/dashboard', {
-          headers: { Authorization: `Bearer ${idToken}` },
-        });
-        const json = (await res.json()) as DashboardSummary & { error?: string };
-        if (!res.ok) throw new Error(json.error || 'Could not load dashboard.');
-        if (!cancelled) setSummary(json);
-      } catch (err) {
-        if (!cancelled) {
-          setSummaryError(err instanceof Error ? err.message : 'Could not load dashboard.');
-        }
-      }
+      await loadSummary();
+      if (cancelled) return;
     })();
     return () => {
       cancelled = true;
@@ -409,6 +442,10 @@ export default function DashboardPage() {
             signOut={() => void signOut()}
             deleteAccount={deleteAccount}
             onAccountDeleted={() => void refresh()}
+            onAckSigned={() => {
+              void loadSummary();
+              void refresh();
+            }}
           />
         )}
 

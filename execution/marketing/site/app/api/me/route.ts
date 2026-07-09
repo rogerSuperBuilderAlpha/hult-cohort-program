@@ -1,6 +1,7 @@
 import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
 import { getCohortStats } from '@/lib/cohort-stats-server';
+import { getExpectationsAcknowledgment } from '@/lib/expectations-ack-server';
 import { getNextCohortInterest } from '@/lib/cohort-interest-server';
 import { resolveEnrollment } from '@/lib/enrollment-server';
 import { rosterMemberRef } from '@/lib/firestore-paths';
@@ -41,6 +42,10 @@ export async function GET(request: Request) {
       rosterActive: rosterData ? rosterData.active !== false : null,
     });
 
+    const expectationsAcknowledgment = enrollment.canAccessEnrolledUi
+      ? await getExpectationsAcknowledgment(githubHandle, id)
+      : null;
+
     const payload: ParticipantMe = {
       githubHandle,
       cohortStats,
@@ -67,6 +72,7 @@ export async function GET(request: Request) {
           }
         : null,
       nextCohortInterest,
+      expectationsAcknowledgment,
     };
 
     return Response.json(payload);

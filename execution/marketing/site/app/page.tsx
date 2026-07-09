@@ -23,15 +23,15 @@ export default async function Home() {
       />
 
       <section className={styles.hero}>
-        <p className={`${styles.eyebrow} animate-in`}>CS for Business · Summer 2026</p>
+        <p className={`${styles.eyebrow} animate-in`}>Open community · Summer 2026</p>
         <h1 className={`${styles.headline} animate-in delay-1`}>
           Build the software your<br />
           cohort actually runs on.
         </h1>
         <p className={`${styles.subhead} animate-in delay-2`}>
-          A six-week, for-credit Hult elective. You build real applications in the frameworks and
-          workflows professional engineering teams use—and the strongest builds go into production
-          for the whole cohort to use.
+          A six-week, open-access community program. You build real applications in the frameworks
+          and workflows professional engineering teams use—and the strongest builds go into
+          production for the whole cohort to use.
         </p>
         <div className={`${styles.heroActions} animate-in delay-3`}>
           <ParticipantCta />
@@ -58,8 +58,9 @@ export default async function Home() {
           for the rest of the program.
         </p>
         <p className={styles.sectionBody}>
-          In the final week you ship for an outside audience: an app with real users, a venture
-          you can pitch, or a merged contribution to a serious open-source project.
+          In the final week you ship for an outside audience: a learning app with real users, a
+          venture package you can pitch, and a merged contribution to a serious open-source
+          project—all three are required deliverables.
         </p>
         <p className={styles.sectionBody}>
           <Link href="/start">See the full week-by-week breakdown →</Link>

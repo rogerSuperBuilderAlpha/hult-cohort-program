@@ -28,11 +28,20 @@ export function getProjectSchedule(project: ProgramProject): ProjectSchedule | n
   return project.schedule ?? null;
 }
 
-export function isSubmissionOpen(project: ProgramProject, now = new Date()): boolean {
+export function submissionWindowStatus(
+  project: ProgramProject,
+  now = new Date()
+): 'open' | 'not-yet' | 'closed' | 'none' {
   const schedule = getProjectSchedule(project);
-  if (!schedule) return true;
+  if (!schedule) return 'none';
   const t = now.getTime();
-  return t >= parseIso(schedule.submissionOpens).getTime() && t <= parseIso(schedule.submissionCloses).getTime();
+  if (t < parseIso(schedule.submissionOpens).getTime()) return 'not-yet';
+  if (t > parseIso(schedule.submissionCloses).getTime()) return 'closed';
+  return 'open';
+}
+
+export function isSubmissionOpen(project: ProgramProject, now = new Date()): boolean {
+  return submissionWindowStatus(project, now) === 'open';
 }
 
 export function isReviewWindowOpen(project: ProgramProject, now = new Date()): boolean {

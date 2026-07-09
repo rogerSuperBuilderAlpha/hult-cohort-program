@@ -21,7 +21,9 @@ Parent guide: [../../../AGENTS.md](../../../AGENTS.md)
 | Progress API | `lib/project-progress-server.ts` |
 | Written reviews | `lib/written-reviews-server.ts`, `lib/written-reviews-format.ts` |
 | Private votes | `lib/ratings-server.ts` |
-| Winner tally | `lib/tally-server.ts` (`tallyThumbsUp`) |
+| Winner tally | `lib/tally-server.ts` (`tallyThumbsUp`) · publish: `scripts/tally-votes.mjs --publish --confirm` |
+| Contest outcomes | `lib/project-outcomes-server.ts` · Firestore `projectOutcomes/{cohort}/projects/{slug}` |
+| Expectations ack | `lib/expectations-ack-server.ts` · `POST /api/me/acknowledgment` |
 | Cohort stats | `lib/cohort-stats-server.ts` (server) · `lib/cohort-stats-types.ts` (client-safe) |
 | Agent prompts | `lib/project-agent-prompt.ts`, `components/AgentPromptHarness.tsx` |
 | Branding | `components/SiteHeader.tsx`, `components/HultLogo.tsx` |
@@ -43,7 +45,9 @@ All authenticated routes expect `Authorization: Bearer <Firebase ID token>`.
 
 - `POST /api/applications` — apply (Admin SDK)
 - `POST /api/cohort-interest` — indicate interest in next cohort (GitHub sign-in)
-- `GET /api/me` — profile + enrollment state + cohort stats
+- `GET /api/me` — profile + enrollment state + cohort stats + expectations acknowledgment
+- `POST /api/me/acknowledgment` — sign community Expectations Acknowledgment (enrolled)
+- `GET /api/program/outcomes` — published Phase 1 contest winners (enrolled)
 - `GET /api/history` — cross-cohort merged PR history (GitHub-derived; any signed-in user)
 - `GET /api/dashboard` — enrolled cross-project progress (requires roster)
 - `GET /api/program/projects` — public program index (MCP + agents)

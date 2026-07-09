@@ -41,8 +41,21 @@ See [cohort-1-launch.md](../checklists/cohort-1-launch.md).
 | Wed 10:00 | Demo prep clinic |
 | Wed 17:00 | **Submission PRs due** |
 | Thu 14:00 | **Written reviews due** |
-| Thu 16:00 | **Private vote closes** — run `node scripts/tally-votes.mjs --project=phase-1-project-1` |
+| Thu 16:00 | **Private vote closes** — tally and publish outcome (see below) |
 | Fri Jul 24, 10:00 | Announce winner; cutover begins ([the-loop.md](../../curriculum/phase-1/the-loop.md)) |
+
+**Tally + publish (after review window closes):**
+
+```bash
+cd execution/marketing/site
+node scripts/tally-votes.mjs --project=phase-1-project-1
+# If tie: resolve via rubric median per governance/winner-selection.md, then publish winner manually
+node scripts/tally-votes.mjs --project=phase-1-project-1 --publish --confirm
+```
+
+Participants see the winner on the dashboard and project page immediately after publish.
+
+**Review quality sampling:** Spot-check 5% of GitHub review issues per project ([assessment/peer-review-system.md](../../assessment/peer-review-system.md)) — word count, file citations, copy-paste detection.
 
 Publish org template repo if not done.
 

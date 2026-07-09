@@ -106,7 +106,7 @@ Program docs (Tiers 1–7) are expanded. Launch artifacts live in [execution/](e
 | Buyout | $5,000 default |
 | Qualifying offer | FT SWE ≥ $80k; 180 days |
 | Referral fee | 25%; 90-day clawback; 10% kickback |
-| Voting | Ranked choice top 3 |
+| Voting | Private 👍/👎 after written GitHub review; winner = most thumbs up |
 | Phase 2 users | ≥ 25 external per app snapshot |
 | Open source | ≥ 1 merged PR; repo ≥ 1k stars |
 | Bootstrap | Discord weeks 1–4 only |

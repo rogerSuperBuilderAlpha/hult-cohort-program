@@ -8,7 +8,7 @@
 
 Filed as GitHub Issue on reviewee's repo per [peer-review-system.md](../../../assessment/peer-review-system.md). Minimum 150 words; primary reviews (3 assigned) ≥ 300 words.
 
-**Votes are separate** from rubric — ranked-choice ballot per [winner-selection.md](../../../governance/winner-selection.md). Rubric breaks vote ties only.
+**Votes are separate** from rubric — private 👍/👎 per peer after written review per [winner-selection.md](../../../governance/winner-selection.md). Rubric breaks vote ties only.
 
 ---
 

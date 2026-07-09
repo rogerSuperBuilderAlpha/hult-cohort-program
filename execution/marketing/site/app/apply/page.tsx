@@ -17,7 +17,7 @@ import { readApplicationApiError } from '@/lib/read-application-api-error';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import styles from '../page.module.css';
 
-import { DEFAULT_TAKE_HOME_REPO_URL } from '@/lib/applications';
+import { DEFAULT_TAKE_HOME_REPO_URL, takeHomeDisplayLabel } from '@/lib/applications';
 
 function SignedInBar({
   handle,
@@ -98,7 +98,7 @@ function ApplicationSubmittedPanel({ takeHomeUrl }: { takeHomeUrl: string }) {
       <p className={styles.formNote}>
         Take-home repo:{' '}
         <a href={takeHomeUrl} target="_blank" rel="noopener noreferrer">
-          {takeHomeUrl}
+          {takeHomeDisplayLabel()}
         </a>
       </p>
     </div>
@@ -131,7 +131,7 @@ function TakeHomeSteps({
         <li>
           Open the repository:{' '}
           <a href={takeHomeUrl} target="_blank" rel="noopener noreferrer">
-            {takeHomeUrl}
+            {takeHomeDisplayLabel()}
           </a>
         </li>
         <li>
@@ -413,8 +413,7 @@ export default function ApplyPage() {
                   <label className={styles.checkboxLabel}>
                     <input name="confirmTooling" type="checkbox" required />
                     I confirm I can cover approximately $400 per month for Cursor and Claude Code for
-                    the six-week pilot, and that I am registered (or will register) for this elective
-                    through Hult.
+                    the six-week pilot.
                   </label>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPublicWork" type="checkbox" required />

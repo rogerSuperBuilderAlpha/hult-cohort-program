@@ -92,7 +92,19 @@ Run locally after pulling env: `npm run check:env`
 - [ ] Create `hult-cohort` GitHub org; transfer take-home + cohort repos
 - [ ] Custom domain `cohort.hult.edu` (Hult IT CNAME)
 - [ ] Transactional email domain + DKIM (Mailgun)
-- [ ] Update stale governance docs (`PLATFORM.md`, `governance/winner-selection.md`) to match 👍/👎 model
+
+## P4 — Academic remediation (Jul 2026)
+
+- [x] Open-access community program copy (credit/certificate deferred)
+- [x] Phase 2 scope clarity (three required week-6 deliverables)
+- [x] Deadline prose aligned to ISO schedule; submission/review windows in progress UI
+- [x] WORKPLAN + rubric ranked-choice drift fixed
+- [x] Expectations Acknowledgment flow (`/api/me/acknowledgment`, dashboard gate)
+- [x] Contest outcome publish (`tally-votes.mjs --publish --confirm` → `projectOutcomes/`)
+- [x] Winner handoff UI on dashboard + project pages; unification winners panel
+- [x] Staff SOPs: tally/tie-break, Phase 2 metrics fallback, review sampling
+- [ ] Distributed rate limiting (deferred)
+- [ ] Ludwitt/Hult metrics API production (deferred — use [operations/phase-2-metrics-fallback.md](../operations/phase-2-metrics-fallback.md))
 
 ---
 

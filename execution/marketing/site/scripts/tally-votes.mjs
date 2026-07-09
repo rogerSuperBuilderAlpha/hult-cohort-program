@@ -5,6 +5,7 @@
  *   node scripts/tally-votes.mjs --project=phase-1-project-1
  *   node scripts/tally-votes.mjs --all
  *   node scripts/tally-votes.mjs --all --json
+ *   node scripts/tally-votes.mjs --project=phase-1-project-1 --publish --confirm
  *
  * Requires FIREBASE_SERVICE_ACCOUNT_PATH or FIREBASE_SERVICE_ACCOUNT_JSON.
  */
@@ -24,9 +25,18 @@ function parseArgs() {
   const project = projectArg ? projectArg.split('=')[1] : null;
   const all = process.argv.includes('--all');
   const json = process.argv.includes('--json');
+  const publish = process.argv.includes('--publish');
+  const confirm = process.argv.includes('--confirm');
 
   if (!all && !project) {
-    console.error('Usage: node scripts/tally-votes.mjs --project=<slug> | --all [--json]');
+    console.error(
+      'Usage: node scripts/tally-votes.mjs --project=<slug> | --all [--json] [--publish --confirm]'
+    );
+    process.exit(1);
+  }
+
+  if (publish && !confirm) {
+    console.error('Publishing outcomes requires --confirm (dry-run by default).');
     process.exit(1);
   }
 
@@ -39,7 +49,7 @@ function parseArgs() {
     }
   }
 
-  return { projects, json };
+  return { projects, json, publish, confirm };
 }
 
 function toDate(value) {
@@ -151,14 +161,63 @@ function printTable(result) {
   }
 }
 
+async function publishOutcome(db, cohortId, result) {
+  const winnerRow = result.winner ? result.rows.find((r) => r.handle === result.winner) : null;
+  const ref = db
+    .collection('projectOutcomes')
+    .doc(cohortId)
+    .collection('projects')
+    .doc(result.projectSlug);
+
+  let repo = null;
+  let deployUrl = null;
+  let prUrl = null;
+
+  if (result.winner) {
+    const entrySnap = await db
+      .collection('submissions')
+      .doc(cohortId)
+      .collection('projects')
+      .doc(result.projectSlug)
+      .collection('entries')
+      .doc(result.winner)
+      .get();
+    if (entrySnap.exists) {
+      const data = entrySnap.data();
+      deployUrl = data.deployUrl ?? null;
+      prUrl = data.prUrl ?? null;
+      repo = data.repo ?? null;
+    }
+  }
+
+  await ref.set({
+    winnerHandle: result.winner,
+    up: winnerRow?.up ?? 0,
+    down: winnerRow?.down ?? 0,
+    tiedHandles: result.tiedHandles ?? [],
+    repo,
+    deployUrl,
+    prUrl,
+    publishedAt: new Date(),
+  });
+
+  console.log(`Published outcome for ${result.projectSlug} → ${result.winner ? `@${result.winner}` : 'tie/pending'}`);
+}
+
 async function main() {
-  const { projects, json } = parseArgs();
+  const { projects, json, publish } = parseArgs();
   const db = initDb();
   const cohortId = cohortIdFromEnv();
 
   const results = [];
   for (const slug of projects) {
     results.push(await tallyProject(db, cohortId, slug));
+  }
+
+  if (publish) {
+    for (const result of results) {
+      await publishOutcome(db, cohortId, result);
+    }
   }
 
   if (json) {

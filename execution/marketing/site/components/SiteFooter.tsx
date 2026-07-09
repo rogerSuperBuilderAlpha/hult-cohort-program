@@ -70,8 +70,7 @@ export function SiteFooter() {
         </div>
 
         <p className={styles.legal}>
-          Platform source code is open under MIT. Enrollment requires the Program Agreement and
-          Expectations Acknowledgment.
+          Platform source code is open under MIT. Enrollment requires the Expectations Acknowledgment.
         </p>
       </div>
     </footer>

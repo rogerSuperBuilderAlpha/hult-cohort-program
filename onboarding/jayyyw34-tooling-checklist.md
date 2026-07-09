@@ -12,6 +12,7 @@ Summer Pilot 2026 · Week 1 onboarding submission.
 | Cohort repo access | ✅ Fork workflow | PR from participant fork → upstream `projects/summer26/onboarding` |
 | Expectations Acknowledgment | ✅ Signed | Reviewed and acknowledged via program page: https://site-nine-rouge-68.vercel.app/program |
 | Agent workflow dry-run | ✅ Completed | This onboarding session: agent interview → repo exploration → branch + checklist + PR |
+| Vercel deploy | ✅ Verified | Production URL: https://jayyyw34-vercel-smoke.vercel.app |
 
 ## Checklist
 
@@ -20,6 +21,7 @@ Summer Pilot 2026 · Week 1 onboarding submission.
 - [x] GitHub SSH / fork access verified
 - [x] Expectations Acknowledgment link recorded — https://site-nine-rouge-68.vercel.app/program
 - [x] Agent workflow dry-run completed
+- [x] Vercel account + test deploy — https://jayyyw34-vercel-smoke.vercel.app
 
 ## Agent workflow dry-run notes
 
@@ -28,6 +30,7 @@ End-to-end steps completed in this session:
 1. **Research** — Agent explored `rogerSuperBuilderAlpha/hult-cohort-program` (branches, onboarding docs, example checklist format).
 2. **Dev** — Created branch `participants/summer26/onboarding/jayyyw34` and this checklist file.
 3. **QA / submit** — Open PR `[Onboarding] Tooling checklist — jayyyw34` targeting `projects/summer26/onboarding`.
+4. **Deploy** — Vercel smoke test live at https://jayyyw34-vercel-smoke.vercel.app
 
 ## Next actions (before pass gate)
 

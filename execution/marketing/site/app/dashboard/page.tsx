@@ -73,8 +73,8 @@ function ParticipantDashboard({
   const submittedCount = summary.projects.filter((p) => p.submissionMerged).length;
 
   // Platform-tracked pass-gate requirements: merged submission plus, on vote-week projects,
-  // full written reviews and votes. Staff-verified gates (tooling checks, unification demo,
-  // Phase 2 outcome metrics) are called out separately below.
+  // full written reviews and votes. Staff-verified gates (Phase 2 outcome metrics) are called
+  // out separately below.
   const isTrackedComplete = (p: DashboardSummary['projects'][number]) =>
     p.submissionMerged &&
     (p.reviewsRequired == null ||
@@ -140,17 +140,16 @@ function ParticipantDashboard({
       {summary.schedule.activePhase === 'phase-2' ? (
         <div className={styles.callout}>
           <p style={{ marginTop: 0 }}>
-            <strong>Week 6 — all three Phase 2 deliverables are required.</strong> Plan time for the
-            learning app (external users), venture package (users + investor touch), and open-source
-            contribution. Staff verify outcome metrics after the sprint — self-reported counts are not
-            accepted.
+            <strong>External sprint weeks (4–6).</strong> One focus per week: Ludwitt learning
+            integration, startup / entrepreneurship, then open-source swarm. Staff verify outcome
+            metrics — self-reported counts are not accepted.
           </p>
           <p className={styles.formNote} style={{ marginBottom: 0 }}>
-            <Link href="/program/phase-2-learning-app">Learning app</Link>
+            <Link href="/program/phase-2-learning-app">Week 4 · Ludwitt</Link>
             {' · '}
-            <Link href="/program/phase-2-venture">Venture</Link>
+            <Link href="/program/phase-2-venture">Week 5 · Startup</Link>
             {' · '}
-            <Link href="/program/phase-2-open-source">Open source</Link>
+            <Link href="/program/phase-2-open-source">Week 6 · OSS swarm</Link>
           </p>
         </div>
       ) : null}
@@ -264,11 +263,10 @@ function ParticipantDashboard({
         })}
       </ul>
       <p className={styles.formNote}>
-        Staff-verified gates — onboarding tooling verification, the unification demo, and the
-        Phase 2 outcome metrics (qualified users, investor touches, upstream merges) — are
-        confirmed by staff at the end of the cohort and are not tracked live on this page.
-        Expectations Acknowledgment is tracked here once you sign above. Final pass/fail standing
-        is issued after week 6. Questions:{' '}
+        Staff-verified gates — Phase 2 outcome metrics (qualified users, investor touches, upstream
+        merges) — are confirmed by staff and are not tracked live on this page. Expectations
+        Acknowledgment is tracked here once you sign above. Final pass/fail standing is issued after
+        week 6. Questions:{' '}
         <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
       </p>
 
@@ -295,7 +293,7 @@ function ParticipantDashboard({
             Open active project
           </Link>
         ) : (
-          <Link href="/program/onboarding" className={styles.primaryBtn}>
+          <Link href="/program/phase-1-project-1" className={styles.primaryBtn}>
             Browse program
           </Link>
         )}

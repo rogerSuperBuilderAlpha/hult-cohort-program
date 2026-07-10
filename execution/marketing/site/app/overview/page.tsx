@@ -42,14 +42,14 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Outcome</h2>
           <p>
-            Participants complete eight tracked deliverables by building, deploying, reviewing, and
+            Participants complete six weekly deliverables by building, deploying, reviewing, and
             operating production-grade software. Assessment is pass/fail on published criteria.
             Summer Pilot 2026 is open-access—formal academic credit and certificates are deferred.
           </p>
         </section>
 
         <section className={styles.overviewBlock}>
-          <h2>Phase 1 · Weeks 2–5</h2>
+          <h2>Weeks 1–3 · Contests</h2>
           <ol>
             <li>Each participant builds and deploys a production application.</li>
             <li>
@@ -62,31 +62,29 @@ export default async function OverviewPage() {
           </ol>
           <ul>
             <li>
-              <strong>Project 1:</strong> Project management platform
+              <strong>Week 1:</strong> Project management platform
             </li>
             <li>
-              <strong>Project 2:</strong> Internal communications platform
+              <strong>Week 2:</strong> Internal communications platform
             </li>
             <li>
-              <strong>Project 3:</strong> Public showcase
+              <strong>Week 3:</strong> Vibe marketing platform
             </li>
           </ul>
-          <p>
-            Winners unify the three platforms. Operator roles (~10% each): {operators}.
-          </p>
+          <p>Operator roles (~10% each winning platform): {operators}.</p>
         </section>
 
         <section className={styles.overviewBlock}>
-          <h2>Final sprint · Week 6</h2>
+          <h2>Weeks 4–6 · External sprints</h2>
           <ul>
             <li>
-              <strong>Learning app</strong> — Ludwitt/Hult metrics; external users
+              <strong>Week 4:</strong> Learning engineer integration to Ludwitt — verified external users
             </li>
             <li>
-              <strong>Venture</strong> — plan, materials, production app
+              <strong>Week 5:</strong> Startup / entrepreneurship — deck, plan, production app
             </li>
             <li>
-              <strong>Open source</strong> — accepted upstream contribution
+              <strong>Week 6:</strong> Open source swarm — merged upstream contribution
             </li>
           </ul>
         </section>
@@ -94,8 +92,8 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>For hiring partners</h2>
           <ul>
-            <li>Public showcase built in week 4 and unified in week 5</li>
-            <li>Week 6 hiring showcase (Boston anchor)</li>
+            <li>Vibe marketing platform ships in week 3</li>
+            <li>End-of-pilot hiring showcase (Boston anchor)</li>
             <li>Review deployed systems, technical documentation, and contribution history directly</li>
           </ul>
           <p>

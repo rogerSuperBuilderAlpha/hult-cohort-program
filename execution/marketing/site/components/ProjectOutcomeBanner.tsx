@@ -58,7 +58,7 @@ type UnificationProps = {
 const PLATFORM_LABELS: Record<string, string> = {
   'phase-1-project-1': 'Project management platform',
   'phase-1-project-2': 'Internal communications platform',
-  'phase-1-project-3': 'Public showcase platform',
+  'phase-1-project-3': 'Vibe marketing platform',
 };
 
 export function UnificationWinnersPanel({ outcomes }: UnificationProps) {
@@ -102,8 +102,8 @@ export function UnificationWinnersPanel({ outcomes }: UnificationProps) {
         ))}
       </ul>
       <p className={styles.formNote} style={{ marginBottom: 0 }}>
-        Integration checklist: shared navigation, single sign-on or deep links between all three,
-        migration plan for cohort data, and a live demo of five of six unification steps.
+        After each contest week, non-winners contribute pull requests to the winning platform. Keep
+        deployments stable — the cohort will live inside these systems.
       </p>
     </section>
   );

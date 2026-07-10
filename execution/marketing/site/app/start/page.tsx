@@ -35,7 +35,7 @@ export default function StartPage() {
         <section className={styles.introSection}>
           <h2 className={styles.introSectionTitle}>Phase 1 repeats this loop</h2>
           <p className={styles.sectionBody}>
-            Three internal products (PM platform, comms, showcase). Each project uses the same cycle:
+            Three contest weeks (PM, comms, vibe marketing). Each uses the same cycle:
           </p>
           <ProgramIntroLoop />
         </section>

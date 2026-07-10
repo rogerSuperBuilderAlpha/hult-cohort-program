@@ -7,9 +7,9 @@ export type ProgramPhase = 'onboarding' | 'phase-1' | 'phase-2';
 
 export type ScheduleContext = {
   now: Date;
-  /** First active project (back-compat). Prefer `activeProjects` — Phase 2 runs three at once. */
+  /** First active project (back-compat). Prefer `activeProjects`. */
   activeProject: ProgramProject | null;
-  /** Every project whose window contains `now`. Phase 2's three projects share one window. */
+  /** Every project whose window contains `now`. */
   activeProjects: ProgramProject[];
   activePhase: ProgramPhase | null;
   cohortWeek: number | null;

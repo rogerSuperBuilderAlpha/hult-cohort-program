@@ -4,7 +4,7 @@ export const programIntro = {
   eyebrow: 'Open community · Summer Pilot 2026',
   title: 'What is this program?',
   lead:
-    'A six-week, open-access community program where participants build production-grade software using professional frameworks, deployment practices, review workflows, and operational expectations. Peers review the systems; external users and maintainers evaluate the final sprint.',
+    'A six-week, open-access community program where participants build production-grade software using professional frameworks, deployment practices, review workflows, and operational expectations. Peers review the early platforms; external users, investors, and maintainers judge the later weeks.',
   communityNote:
     'Anyone can apply. Admission is through a short take-home and staff review—no degree enrollment required for Summer Pilot 2026.',
   enrollmentNote:
@@ -24,28 +24,40 @@ export type TimelineSegment = {
 
 export const introTimeline: TimelineSegment[] = [
   {
-    id: 'onboard',
-    label: 'Onboarding',
+    id: 'w1',
+    label: 'PM platform',
     weeks: 'Week 1',
-    detail: 'Tooling, development environment setup, and the first structured code submission.',
+    detail: 'Contest: project management platform. Motivation is the key design variable.',
   },
   {
-    id: 'p1',
-    label: 'Phase 1',
-    weeks: 'Weeks 2–4',
-    detail: 'Three platforms: PM, comms, showcase. Same build → review → vote loop each time.',
+    id: 'w2',
+    label: 'Comms',
+    weeks: 'Week 2',
+    detail: 'Contest: internal communications platform for the cohort.',
   },
   {
-    id: 'uni',
-    label: 'Unification',
+    id: 'w3',
+    label: 'Vibe marketing',
+    weeks: 'Week 3',
+    detail: 'Contest: public vibe marketing platform for the cohort.',
+  },
+  {
+    id: 'w4',
+    label: 'Ludwitt learning',
+    weeks: 'Week 4',
+    detail: 'Learning engineer integration to Ludwitt — verified external users.',
+  },
+  {
+    id: 'w5',
+    label: 'Startup',
     weeks: 'Week 5',
-    detail: 'Winning builds merge into one cohort stack.',
+    detail: 'Venture package: deck, plan, production app, investor touch.',
   },
   {
-    id: 'p2',
-    label: 'Phase 2',
+    id: 'w6',
+    label: 'OSS swarm',
     weeks: 'Week 6',
-    detail: 'Learning app, venture package, and open-source contribution in the final sprint.',
+    detail: 'Open source swarm — land a merged upstream pull request.',
   },
 ];
 
@@ -85,7 +97,7 @@ export const introFaq: { q: string; a: string }[] = [
   },
   {
     q: 'What engineering experience is expected?',
-    a: 'You should be ready to learn standard repository, branch, review, deployment, and debugging workflows. Week 1 covers the cohort process before project delivery begins.',
+    a: 'You should be ready to learn standard repository, branch, review, deployment, and debugging workflows. Week 1 is a full build contest — tooling and Expectations Acknowledgment happen in parallel on the dashboard.',
   },
   {
     q: 'Do I need to be a Hult student?',

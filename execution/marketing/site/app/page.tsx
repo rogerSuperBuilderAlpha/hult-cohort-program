@@ -52,15 +52,13 @@ export default async function Home() {
           You build the tools, then the best ones go live.
         </h2>
         <p className={styles.sectionBody}>
-          For three weeks the cohort builds the same product each week—first a project management
-          tool, then a communications platform, then a public showcase. Everyone reviews every
-          submission, and a private vote decides which build the cohort actually adopts and operates
-          for the rest of the program.
+          Weeks 1–3 are contests: project management, internal communications, then vibe marketing.
+          Everyone reviews every submission, and a private vote decides which build the cohort adopts
+          and operates.
         </p>
         <p className={styles.sectionBody}>
-          In the final week you ship for an outside audience: a learning app with real users, a
-          venture package you can pitch, and a merged contribution to a serious open-source
-          project—all three are required deliverables.
+          Weeks 4–6 go external, one week each: Ludwitt learning integration, a startup venture
+          package, then an open-source swarm contribution.
         </p>
         <p className={styles.sectionBody}>
           <Link href="/start">See the full week-by-week breakdown →</Link>

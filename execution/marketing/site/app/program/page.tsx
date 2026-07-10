@@ -6,13 +6,12 @@ import { programProjects } from '../../content/program';
 export const metadata = {
   title: 'Program | Hult Cohort Developer Program',
   description:
-    'Project requirements, submission standards, and assessment criteria for each phase of the cohort.',
+    'Project requirements, submission standards, and assessment criteria for each week of the cohort.',
 };
 
 export default function ProgramIndexPage() {
   const phase1 = programProjects.filter((p) => p.phase === 'phase-1');
   const phase2 = programProjects.filter((p) => p.phase === 'phase-2');
-  const onboarding = programProjects.filter((p) => p.phase === 'onboarding');
 
   return (
     <main className={styles.main}>
@@ -20,20 +19,18 @@ export default function ProgramIndexPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Participant journey</p>
-        <h1 className={styles.sectionTitle}>Projects, requirements, and assessment</h1>
+        <h1 className={styles.sectionTitle}>Six weeks · projects, requirements, assessment</h1>
         <p className={styles.overviewLead}>
-          Each project requires a working software system, production deployment evidence,
-          documentation, and peer technical review. During Phase 1 review weeks, participants
-          evaluate every peer submission, then cast a private vote. The selected system operates
-          for the cohort.
+          Weeks 1–3 are review-week contests: build, review every peer, then cast a private vote.
+          The selected system operates for the cohort. Weeks 4–6 are external sprints — Ludwitt
+          learning, startup, and open-source swarm — one week each.
         </p>
         <p className={styles.formNote}>
           Select any project to open its full requirements, deadlines, and submission steps.
         </p>
 
-        <Section title="Onboarding" projects={onboarding} />
-        <Section title="Phase 1 · Internal (review weeks)" projects={phase1} />
-        <Section title="Phase 2 · External" projects={phase2} />
+        <Section title="Weeks 1–3 · Contests (review weeks)" projects={phase1} />
+        <Section title="Weeks 4–6 · External sprints" projects={phase2} />
       </article>
     </main>
   );
@@ -46,18 +43,18 @@ function Section({
   title: string;
   projects: typeof programProjects;
 }) {
+  if (projects.length === 0) return null;
   return (
     <section className={styles.overviewBlock}>
       <h2>{title}</h2>
       <ul className={styles.programList}>
-        {projects.map((p) => (
-          <li key={p.slug}>
-            <Link href={`/program/${p.slug}`} className={styles.programLink}>
-              <span className={styles.programWeeks}>{p.weeks}</span>
-              <span className={styles.programTitle}>{p.title}</span>
-              {p.voteWeek && <span className={styles.voteBadge}>Review week</span>}
-              <span className={styles.programSummary}>{p.summary}</span>
+        {projects.map((project) => (
+          <li key={project.slug}>
+            <Link href={`/program/${project.slug}`}>
+              <strong>{project.phaseLabel}</strong> — {project.title}
+              {project.voteWeek ? ' · Review week' : ''}
             </Link>
+            <p>{project.summary}</p>
           </li>
         ))}
       </ul>

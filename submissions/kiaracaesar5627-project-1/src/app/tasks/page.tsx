@@ -3,9 +3,20 @@ import { AppShell } from "@/components/AppShell";
 import { SubmitButton } from "@/components/SubmitButton";
 import { setTaskStatusAction, updateTaskAction } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
+import { listProjects, listTasks, listUsersPublic } from "@/lib/db";
 import { statusLabel, urgency } from "@/lib/labels";
-import { prisma } from "@/lib/prisma";
-import { TaskStatus } from "@prisma/client";
+import type { TaskStatus } from "@/lib/types";
+
+type TaskRow = {
+  id: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  due_date: string | null;
+  assignee_id: string | null;
+  project?: { name: string };
+  assignee?: { username: string } | null;
+};
 
 export default async function TasksPage({
   searchParams,
@@ -26,26 +37,13 @@ export default async function TasksPage({
       : undefined;
 
   const [tasks, projects, users] = await Promise.all([
-    prisma.task.findMany({
-      where: {
-        ...(sp.project ? { projectId: sp.project } : {}),
-        ...(statusFilter ? { status: statusFilter } : {}),
-        ...(sp.assignee ? { assigneeId: sp.assignee } : {}),
-      },
-      include: {
-        project: true,
-        assignee: true,
-      },
-      orderBy: [{ updatedAt: "desc" }],
-    }),
-    prisma.project.findMany({
-      where: { archived: false },
-      orderBy: { name: "asc" },
-    }),
-    prisma.user.findMany({
-      orderBy: { username: "asc" },
-      select: { id: true, username: true, name: true },
-    }),
+    listTasks({
+      projectId: sp.project || undefined,
+      status: statusFilter,
+      assigneeId: sp.assignee || undefined,
+    }) as Promise<TaskRow[]>,
+    listProjects({ archived: false }),
+    listUsersPublic(),
   ]);
 
   return (
@@ -64,7 +62,7 @@ export default async function TasksPage({
             Project
             <select name="project" defaultValue={sp.project ?? ""}>
               <option value="">All</option>
-              {projects.map((p) => (
+              {(projects as Array<{ id: string; name: string }>).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
                 </option>
@@ -101,15 +99,17 @@ export default async function TasksPage({
             <div className="panel muted">No tasks match these filters.</div>
           ) : (
             tasks.map((task) => {
-              const due = urgency(task.dueDate);
+              const due = urgency(task.due_date);
               return (
                 <div key={task.id} className="panel stack">
                   <div className="split" style={{ justifyContent: "space-between" }}>
                     <div>
                       <strong>{task.title}</strong>
                       <div className="task-meta">
-                        {task.project.name}
-                        {task.assignee ? ` · @${task.assignee.username}` : " · unassigned"}
+                        {task.project?.name ?? "Project"}
+                        {task.assignee
+                          ? ` · @${task.assignee.username}`
+                          : " · unassigned"}
                         {due ? ` · ${due.label}` : ""}
                       </div>
                     </div>
@@ -144,23 +144,15 @@ export default async function TasksPage({
                         name="description"
                         value={task.description}
                       />
-                      <input
-                        type="hidden"
-                        name="status"
-                        value={task.status}
-                      />
+                      <input type="hidden" name="status" value={task.status} />
                       <input
                         type="hidden"
                         name="dueDate"
-                        value={
-                          task.dueDate
-                            ? task.dueDate.toISOString().slice(0, 10)
-                            : ""
-                        }
+                        value={task.due_date ? task.due_date.slice(0, 10) : ""}
                       />
                       <select
                         name="assigneeId"
-                        defaultValue={task.assigneeId ?? ""}
+                        defaultValue={task.assignee_id ?? ""}
                       >
                         <option value="">Unassigned</option>
                         {users.map((u) => (

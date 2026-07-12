@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { prisma } from "./prisma";
+import { findUserById } from "./db";
 export { hashPassword, verifyPassword } from "./password";
 
 const COOKIE = "pilot_session";
@@ -73,7 +73,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 export async function requireUser() {
   const user = await getSessionUser();
   if (!user) throw new Error("UNAUTHORIZED");
-  const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+  const dbUser = await findUserById(user.id);
   if (!dbUser) throw new Error("UNAUTHORIZED");
   return {
     id: dbUser.id,

@@ -3,43 +3,46 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { getSessionUser } from "@/lib/auth";
 import { projectProgress, statusLabel, urgency } from "@/lib/labels";
-import { prisma } from "@/lib/prisma";
+import {
+  countTasks,
+  listOpenTasksForUser,
+  listProjects,
+  listUsersPublic,
+} from "@/lib/db";
 import { createTaskAction, setTaskStatusAction } from "@/lib/actions";
 import { SubmitButton } from "@/components/SubmitButton";
+import type { TaskStatus } from "@/lib/types";
+
+type ProjectRow = {
+  id: string;
+  name: string;
+  owner?: { username: string };
+  tasks?: { status: TaskStatus }[];
+};
+
+type OpenTask = {
+  id: string;
+  title: string;
+  status: TaskStatus;
+  due_date: string | null;
+  project?: { name: string };
+};
 
 export default async function DashboardPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [projects, myOpenTasks, users, shippedThisWeek] = await Promise.all([
-    prisma.project.findMany({
-      where: { archived: false },
-      include: { tasks: true, owner: true },
-      orderBy: { updatedAt: "desc" },
-    }),
-    prisma.task.findMany({
-      where: {
-        assigneeId: user.id,
-        status: { not: "DONE" },
-      },
-      include: { project: true },
-      orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
-      take: 5,
-    }),
-    prisma.user.findMany({
-      orderBy: { username: "asc" },
-      select: { id: true, username: true, name: true },
-    }),
-    prisma.task.count({
-      where: {
-        status: "DONE",
-        updatedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
-      },
-    }),
-  ]);
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  const openCount = await prisma.task.count({ where: { status: { not: "DONE" } } });
-  const inFlight = await prisma.task.count({ where: { status: "IN_PROGRESS" } });
+  const [projects, myOpenTasks, users, shippedThisWeek, openCount, inFlight] =
+    await Promise.all([
+      listProjects({ archived: false, includeOwner: true, includeTasks: true }),
+      listOpenTasksForUser(user.id),
+      listUsersPublic(),
+      countTasks({ status: "DONE", updatedSince: weekAgo }),
+      countTasks({ statusNot: "DONE" }),
+      countTasks({ status: "IN_PROGRESS" }),
+    ]);
 
   return (
     <AppShell user={user}>
@@ -81,20 +84,20 @@ export default async function DashboardPage() {
               <h1 style={{ fontSize: "1.45rem" }}>Ship next</h1>
               <Link href="/tasks">All tasks</Link>
             </div>
-            {myOpenTasks.length === 0 ? (
+            {(myOpenTasks as OpenTask[]).length === 0 ? (
               <p className="muted">
                 Nothing assigned to you. Create a task or claim one from a project.
               </p>
             ) : (
               <div className="task-list">
-                {myOpenTasks.map((task) => {
-                  const due = urgency(task.dueDate);
+                {(myOpenTasks as OpenTask[]).map((task) => {
+                  const due = urgency(task.due_date);
                   return (
                     <div key={task.id} className="task-row">
                       <div>
                         <strong>{task.title}</strong>
                         <div className="task-meta">
-                          {task.project.name} · {statusLabel(task.status)}
+                          {task.project?.name ?? "Project"} · {statusLabel(task.status)}
                           {due ? ` · ${due.label}` : ""}
                         </div>
                       </div>
@@ -122,7 +125,7 @@ export default async function DashboardPage() {
             <h1 style={{ fontSize: "1.45rem", marginBottom: "0.75rem" }}>
               Quick assign
             </h1>
-            {projects.length === 0 ? (
+            {(projects as ProjectRow[]).length === 0 ? (
               <p className="muted">
                 Create a project first, then assign work to any cohort member.
               </p>
@@ -134,8 +137,12 @@ export default async function DashboardPage() {
                 </label>
                 <label>
                   Project
-                  <select name="projectId" required defaultValue={projects[0]?.id}>
-                    {projects.map((p) => (
+                  <select
+                    name="projectId"
+                    required
+                    defaultValue={(projects as ProjectRow[])[0]?.id}
+                  >
+                    {(projects as ProjectRow[]).map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.name}
                       </option>
@@ -181,11 +188,11 @@ export default async function DashboardPage() {
             <Link href="/projects">Manage</Link>
           </div>
           <div className="project-list">
-            {projects.length === 0 ? (
+            {(projects as ProjectRow[]).length === 0 ? (
               <p className="muted">No projects yet. Start one to unlock the board.</p>
             ) : (
-              projects.map((project) => {
-                const pct = projectProgress(project.tasks);
+              (projects as ProjectRow[]).map((project) => {
+                const pct = projectProgress(project.tasks ?? []);
                 return (
                   <Link
                     key={project.id}
@@ -197,7 +204,8 @@ export default async function DashboardPage() {
                       <span className="muted">{pct}% done</span>
                     </div>
                     <div className="muted">
-                      Owner @{project.owner.username} · {project.tasks.length} tasks
+                      Owner @{project.owner?.username ?? "unknown"} ·{" "}
+                      {(project.tasks ?? []).length} tasks
                     </div>
                     <div className="progress-track">
                       <div className="progress-fill" style={{ width: `${pct}%` }} />

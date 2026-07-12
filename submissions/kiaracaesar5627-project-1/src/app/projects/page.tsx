@@ -2,22 +2,28 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { SubmitButton } from "@/components/SubmitButton";
-import {
-  archiveProjectAction,
-  createProjectAction,
-} from "@/lib/actions";
+import { archiveProjectAction, createProjectAction } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
+import { listProjects } from "@/lib/db";
 import { projectProgress } from "@/lib/labels";
-import { prisma } from "@/lib/prisma";
+import type { TaskStatus } from "@/lib/types";
+
+type ProjectRow = {
+  id: string;
+  name: string;
+  archived: boolean;
+  owner?: { username: string };
+  tasks?: { status: TaskStatus }[];
+};
 
 export default async function ProjectsPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const projects = await prisma.project.findMany({
-    include: { owner: true, tasks: true },
-    orderBy: [{ archived: "asc" }, { updatedAt: "desc" }],
-  });
+  const projects = (await listProjects({
+    includeOwner: true,
+    includeTasks: true,
+  })) as ProjectRow[];
 
   return (
     <AppShell user={user}>
@@ -32,7 +38,7 @@ export default async function ProjectsPage() {
           </div>
           <div className="project-list">
             {projects.map((project) => {
-              const pct = projectProgress(project.tasks);
+              const pct = projectProgress(project.tasks ?? []);
               return (
                 <div key={project.id} className="project-row">
                   <div className="split" style={{ justifyContent: "space-between" }}>
@@ -45,7 +51,8 @@ export default async function ProjectsPage() {
                     <span className="muted">{pct}%</span>
                   </div>
                   <div className="muted">
-                    @{project.owner.username} · {project.tasks.length} tasks
+                    @{project.owner?.username ?? "unknown"} ·{" "}
+                    {(project.tasks ?? []).length} tasks
                   </div>
                   {!project.archived ? (
                     <div className="progress-track">

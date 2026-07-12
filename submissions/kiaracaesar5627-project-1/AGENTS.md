@@ -8,7 +8,7 @@ Ship a production HTTPS project-management app the Summer Pilot cohort can use f
 
 ```bash
 npm install
-npx prisma migrate deploy
+# apply supabase/migrations/20260713_init.sql in Supabase SQL editor
 npm run db:seed
 npm run dev
 npm run build
@@ -16,19 +16,22 @@ npm run build
 
 ## Env
 
-- `DATABASE_URL` — PostgreSQL connection string
-- `AUTH_SECRET` — long random string for session JWTs
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `AUTH_SECRET`
 
 Never commit `.env`.
 
 ## Key paths
 
 - `src/lib/actions.ts` — server actions (auth + CRUD)
-- `src/lib/auth.ts` — session cookies
-- `prisma/schema.prisma` — User / Project / Task model
+- `src/lib/db.ts` — Supabase data access
+- `src/lib/supabase.ts` — service-role client
+- `supabase/migrations/20260713_init.sql` — schema
 - `src/app/dashboard/page.tsx` — motivation board
 
 ## Do not
 
 - Hardcode secrets
-- Store task data only in local JSON files (must survive Vercel redeploys)
+- Use Prisma or local JSON files for task persistence
+- Put `SUPABASE_SERVICE_ROLE_KEY` in client bundles

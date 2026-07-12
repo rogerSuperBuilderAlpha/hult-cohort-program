@@ -1,6 +1,5 @@
 "use server";
 
-import { TaskStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -11,7 +10,18 @@ import {
   requireUser,
   verifyPassword,
 } from "./auth";
-import { prisma } from "./prisma";
+import {
+  createProject,
+  createTask,
+  createUser,
+  findUserByEmail,
+  findUserByEmailOrUsername,
+  findUserById,
+  getProjectById,
+  updateProject,
+  updateTask,
+} from "./db";
+import type { TaskStatus } from "./types";
 
 const registerSchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -32,6 +42,12 @@ const loginSchema = z.object({
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
+function parseStatus(raw: string): TaskStatus {
+  return ["TODO", "IN_PROGRESS", "DONE"].includes(raw)
+    ? (raw as TaskStatus)
+    : "TODO";
+}
+
 export async function registerAction(formData: FormData): Promise<ActionResult> {
   const parsed = registerSchema.safeParse({
     name: formData.get("name"),
@@ -45,20 +61,16 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
 
   const email = parsed.data.email.toLowerCase();
   const username = parsed.data.username.toLowerCase();
-  const existing = await prisma.user.findFirst({
-    where: { OR: [{ email }, { username }] },
-  });
+  const existing = await findUserByEmailOrUsername(email, username);
   if (existing) {
     return { ok: false, error: "Email or username already in use" };
   }
 
-  const user = await prisma.user.create({
-    data: {
-      name: parsed.data.name,
-      email,
-      username,
-      passwordHash: await hashPassword(parsed.data.password),
-    },
+  const user = await createUser({
+    name: parsed.data.name,
+    email,
+    username,
+    password_hash: await hashPassword(parsed.data.password),
   });
 
   await createSession({
@@ -79,10 +91,8 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: "Invalid email or password" };
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: parsed.data.email.toLowerCase() },
-  });
-  if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
+  const user = await findUserByEmail(parsed.data.email.toLowerCase());
+  if (!user || !(await verifyPassword(parsed.data.password, user.password_hash))) {
     return { ok: false, error: "Invalid email or password" };
   }
 
@@ -106,12 +116,10 @@ export async function createProjectAction(formData: FormData): Promise<void> {
   const description = String(formData.get("description") ?? "").trim();
   if (!name) return;
 
-  await prisma.project.create({
-    data: {
-      name,
-      description,
-      ownerId: user.id,
-    },
+  await createProject({
+    name,
+    description,
+    owner_id: user.id,
   });
   revalidatePath("/dashboard");
   revalidatePath("/projects");
@@ -124,10 +132,7 @@ export async function updateProjectAction(formData: FormData): Promise<void> {
   const description = String(formData.get("description") ?? "").trim();
   if (!id || !name) return;
 
-  await prisma.project.update({
-    where: { id },
-    data: { name, description },
-  });
+  await updateProject(id, { name, description });
   revalidatePath("/projects");
   revalidatePath(`/projects/${id}`);
   revalidatePath("/dashboard");
@@ -139,10 +144,7 @@ export async function archiveProjectAction(formData: FormData): Promise<void> {
   const archived = String(formData.get("archived") ?? "true") === "true";
   if (!id) return;
 
-  await prisma.project.update({
-    where: { id },
-    data: { archived },
-  });
+  await updateProject(id, { archived });
   revalidatePath("/projects");
   revalidatePath(`/projects/${id}`);
   revalidatePath("/dashboard");
@@ -154,32 +156,27 @@ export async function createTaskAction(formData: FormData): Promise<void> {
   const description = String(formData.get("description") ?? "").trim();
   const projectId = String(formData.get("projectId") ?? "");
   const assigneeId = String(formData.get("assigneeId") ?? "") || null;
-  const statusRaw = String(formData.get("status") ?? "TODO");
+  const status = parseStatus(String(formData.get("status") ?? "TODO"));
   const dueRaw = String(formData.get("dueDate") ?? "");
-  const status = ["TODO", "IN_PROGRESS", "DONE"].includes(statusRaw)
-    ? (statusRaw as TaskStatus)
-    : TaskStatus.TODO;
 
   if (!title || !projectId) return;
 
-  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  const project = await getProjectById(projectId);
   if (!project || project.archived) return;
 
   if (assigneeId) {
-    const assignee = await prisma.user.findUnique({ where: { id: assigneeId } });
+    const assignee = await findUserById(assigneeId);
     if (!assignee) return;
   }
 
-  await prisma.task.create({
-    data: {
-      title,
-      description,
-      projectId,
-      assigneeId,
-      status,
-      dueDate: dueRaw ? new Date(dueRaw) : null,
-      createdById: user.id,
-    },
+  await createTask({
+    title,
+    description,
+    project_id: projectId,
+    assignee_id: assigneeId,
+    status,
+    due_date: dueRaw ? new Date(dueRaw).toISOString() : null,
+    created_by_id: user.id,
   });
 
   revalidatePath("/dashboard");
@@ -195,28 +192,22 @@ export async function updateTaskAction(formData: FormData): Promise<void> {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const assigneeId = String(formData.get("assigneeId") ?? "") || null;
-  const statusRaw = String(formData.get("status") ?? "TODO");
+  const status = parseStatus(String(formData.get("status") ?? "TODO"));
   const dueRaw = String(formData.get("dueDate") ?? "");
-  const status = ["TODO", "IN_PROGRESS", "DONE"].includes(statusRaw)
-    ? (statusRaw as TaskStatus)
-    : TaskStatus.TODO;
 
   if (!title) return;
 
-  const task = await prisma.task.update({
-    where: { id },
-    data: {
-      title,
-      description,
-      assigneeId,
-      status,
-      dueDate: dueRaw ? new Date(dueRaw) : null,
-    },
+  const task = await updateTask(id, {
+    title,
+    description,
+    assignee_id: assigneeId,
+    status,
+    due_date: dueRaw ? new Date(dueRaw).toISOString() : null,
   });
 
   revalidatePath("/dashboard");
   revalidatePath("/tasks");
-  revalidatePath(`/projects/${task.projectId}`);
+  revalidatePath(`/projects/${task.project_id}`);
 }
 
 export async function setTaskStatusAction(formData: FormData): Promise<void> {
@@ -225,12 +216,9 @@ export async function setTaskStatusAction(formData: FormData): Promise<void> {
   const statusRaw = String(formData.get("status") ?? "");
   if (!id || !["TODO", "IN_PROGRESS", "DONE"].includes(statusRaw)) return;
 
-  const task = await prisma.task.update({
-    where: { id },
-    data: { status: statusRaw as TaskStatus },
-  });
+  const task = await updateTask(id, { status: statusRaw as TaskStatus });
 
   revalidatePath("/dashboard");
   revalidatePath("/tasks");
-  revalidatePath(`/projects/${task.projectId}`);
+  revalidatePath(`/projects/${task.project_id}`);
 }

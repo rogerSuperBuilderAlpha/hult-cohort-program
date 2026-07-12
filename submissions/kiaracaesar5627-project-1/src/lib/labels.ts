@@ -1,4 +1,4 @@
-import { TaskStatus } from "@prisma/client";
+import type { TaskStatus } from "./types";
 
 export function statusLabel(status: TaskStatus) {
   switch (status) {
@@ -11,14 +11,15 @@ export function statusLabel(status: TaskStatus) {
   }
 }
 
-export function urgency(dueDate: Date | null | undefined) {
+export function urgency(dueDate: Date | string | null | undefined) {
   if (!dueDate) return null;
+  const date = typeof dueDate === "string" ? new Date(dueDate) : dueDate;
   const now = new Date();
   const dayMs = 24 * 60 * 60 * 1000;
-  const diff = dueDate.getTime() - now.getTime();
+  const diff = date.getTime() - now.getTime();
   if (diff < 0) return { kind: "overdue" as const, label: "Overdue" };
   if (diff < 2 * dayMs) return { kind: "soon" as const, label: "Due soon" };
-  return { kind: "ok" as const, label: dueDate.toLocaleDateString() };
+  return { kind: "ok" as const, label: date.toLocaleDateString() };
 }
 
 export function projectProgress(tasks: { status: TaskStatus }[]) {

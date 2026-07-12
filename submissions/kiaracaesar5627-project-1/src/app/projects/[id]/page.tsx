@@ -8,8 +8,24 @@ import {
   updateProjectAction,
 } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
+import { getProjectById, listUsersPublic } from "@/lib/db";
 import { projectProgress, statusLabel, urgency } from "@/lib/labels";
-import { prisma } from "@/lib/prisma";
+import type { TaskStatus } from "@/lib/types";
+
+type ProjectDetail = {
+  id: string;
+  name: string;
+  description: string;
+  archived: boolean;
+  owner?: { username: string };
+  tasks?: Array<{
+    id: string;
+    title: string;
+    status: TaskStatus;
+    due_date: string | null;
+    assignee?: { username: string } | null;
+  }>;
+};
 
 export default async function ProjectDetailPage({
   params,
@@ -20,25 +36,17 @@ export default async function ProjectDetailPage({
   if (!user) redirect("/login");
 
   const { id } = await params;
-  const [project, users] = await Promise.all([
-    prisma.project.findUnique({
-      where: { id },
-      include: {
-        owner: true,
-        tasks: {
-          include: { assignee: true },
-          orderBy: [{ status: "asc" }, { dueDate: "asc" }],
-        },
-      },
-    }),
-    prisma.user.findMany({
-      orderBy: { username: "asc" },
-      select: { id: true, username: true, name: true },
-    }),
+  const [projectRaw, users] = await Promise.all([
+    getProjectById(id),
+    listUsersPublic(),
   ]);
 
-  if (!project) notFound();
-  const pct = projectProgress(project.tasks);
+  if (!projectRaw) notFound();
+  const project = projectRaw as ProjectDetail;
+  const tasks = [...(project.tasks ?? [])].sort((a, b) =>
+    a.status.localeCompare(b.status),
+  );
+  const pct = projectProgress(tasks);
 
   return (
     <AppShell user={user}>
@@ -51,7 +59,7 @@ export default async function ProjectDetailPage({
             <h1>{project.name}</h1>
             <p className="lead" style={{ marginBottom: 0 }}>
               {project.description || "No description yet."} Owner @
-              {project.owner.username}
+              {project.owner?.username ?? "unknown"}
               {project.archived ? " · archived" : ""}
             </p>
           </div>
@@ -66,18 +74,20 @@ export default async function ProjectDetailPage({
           <section className="panel">
             <h1 style={{ fontSize: "1.35rem" }}>Tasks</h1>
             <div className="task-list" style={{ marginTop: "0.75rem" }}>
-              {project.tasks.length === 0 ? (
+              {tasks.length === 0 ? (
                 <p className="muted">No tasks yet — add the first one.</p>
               ) : (
-                project.tasks.map((task) => {
-                  const due = urgency(task.dueDate);
+                tasks.map((task) => {
+                  const due = urgency(task.due_date);
                   return (
                     <div key={task.id} className="task-row">
                       <div>
                         <strong>{task.title}</strong>
                         <div className="task-meta">
                           {statusLabel(task.status)}
-                          {task.assignee ? ` · @${task.assignee.username}` : " · unassigned"}
+                          {task.assignee
+                            ? ` · @${task.assignee.username}`
+                            : " · unassigned"}
                           {due ? ` · ${due.label}` : ""}
                         </div>
                       </div>

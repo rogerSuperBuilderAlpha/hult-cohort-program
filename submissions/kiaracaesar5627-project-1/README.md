@@ -6,7 +6,7 @@ Production project-management board for the Hult Cohort Developer Program Summer
 
 ## Production URL
 
-_Set after Vercel deploy._
+https://pilot-hult-pm.vercel.app
 
 ## Stack
 

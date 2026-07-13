@@ -4,6 +4,66 @@
   padding: 0 24px 80px;
 }
 
+.headerStack {
+  display: flex;
+  flex-direction: column;
+}
+
+.sessionBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  background: var(--hult-black);
+  color: #f7f4ef;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.sessionBannerText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sessionBannerText strong {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.sessionBannerLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  background: var(--accent);
+  color: white !important;
+  font-weight: 600;
+  border-radius: 2px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sessionBannerLink:hover {
+  background: var(--accent-hover);
+  color: white !important;
+}
+
+.sessionBannerSecondary {
+  color: #d8d2c8 !important;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.sessionBannerSecondary:hover {
+  color: white !important;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -1580,6 +1640,12 @@
 }
 
 @media (max-width: 640px) {
+  .sessionBanner {
+    margin-top: 12px;
+    padding: 10px 12px;
+    gap: 8px 12px;
+  }
+
   .header {
     flex-wrap: wrap;
     gap: 12px;

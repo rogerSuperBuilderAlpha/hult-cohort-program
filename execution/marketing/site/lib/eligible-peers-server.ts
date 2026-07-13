@@ -1,7 +1,8 @@
 import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId, cohortSubmissionRepo, submissionsSource } from '@/lib/cohort-config';
 import { listMergedProjectSubmissions } from '@/lib/github-cohort-server';
-import { rosterMembersRef, submissionEntriesRef } from '@/lib/firestore-paths';
+import { submissionEntriesRef } from '@/lib/firestore-paths';
+import { getActiveRosterHandles } from '@/lib/roster-handles-server';
 import type { PeerRatingTarget } from '@/lib/project-progress-types';
 import { githubRepoUrl } from '@/lib/github-urls';
 
@@ -17,10 +18,7 @@ async function peerRowsFromGithub(
   voterHandle: string
 ): Promise<EligiblePeerRow[]> {
   const id = cohortId();
-  const rosterSnap = await rosterMembersRef(id).get();
-  const activeHandles = new Set(
-    rosterSnap.docs.filter((d) => d.data().active !== false).map((d) => d.id)
-  );
+  const activeHandles = new Set(await getActiveRosterHandles(id));
 
   const submissions = await listMergedProjectSubmissions(id, projectSlug);
   return submissions
@@ -44,14 +42,10 @@ async function peerRowsFromFirestore(
 ): Promise<EligiblePeerRow[]> {
   const id = cohortId();
 
-  const [rosterSnap, entriesSnap] = await Promise.all([
-    rosterMembersRef(id).get(),
+  const [activeHandles, entriesSnap] = await Promise.all([
+    getActiveRosterHandles(id).then((handles) => new Set(handles)),
     submissionEntriesRef(id, projectSlug).where('merged', '==', true).get(),
   ]);
-
-  const activeHandles = new Set(
-    rosterSnap.docs.filter((d) => d.data().active !== false).map((d) => d.id)
-  );
 
   return entriesSnap.docs
     .filter((doc) => doc.id !== voterHandle && activeHandles.has(doc.id))

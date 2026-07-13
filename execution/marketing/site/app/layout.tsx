@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Libre_Baskerville } from 'next/font/google';
 import localFont from 'next/font/local';
+import { AppProviders } from '@/components/AppProviders';
 import { JsonLdOrganization } from '@/components/JsonLdOrganization';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ConsentGate } from '@/components/ConsentGate';
@@ -112,10 +113,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main-content" className="skipLink">
           Skip to content
         </a>
-        <JsonLdOrganization />
-        <div id="main-content">{children}</div>
-        <SiteFooter />
-        <ConsentGate />
+        <AppProviders>
+          <JsonLdOrganization />
+          <div id="main-content">{children}</div>
+          <SiteFooter />
+          <ConsentGate />
+        </AppProviders>
       </body>
     </html>
   );

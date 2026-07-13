@@ -10,7 +10,7 @@ export const metadata = {
     'Stakeholder summary: six-week Summer Pilot structure, production software outcomes, and July 2026 timeline.',
 };
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function OverviewPage() {
   const cohortStats = await getCohortStats();

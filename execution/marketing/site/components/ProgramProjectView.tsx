@@ -17,7 +17,6 @@ import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { buildProjectAgentPrompt, buildPublicAgentPrompt } from '@/lib/project-agent-prompt';
 import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
 import { personalizeProgramText } from '@/lib/personalize-program';
-import { useCohortStats } from '@/lib/use-cohort-stats';
 import { useProjectProgress } from '@/lib/use-project-progress';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import { useSurveyState, projectSurveyGate, type ProjectGate } from '@/lib/research/use-survey-state';
@@ -32,6 +31,7 @@ type Props = {
   project: ProgramProject;
   prevSlug?: string;
   nextSlug?: string;
+  initialStats?: CohortStats | null;
 };
 
 function SurveyGateNotice({ project, gate }: { project: ProgramProject; gate: ProjectGate }) {
@@ -305,17 +305,16 @@ function PublicView({
   );
 }
 
-export function ProgramProjectView({ project, prevSlug, nextSlug }: Props) {
+export function ProgramProjectView({ project, prevSlug, nextSlug, initialStats = null }: Props) {
   const { profile, loading: authLoading, getIdToken } = useGithubAuth();
   const { me, loading: statusLoading } = useParticipantStatus(getIdToken, Boolean(profile));
-  const { stats: fetchedStats, loading: statsLoading } = useCohortStats();
 
-  const loading = authLoading || (Boolean(profile) && statusLoading) || statsLoading;
+  const loading = authLoading || (Boolean(profile) && statusLoading);
   const enrolled = isEnrolled(me);
   const inFlight = isApplicantInFlight(me);
   const pendingRoster = isAdmittedPendingRoster(me);
   const handle = me?.githubHandle;
-  const stats = me?.cohortStats ?? fetchedStats;
+  const stats = me?.cohortStats ?? initialStats;
   const descriptionText = personalizeProgramText(
     project.description,
     enrolled && handle ? handle : '{handle}',

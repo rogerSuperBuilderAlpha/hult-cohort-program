@@ -70,7 +70,7 @@ Schema details: [../FIREBASE.md](../FIREBASE.md)
 ## UI patterns
 
 - **Server vs client:** Pages are server components; participant panels are client (`ProgramProjectView`).
-- **Styles:** CSS modules from `app/page.module.css` — match Hult ivory `#f2f3ee`, red `#a81202`, sage `#74857c`.
+- **Styles:** CSS modules from `app/page.module.css` — match Hult cream `#fffae7`, magenta `#cc164c`, ink `#2b2b2b` (2025 web palette).
 - **Peer review list:** Collapsed accordion cards — one expanded peer at a time ([PeerReviewCard.tsx](components/PeerReviewCard.tsx)).
 - **Personalization:** Use `personalizeProgramText(text, handle, org, stats)` for `{org}`, `{handle}`, `{peerCount}`.
 

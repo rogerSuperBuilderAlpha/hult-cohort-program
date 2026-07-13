@@ -33,6 +33,10 @@ import { getCohortStats } from '@/lib/cohort-stats-server';
 
 Edit `content/program.ts`; personalize with `personalizeProgramText()` for `{peerCount}`, `{org}`, `{handle}`.
 
+## Branding
+
+Hult 2025 web palette in `app/globals.css`: cream `#fffae7`, magenta `#cc164c`, ink `#2b2b2b`, EF Circular + Libre Baskerville.
+
 ## Env
 
 Copy `.env.example` → `.env.local`. Service account at `secrets/` (gitignored).

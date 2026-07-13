@@ -1,3 +1,5 @@
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminAuth } from './admin';
 import { resolveGithubHandle } from './github-handle';
@@ -12,35 +14,38 @@ export type GithubSession = {
   email?: string;
 };
 
-/**
- * Resolve a GitHub login from its immutable numeric id, caching the result in
- * Firestore. The authoritative source is still GitHub's `GET /user/{id}` reverse
- * lookup, but we hit it at most once per user: the unauthenticated GitHub API is
- * capped at 60 requests/hour per IP, and Vercel's shared egress IPs exhaust that
- * quota quickly — which previously made sign-in fail for everyone with a bogus
- * "we could not verify your GitHub username" error. Returning users (the whole
- * roster, repeat applicants) resolve straight from cache and stay logged-in even
- * when GitHub is rate-limiting or briefly unavailable.
- */
-async function resolveGithubHandleCached(githubUserId: string): Promise<string | null> {
-  const ref = githubIdentityRef(githubUserId);
-
+async function readIdentityHandle(githubUserId: string): Promise<string | null> {
   try {
-    const cached = await ref.get();
+    const cached = await githubIdentityRef(githubUserId).get();
     const handle = cached.exists ? (cached.data()?.githubHandle as string | undefined) : undefined;
-    if (handle) return handle;
+    return handle ?? null;
   } catch (err) {
     logApi('auth', 'warn', 'GitHub identity cache read failed', {
       githubUserId,
       error: err instanceof Error ? err.message : String(err),
     });
+    return null;
   }
+}
+
+/**
+ * Resolve GitHub login from numeric id. Cross-request cache (1h) + request dedupe
+ * so every API call doesn't re-read githubIdentities.
+ */
+const resolveGithubHandleCached = cache(async (githubUserId: string): Promise<string | null> => {
+  const fromCache = unstable_cache(
+    () => readIdentityHandle(githubUserId),
+    ['github-identity', githubUserId],
+    { revalidate: 3600, tags: [`github-identity:${githubUserId}`] }
+  );
+  const cachedHandle = await fromCache();
+  if (cachedHandle) return cachedHandle;
 
   const handle = await resolveGithubHandle({ federatedId: githubUserId, rawId: githubUserId });
   if (!handle) return null;
 
   try {
-    await ref.set(
+    await githubIdentityRef(githubUserId).set(
       { githubHandle: handle, githubUserId, updatedAt: FieldValue.serverTimestamp() },
       { merge: true }
     );
@@ -52,7 +57,7 @@ async function resolveGithubHandleCached(githubUserId: string): Promise<string |
   }
 
   return handle;
-}
+});
 
 export async function verifyGithubIdToken(idToken: string): Promise<GithubSession> {
   const auth = await getAdminAuth();

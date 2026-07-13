@@ -1,4 +1,6 @@
-import type { Firestore } from 'firebase-admin/firestore';
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
+import type { DocumentData, Firestore } from 'firebase-admin/firestore';
 import { cohortId } from '@/lib/cohort-config';
 import { isAdminConfigured } from '@/lib/firebase/admin';
 import { projectOutcomeRef } from '@/lib/firestore-paths';
@@ -8,18 +10,8 @@ import type { ProjectOutcome } from './project-outcomes-types';
 
 export type { ProjectOutcome };
 
-export async function getProjectOutcome(
-  projectSlug: string,
-  id = cohortId()
-): Promise<ProjectOutcome | null> {
-  if (!isAdminConfigured()) return null;
-
-  const snap = await projectOutcomeRef(id, projectSlug).get();
-  if (!snap.exists) return null;
-
-  const data = snap.data();
+function parseOutcome(projectSlug: string, data: DocumentData | undefined): ProjectOutcome | null {
   if (!data?.publishedAt) return null;
-
   const publishedAt = data.publishedAt?.toDate?.()?.toISOString?.() ?? null;
   if (!publishedAt) return null;
 
@@ -35,6 +27,24 @@ export async function getProjectOutcome(
     publishedAt,
   };
 }
+
+async function readOutcome(projectSlug: string, id: string): Promise<ProjectOutcome | null> {
+  const snap = await projectOutcomeRef(id, projectSlug).get();
+  if (!snap.exists) return null;
+  return parseOutcome(projectSlug, snap.data());
+}
+
+export const getProjectOutcome = cache(
+  async (projectSlug: string, id = cohortId()): Promise<ProjectOutcome | null> => {
+    if (!isAdminConfigured()) return null;
+    const cached = unstable_cache(
+      () => readOutcome(projectSlug, id),
+      ['project-outcome', id, projectSlug],
+      { revalidate: 300, tags: [`outcome:${id}:${projectSlug}`] }
+    );
+    return cached();
+  }
+);
 
 export async function getPhase1Outcomes(id = cohortId()): Promise<ProjectOutcome[]> {
   const slugs = ['phase-1-project-1', 'phase-1-project-2', 'phase-1-project-3'] as const;

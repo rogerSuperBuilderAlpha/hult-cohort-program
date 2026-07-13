@@ -133,18 +133,32 @@ Used to gate participant APIs (`/api/program/*`, `/api/dashboard`).
 
 Discovery: `lib/github-cohort-server.ts` reads merged PRs from project branches (`projects/{cohortId}/{slug}`). Webhook: `POST /api/github/webhook` validates base branch + title. Backstop: `node scripts/reconcile-submissions.mjs --write-cache`.
 
-### `peerWrittenReviews/{cohortId}/projects/{projectSlug}/voters/{voterHandle}/entries/{revieweeHandle}`
+### `roster/{cohortId}` (meta doc)
 
-Written GitHub review URLs filed by voter on each peer.
+Denormalized enrolled count + active handles for cheap stats (refreshed by `admissions.mjs` admit/deactivate and on first cold read).
 
 ```typescript
 {
-  issueUrl: string;
-  voterHandle: string;
-  revieweeHandle: string;
+  enrolledCount: number;
+  activeHandles: string[];
   updatedAt: Timestamp;
 }
 ```
+
+Members still live at `roster/{cohortId}/members/{githubHandle}`.
+
+### `peerWrittenReviews/{cohortId}/projects/{projectSlug}/voters/{voterHandle}`
+
+Flat map (preferred) — one doc per voter, not a subcollection scan:
+
+```typescript
+{
+  reviews: Record<string, string>;  // revieweeHandle → issueUrl
+  updatedAt: Timestamp;
+}
+```
+
+Legacy entry docs may still exist at `.../voters/{voter}/entries/{reviewee}` and are backfilled into the map on read.
 
 ### `peerRatings/{cohortId}/projects/{projectSlug}/voters/{voterHandle}`
 

@@ -19,6 +19,7 @@ import styles from '../page.module.css';
 function ParticipantDashboard({
   me,
   summary,
+  survey,
   getIdToken,
   signOut,
   deleteAccount,
@@ -27,6 +28,11 @@ function ParticipantDashboard({
 }: {
   me: ParticipantMe;
   summary: DashboardSummary;
+  survey: {
+    consented: boolean;
+    openWaveId: string | null;
+    waves: { id: string; shortLabel: string; status: string; completed: boolean }[];
+  } | null;
   getIdToken: () => Promise<string | null>;
   signOut: () => void;
   deleteAccount: () => Promise<{ ok: boolean; error?: string }>;
@@ -35,32 +41,6 @@ function ParticipantDashboard({
 }) {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [downloadError, setDownloadError] = useState('');
-  const [survey, setSurvey] = useState<{
-    consented: boolean;
-    openWaveId: string | null;
-    waves: { id: string; shortLabel: string; status: string; completed: boolean }[];
-  } | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const idToken = await getIdToken();
-      if (!idToken) return;
-      try {
-        const res = await fetch('/api/research/survey', {
-          headers: { Authorization: `Bearer ${idToken}` },
-        });
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled) setSurvey(json);
-      } catch {
-        // Non-blocking: the dashboard works without the survey banner.
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [getIdToken]);
 
   const openWaveSummary = survey?.waves.find((w) => w.id === survey.openWaveId) ?? null;
   const surveyActionable = Boolean(openWaveSummary && !openWaveSummary.completed);
@@ -93,7 +73,7 @@ function ParticipantDashboard({
       return;
     }
     try {
-      const res = await fetch('/api/me', {
+      const res = await fetch('/api/me?include=submissions', {
         headers: { Authorization: `Bearer ${idToken}` },
       });
       if (!res.ok) throw new Error('Could not fetch your data.');
@@ -332,21 +312,31 @@ export default function DashboardPage() {
     Boolean(profile)
   );
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [survey, setSurvey] = useState<{
+    consented: boolean;
+    openWaveId: string | null;
+    waves: { id: string; shortLabel: string; status: string; completed: boolean }[];
+  } | null>(null);
   const [summaryError, setSummaryError] = useState('');
 
-  async function loadSummary() {
+  async function loadBootstrap() {
     const idToken = await getIdToken();
     if (!idToken) {
       setSummaryError('Could not read your session. Refresh the page to try again.');
       return;
     }
     try {
-      const res = await fetch('/api/dashboard', {
+      const res = await fetch('/api/bootstrap', {
         headers: { Authorization: `Bearer ${idToken}` },
       });
-      const json = (await res.json()) as DashboardSummary & { error?: string };
+      const json = (await res.json()) as {
+        dashboard?: DashboardSummary;
+        survey?: typeof survey;
+        error?: string;
+      };
       if (!res.ok) throw new Error(json.error || 'Could not load dashboard.');
-      setSummary(json);
+      setSummary(json.dashboard ?? null);
+      setSurvey(json.survey ?? null);
       setSummaryError('');
     } catch (err) {
       setSummaryError(err instanceof Error ? err.message : 'Could not load dashboard.');
@@ -357,7 +347,7 @@ export default function DashboardPage() {
     if (!profile || !isEnrolled(me)) return;
     let cancelled = false;
     void (async () => {
-      await loadSummary();
+      await loadBootstrap();
       if (cancelled) return;
     })();
     return () => {
@@ -436,12 +426,13 @@ export default function DashboardPage() {
           <ParticipantDashboard
             me={me}
             summary={summary}
+            survey={survey}
             getIdToken={getIdToken}
             signOut={() => void signOut()}
             deleteAccount={deleteAccount}
             onAccountDeleted={() => void refresh()}
             onAckSigned={() => {
-              void loadSummary();
+              void loadBootstrap();
               void refresh();
             }}
           />

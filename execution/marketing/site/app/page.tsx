@@ -7,7 +7,7 @@ import { getCohortStats } from '@/lib/cohort-stats-server';
 import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
 import { cohortMarketing } from '@/content/program';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function Home() {
   const cohortStats = await getCohortStats();

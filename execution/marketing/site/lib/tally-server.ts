@@ -1,10 +1,7 @@
 import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
-import {
-  peerRatingsVotersRef,
-  rosterMembersRef,
-  submissionEntriesRef,
-} from '@/lib/firestore-paths';
+import { peerRatingsVotersRef, submissionEntriesRef } from '@/lib/firestore-paths';
+import { getActiveRosterHandles } from '@/lib/roster-handles-server';
 
 export type TallyRow = {
   handle: string;
@@ -47,15 +44,13 @@ export async function tallyThumbsUp(projectSlug: string): Promise<TallyResult | 
 
   const id = cohortId();
 
-  const [rosterSnap, entriesSnap, votersSnap] = await Promise.all([
-    rosterMembersRef(id).get(),
+  const [activeHandlesList, entriesSnap, votersSnap] = await Promise.all([
+    getActiveRosterHandles(id),
     submissionEntriesRef(id, projectSlug).where('merged', '==', true).get(),
     peerRatingsVotersRef(id, projectSlug).get(),
   ]);
 
-  const activeHandles = new Set(
-    rosterSnap.docs.filter((d) => d.data().active !== false).map((d) => d.id)
-  );
+  const activeHandles = new Set(activeHandlesList);
 
   const mergedAtByHandle = new Map<string, Date | null>();
   for (const doc of entriesSnap.docs) {

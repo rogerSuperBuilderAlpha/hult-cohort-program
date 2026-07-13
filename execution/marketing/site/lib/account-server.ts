@@ -48,6 +48,7 @@ export async function deleteParticipantAccount(params: {
   const appSnap = await db
     .collection('applications')
     .where('githubHandle', '==', githubHandle)
+    .limit(25)
     .get();
   await Promise.all(appSnap.docs.map((doc) => doc.ref.delete()));
   result.applicationsDeleted = appSnap.size;

@@ -112,11 +112,12 @@ function toRecipient(raw) {
   };
 }
 
-/** Firestore applications, optionally filtered by status. */
-export async function audienceFromFirestore(db, { cohort, status } = {}) {
+/** Firestore applications, optionally filtered by status. Hard cap protects quota. */
+export async function audienceFromFirestore(db, { cohort, status, limit = 2000 } = {}) {
   let q = db.collection('applications');
   if (cohort) q = q.where('cohort', '==', cohort);
   if (status) q = q.where('status', '==', status);
+  q = q.limit(limit);
   const snap = await q.get();
   const out = [];
   snap.forEach((doc) => {

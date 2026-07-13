@@ -1,7 +1,9 @@
+import { FieldValue } from 'firebase-admin/firestore';
 import { cohortId } from '@/lib/cohort-config';
 import {
   writtenReviewEntriesRef,
   writtenReviewEntryRef,
+  writtenReviewVoterRef,
 } from '@/lib/firestore-paths';
 import { reviewIssueTitle } from '@/lib/written-reviews-format';
 
@@ -25,7 +27,11 @@ function issueUrlMatchesRepo(issueUrl: string, expectedRepo: string): boolean {
   return parsed.repo.toLowerCase() === expectedRepo.toLowerCase();
 }
 
-function writtenRef(projectSlug: string, voterHandle: string, revieweeHandle: string) {
+function voterDocRef(projectSlug: string, voterHandle: string) {
+  return writtenReviewVoterRef(cohortId(), projectSlug, voterHandle);
+}
+
+function writtenEntryRef(projectSlug: string, voterHandle: string, revieweeHandle: string) {
   return writtenReviewEntryRef(cohortId(), projectSlug, voterHandle, revieweeHandle);
 }
 
@@ -71,8 +77,8 @@ type GithubIssuePayload = {
 type IssueFetchResult =
   | { kind: 'ok'; issue: GithubIssuePayload }
   | { kind: 'not-found' }
-  | { kind: 'auth' } // 401/403 — bad/expired token or rate limit (our side, not the student's)
-  | { kind: 'unavailable' }; // 5xx / network — transient
+  | { kind: 'auth' }
+  | { kind: 'unavailable' };
 
 async function fetchGithubIssueOnce(
   repo: string,
@@ -93,7 +99,6 @@ async function fetchGithubIssueOnce(
   return { kind: 'not-found' };
 }
 
-/** Fetch the issue, retrying once on a transient (5xx/network) failure. */
 async function fetchGithubIssue(
   repo: string,
   issueNumber: number
@@ -112,7 +117,6 @@ async function verifyIssueWithGithub(
   const token = process.env.GITHUB_TOKEN?.trim();
   if (!token) {
     if (githubVerificationRequired()) {
-      // Misconfiguration, not a student error — this blocks all review saves cohort-wide.
       console.error(
         '[written-reviews] GITHUB_TOKEN is unset in production — review verification is down. ' +
           'Set it in Vercel env (see scripts/check-production-env.mjs).'
@@ -137,8 +141,6 @@ async function verifyIssueWithGithub(
 
   const result = await fetchGithubIssue(parsed.repo, parsed.issueNumber);
   if (result.kind === 'auth') {
-    // 401/403: bad/expired GITHUB_TOKEN or rate limit — a platform-side problem, not the
-    // reviewer's issue. Log loudly for staff; never blame the student's link.
     console.error(
       `[written-reviews] GitHub returned 401/403 verifying ${parsed.repo}#${parsed.issueNumber} — ` +
         'check GITHUB_TOKEN validity, repo scope, and rate-limit budget.'
@@ -187,7 +189,6 @@ async function verifyIssueWithGithub(
   return { ok: true };
 }
 
-/** Search peer repo for a per-reviewee review issue filed by this voter. */
 export async function discoverWrittenReviewOnGithub(
   peerRepo: string,
   reviewerHandle: string,
@@ -223,18 +224,72 @@ export async function discoverWrittenReviewOnGithub(
   return null;
 }
 
-export async function getWrittenReviewsMap(
+function reviewsFromVoterData(
+  data: { reviews?: unknown } | undefined
+): Record<string, string> | null {
+  const raw = data?.reviews;
+  if (!raw || typeof raw !== 'object') return null;
+  const out: Record<string, string> = {};
+  for (const [handle, url] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof url === 'string' && url.trim()) out[handle] = url.trim();
+  }
+  return out;
+}
+
+async function loadReviewsFromEntries(
   projectSlug: string,
   voterHandle: string
 ): Promise<Record<string, string>> {
   const snap = await writtenReviewEntriesRef(cohortId(), projectSlug, voterHandle).get();
-
   const out: Record<string, string> = {};
   for (const doc of snap.docs) {
     const url = doc.data()?.issueUrl;
     if (typeof url === 'string' && url.trim()) out[doc.id] = url.trim();
   }
   return out;
+}
+
+/** One-doc read of the voter map; falls back once to legacy entry subcollection + backfill. */
+export async function getWrittenReviewsMap(
+  projectSlug: string,
+  voterHandle: string
+): Promise<Record<string, string>> {
+  const voterRef = voterDocRef(projectSlug, voterHandle);
+  const voterSnap = await voterRef.get();
+  const fromMap = reviewsFromVoterData(voterSnap.data());
+  if (fromMap) return fromMap;
+
+  const fromEntries = await loadReviewsFromEntries(projectSlug, voterHandle);
+  if (Object.keys(fromEntries).length > 0) {
+    await voterRef.set(
+      { reviews: fromEntries, updatedAt: FieldValue.serverTimestamp() },
+      { merge: true }
+    );
+  }
+  return fromEntries;
+}
+
+async function persistReview(
+  projectSlug: string,
+  voterHandle: string,
+  revieweeHandle: string,
+  issueUrl: string
+): Promise<void> {
+  const fieldPath = `reviews.${revieweeHandle}`;
+  await voterDocRef(projectSlug, voterHandle).set(
+    {
+      [fieldPath]: issueUrl,
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
+  // Keep legacy entry for older tooling / gradual migration.
+  await writtenEntryRef(projectSlug, voterHandle, revieweeHandle).set({
+    issueUrl,
+    revieweeHandle,
+    voterHandle,
+    updatedAt: new Date(),
+  });
 }
 
 export async function saveWrittenReview(
@@ -254,20 +309,33 @@ export async function saveWrittenReview(
     throw new Error(githubCheck.error);
   }
 
-  await writtenRef(projectSlug, voterHandle, revieweeHandle).set({
-    issueUrl: trimmed,
-    revieweeHandle,
-    voterHandle,
-    updatedAt: new Date(),
-  });
-
+  await persistReview(projectSlug, voterHandle, revieweeHandle, trimmed);
   return { issueUrl: trimmed };
 }
 
+async function dropStaleReview(
+  projectSlug: string,
+  voterHandle: string,
+  revieweeHandle: string
+): Promise<void> {
+  const fieldPath = `reviews.${revieweeHandle}`;
+  await voterDocRef(projectSlug, voterHandle).set(
+    {
+      [fieldPath]: FieldValue.delete(),
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
+  try {
+    await writtenEntryRef(projectSlug, voterHandle, revieweeHandle).delete();
+  } catch {
+    // ignore missing legacy entry
+  }
+}
+
 /**
- * True when a written review exists. Cached Firestore entries are re-verified against GitHub at
- * vote time so an issue edited or deleted after first save no longer counts. If GitHub is
- * unavailable (our token or their outage) the cached entry is trusted rather than blocking votes.
+ * True when a written review exists. Uses the flat voter `reviews` map (1 doc).
+ * Cached URLs are re-verified against GitHub at vote time when a token is available.
  */
 export async function hasWrittenReview(
   projectSlug: string,
@@ -275,8 +343,8 @@ export async function hasWrittenReview(
   revieweeHandle: string,
   peerRepo?: string
 ): Promise<boolean> {
-  const doc = await writtenRef(projectSlug, voterHandle, revieweeHandle).get();
-  const cachedUrl = doc.exists ? (doc.data()?.issueUrl as string | undefined) : undefined;
+  const map = await getWrittenReviewsMap(projectSlug, voterHandle);
+  const cachedUrl = map[revieweeHandle];
 
   if (cachedUrl?.trim()) {
     const token = process.env.GITHUB_TOKEN?.trim();
@@ -287,21 +355,21 @@ export async function hasWrittenReview(
 
     const result = await fetchGithubIssue(parsed.repo, parsed.issueNumber);
     if (result.kind === 'auth' || result.kind === 'unavailable') {
-      // Platform-side or transient GitHub failure — don't block the vote on our outage.
       return true;
     }
     if (result.kind === 'ok') {
       const issue = result.issue;
       const authorOk =
         issue.user?.login?.trim().toLowerCase() === voterHandle.toLowerCase();
-      if (authorOk && !issue.pull_request &&
-        reviewTitleMatches(issue.title ?? '', voterHandle, revieweeHandle)) {
+      if (
+        authorOk &&
+        !issue.pull_request &&
+        reviewTitleMatches(issue.title ?? '', voterHandle, revieweeHandle)
+      ) {
         return true;
       }
     }
-    // Issue deleted, made inaccessible, or edited away from the required title:
-    // drop the stale cache entry and fall through to fresh discovery below.
-    await writtenRef(projectSlug, voterHandle, revieweeHandle).delete();
+    await dropStaleReview(projectSlug, voterHandle, revieweeHandle);
   }
 
   if (peerRepo) {
@@ -311,12 +379,7 @@ export async function hasWrittenReview(
       revieweeHandle
     );
     if (discovered) {
-      await writtenRef(projectSlug, voterHandle, revieweeHandle).set({
-        issueUrl: discovered,
-        revieweeHandle,
-        voterHandle,
-        updatedAt: new Date(),
-      });
+      await persistReview(projectSlug, voterHandle, revieweeHandle, discovered);
       return true;
     }
   }

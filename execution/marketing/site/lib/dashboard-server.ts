@@ -29,7 +29,7 @@ export async function getDashboardSummary(githubHandle: string): Promise<Dashboa
   const cohortStats = await getCohortStats();
   const schedule = resolveScheduleContext();
 
-  const [projects, expectationsAck, phase1Outcomes] = await Promise.all([
+  const [projects, expectationsAck] = await Promise.all([
     Promise.all(
       programProjects.map(async (project) => {
         const progress = await getProjectProgress(githubHandle, project.slug, cohortStats);
@@ -47,8 +47,18 @@ export async function getDashboardSummary(githubHandle: string): Promise<Dashboa
       })
     ),
     getExpectationsAcknowledgment(githubHandle),
-    getPhase1Outcomes(),
   ]);
+
+  // Reuse outcomes already fetched inside progress for vote-week projects (no second round-trip).
+  const fromProgress = projects
+    .map((p) => p.outcome)
+    .filter((o): o is ProjectOutcome => o !== null);
+  const phase1Outcomes =
+    fromProgress.length > 0
+      ? fromProgress.filter((o) =>
+          ['phase-1-project-1', 'phase-1-project-2', 'phase-1-project-3'].includes(o.projectSlug)
+        )
+      : await getPhase1Outcomes();
 
   return {
     schedule,

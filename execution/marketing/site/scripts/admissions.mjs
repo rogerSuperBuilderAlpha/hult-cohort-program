@@ -38,6 +38,26 @@ const VALID_STATUSES = [
   'rejected',
 ];
 
+/** Denormalized roster/{cohortId} meta used by the site for 1-doc enrolled counts. */
+async function refreshRosterMetaDoc(db, cohortId) {
+  const snap = await db.collection('roster').doc(cohortId).collection('members').get();
+  const activeHandles = snap.docs
+    .filter((doc) => doc.data().active !== false)
+    .map((doc) => doc.id);
+  await db
+    .collection('roster')
+    .doc(cohortId)
+    .set(
+      {
+        enrolledCount: activeHandles.length,
+        activeHandles,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+  console.log(`  roster meta refreshed: ${activeHandles.length} active`);
+}
+
 function loadServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
   if (json) return JSON.parse(json);
@@ -227,6 +247,8 @@ async function cmdAdmit(db) {
     { merge: true }
   );
 
+  await refreshRosterMetaDoc(db, COHORT);
+
   try {
     await sendAdmissionEmail({
       email: data.email,
@@ -302,6 +324,8 @@ async function cmdDeactivate(db) {
     },
     { merge: true }
   );
+
+  await refreshRosterMetaDoc(db, COHORT);
 
   console.log('\nRoster member deactivated.');
 }

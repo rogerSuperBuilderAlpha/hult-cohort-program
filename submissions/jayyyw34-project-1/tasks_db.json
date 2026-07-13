@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1",
+    "title": "Set up Next.js boilerplate",
+    "project": "Phase 1 Core API",
+    "assignee": "Jayden",
+    "status": "Shipped"
+  },
+  {
+    "id": "2",
+    "title": "Clean git history and fix PR",
+    "project": "Phase 1 Core API",
+    "assignee": "Jayden",
+    "status": "Shipped"
+  },
+  {
+    "id": "3",
+    "title": "Design Motivation Dashboard UI",
+    "project": "Phase 1 Core API",
+    "assignee": "Jayden",
+    "status": "Shipped"
+  },
+  {
+    "id": "4",
+    "title": "Connect local PostgreSQL database",
+    "project": "Phase 1 Core API",
+    "assignee": "Alex",
+    "status": "Shipped"
+  }
+]

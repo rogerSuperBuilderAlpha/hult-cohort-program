@@ -116,7 +116,7 @@ Firestore (hult-cohorts)
 3. **Split client/server** — never import `firebase-admin` into client components; use `*-server.ts` modules (see `cohort-stats-server.ts` vs `cohort-stats-types.ts`).  
 4. **PR-first submissions** — deliverables are merged GitHub PRs, not form uploads.  
 5. **Program text** — participant-facing copy lives in `content/program.ts`; personalize with `personalize-program.ts` (`{org}`, `{handle}`, `{peerCount}`).  
-6. **Branding** — Hult ivory/red/sage theme in `app/globals.css`, `page.module.css`, [SiteHeader.tsx](execution/marketing/site/components/SiteHeader.tsx).  
+6. **Branding** — Hult 2025 cream/magenta/ink theme in `app/globals.css`, `page.module.css`, [SiteHeader.tsx](execution/marketing/site/components/SiteHeader.tsx).  
 7. **Tests/build** — run `npm run build` (site) or `npm test` (API packages) before finishing.
 
 ---

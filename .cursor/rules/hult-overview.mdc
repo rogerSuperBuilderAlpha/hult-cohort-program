@@ -25,6 +25,7 @@ Read [AGENTS.md](../../AGENTS.md) for the full task routing table and Firestore 
 3. Split `firebase-admin` into `*-server.ts` — never import in client components.
 4. Cohort size is dynamic from roster, not hardcoded.
 5. Phase 1 voting = written GitHub review → private 👍/👎 per peer. Staff tally: `scripts/tally-votes.mjs` / `lib/tally-server.ts`.
+6. Branding: Hult 2025 cream `#fffae7` / magenta `#cc164c` / ink `#2b2b2b` (`app/globals.css`).
 
 ## Before finishing
 

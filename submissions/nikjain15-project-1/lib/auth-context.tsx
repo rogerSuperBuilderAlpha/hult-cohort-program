@@ -2,6 +2,7 @@
 
 import {
   createUserWithEmailAndPassword,
+  getAdditionalUserInfo,
   GithubAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -26,25 +27,47 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** Derive a cohort handle from an email or display name. */
-function handleFrom(user: User): string {
-  const fromEmail = user.email?.split('@')[0];
-  return (fromEmail || user.displayName || 'member').replace(/[^a-zA-Z0-9-_]/g, '').toLowerCase();
+/** Something to call a person on screen. Never used as the handle — see below. */
+function nameFor(user: User, githubLogin?: string | null): string {
+  return user.displayName || githubLogin || user.email?.split('@')[0] || 'member';
 }
 
 /**
  * Create the member doc on first sign-in, and emit member_joined once.
  * Idempotent: repeat sign-ins find the doc and no-op, so the feed never duplicates.
+ *
+ * `githubLogin` is the person's GitHub username, and it is the ONLY acceptable
+ * source for `handle`. The public cohort repo indexes people by login, so handle is
+ * the join key for everything downstream — recognising a reviewer on the landing
+ * page, attributing commits, matching a helper to someone stuck.
+ *
+ * It is only available from getAdditionalUserInfo() on the sign-in credential, not
+ * from `User`, so it has to be threaded in from the caller. That awkwardness is why
+ * this previously guessed the handle from the email local-part — which produced
+ * "nikjain1588" for a GitHub user whose login is "nikjain15", and the join silently
+ * never matched. No error; just a permanent "we don't know you".
  */
-async function ensureMember(user: User) {
+async function ensureMember(user: User, githubLogin?: string | null) {
   const ref = doc(db, 'members', user.uid);
-  if ((await getDoc(ref)).exists()) return;
+  const snap = await getDoc(ref);
+  const displayName = nameFor(user, githubLogin);
 
-  const displayName = user.displayName || handleFrom(user);
+  if (snap.exists()) {
+    // onAuthStateChanged fires before signInWithPopup resolves, so the doc can
+    // already exist by the time we learn the login. Backfill rather than no-op —
+    // otherwise the race decides whether identity works.
+    if (githubLogin && snap.data().handle !== githubLogin) {
+      await setDoc(ref, { handle: githubLogin }, { merge: true });
+    }
+    return;
+  }
+
   await setDoc(ref, {
     uid: user.uid,
     email: user.email ?? '',
-    handle: handleFrom(user),
+    // null, not a guess. A wrong handle can collide with a real member's login and
+    // attach one person's work to another. Set when they connect GitHub.
+    handle: githubLogin ?? null,
     displayName,
     photoURL: user.photoURL,
     createdAt: serverTimestamp(),
@@ -77,7 +100,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     loading,
     signInWithGithub: async () => {
-      await signInWithPopup(auth, new GithubAuthProvider());
+      const result = await signInWithPopup(auth, new GithubAuthProvider());
+      // The GitHub login lives on the credential result, not on User. Grab it here
+      // or it's gone — and with it, the only correct value for `handle`.
+      const login = getAdditionalUserInfo(result)?.username ?? null;
+      await ensureMember(result.user, login);
     },
     signInWithEmail: async (email, password) => {
       await signInWithEmailAndPassword(auth, email, password);

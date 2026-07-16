@@ -10,11 +10,21 @@ export const STATUS_LABELS: Record<Status, string> = {
   done: 'Done',
 };
 
-/** A cohort member. Created on first sign-in, keyed by Firebase Auth uid. */
+/**
+ * A cohort member. Created on first sign-in, keyed by Firebase Auth uid.
+ *
+ * `handle` is the GitHub login and nothing else — it is the join key against the
+ * public cohort repo, which indexes people by login. Deriving it from anything else
+ * (an email local-part, a display name) silently breaks that join: Pulse looks the
+ * person up, doesn't find them, and reports "we don't know you" forever.
+ *
+ * null until GitHub is connected. A guessed handle is worse than none — it can also
+ * collide with a real member's login and attach one person's work to another.
+ */
 export type Member = {
   uid: string;
   email: string;
-  handle: string;
+  handle: string | null;
   displayName: string;
   photoURL: string | null;
   createdAt: Timestamp;

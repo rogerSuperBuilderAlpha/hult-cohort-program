@@ -10,8 +10,14 @@ import type { Status } from './types';
 
 /* ------------------------------------------------------------ branch → title */
 
-/** Branch prefixes that carry no meaning in a task title. */
-const BRANCH_PREFIXES = /^(feat|feature|fix|bugfix|hotfix|chore|docs|refactor|test|ci|build|perf|style)[/-]/i;
+/**
+ * Branch prefixes that carry no meaning in a task title.
+ *
+ * Slash-delimited ONLY. A hyphen here would eat the first real word: `fix-oauth-redirect`
+ * is a task called "Fix oauth redirect", not "Oauth redirect" — the `fix` is the verb, not
+ * a namespace. Same trap for any branch starting `test-`, `docs-`, `build-`.
+ */
+const BRANCH_PREFIXES = /^(feat|feature|fix|bugfix|hotfix|chore|docs|refactor|test|ci|build|perf|style)\//i;
 
 /**
  * Turn a branch name into a human task title.

@@ -1,0 +1,84 @@
+rules_version = '2';
+
+// Pulse — Firestore security rules.
+//
+// Model: the cohort is a trusted-but-accountable group. Any signed-in member can read
+// everything and create work (that's the point — shared projects, open assignment).
+// What's locked down is *impersonation* and *erasure*: you cannot write as someone else,
+// cannot rewrite the feed, and cannot delete other people's records.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Fields a request is trying to change.
+    function changed() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // --- members -------------------------------------------------------------
+    // Readable by the cohort (needed to render assignees and the feed).
+    // Writable only by the member themselves. uid is immutable.
+    match /members/{uid} {
+      allow read: if signedIn();
+      allow create: if isSelf(uid) && request.resource.data.uid == uid;
+      allow update: if isSelf(uid) && request.resource.data.uid == resource.data.uid;
+      allow delete: if false;
+    }
+
+    // --- projects ------------------------------------------------------------
+    // Anyone signed in can create and edit projects (shared cohort work).
+    // ownerUid is set at creation and cannot be reassigned afterwards.
+    match /projects/{projectId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && isSelf(request.resource.data.ownerUid);
+      allow update: if signedIn() && request.resource.data.ownerUid == resource.data.ownerUid;
+      // Archive instead of delete — the feed references projects by id.
+      allow delete: if false;
+    }
+
+    // --- tasks ---------------------------------------------------------------
+    // Open creation and editing: the cohort assigns work to each other by design.
+    // creatorUid is immutable so authorship can't be rewritten.
+    match /tasks/{taskId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && isSelf(request.resource.data.creatorUid);
+      allow update: if signedIn() && request.resource.data.creatorUid == resource.data.creatorUid;
+      allow delete: if signedIn() && isSelf(resource.data.creatorUid);
+    }
+
+    // --- comments ------------------------------------------------------------
+    // You may only post as yourself, and only edit or remove your own words.
+    match /comments/{commentId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && isSelf(request.resource.data.authorUid);
+      allow update, delete: if signedIn() && isSelf(resource.data.authorUid);
+    }
+
+    // --- pulse ---------------------------------------------------------------
+    // The heartbeat is append-only and effectively immutable.
+    //
+    // You may only append events attributed to yourself, so nobody can fake a
+    // teammate shipping. The ONLY permitted update is toggling the kudos array —
+    // and only your own uid within it. Everything else about a past event is frozen:
+    // a feed you can edit is a feed nobody trusts.
+    match /pulse/{eventId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && isSelf(request.resource.data.actorUid)
+                    && request.resource.data.kudos.size() == 0;
+      allow update: if signedIn()
+                    && changed().hasOnly(['kudos'])
+                    && request.resource.data.kudos.toSet().difference(resource.data.kudos.toSet())
+                         .union(resource.data.kudos.toSet().difference(request.resource.data.kudos.toSet()))
+                         .hasOnly([request.auth.uid]);
+      allow delete: if false;
+    }
+  }
+}

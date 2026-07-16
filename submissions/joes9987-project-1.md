@@ -53,6 +53,7 @@ pg_cron (08:00 UTC daily)
 - **Deadline visibility:** Optional task due dates with color-coded urgency badges and quick filters (My tasks, Overdue, Due this week).
 - **In-app nudges:** Notification bell for assignments, due-soon/overdue tasks, and completed tasks (for task creators).
 - **Email digests:** One daily digest per assignee (overdue / due today / due tomorrow) via Brevo; idempotent via `email_sent_log`.
+- **Difficulty + leaderboard:** Tasks have Low/Mid/High difficulty (10/25/50 pts); completing awards points; live dashboard leaderboard; weekly top-3 kudos email.
 - **Progress feedback:** Dashboard motivation panel (Focus today, completion rate, on-time rate) and `/progress` page with per-project metrics.
 - **Project goals:** Optional `target_date` on projects with countdown on Projects and Progress pages.
 - **Visible filters:** Task board filters by project, status, assignee, plus motivation quick filters.
@@ -66,10 +67,11 @@ pg_cron (08:00 UTC daily)
 2. User A creates a task assigned to User B with due date tomorrow on **Dashboard**
 3. User B sees assignment notification in the bell icon
 4. Set a task due date in the past → overdue badge + Focus today widget updates
-5. Mark task done → completion message + on-time rate updates on dashboard
+5. Mark task done → completion message + on-time rate updates; points appear on the live leaderboard
 6. Open **Progress** → see project completion bar and overdue count
 7. Edit project on **Projects** or reassign a task on **Dashboard**
-8. *(Optional)* Assignee with due/overdue tasks receives daily digest email (Brevo transactional log or inbox)
+8. Create tasks at Mid/High difficulty → complete → watch leaderboard ranks update
+9. *(Optional)* Daily digest email for due tasks; weekly top-3 get kudos email
 
 ## Known limitations
 

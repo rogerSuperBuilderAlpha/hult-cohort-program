@@ -30,7 +30,7 @@ export default function DashboardPage() {
     if (!user || !name.trim()) return;
     setBusy(true);
     try {
-      await createProject(name.trim(), description.trim(), user.uid, profile?.displayName || user.email || "Someone");
+      await createProject(name.trim(), description.trim(), user.id, profile?.display_name || user.email || "Someone");
       setName("");
       setDescription("");
       setShowForm(false);

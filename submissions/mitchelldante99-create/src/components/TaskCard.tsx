@@ -25,7 +25,7 @@ export default function TaskCard({
   onDelete: () => void;
 }) {
   const currentIndex = STATUS_ORDER.indexOf(task.status);
-  const overdue = isOverdue(task.dueDate, task.status);
+  const overdue = isOverdue(task.due_date, task.status);
 
   return (
     <div
@@ -59,10 +59,10 @@ export default function TaskCard({
       )}
 
       <div className="flex items-center justify-between text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-        <span>{task.assigneeName ? `@ ${task.assigneeName}` : "Unassigned"}</span>
-        {task.dueDate && (
+        <span>{task.assignee_name ? `@ ${task.assignee_name}` : "Unassigned"}</span>
+        {task.due_date && (
           <span style={{ color: overdue ? "var(--danger)" : "var(--text-muted)" }}>
-            Due {new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            Due {new Date(task.due_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
           </span>
         )}
       </div>

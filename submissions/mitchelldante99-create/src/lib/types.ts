@@ -2,37 +2,37 @@ export type TaskStatus = "todo" | "in_progress" | "done";
 export type TaskPriority = "High" | "Medium" | "Low";
 
 export interface UserProfile {
-  uid: string;
+  id: string;
   email: string;
-  displayName: string;
+  display_name: string;
   streak: number;
-  lastCompletedDate: string | null; // YYYY-MM-DD
-  totalCompleted: number;
-  createdAt: number;
+  last_completed_date: string | null; // YYYY-MM-DD
+  total_completed: number;
+  created_at: string;
 }
 
 export interface Project {
   id: string;
   name: string;
   description: string;
-  createdBy: string;
-  createdByName: string;
-  createdAt: number;
+  created_by: string;
+  created_by_name: string;
+  created_at: string;
 }
 
 export interface Task {
   id: string;
-  projectId: string;
+  project_id: string;
   name: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
-  assigneeUid: string | null;
-  assigneeName: string | null;
-  dueDate: string | null; // YYYY-MM-DD
-  createdBy: string;
-  createdAt: number;
-  completedAt: number | null;
+  assignee_id: string | null;
+  assignee_name: string | null;
+  due_date: string | null; // YYYY-MM-DD
+  created_by: string;
+  created_at: string;
+  completed_at: string | null;
 }
 
 export const STATUS_LABELS: Record<TaskStatus, string> = {

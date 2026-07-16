@@ -38,7 +38,7 @@ export default function NavBar() {
             )}
 
             <span style={{ color: "var(--text-muted)" }} className="hidden sm:inline">
-              {profile?.displayName || user.email}
+              {profile?.display_name || user.email}
             </span>
 
             <button

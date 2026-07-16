@@ -47,7 +47,7 @@ export default function ProjectCard({ project }: { project: Project }) {
         />
       </div>
       <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-        {done} of {total} complete · started by {project.createdByName}
+        {done} of {total} complete · started by {project.created_by_name}
       </p>
     </Link>
   );

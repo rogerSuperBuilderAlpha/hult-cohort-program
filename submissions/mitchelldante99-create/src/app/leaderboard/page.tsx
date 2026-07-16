@@ -38,20 +38,20 @@ export default function LeaderboardPage() {
         <div className="flex flex-col gap-2">
           {users.map((u, i) => (
             <div
-              key={u.uid}
+              key={u.id}
               className="flex items-center gap-4 p-4 rounded-xl border"
               style={{
-                background: u.uid === user.uid ? "var(--surface-hover)" : "var(--surface)",
-                borderColor: u.uid === user.uid ? "var(--accent)" : "var(--border)",
+                background: u.id === user.id ? "var(--surface-hover)" : "var(--surface)",
+                borderColor: u.id === user.id ? "var(--accent)" : "var(--border)",
               }}
             >
               <span className="text-lg w-7 text-center shrink-0">
                 {medal[i] || `#${i + 1}`}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate">{u.displayName}</p>
+                <p className="font-semibold text-sm truncate">{u.display_name}</p>
                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  {u.totalCompleted} task{u.totalCompleted === 1 ? "" : "s"} completed
+                  {u.total_completed} task{u.total_completed === 1 ? "" : "s"} completed
                 </p>
               </div>
               <span

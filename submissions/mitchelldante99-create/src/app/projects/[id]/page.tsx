@@ -56,16 +56,16 @@ export default function ProjectPage() {
     e.preventDefault();
     if (!user || !taskName.trim()) return;
     setBusy(true);
-    const assignee = users.find((u) => u.uid === assigneeUid);
+    const assignee = users.find((u) => u.id === assigneeUid);
     try {
       await createTask(id, {
         name: taskName.trim(),
         description: taskDesc.trim(),
         priority,
         dueDate: dueDate || null,
-        assigneeUid: assignee ? assignee.uid : null,
-        assigneeName: assignee ? assignee.displayName : null,
-        createdBy: user.uid,
+        assigneeUid: assignee ? assignee.id : null,
+        assigneeName: assignee ? assignee.display_name : null,
+        createdBy: user.id,
       });
       setTaskName("");
       setTaskDesc("");
@@ -128,8 +128,8 @@ export default function ProjectPage() {
             <select value={assigneeUid} onChange={(e) => setAssigneeUid(e.target.value)}>
               <option value="">Unassigned</option>
               {users.map((u) => (
-                <option key={u.uid} value={u.uid}>
-                  {u.displayName}
+                <option key={u.id} value={u.id}>
+                  {u.display_name}
                 </option>
               ))}
             </select>
@@ -173,7 +173,7 @@ export default function ProjectPage() {
                       key={task.id}
                       task={task}
                       onStatusChange={(newStatus: TaskStatus) =>
-                        updateTaskStatus(id, task.id, newStatus, user.uid)
+                        updateTaskStatus(id, task.id, newStatus, user.id)
                       }
                       onDelete={() => deleteTask(id, task.id)}
                     />

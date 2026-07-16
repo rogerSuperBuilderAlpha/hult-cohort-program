@@ -17,9 +17,11 @@ Supabase project: `pm-joes9987` (`vidprovlxevofniwyhgs`) — schema applied, Ver
 3. Run `supabase/schema.sql` in Supabase SQL editor (fresh install) or apply migrations:
    - `supabase/migrations/20260715_motivation_features.sql` (due dates, notifications)
    - `supabase/migrations/20260715_email_digest_brevo.sql` (email digest idempotency — optional for operators)
+   - `supabase/migrations/20260716_rls_update_with_check.sql` (RLS hardening — recommended)
 4. Copy `.env.example` → `.env.local` with Supabase URL + anon key
 5. `npm run dev` → sign up, create project on **Projects**, create + assign task with due date on **Dashboard**
-6. Production deployed to Vercel with env vars set
+6. Edit project name/description and reassign tasks after creation
+7. Production deployed to Vercel with env vars set
 
 **Email digests (optional infra):** See build repo `docs/BREVO_EMAIL_SETUP.md` for Brevo sender verification, Edge Function secrets, and `supabase/sql/schedule_email_digest_cron.sql` (daily 08:00 UTC). Reviewers do not need this to use the app.
 
@@ -54,6 +56,7 @@ pg_cron (08:00 UTC daily)
 - **Progress feedback:** Dashboard motivation panel (Focus today, completion rate, on-time rate) and `/progress` page with per-project metrics.
 - **Project goals:** Optional `target_date` on projects with countdown on Projects and Progress pages.
 - **Visible filters:** Task board filters by project, status, assignee, plus motivation quick filters.
+- **Post-creation edits:** Project owners can rename/edit projects; task creators, assignees, and project owners can edit and reassign tasks.
 - **Archive, not delete:** Projects archive instead of hard-delete to preserve history during operator cutover.
 - **Guided empty states:** Dashboard prompts users to create a project first when the project dropdown would otherwise be empty.
 
@@ -65,7 +68,8 @@ pg_cron (08:00 UTC daily)
 4. Set a task due date in the past → overdue badge + Focus today widget updates
 5. Mark task done → completion message + on-time rate updates on dashboard
 6. Open **Progress** → see project completion bar and overdue count
-7. *(Optional)* Assignee with due/overdue tasks receives daily digest email (Brevo transactional log or inbox)
+7. Edit project on **Projects** or reassign a task on **Dashboard**
+8. *(Optional)* Assignee with due/overdue tasks receives daily digest email (Brevo transactional log or inbox)
 
 ## Known limitations
 

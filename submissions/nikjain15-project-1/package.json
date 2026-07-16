@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --project unit",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-pulse \"vitest run --project rules\"",
+    "test:e2e": "playwright test --project full",
+    "test:e2e:smoke": "playwright test --project smoke",
+    "emulator": "firebase emulators:start --only firestore --project demo-pulse",
+    "gate": "npm run typecheck && npm run lint && npm run test:unit && npm run test:rules && npm run test:e2e:smoke"
   },
   "dependencies": {
     "firebase": "^12.16.0",
@@ -15,13 +22,19 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "firebase-tools": "^15.24.0",
+    "msw": "^2.15.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

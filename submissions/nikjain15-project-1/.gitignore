@@ -40,3 +40,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# test artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+firebase-debug.log
+firestore-debug.log

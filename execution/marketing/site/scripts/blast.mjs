@@ -14,6 +14,7 @@
  *
  * Body:  --html=<file>   or   --body="<inline html>"   (supports {firstName} etc. merge tags)
  * Flags: --rate=<per-sec, default 10>  --limit=<N>  --test=<email>  --confirm
+ *        --exclude-domain=<d1,d2>  (drop recipients whose email is at these domains, e.g. demo seeds)
  *
  * Provider comes from EMAIL_PROVIDER (mailgun|ses) — see lib/mailer.mjs.
  * Suppressed (unsubscribed/bounced) addresses are always skipped.
@@ -126,7 +127,15 @@ async function main() {
   const db = initDb();
   const [rawAudience, suppressed] = await Promise.all([resolveAudience(db), loadSuppressionSet(db)]);
 
-  let recipients = rawAudience.filter((r) => !suppressed.has(r.email));
+  const excludedDomains = (arg('exclude-domain', '') || '')
+    .split(',')
+    .map((d) => d.trim().toLowerCase())
+    .filter(Boolean);
+  let recipients = rawAudience.filter(
+    (r) =>
+      !suppressed.has(r.email) &&
+      !excludedDomains.some((d) => r.email.toLowerCase().endsWith(`@${d}`))
+  );
   const skipped = rawAudience.length - recipients.length;
   const limit = Number(arg('limit', '0'));
   if (limit > 0) recipients = recipients.slice(0, limit);

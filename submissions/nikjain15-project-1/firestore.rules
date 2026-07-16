@@ -3,9 +3,13 @@ rules_version = '2';
 // Pulse — Firestore security rules.
 //
 // Model: the cohort is a trusted-but-accountable group. Any signed-in member can read
-// everything and create work (that's the point — shared projects, open assignment).
-// What's locked down is *impersonation* and *erasure*: you cannot write as someone else,
-// cannot rewrite the feed, and cannot delete other people's records.
+// the shared work and create their own (that's the point — shared projects, open assignment).
+// What's locked down is *impersonation*, *erasure of others*, and *unconsented narration*.
+//
+// Two rules here exist because the product makes promises, and a promise the rules
+// don't enforce is marketing:
+//   1. You can always delete what Pulse posted as you (undo must be total).
+//   2. Nobody sees a private "so-and-so is stuck" nudge except its one intended reader.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -22,6 +26,14 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys();
     }
 
+    // The symmetric difference of two uid arrays — i.e. who was added or removed.
+    // Used to prove a member only ever toggles *themselves* in a list.
+    function togglesOnlySelf(before, after) {
+      return after.toSet().difference(before.toSet())
+               .union(before.toSet().difference(after.toSet()))
+               .hasOnly([request.auth.uid]);
+    }
+
     // --- members -------------------------------------------------------------
     // Readable by the cohort (needed to render assignees and the feed).
     // Writable only by the member themselves. uid is immutable.
@@ -30,6 +42,26 @@ service cloud.firestore {
       allow create: if isSelf(uid) && request.resource.data.uid == uid;
       allow update: if isSelf(uid) && request.resource.data.uid == resource.data.uid;
       allow delete: if false;
+    }
+
+    // --- cohortMembers -------------------------------------------------------
+    // Pre-indexed from the PUBLIC cohort repo, before anyone signs up. Facts only.
+    //
+    // Written exclusively by the server (Admin SDK bypasses these rules), so clients
+    // get no write at all — a member must never be able to forge someone else's
+    // commit counts. The single exception is narrationOptIn: the gate that decides
+    // whether a model may write sentences about you. Only you may flip it, and only it.
+    match /cohortMembers/{handle} {
+      allow read: if signedIn();
+      allow create, delete: if false;
+      allow update: if isSelf(resource.data.uid)
+                    && changed().hasOnly(['narrationOptIn']);
+    }
+
+    // --- githubLinks ---------------------------------------------------------
+    // Your connection + consent state. Nobody else's business, ever.
+    match /githubLinks/{uid} {
+      allow read, write: if isSelf(uid);
     }
 
     // --- projects ------------------------------------------------------------
@@ -54,7 +86,8 @@ service cloud.firestore {
     }
 
     // --- comments ------------------------------------------------------------
-    // You may only post as yourself, and only edit or remove your own words.
+    // Out of scope for Project 1, but the rule stays so the collection can't be
+    // abused if something writes to it.
     match /comments/{commentId} {
       allow read: if signedIn();
       allow create: if signedIn() && isSelf(request.resource.data.authorUid);
@@ -62,22 +95,84 @@ service cloud.firestore {
     }
 
     // --- pulse ---------------------------------------------------------------
-    // The heartbeat is append-only and effectively immutable.
+    // The heartbeat. Append-only for everyone else; yours remains yours.
     //
     // You may only append events attributed to yourself, so nobody can fake a
-    // teammate shipping. The ONLY permitted update is toggling the kudos array —
-    // and only your own uid within it. Everything else about a past event is frozen:
-    // a feed you can edit is a feed nobody trusts.
+    // teammate shipping.
+    //
+    // Two permitted updates:
+    //   - anyone may toggle kudos, but only their OWN uid within the array;
+    //   - the actor may edit the narrative Pulse wrote as them ("edit the wording").
+    // Everything else about a past event is frozen: a feed you can rewrite is a
+    // feed nobody trusts.
+    //
+    // Delete is allowed for the ACTOR ONLY. This reverses the old `if false` on
+    // purpose: the product tells people "undo, any time", and an undo that left the
+    // row in 64 other feeds would make that a lie. Pulse posts without asking —
+    // the price is that taking it back must always work.
     match /pulse/{eventId} {
       allow read: if signedIn();
+
       allow create: if signedIn()
                     && isSelf(request.resource.data.actorUid)
                     && request.resource.data.kudos.size() == 0;
+
       allow update: if signedIn()
-                    && changed().hasOnly(['kudos'])
-                    && request.resource.data.kudos.toSet().difference(resource.data.kudos.toSet())
-                         .union(resource.data.kudos.toSet().difference(request.resource.data.kudos.toSet()))
-                         .hasOnly([request.auth.uid]);
+                    && (
+                      // kudos toggle — own uid only
+                      (changed().hasOnly(['kudos'])
+                        && togglesOnlySelf(resource.data.kudos, request.resource.data.kudos))
+                      ||
+                      // the actor rewording their own post
+                      (isSelf(resource.data.actorUid)
+                        && changed().hasOnly(['narrative', 'editedAt']))
+                    );
+
+      allow delete: if isSelf(resource.data.actorUid);
+    }
+
+    // --- recipes -------------------------------------------------------------
+    // The cohort's bank of what actually worked. Read by everyone, written by the
+    // person who solved it.
+    //
+    // unstuckUids is how a recipe earns its rank, so any member may add themselves
+    // to it — and only themselves. That number is the one ranking in the product,
+    // and it measures generosity, not output.
+    match /recipes/{recipeId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && isSelf(request.resource.data.authorUid)
+                    && request.resource.data.unstuckUids.size() == 0;
+      allow update: if signedIn()
+                    && (
+                      // author editing their own recipe (but not inflating its rank)
+                      (isSelf(resource.data.authorUid)
+                        && request.resource.data.authorUid == resource.data.authorUid
+                        && !changed().hasAny(['unstuckUids']))
+                      ||
+                      // anyone marking themselves unstuck by it
+                      (changed().hasOnly(['unstuckUids'])
+                        && togglesOnlySelf(resource.data.unstuckUids, request.resource.data.unstuckUids))
+                    );
+      allow delete: if isSelf(resource.data.authorUid);
+    }
+
+    // --- introductions -------------------------------------------------------
+    // "Marcus is stuck on what you solved." This is the most sensitive collection
+    // in the product: it names someone who is struggling.
+    //
+    // Readable ONLY by the one peer being asked to help — never by the cohort, and
+    // never by the person it describes. The spec's rule is asymmetric on purpose:
+    // the cohort sees nothing, one peer sees an offer to help, and the quiet member
+    // receives help rather than a flag. A cohort-readable "who's stuck" list is
+    // exactly the surveillance this design refuses to build.
+    //
+    // Created server-side only — a client must not be able to declare someone stuck.
+    match /introductions/{introId} {
+      allow read: if isSelf(resource.data.helperUid);
+      allow create: if false;
+      allow update: if isSelf(resource.data.helperUid)
+                    && changed().hasOnly(['state']);
       allow delete: if false;
     }
   }

@@ -26,12 +26,17 @@ corner was rejected.
 Requires **Node 20.9+** (Next 16's floor). Java 11+ is only needed for the emulator, not the app.
 
 ```bash
-git clone https://github.com/nikjain15/hult-cohort-program.git
+git clone -b participants/summer26/phase-1-project-1/nikjain15 \
+  https://github.com/nikjain15/hult-cohort-program.git
 cd hult-cohort-program/submissions/nikjain15-project-1
 npm install
 cp .env.example .env.local
 npm run dev                 # http://localhost:3000
 ```
+
+> The `-b` is load-bearing until the PR merges: this is a fork of the cohort monorepo, and its
+> default branch has no `submissions/nikjain15-project-1` in it. A plain `git clone` gets you a tree
+> without the submission, and step 2 fails with "no such file or directory". Verified by doing it.
 
 Fill `.env.local` with the six `NEXT_PUBLIC_FIREBASE_*` values from a Firebase web app
 (**Project settings → General → Your apps**). Those are public by design — they ship in the client
@@ -79,11 +84,14 @@ app/
   signin/          GitHub OAuth + email/password. Errors in plain language, never a raw code.
   board/           Three columns. Carousel under 768, grid at 768.
   projects/        List, archive toggle; [id] is the project's own board.
+  recipes/         What the cohort figured out, indexed by problem; [id] is one, with Steal.
 lib/
   types.ts         Authoritative for what exists. Member, Project, Task, PulseEvent,
                    CohortMember, Evidence, GitHubLink, Recipe, Introduction.
   pulse.ts         logPulse, subscribeToPulse, toggleKudos — the heartbeat.
   data.ts          Projects and tasks. setTaskStatus is the only path that logs events.
+  recipes.ts       The bank's writes. recipe-index.ts is its pure ordering/search, split
+                   out so unit tests can load it without live Firebase config.
   sense.ts         Pure sensing logic: branch→title, dedupe, status inference, evidence
                    receipts, the standing-ask ladder, narration cache key, checkNarrative.
   auth-context.tsx Sign-in, and the member doc. handle is the GitHub login or null.
@@ -115,7 +123,7 @@ firestore.rules    The product's ethical promises, enforced.
 ```bash
 npm run typecheck
 npm run lint
-npm run test:unit          # 83 tests — pure logic, no network
+npm run test:unit          # 108 tests — pure logic, no network
 npm run test:rules         # 76 tests — security rules against the emulator
 npm run test:e2e           # Playwright, B1–B10, against the emulator
 npm run test:e2e:smoke     # against the deployed URL

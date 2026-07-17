@@ -40,7 +40,9 @@ export function TaskModal({
   const [projectId, setProjectId] = useState(task?.projectId ?? defaultProjectId ?? projects[0]?.id ?? '');
   const [status, setStatus] = useState<Status>(task?.status ?? defaultStatus ?? 'todo');
   // Default to you, but assigning to others is expected — B7 verifies the assignee sees it.
-  const [assigneeUid, setAssigneeUid] = useState(task?.assigneeUid ?? actor.uid);
+  // Explicitly nullable: `?? actor.uid` would infer plain `string` and lock out the
+  // "Nobody yet" option, which is the whole point of it existing.
+  const [assigneeUid, setAssigneeUid] = useState<string | null>(task?.assigneeUid ?? actor.uid);
   const [due, setDue] = useState(
     task?.dueDate ? task.dueDate.toDate().toISOString().slice(0, 10) : ''
   );
@@ -157,8 +159,22 @@ export function TaskModal({
             </Select>
           </Field>
 
-          <Field label="Assignee">
-            <Select value={assigneeUid ?? ''} onChange={(e) => setAssigneeUid(e.target.value)}>
+          <Field label="Assignee" hint="“Nobody yet” puts it up for the cohort to claim.">
+            <Select
+              value={assigneeUid ?? ''}
+              onChange={(e) => setAssigneeUid(e.target.value || null)}
+            >
+              {/*
+                Without this option nothing could ever be unassigned — the list was members
+                only, and it defaults to you. That quietly killed the one social ask Home
+                can make in week 1: the ladder's "Nobody's on this" rung needs
+                assigneeUid === null, so it was unreachable and Home could only ever offer
+                you your own to-do list. The rungs above it need Broker, which is week 3.
+
+                An empty value, not a sentinel string: null is what "unassigned" means in
+                types.ts, and the ladder filters on exactly that.
+              */}
+              <option value="">Nobody yet</option>
               {members.map((m) => (
                 <option key={m.uid} value={m.uid}>
                   {m.uid === actor.uid ? 'you' : m.displayName}

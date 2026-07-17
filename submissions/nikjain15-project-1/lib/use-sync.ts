@@ -59,13 +59,25 @@ export function useSync(input: {
    * is released in `finally`, so a re-entry that is sequential rather than concurrent
    * walks straight past it.
    *
-   * lastSyncedAt is read as a boolean (backfilling or not), so only its NULLNESS belongs
-   * here — depending on the timestamp itself would re-arm the circle on every stamp.
+   * **`lastSyncedAt` must not appear here in ANY form — not the timestamp, and not its
+   * nullness.** An earlier version of this comment argued that nullness was safe because
+   * it's "just a boolean". It isn't: `markSynced` is what makes it non-null, so the first
+   * successful sync flips that boolean exactly once, re-runs this effect exactly once, and
+   * the second run reads a `tasks` snapshot the listener hasn't refreshed yet — so it
+   * builds a card that already exists. Exactly one twin, which is exactly what shipped:
+   * two identical PR #40 cards on the production board.
+   *
+   * `running` can't catch it either. The guard is released in `finally`, so a re-entry
+   * that is sequential rather than concurrent walks straight past it.
+   *
+   * Backfilling is read from `latest.current.link` inside the run instead, where it is
+   * fresher anyway. The transaction in `createSensedTask` is the real backstop — an
+   * in-memory guard cannot see a second tab — but an effect that retriggers on its own
+   * write is a bug on its own terms.
    */
   const linkHandle = link?.handle ?? null;
   const linkStatus = link?.status ?? null;
   const linkCreatesTasks = link?.createTasksFromBranches ?? false;
-  const linkBackfilling = link?.lastSyncedAt === null;
 
   useEffect(() => {
     if (!canSync) return;
@@ -116,9 +128,10 @@ export function useSync(input: {
       cancelled = true;
       clearInterval(timer);
     };
-    // Scalars only — never the `link` object (see above). Deliberately NOT tasks/projects:
-    // re-running on every card move would sync on every keystroke's worth of traffic.
-  }, [canSync, uid, linkHandle, linkStatus, linkCreatesTasks, linkBackfilling]);
+    // Scalars only — never the `link` object, and never lastSyncedAt in any form (see
+    // above; that one shipped a twin). Deliberately NOT tasks/projects: re-running on
+    // every card move would sync on every keystroke's worth of traffic.
+  }, [canSync, uid, linkHandle, linkStatus, linkCreatesTasks]);
 
   return outcome;
 }

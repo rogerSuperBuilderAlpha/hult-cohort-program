@@ -6,6 +6,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
   where,
@@ -13,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { logPulse } from './pulse';
+import { sensedTaskId } from './sense';
 import type { Evidence, Member, Project, Status, Task } from './types';
 
 type Actor = { uid: string; name: string; photoURL: string | null };
@@ -35,19 +37,17 @@ export function subscribeToProjects(onData: (projects: Project[]) => void): () =
   );
 }
 
+/**
+ * A project someone made by hand. The sensed one is `ensureRepoProject`.
+ *
+ * This one always announces itself, because a person genuinely did it. It used to carry a
+ * `silent` option for Pulse's repo project; that path is transactional now and doesn't
+ * come through here, so the option had no callers left. A flag nobody sets is a trap for
+ * whoever reads this next.
+ */
 export async function createProject(
   actor: Actor,
-  input: { name: string; description: string },
-  /**
-   * `silent` is for the project Pulse creates for a connected repo.
-   *
-   * The feed row would read "Nik created hult-cohort-program" — but Nik didn't, Pulse
-   * did, on their behalf. Firestore rules require every write to be attributed to the
-   * signed-in user, so the doc is theirs either way; announcing it as a thing they chose
-   * to do is the part that isn't true. Pulse says when Pulse did it, and when Pulse did
-   * it quietly, it says nothing at all.
-   */
-  options: { silent?: boolean } = {}
+  input: { name: string; description: string }
 ): Promise<string> {
   const ref = await addDoc(collection(db, 'projects'), {
     ...input,
@@ -55,8 +55,6 @@ export async function createProject(
     archived: false,
     createdAt: serverTimestamp(),
   });
-
-  if (options.silent) return ref.id;
 
   await logPulse({
     kind: 'project_created',
@@ -68,6 +66,48 @@ export async function createProject(
   });
 
   return ref.id;
+}
+
+/**
+ * The project for a connected repo — one for the whole cohort, however many people
+ * connect at once.
+ *
+ * Same shape, and same reason, as `createSensedTask`: "is there a project called this?"
+ * followed by `addDoc` is a read-then-write, and read-then-writes lose races. Two members
+ * connecting in the same few seconds — or one member with two tabs — would each see no
+ * project and each create one, and the cohort would get two boards called
+ * `hult-cohort-program`. That didn't reproduce when the task twin did, but only because
+ * the timing happened to favour one tab. Unprevented isn't fixed.
+ *
+ * The id is derived from the repo and NOT from the uid: this project is shared, so the
+ * second member through the door must land on the first member's document rather than
+ * their own copy of it. First one there owns it; the rules require the creator to set
+ * `ownerUid` to themselves, and everyone can read and write projects regardless.
+ *
+ * Silent by design — see `createProject`. The feed row would read "Nik created
+ * hult-cohort-program", and Nik didn't. Pulse did.
+ */
+export async function ensureRepoProject(
+  actor: Actor,
+  input: { repo: string; description: string }
+): Promise<string> {
+  const id = `repo_${input.repo}`;
+  const ref = doc(db, 'projects', id);
+
+  await runTransaction(db, async (tx) => {
+    const existing = await tx.get(ref);
+    if (existing.exists()) return;
+
+    tx.set(ref, {
+      name: input.repo,
+      description: input.description,
+      ownerUid: actor.uid,
+      archived: false,
+      createdAt: serverTimestamp(),
+    });
+  });
+
+  return id;
 }
 
 export async function updateProject(
@@ -121,8 +161,18 @@ export async function createTask(
  * is what it says — "PR #41" is checkable, and a board that grows cards nobody made is a
  * board nobody trusts.
  *
- * `branch` is the dedupe key against every future re-sync. Without it a 15-minute poll
- * would twin every card it already made.
+ * **Idempotent by construction, and it has to be.** The id is derived from the work
+ * (`sensedTaskId`), and the write is a transaction that does nothing if the card already
+ * exists. `addDoc` + "did I already make one?" is a read-then-write, and it lost the race
+ * in production: two runs both saw an empty board and put two identical PR #40 cards up.
+ *
+ * The transaction, not just the derived id, is what protects a card you have since EDITED.
+ * A blind `setDoc` on the same id would be idempotent for the twin and catastrophic for
+ * you — it would overwrite your retitled, re-columned card with Pulse's original guess on
+ * the next poll. Existing card wins, always. Pulse builds it once; after that it's yours.
+ *
+ * `dedupeKey` is the branch where there is one, falling back to the PR — the same key
+ * `matchTask` uses, so the fast path and this backstop agree on what "the same work" means.
  */
 export async function createSensedTask(
   actor: Actor,
@@ -133,18 +183,31 @@ export async function createSensedTask(
     status: Status;
     evidence: Evidence;
     branch: string | null;
+    dedupeKey: string;
   }
 ): Promise<string> {
-  const ref = await addDoc(collection(db, 'tasks'), {
-    ...input,
-    assigneeUid: actor.uid,
-    creatorUid: actor.uid,
-    dueDate: null,
-    createdAt: serverTimestamp(),
-    completedAt: input.status === 'done' ? serverTimestamp() : null,
-    source: 'sensed' as const,
+  const { dedupeKey, ...fields } = input;
+  const id = sensedTaskId(actor.uid, dedupeKey);
+  const ref = doc(db, 'tasks', id);
+
+  await runTransaction(db, async (tx) => {
+    const existing = await tx.get(ref);
+    // Somebody already built this — another tab, another run, or a poll that overlapped.
+    // That's a success, not a conflict: the card they made is the card this one would be.
+    if (existing.exists()) return;
+
+    tx.set(ref, {
+      ...fields,
+      assigneeUid: actor.uid,
+      creatorUid: actor.uid,
+      dueDate: null,
+      createdAt: serverTimestamp(),
+      completedAt: fields.status === 'done' ? serverTimestamp() : null,
+      source: 'sensed' as const,
+    });
   });
-  return ref.id;
+
+  return id;
 }
 
 /**

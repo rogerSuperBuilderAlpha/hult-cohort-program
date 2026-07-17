@@ -1,7 +1,12 @@
 'use client';
 
 import type { SenseResponse, SensedPull } from '@/app/api/sense/route';
-import { createProject, createSensedTask, setSensedStatusSilently, setTaskStatus } from './data';
+import {
+  createSensedTask,
+  ensureRepoProject as ensureSharedRepoProject,
+  setSensedStatusSilently,
+  setTaskStatus,
+} from './data';
 import { setNarrationCacheKey } from './github-link';
 import { COHORT_REPO_NAME } from './github-repo';
 import type { NarrationResult } from './narrate';
@@ -125,6 +130,7 @@ export async function syncFromGitHub(input: {
           status: inference.status,
           evidence: evidenceFor(pull),
           branch: pull.branch,
+          dedupeKey: dedupeKeyFor(pull),
         });
         fresh.push({ id, title, branch: pull.branch, status: inference.status } as Task);
         created += 1;
@@ -281,6 +287,18 @@ function matchTask(tasks: Task[], pull: SensedPull, title: string): Task | null 
   return findDuplicate(tasks, title);
 }
 
+/**
+ * What counts as "the same work" — the branch, or the PR when there is no branch.
+ *
+ * The branch first, matching `matchTask`: the two must agree, or the fast path and the
+ * transaction backstop would disagree about identity and the backstop would stop backing
+ * anything up. A deleted branch on a merged PR is the case with no branch to key on, and
+ * the PR number is stable there.
+ */
+function dedupeKeyFor(pull: SensedPull): string {
+  return pull.branch ?? `pr-${pull.number}`;
+}
+
 function signalFor(pull: SensedPull): GitHubSignal {
   if (pull.merged) return { type: 'pr_merged' };
   if (pull.state === 'closed') return { type: 'pr_closed_unmerged' };
@@ -310,12 +328,10 @@ function findRepoProject(projects: Project[]): Project | undefined {
  * small lie in the one product whose whole case rests on not telling them.
  */
 async function ensureRepoProject(actor: Actor): Promise<string> {
-  return createProject(
-    actor,
-    {
-      name: COHORT_REPO_NAME,
-      description: 'Sensed from GitHub. Cards here were built from your branches and PRs.',
-    },
-    { silent: true }
-  );
+  // Transactional and keyed by the repo — two members connecting at once must land on one
+  // shared project, not two called the same thing. See `ensureRepoProject` in data.ts.
+  return ensureSharedRepoProject(actor, {
+    repo: COHORT_REPO_NAME,
+    description: 'Sensed from GitHub. Cards here were built from your branches and PRs.',
+  });
 }

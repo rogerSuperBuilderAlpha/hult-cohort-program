@@ -320,3 +320,49 @@ export function shouldNarrate(
   if (commitShas.length === 0) return false;
   return cachedKey !== narrationCacheKey(handle, commitShas);
 }
+
+/* --------------------------------------------------- sensed card identity */
+
+/**
+ * The address of a sensed card: same work → same document, always.
+ *
+ * This is a CORRECTNESS boundary, not a tidiness one. Checking "does a card for this
+ * branch exist?" and then creating one is a read-then-write, and every read-then-write
+ * loses a race: two syncs both read "no card", both create, and the board grows a twin.
+ * `addDoc` mints a fresh id every call, so nothing downstream can undo that. A derived id
+ * makes the twin unrepresentable — the second writer addresses the document the first one
+ * already made.
+ *
+ * The race is real and plural: a re-fired effect, the 15-minute poll overlapping a slow
+ * run, and two open tabs (an in-memory guard is per-tab and cannot see the other one).
+ * It shipped to production and put two identical PR #40 cards on the board.
+ *
+ * Same reasoning as `ensureMember` being a transaction — this codebase has been bitten by
+ * exactly this shape before, and published `member_joined` twice for it.
+ */
+export function sensedTaskId(uid: string, dedupeKey: string): string {
+  return `s_${uid}_${fnv1a(dedupeKey)}`;
+}
+
+/**
+ * FNV-1a, 32-bit, as 8 hex chars.
+ *
+ * A hash rather than the branch name itself because a Firestore document id may not
+ * contain `/`, and every branch here has several (`participants/summer26/...`). Escaping
+ * would work until two branches escaped to the same string; a hash of the full name has a
+ * uniform, vanishing collision chance across a cohort's worth of branches instead.
+ *
+ * Not cryptographic and doesn't need to be: this is an addressing scheme, not a secret.
+ * Collisions are the only failure mode, and there is nothing to forge — the rules still
+ * decide who may write, and a member can only ever create tasks as themselves.
+ */
+function fnv1a(input: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    // The FNV prime, via shifts: Math.imul keeps this in 32-bit space, where plain `*`
+    // would silently drift into float territory and stop being deterministic.
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}

@@ -11,6 +11,7 @@ import {
   checkNarrative,
   narrationCacheKey,
   shouldNarrate,
+  sensedTaskId,
   NARRATIVE_MAX_CHARS,
   type AskContext,
 } from '../../lib/sense';
@@ -598,5 +599,55 @@ describe('shouldNarrate', () => {
 
   it('narrates when nothing has been cached yet', () => {
     expect(shouldNarrate(null, handle, shas)).toBe(true);
+  });
+});
+
+/**
+ * The twin bug, pinned.
+ *
+ * Two identical PR #40 cards reached the production board. Root cause was a read-then-write:
+ * "is there a card for this branch?" then "create one" — which two runs both lose. The id is
+ * now derived from the work, so the second writer addresses the first writer's document
+ * instead of minting a new one.
+ */
+describe('sensedTaskId — the same work has one address', () => {
+  const UID = 'uid_nik';
+  const BRANCH = 'participants/summer26/phase-1-project-1/nikjain15';
+
+  it('is stable across calls — this is the whole property', () => {
+    expect(sensedTaskId(UID, BRANCH)).toBe(sensedTaskId(UID, BRANCH));
+  });
+
+  it('contains no slash, so a branch name can be a document id', () => {
+    // Firestore rejects '/' in a document id, and every cohort branch has three.
+    expect(sensedTaskId(UID, BRANCH)).not.toContain('/');
+  });
+
+  it('separates two branches', () => {
+    expect(sensedTaskId(UID, 'feat/a')).not.toBe(sensedTaskId(UID, 'feat/b'));
+  });
+
+  it('separates two members on the SAME branch name', () => {
+    // Everyone's tasks live in one collection. Without the uid, two people working a
+    // branch called `main` would fight over one card.
+    expect(sensedTaskId('uid_a', 'main')).not.toBe(sensedTaskId('uid_b', 'main'));
+  });
+
+  it('separates branches that differ only in punctuation', () => {
+    // The reason this hashes rather than escaping: `feat/a` and `feat_a` must not collide
+    // just because escaping would map them to the same string.
+    expect(sensedTaskId(UID, 'feat/a')).not.toBe(sensedTaskId(UID, 'feat_a'));
+  });
+
+  it('handles a branch with no ascii at all', () => {
+    expect(sensedTaskId(UID, '機能/追加')).toMatch(/^s_uid_nik_[0-9a-f]{8}$/);
+  });
+
+  it('is always 8 hex chars, even when the hash has leading zeros', () => {
+    // padStart is load-bearing: an unpadded id would be a different length per branch,
+    // which is harmless until something parses it.
+    for (const b of ['a', 'bb', 'ccc', 'feat/x', 'main', 'x'.repeat(200)]) {
+      expect(sensedTaskId(UID, b)).toMatch(/^s_uid_nik_[0-9a-f]{8}$/);
+    }
   });
 });

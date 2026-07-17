@@ -259,22 +259,40 @@ test.describe('responsive — spec §4', () => {
 
   /**
    * prefers-reduced-motion is honoured. Someone who asked the OS to stop animating things
-   * meant it — a feed that fades rows in anyway is ignoring an accessibility setting.
+   * meant it.
+   *
+   * **Motion, not colour.** An earlier version of this test summed animationDuration and
+   * transitionDuration and demanded zero, which failed the moment Home grew a CTA link:
+   * Tailwind's `transition-colors` is a 150ms *colour* fade with `animation-name: none`.
+   * The setting exists for vestibular discomfort — movement, transforms, parallax — and a
+   * hover colour change is none of those. A test that flags it isn't stricter, it's wrong,
+   * and it would have pushed us to strip a perfectly accessible affordance.
+   *
+   * What must actually stop is the keyframe animation: the card's `pulse-once` and the
+   * kudos scale are the only two in the product, and both are behind `motion-safe:`.
    */
-  test('prefers-reduced-motion is honoured', async ({ page }) => {
+  test('prefers-reduced-motion stops the animations, and leaves colour alone', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1024, height: 800 });
-    await page.goto('/');
-    await settle(page);
 
-    const animated = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('main *')).filter((el) => {
-        const s = getComputedStyle(el);
-        const dur = parseFloat(s.animationDuration) + parseFloat(s.transitionDuration);
-        return dur > 0.1;
-      }).length
-    );
+    for (const path of ['/', '/board']) {
+      await page.goto(path);
+      await settle(page);
 
-    expect(animated, 'things still animate under prefers-reduced-motion').toBe(0);
+      const moving = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('main *'))
+          .filter((el) => {
+            const s = getComputedStyle(el);
+            const keyframed = s.animationName !== 'none' && parseFloat(s.animationDuration) > 0.1;
+            // A transform transition IS motion, unlike a colour one.
+            const transformed =
+              /transform|all/.test(s.transitionProperty) && parseFloat(s.transitionDuration) > 0.1;
+            return keyframed || transformed;
+          })
+          .map((el) => `${el.tagName}.${String(el.className).slice(0, 40)}`)
+      );
+
+      expect(moving, `${path} still animates under prefers-reduced-motion`).toEqual([]);
+    }
   });
 });

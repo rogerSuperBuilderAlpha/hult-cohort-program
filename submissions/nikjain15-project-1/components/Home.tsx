@@ -10,9 +10,11 @@ import { useAuth } from '@/lib/auth-context';
 import { db } from '@/lib/firebase';
 import { saveConsent, subscribeToLink } from '@/lib/github-link';
 import { approveNarrative, dismissNarrative, subscribeToPulse, toggleKudos } from '@/lib/pulse';
+import { findRecipeOffer, RecipeOfferCard } from '@/components/RecipeOffer';
 import { formatEvidence, relativeTime, selectAsk, type Ask, type AskContext } from '@/lib/sense';
-import type { GitHubLink, Member, PulseEvent, Task } from '@/lib/types';
+import type { GitHubLink, Member, PulseEvent, Recipe, Task } from '@/lib/types';
 import { useCohort } from '@/lib/use-cohort';
+import { useRecipes } from '@/lib/use-recipes';
 
 /**
  * Home — `/` signed in. DESIGN-SPEC §6.
@@ -63,6 +65,7 @@ function HomeView() {
 
   const { tasks, projects, members, ready } = useCohort();
   const { events, fresh, ready: feedReady } = usePulseFeed();
+  const { recipes } = useRecipes();
   const [link, setLink] = useState<GitHubLink | null>(null);
   // null-before-first-snapshot and null-because-no-doc are different states: the second
   // means this member never finished /connect, and gets the "one decision waiting" card.
@@ -85,6 +88,16 @@ function HomeView() {
   const ask = useMemo(
     () => selectAsk(buildAskContext({ uid, tasks, projects, ready })),
     [uid, tasks, projects, ready]
+  );
+
+  // "That one took a while. Keep what worked?" — Layer 2's offer, for YOUR newest hard
+  // ship only. `offerGone` exists because the dismissal lives in localStorage, which
+  // isn't reactive — the card has to leave the screen the moment it's resolved, not on
+  // the next snapshot.
+  const [offerGone, setOfferGone] = useState(false);
+  const offer = useMemo(
+    () => (offerGone ? null : findRecipeOffer(events, recipes, uid)),
+    [events, recipes, uid, offerGone]
   );
 
   return (
@@ -114,6 +127,14 @@ function HomeView() {
           link?.status === 'declined' && <NothingOfYours />
         )}
 
+        {offer && (
+          <RecipeOfferCard
+            actor={{ uid, name: user!.displayName ?? '', photoURL: user!.photoURL }}
+            offer={offer}
+            onGone={() => setOfferGone(true)}
+          />
+        )}
+
         {/* One card, not two stacked negations: when an invitation above is showing and
             the ask ladder only has its floor to offer, "nothing of yours" + "nothing needs
             you" reads like the product shrugging twice. The invitation wins the slot. */}
@@ -128,6 +149,7 @@ function HomeView() {
           events={events}
           fresh={fresh}
           members={members}
+          recipes={recipes}
           ready={feedReady}
           uid={uid}
           onError={setError}
@@ -652,6 +674,7 @@ function CohortWeek({
   events,
   fresh,
   members,
+  recipes,
   ready,
   uid,
   onError,
@@ -659,11 +682,19 @@ function CohortWeek({
   events: PulseEvent[];
   fresh: ReadonlySet<string>;
   members: Member[];
+  recipes: Recipe[];
   ready: boolean;
   uid: string;
   onError: (m: string | null) => void;
 }) {
   const byUid = useMemo(() => new Map(members.map((m) => [m.uid, m])), [members]);
+
+  // The recipe chip (§6): a shipped row whose task got banked links straight to the
+  // recipe. Derived from the listener already in memory — no per-row query.
+  const recipeByTask = useMemo(
+    () => new Map(recipes.filter((r) => r.taskId !== null).map((r) => [r.taskId!, r.id])),
+    [recipes]
+  );
 
   return (
     <section>
@@ -688,6 +719,7 @@ function CohortWeek({
                 key={event.id}
                 event={event}
                 member={byUid.get(event.actorUid)}
+                recipeId={event.taskId !== null ? (recipeByTask.get(event.taskId) ?? null) : null}
                 uid={uid}
                 fresh={fresh.has(event.id)}
                 onError={onError}
@@ -776,12 +808,15 @@ function PulseStrip({ events }: { events: PulseEvent[] }) {
 function FeedRow({
   event,
   member,
+  recipeId,
   uid,
   fresh,
   onError,
 }: {
   event: PulseEvent;
   member: Member | undefined;
+  /** A recipe banked for this row's task — the chip that links the ship to what worked. */
+  recipeId: string | null;
   uid: string;
   fresh: boolean;
   onError: (m: string | null) => void;
@@ -822,7 +857,20 @@ function FeedRow({
           </p>
         )}
 
-        <p className="mt-0.5 text-xs text-zinc-400">{relativeTime(event.createdAt.toDate())}</p>
+        <p className="mt-0.5 text-xs text-zinc-400">
+          {relativeTime(event.createdAt.toDate())}
+          {recipeId && (
+            <>
+              {' · '}
+              <Link
+                href={`/recipes/${recipeId}`}
+                className="rounded border border-zinc-800 px-1.5 py-0.5 text-zinc-300 transition-colors hover:border-zinc-600"
+              >
+                recipe
+              </Link>
+            </>
+          )}
+        </p>
       </div>
 
       {mine ? (

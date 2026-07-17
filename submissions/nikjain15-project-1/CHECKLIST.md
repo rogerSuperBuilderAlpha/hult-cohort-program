@@ -294,6 +294,32 @@ be done from here.
 
 ---
 
+## ✅ Layer 2 — Bank draws its own draft, built + driven 2026-07-17
+
+`LAYER-2-3-DESIGN.md`, increment set A. The recipe write path was already built (`RecipeModal` +
+`createRecipe`); this adds the *draft*, so nobody has to paste from a blank page after a hard fight.
+
+| Piece | State |
+|---|---|
+| `/api/extract-recipe` — server route, rate-limited like `/api/narrate`, reads the PR's commits server-side | ✅ `lib/extract.ts`, no secret leaves the server |
+| Never fabricate — thin/dead-GitHub/no-key/unparseable all land on `thin: true`, extract nothing | ✅ 10 unit cases in `extract.test.ts` |
+| The offer — "That one took a while. Keep what worked?" on Home, actor's own hard ship only, dismissible, once | ✅ `RecipeOffer.tsx`, `selectRecipeOffer` |
+| "looks like a fight" threshold (≥6 commits or ≥24h span), pinned so tuning is a decision not drift | ✅ `looksLikeAFight`, unit-pinned |
+| Pre-fill — "Draft it for me" → route → `RecipeModal` pre-filled; human edits, taps Bank it | ✅ **watched in a browser** (offer card + pre-filled modal screenshotted) |
+| Banked recipe's `taskId` links back to the card → feed recipe chip points at it | ✅ e2e asserts the chip appears |
+| Never nag — a trivial ship gets no offer at all | ✅ e2e `a trivial ship gets no offer` |
+| "not now" tombstones the offer; a reload doesn't resurrect it; banking retires it too | ✅ e2e, localStorage-scoped per uid |
+
+Gate at this commit: **typecheck ✅ · lint ✅ · 162 unit ✅ · 106 rules ✅ · 5 integration ✅ ·
+full e2e 57 passed (1 pre-existing flaky, green on retry) ✅**. The extraction output is a private
+draft a human edits before it's ever a recipe, so facts-vs-narrative (rule 3) holds without a
+`checkNarrative` pass — no model text goes public here.
+
+**Layer 3 (Broker) is not in this PR** — it needs the Firebase Admin SDK, which needs a
+service-account credential only Nik can create. See the handoff at the end of this file.
+
+---
+
 ## ✅ `/recipes` + `/recipes/[id]` — built and driven, 2026-07-16
 
 The nav linked to `/recipes` and it 404'd. A reviewer clicks nav. Spec §8, now built and **watched

@@ -350,9 +350,20 @@ function signalFor(pull: SensedPull): GitHubSignal {
  * without an extra call per PR, and `formatEvidence` omits a zero rather than printing
  * "0 commits". Inflating it with a guess would make the receipt a lie, which defeats the
  * only thing a receipt is for.
+ *
+ * The span here is PR opened → merged — the work item's own start-to-finish, which the
+ * list carries for free. Only a MERGED pull gets one: an open PR's span grows with every
+ * poll, and a receipt that quietly rewrites itself is the stale-as-live failure in
+ * miniature. This span is also what `looksLikeAFight` reads, so the recipe offer can
+ * recognise a hard ship without an extra API call per PR.
  */
 function evidenceFor(pull: SensedPull): Evidence {
-  return { commits: 0, prNumbers: [pull.number], files: [], spanHours: null };
+  let spanHours: number | null = null;
+  if (pull.merged && pull.mergedAt) {
+    const span = (new Date(pull.mergedAt).getTime() - new Date(pull.createdAt).getTime()) / 3_600_000;
+    if (Number.isFinite(span) && span >= 0) spanHours = span;
+  }
+  return { commits: 0, prNumbers: [pull.number], files: [], spanHours };
 }
 
 function findRepoProject(projects: Project[]): Project | undefined {

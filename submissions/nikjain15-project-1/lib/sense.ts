@@ -190,6 +190,100 @@ export function formatEvidence(evidence: Evidence): string {
   return parts.join(' · ');
 }
 
+/* ------------------------------------------------------------ the fight */
+
+/**
+ * Thresholds for "that one took a while" — the trigger for the recipe offer.
+ *
+ * A recipe is worth writing exactly when someone just won a hard fight, and these two
+ * numbers are how Pulse recognises one: many commits, or a long span between the work
+ * starting and landing. Deliberately conservative — a missed offer costs nothing (the
+ * recipes page still has "Bank it"), but offering after every trivial ship turns the
+ * one gentle prompt into a nag, which the design forbids.
+ *
+ * Exported so the tests pin them: tuning these against real cohort data is expected,
+ * silently drifting them is not.
+ */
+export const FIGHT_COMMITS = 6;
+export const FIGHT_SPAN_HOURS = 24;
+
+/**
+ * Did this ship's evidence show a struggle worth keeping?
+ *
+ * Pure and threshold-only. This decides whether to OFFER — never whether to nag, repeat,
+ * or auto-write anything. Zero-commit evidence with no span (the pulls list carries
+ * neither without extra calls) simply never fires, which is the honest outcome: no
+ * evidence of a fight, no claim there was one.
+ */
+export function looksLikeAFight(evidence: Pick<Evidence, 'commits' | 'spanHours'>): boolean {
+  return (
+    evidence.commits >= FIGHT_COMMITS ||
+    (evidence.spanHours !== null && evidence.spanHours >= FIGHT_SPAN_HOURS)
+  );
+}
+
+/** An offer expires: last week's fight is history, not an open moment of relief. */
+export const OFFER_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+export type OfferShip = {
+  id: string;
+  kind: string;
+  actorUid: string;
+  taskId: string | null;
+  /** The shipped task's title — what the offer names and the draft extracts. */
+  subject: string;
+  evidence: Pick<Evidence, 'commits' | 'spanHours' | 'prNumbers'> | null;
+  ageMs: number;
+};
+
+export type RecipeOffer = {
+  eventId: string;
+  taskId: string | null;
+  /** The PR to extract from. No PR, no evidence to draft from — but the offer still stands. */
+  prNumber: number | null;
+  title: string;
+};
+
+/**
+ * The one recipe offer, or none. "That one took a while. Keep what worked?"
+ *
+ * The rules this encodes, each a promise from the design:
+ * - **Own hard ships only.** The offer is about YOUR fight — never a nudge about a peer's.
+ * - **One offer, the newest.** Two offers is a backlog of chores, and banking is
+ *   generosity, not a chore.
+ * - **Never repeated for the same work.** `dismissed` is the caller's memory (localStorage
+ *   in practice); a dismissed offer is gone for good. Silence is always fine.
+ * - **Never for work already banked.** A recipe with this taskId means the moment was
+ *   kept; offering again would be a nag.
+ * - **Recent only.** The moment of relief passes; a week later this would be homework.
+ */
+export function selectRecipeOffer(args: {
+  ships: readonly OfferShip[];
+  uid: string;
+  bankedTaskIds: ReadonlySet<string>;
+  dismissed: (eventId: string) => boolean;
+}): RecipeOffer | null {
+  const ship = args.ships.find(
+    (s) =>
+      s.kind === 'task_shipped' &&
+      s.actorUid === args.uid &&
+      s.ageMs >= 0 &&
+      s.ageMs < OFFER_MAX_AGE_MS &&
+      s.evidence !== null &&
+      looksLikeAFight(s.evidence) &&
+      !(s.taskId !== null && args.bankedTaskIds.has(s.taskId)) &&
+      !args.dismissed(s.id)
+  );
+
+  if (!ship) return null;
+  return {
+    eventId: ship.id,
+    taskId: ship.taskId,
+    prNumber: ship.evidence?.prNumbers[0] ?? null,
+    title: ship.subject,
+  };
+}
+
 /* ---------------------------------------------------------- relative time */
 
 /** "just now" · "6m ago" · "2h ago" · "3d ago". Past tense; Pulse reports, it doesn't predict. */

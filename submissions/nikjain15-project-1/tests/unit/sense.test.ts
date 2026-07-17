@@ -13,6 +13,7 @@ import {
   shouldNarrate,
   sensedTaskId,
   autoNarrationAllowed,
+  narrationWanted,
   NARRATIVE_MAX_CHARS,
   type AskContext,
 } from '../../lib/sense';
@@ -498,6 +499,23 @@ describe('checkNarrative', () => {
     });
   });
 
+  it('rejects a member name with a zero-width char spliced in (injection evasion)', () => {
+    // U+200B between "Mar" and "cus" renders as "Marcus" but dodges a naive word match.
+    // A commit message can steer the model to emit exactly this.
+    expect(checkNarrative('Mar\u200Bcus broke the build', actor, others)).toEqual({
+      ok: false,
+      reason: 'names_another_member',
+    });
+  });
+
+  it('rejects a member name obfuscated with a combining accent', () => {
+    // "Ma" + combining acute + "rcus" renders as "Márcus" — not the literal ASCII "Marcus".
+    expect(checkNarrative('Ma\u0301rcus broke the build', actor, others)).toEqual({
+      ok: false,
+      reason: 'names_another_member',
+    });
+  });
+
   it('publishes a narrative naming the actor themselves', () => {
     expect(checkNarrative('Nikhil broke the build and fixed it', actor, others)).toEqual({
       ok: true,
@@ -688,5 +706,30 @@ describe('autoNarrationAllowed — the honesty gate', () => {
 
   it('refuses on a null link', () => {
     expect(autoNarrationAllowed(null)).toBe(false);
+  });
+});
+
+/**
+ * The model-call gate — distinct from autoNarrationAllowed. BOTH consenting modes want a
+ * sentence written; ask_first just holds it. So narrationWanted is true for ask_first
+ * (where autoNarrationAllowed is false) — that's what makes the approval queue possible.
+ */
+describe('narrationWanted — generate at all (auto OR ask_first)', () => {
+  it('is true for auto (opted in, with a handle)', () => {
+    expect(narrationWanted({ narrationOptIn: true, handle: 'nikjain15' })).toBe(true);
+  });
+
+  it('is true for ask_first too — the sentence gets written, then held', () => {
+    // The link would carry mode: 'ask_first'; narrationWanted ignores mode by design.
+    expect(narrationWanted({ narrationOptIn: true, handle: 'nikjain15' })).toBe(true);
+  });
+
+  it('is false without opt-in, and false without a handle', () => {
+    expect(narrationWanted({ narrationOptIn: false, handle: 'nikjain15' })).toBe(false);
+    expect(narrationWanted({ narrationOptIn: true, handle: '' })).toBe(false);
+  });
+
+  it('is false on a null link', () => {
+    expect(narrationWanted(null)).toBe(false);
   });
 });

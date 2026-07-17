@@ -196,9 +196,12 @@ service cloud.firestore {
                       (changed().hasOnly(['kudos'])
                         && togglesOnlySelf(resource.data.kudos, request.resource.data.kudos))
                       ||
-                      // the actor rewording their own post
+                      // The actor curating their own post: rewording it, approving a held
+                      // `ask_first` proposal (proposedNarrative → narrative), or dismissing
+                      // one (proposedNarrative → null). All three touch only these fields,
+                      // and only on the actor's own event — a peer can change none of them.
                       (isSelf(resource.data.actorUid)
-                        && changed().hasOnly(['narrative', 'editedAt']))
+                        && changed().hasOnly(['narrative', 'proposedNarrative', 'editedAt']))
                     );
 
       allow delete: if isSelf(resource.data.actorUid);

@@ -8,8 +8,8 @@ import { Avatar } from '@/components/TaskCard';
 import { Button, ErrorNote } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
 import { db } from '@/lib/firebase';
-import { subscribeToLink } from '@/lib/github-link';
-import { subscribeToPulse, toggleKudos } from '@/lib/pulse';
+import { saveConsent, subscribeToLink } from '@/lib/github-link';
+import { approveNarrative, dismissNarrative, subscribeToPulse, toggleKudos } from '@/lib/pulse';
 import { formatEvidence, relativeTime, selectAsk, type Ask, type AskContext } from '@/lib/sense';
 import type { GitHubLink, Member, PulseEvent, Task } from '@/lib/types';
 import { useCohort } from '@/lib/use-cohort';
@@ -64,9 +64,19 @@ function HomeView() {
   const { tasks, projects, members, ready } = useCohort();
   const { events, fresh, ready: feedReady } = usePulseFeed();
   const [link, setLink] = useState<GitHubLink | null>(null);
+  // null-before-first-snapshot and null-because-no-doc are different states: the second
+  // means this member never finished /connect, and gets the "one decision waiting" card.
+  const [linkReady, setLinkReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => subscribeToLink(uid, setLink), [uid]);
+  useEffect(
+    () =>
+      subscribeToLink(uid, (l) => {
+        setLink(l);
+        setLinkReady(true);
+      }),
+    [uid]
+  );
 
   // The newest thing Pulse said *in your voice*, if it said one today. Facts-only events
   // (narrative: null) are not receipts — there is no model sentence to stand behind.
@@ -94,18 +104,25 @@ function HomeView() {
 
         {posted ? (
           <PostedRow event={posted} onError={setError} />
+        ) : linkReady && link === null ? (
+          // Never chose at /connect — wandered off mid-decision. One open question, asked
+          // once; answering it (either way) makes this card gone for good.
+          <DecideCard uid={uid} onError={setError} />
         ) : (
           // Only the person who declined gets told there's nothing of theirs — everyone
           // else's silence is nobody's business, including their own dashboard's.
           link?.status === 'declined' && <NothingOfYours />
         )}
 
-        {/* One card, not two stacked negations: when the invitation above is showing and
+        {/* One card, not two stacked negations: when an invitation above is showing and
             the ask ladder only has its floor to offer, "nothing of yours" + "nothing needs
             you" reads like the product shrugging twice. The invitation wins the slot. */}
-        {!(!posted && link?.status === 'declined' && ask.kind === 'nothing') && (
-          <StandingAsk ask={ask} uid={uid} ready={ready} />
-        )}
+        {!(
+          !posted &&
+          linkReady &&
+          (link === null || link?.status === 'declined') &&
+          ask.kind === 'nothing'
+        ) && <StandingAsk ask={ask} uid={uid} ready={ready} />}
 
         <CohortWeek
           events={events}
@@ -161,11 +178,12 @@ function usePulseFeed() {
 const POSTED_ROW_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 /**
- * Your most recent narrated event, if it's recent enough to still be "this".
+ * Your most recent event that carries a sentence — published OR waiting for you.
  *
  * A receipt from last week isn't a receipt, it's history — it belongs in the feed, where
- * it already is. Nothing is invented to fill this slot: sensing isn't wired yet, so today
- * this returns null for everyone and the region renders nothing at all.
+ * it already is. Two things surface here: a narrative Pulse already posted as you (auto
+ * mode), and a `proposedNarrative` it's holding for your approval (ask_first mode). Both
+ * are recent-only; a facts-only event has neither and renders nothing.
  */
 function findPostedRow(events: PulseEvent[], uid: string): PulseEvent | null {
   const now = Date.now();
@@ -173,34 +191,69 @@ function findPostedRow(events: PulseEvent[], uid: string): PulseEvent | null {
     events.find(
       (e) =>
         e.actorUid === uid &&
-        !!e.narrative &&
+        (!!e.narrative || !!e.proposedNarrative) &&
         now - e.createdAt.toDate().getTime() < POSTED_ROW_MAX_AGE_MS
     ) ?? null
   );
 }
 
 /**
- * The receipt. **Not a form** — `logPulse` already fired at sync, so there is nothing here
- * to approve. A confirmation step is still an update step, and nobody updates Pulse (§3.1).
+ * Your posted row — a receipt for a published sentence, OR a proposal waiting for you.
  *
- * Being wrong has to be cheaper than approving would have been (§6.1): the wording is one
- * click from the post itself, undo removes it from every feed, and the evidence is on
- * screen so a mistake is legible rather than mysterious. Pulse never argues — no "are you
- * sure?". The human is right.
+ * **Auto mode: a receipt, not a form.** The sentence already posted at sync; there is
+ * nothing to approve. Being wrong is cheap instead: reword it in one click, undo removes it
+ * from every feed, and the evidence is on screen so a mistake is legible.
+ *
+ * **ask_first mode: the approval queue.** The ship's FACTS posted, but the model's sentence
+ * is held in `proposedNarrative` and shown here to nobody but you. "Post this" releases it;
+ * "Not this time" drops it and leaves facts only. This is the queue the consent screen
+ * always promised — nothing goes out under your name until you say so.
+ *
+ * Pulse never argues — no "are you sure?". The human is right, in both states.
  */
 function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string | null) => void }) {
+  // A proposal: a held sentence, not yet published. `proposedNarrative` set, `narrative`
+  // still null.
+  const pending = !!event.proposedNarrative && !event.narrative;
+  const sentence = event.narrative ?? event.proposedNarrative ?? '';
+
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(event.narrative ?? '');
+  const [draft, setDraft] = useState(sentence);
   const [saving, setSaving] = useState(false);
+
+  // The first sentence Pulse ever publishes about you is the emotional peak of
+  // onboarding — it gets one extra caption, once, and never again. The flag burns only on
+  // a PUBLISHED narrative: a pending proposal hasn't had its moment yet. localStorage,
+  // not Firestore — this is presentation state, not consent state. Eligibility is read
+  // lazily at mount; the burn (a write to an external system) happens in the effect.
+  const [firstEver] = useState(() => {
+    if (pending || !event.narrative || typeof window === 'undefined') return false;
+    try {
+      return !localStorage.getItem(`pulse:firstPost:${event.actorUid}`);
+    } catch {
+      return false; // Private mode etc. — no caption, no crash.
+    }
+  });
+  useEffect(() => {
+    if (!firstEver) return;
+    try {
+      localStorage.setItem(`pulse:firstPost:${event.actorUid}`, '1');
+    } catch {
+      // Storage unavailable — the caption shows again next visit. Harmless.
+    }
+  }, [firstEver, event.actorUid]);
 
   const save = async () => {
     setSaving(true);
     onError(null);
     try {
-      // The rules let the actor write `narrative` and `editedAt` and nothing else — one
-      // extra key here and the whole update is denied.
+      // Approving a proposal and rewording a live post are the same shape to the rules:
+      // the actor writing narrative/proposedNarrative/editedAt on their own event. Empty
+      // draft on a live post keeps facts only; on a proposal it's a dismiss.
+      const text = draft.trim();
       await updateDoc(doc(db, 'pulse', event.id), {
-        narrative: draft.trim() || null,
+        narrative: text || null,
+        proposedNarrative: null,
         editedAt: serverTimestamp(),
       });
       setEditing(false);
@@ -208,6 +261,29 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
       onError("We couldn't save your wording. The post is unchanged.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Release the held sentence exactly as Pulse wrote it.
+  const approve = async () => {
+    setSaving(true);
+    onError(null);
+    try {
+      await approveNarrative(event.id, event.proposedNarrative!);
+    } catch {
+      onError("We couldn't post that. It's still waiting — try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Decline the proposal. The facts stay; the sentence is dropped, no questions.
+  const dismiss = async () => {
+    onError(null);
+    try {
+      await dismissNarrative(event.id);
+    } catch {
+      onError("We couldn't dismiss that. Try again.");
     }
   };
 
@@ -221,10 +297,20 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
   };
 
   return (
-    <section className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+    <section
+      className={`mb-6 rounded-lg border p-4 ${
+        pending || firstEver ? 'border-emerald-500/40 bg-zinc-900' : 'border-zinc-800 bg-zinc-900'
+      }`}
+    >
       <p className="text-xs text-zinc-400">
-        pulse posted this · {relativeTime(event.createdAt.toDate())}
-        {event.editedAt && ' · you reworded it'}
+        {pending ? (
+          <>Pulse wrote this about your work · {relativeTime(event.createdAt.toDate())}</>
+        ) : (
+          <>
+            pulse posted this · {relativeTime(event.createdAt.toDate())}
+            {event.editedAt && ' · you reworded it'}
+          </>
+        )}
       </p>
 
       {editing ? (
@@ -240,15 +326,17 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
             className="w-full resize-y rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-600 focus:outline-none"
           />
           <p className="mt-1 text-xs text-zinc-400">
-            Leave it empty to keep the post as facts only.
+            {pending
+              ? 'Edit it, or leave it empty to post facts only.'
+              : 'Leave it empty to keep the post as facts only.'}
           </p>
           <div className="mt-2 flex gap-2">
             <Button variant="primary" disabled={saving} onClick={() => void save()}>
-              Save my wording
+              {pending ? 'Post this' : 'Save my wording'}
             </Button>
             <Button
               onClick={() => {
-                setDraft(event.narrative ?? '');
+                setDraft(sentence);
                 setEditing(false);
               }}
             >
@@ -258,9 +346,9 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
         </div>
       ) : (
         <>
-          {/* Plain text. `narrative` came from a model reading commit messages a stranger
+          {/* Plain text. The sentence came from a model reading commit messages a stranger
               wrote — it is rendered escaped, always. */}
-          <h2 className="mt-1 text-base text-zinc-100">{event.narrative}</h2>
+          <h2 className="mt-1 text-base text-zinc-100">{sentence}</h2>
 
           {event.evidence && (
             <p className="mt-1 text-xs text-emerald-500/80">
@@ -269,25 +357,50 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
             </p>
           )}
 
-          <div className="mt-3 flex items-center gap-4">
-            <Kudos count={event.kudos.length} own />
-            {/* Quiet on purpose: correcting is the exception, not the workflow. */}
-            <button
-              onClick={() => {
-                setDraft(event.narrative ?? '');
-                setEditing(true);
-              }}
-              className="min-h-11 text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-300"
-            >
-              edit the wording
-            </button>
-            <button
-              onClick={() => void undo()}
-              className="min-h-11 text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-300"
-            >
-              undo
-            </button>
-          </div>
+          {pending ? (
+            // The approval queue. Green marks the release action, and nothing here can
+            // publish without this tap.
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Button variant="primary" disabled={saving} onClick={() => void approve()}>
+                Post this
+              </Button>
+              <Button onClick={() => { setDraft(sentence); setEditing(true); }}>
+                Edit &amp; post
+              </Button>
+              <button
+                onClick={() => void dismiss()}
+                className="min-h-11 px-2 text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-300"
+              >
+                Not this time
+              </button>
+            </div>
+          ) : (
+            <div className="mt-3 flex items-center gap-4">
+              <Kudos count={event.kudos.length} own />
+              {/* Quiet on purpose: correcting is the exception, not the workflow. */}
+              <button
+                onClick={() => { setDraft(sentence); setEditing(true); }}
+                className="min-h-11 text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-300"
+              >
+                edit the wording
+              </button>
+              <button
+                onClick={() => void undo()}
+                className="min-h-11 text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-300"
+              >
+                undo
+              </button>
+            </div>
+          )}
+
+          {firstEver && !pending && (
+            // Once, ever. Speaks only about this member's own moment — no counts of
+            // other people, nothing to compare against.
+            <p className="mt-3 border-t border-zinc-800 pt-3 text-xs text-zinc-400">
+              Your team saw this the moment it happened. Nobody typed it in — least of all
+              you.
+            </p>
+          )}
         </>
       )}
     </section>
@@ -301,13 +414,63 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
  * The cohort's real week still renders below it: the honest thing is that other people
  * shipped, not that nothing happened.
  */
+/**
+ * The mid-consent limbo. Shown only when the consent record is ABSENT — this member
+ * reached /connect and left without answering, so a decision exists that they may not
+ * know about. Asked once, as an open question: "Keep it manual" records a real decline,
+ * so this card can never nag twice, and declining from here is exactly as easy as
+ * accepting. Never a badge, never a count.
+ */
+function DecideCard({ uid, onError }: { uid: string; onError: (m: string | null) => void }) {
+  const [busy, setBusy] = useState(false);
+
+  const keepManual = async () => {
+    setBusy(true);
+    onError(null);
+    try {
+      // handle: null — this path never narrates (declined), and a real handle lands on
+      // the record if they ever connect properly at /connect.
+      await saveConsent(uid, { status: 'declined', mode: 'ask_first', handle: null });
+    } catch {
+      onError("We couldn't save that. Nothing changed — try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+      <h2 className="text-base text-zinc-100">One decision is waiting on you.</h2>
+      <p className="mt-1 text-sm text-zinc-400">
+        Should Pulse run your board — move cards, post what you shipped? You left before
+        answering. Everything works by hand until you do.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link
+          href="/connect"
+          className="inline-flex min-h-11 items-center rounded bg-emerald-500 px-3 text-sm font-medium text-emerald-950 transition-colors hover:bg-emerald-400"
+        >
+          Decide now
+        </Link>
+        <button
+          disabled={busy}
+          onClick={() => void keepManual()}
+          className="inline-flex min-h-11 items-center rounded border border-zinc-800 px-3 text-sm text-zinc-300 transition-colors hover:border-zinc-600 disabled:opacity-40"
+        >
+          Keep it manual
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function NothingOfYours() {
   return (
     <section className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-      <h2 className="text-base text-zinc-100">Your board is ready.</h2>
+      <h2 className="text-base text-zinc-100">Your board is live. Pulse just can&rsquo;t see you yet.</h2>
       <p className="mt-1 text-sm text-zinc-400">
-        Pulse can&rsquo;t see your work yet — you said not now, and that stands until you say
-        otherwise. Everything here works by hand in the meantime.
+        Connect GitHub and your cards start moving themselves. Or run the whole thing by
+        hand — your call, changeable any time.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Link

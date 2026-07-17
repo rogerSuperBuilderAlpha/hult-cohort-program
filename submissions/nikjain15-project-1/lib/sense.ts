@@ -25,7 +25,21 @@ import type { Evidence, GitHubLink, Status } from './types';
 export function autoNarrationAllowed(
   link: Pick<GitHubLink, 'narrationOptIn' | 'handle' | 'mode'> | null
 ): boolean {
-  return !!link && link.narrationOptIn && !!link.handle && link.mode !== 'ask_first';
+  return narrationWanted(link) && link!.mode !== 'ask_first';
+}
+
+/**
+ * Should Pulse GENERATE a sentence at all — to auto-publish OR to hold for approval?
+ *
+ * The two consenting modes, `auto` and `ask_first`, both want a sentence written; they
+ * differ only in whether it publishes immediately or waits. So this is the model-call
+ * gate (opt-in + a handle to attribute it to), and `autoNarrationAllowed` narrows it to
+ * the publish-now case. `off` and declined want nothing and never reach here.
+ */
+export function narrationWanted(
+  link: Pick<GitHubLink, 'narrationOptIn' | 'handle'> | null
+): boolean {
+  return !!link && link.narrationOptIn && !!link.handle;
 }
 
 export type { Evidence };
@@ -291,24 +305,50 @@ export function checkNarrative(
     return { ok: false, reason: 'contains_markup' };
   }
 
+  // Fold BOTH the narrative and the names before matching. Injection's cheapest evasion is
+  // typographic: a zero-width character spliced into a member's name ("Mar<U+200B>cus") or a
+  // combining-mark variant ("Márcus") renders identically to a human but slips past a naive
+  // word match — and the model can be steered by a commit message to emit exactly that. The
+  // folded space is the space a reader actually sees.
+  const foldedText = foldForMention(text);
+
   const actorTokens = new Set(
     [actor.handle, actor.displayName]
       .filter((v): v is string => !!v)
-      .map((v) => v.toLowerCase())
+      .map(foldForMention)
   );
 
   for (const member of otherMembers) {
     for (const token of [member.handle, member.displayName]) {
       if (!token) continue;
-      const lower = token.toLowerCase();
+      const folded = foldForMention(token);
+      if (!folded) continue;
       // A member whose name IS the actor's name (or a substring of it) can't be
       // distinguished here; the actor's own tokens always win.
-      if (actorTokens.has(lower)) continue;
-      if (mentions(text, lower)) return { ok: false, reason: 'names_another_member' };
+      if (actorTokens.has(folded)) continue;
+      if (mentions(foldedText, folded)) return { ok: false, reason: 'names_another_member' };
     }
   }
 
   return { ok: true, narrative: text };
+}
+
+/**
+ * Canonicalise text for the mention test: decompose compatibility forms, drop combining
+ * marks, strip zero-width characters, lowercase. Mirrors `normaliseTitle`'s folding so the
+ * two agree on what "the same name" means — but keeps word boundaries intact (unlike
+ * `normaliseTitle`, which also collapses punctuation) because `mentions` needs them.
+ *
+ * Note: this does NOT fold cross-script homoglyphs (Cyrillic 'а' for Latin 'a') — that needs
+ * a confusables table and is a documented residual. It closes the zero-width and
+ * combining-mark evasions, which are the ones a model will actually emit from injected text.
+ */
+function foldForMention(s: string): string {
+  return s
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036F]/g, '') // combining marks
+    .replace(/[\u200B-\u200F\u2060\uFEFF]/g, '') // zero-width + bidi controls
+    .toLowerCase();
 }
 
 /**

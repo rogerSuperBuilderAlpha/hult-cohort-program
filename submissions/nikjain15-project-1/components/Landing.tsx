@@ -31,11 +31,14 @@ export function Landing({ snapshot }: { snapshot: CohortSnapshot }) {
           <span className="h-3 w-3 rounded-full bg-emerald-400" aria-hidden />
           <span className="text-sm font-medium text-zinc-100">Pulse</span>
         </div>
-        {/* A stranger's first read must say what this IS before it shows off. One line,
-            no jargon: the artifact everyone knows (a board), the magic (fills itself). */}
-        <p className="mt-3 text-sm text-zinc-300">
-          The board that fills itself in. You do the work — Pulse watches it happen and writes
-          it down, so nobody types in status again.
+        {/* A stranger's first read must say what this IS before it shows off. Punchy and
+            concrete: the thing it kills (updating a board), the magic (it does it for you). */}
+        <h1 className="mt-4 text-2xl font-medium tracking-tight text-zinc-100">
+          The board that updates itself.
+        </h1>
+        <p className="mt-2 text-sm text-zinc-300">
+          Do the work — Pulse spots it, moves your card, and tells your team. Before
+          you&rsquo;ve even switched tabs.
         </p>
       </header>
 
@@ -75,9 +78,9 @@ function Ask({
 }) {
   return (
     <section>
-      <h1 className="text-2xl font-medium tracking-tight text-zinc-100">
+      <h2 className="text-xl font-medium tracking-tight text-zinc-100">
         {shipped.length} people have shipped this week.
-      </h1>
+      </h2>
       <p className="mt-3 text-sm text-zinc-400">
         Pulse already read the cohort&rsquo;s public repo. Tell it your GitHub handle and it will show
         you your week — no account needed.
@@ -118,9 +121,9 @@ function Recognised({ me, shipped }: { me: PublicMember; shipped: PublicMember[]
 
   return (
     <section>
-      <h1 className="text-2xl font-medium tracking-tight text-zinc-100">
+      <h2 className="text-xl font-medium tracking-tight text-zinc-100">
         You&rsquo;re @{me.handle}. Here&rsquo;s your week already.
-      </h1>
+      </h2>
 
       <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
         <p className="text-sm text-zinc-100">
@@ -175,9 +178,9 @@ function Unknown({
     <section>
       {/* Built as one string rather than JSX text around an expression: interpolating
           next to text let the separating space get eaten, and it rendered "8people". */}
-      <h1 className="text-2xl font-medium tracking-tight text-zinc-100">
+      <h2 className="text-xl font-medium tracking-tight text-zinc-100">
         {`${shipped.length} ${shipped.length === 1 ? 'person has' : 'people have'} shipped this week. You’re not one of them yet.`}
-      </h1>
+      </h2>
       <p className="mt-3 text-sm text-zinc-400">
         Pulse read the cohort&rsquo;s public repo and couldn&rsquo;t find anything from @{handle}. That
         isn&rsquo;t a judgement — it just means there&rsquo;s nothing public yet.
@@ -207,9 +210,9 @@ function Degraded({ snapshot }: { snapshot: CohortSnapshot }) {
 
   return (
     <section>
-      <h1 className="text-2xl font-medium tracking-tight text-zinc-100">
+      <h2 className="text-xl font-medium tracking-tight text-zinc-100">
         Pulse can&rsquo;t read GitHub right now.
-      </h1>
+      </h2>
       {/* Degrade loudly. A stale feed presented as live is the exact lie every other
           board tells — the one this product exists to avoid. */}
       <p className="mt-3 text-sm text-zinc-400">

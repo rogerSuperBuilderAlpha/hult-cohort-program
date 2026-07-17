@@ -37,6 +37,7 @@ export function TaskCard({
   task,
   project,
   assignee,
+  pulseDid,
   onOpen,
   onStatusChange,
   onDragStart,
@@ -44,6 +45,11 @@ export function TaskCard({
   task: Task;
   project?: { name: string };
   assignee?: Member;
+  /**
+   * One-time "Pulse did this" line for a sensed card the owner hasn't seen yet — the
+   * self-build made visible. Static highlight, facts only, decided by the Board.
+   */
+  pulseDid?: string;
   onOpen: () => void;
   onStatusChange: (status: Status) => void;
   onDragStart?: (e: React.DragEvent) => void;
@@ -56,10 +62,13 @@ export function TaskCard({
       // real control and drag is the enhancement. Never the only path.
       draggable
       onDragStart={onDragStart}
-      className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 transition-colors hover:border-zinc-700 [@media(pointer:coarse)]:[-webkit-user-drag:none]"
+      className={`rounded-lg border bg-zinc-900 p-3 transition-colors [@media(pointer:coarse)]:[-webkit-user-drag:none] ${
+        pulseDid ? 'border-emerald-500/60' : 'border-zinc-800 hover:border-zinc-700'
+      }`}
     >
       <button onClick={onOpen} className="w-full text-left">
         <h3 className="text-sm text-zinc-100">{task.title}</h3>
+        {pulseDid && <p className="mt-1 text-xs font-medium text-emerald-400">{pulseDid}</p>}
         <Receipt task={task} />
       </button>
 

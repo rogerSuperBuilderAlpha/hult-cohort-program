@@ -31,6 +31,11 @@ type NewPulse = {
    * silently rather than published.
    */
   narrative?: string | null;
+  /**
+   * The 'ask_first' queue. A sentence Pulse wrote and is holding for the actor's approval.
+   * Published alongside facts, with `narrative` still null, until the actor releases it.
+   */
+  proposedNarrative?: string | null;
   evidence?: Evidence | null;
 };
 
@@ -47,6 +52,7 @@ export async function logPulse(event: NewPulse): Promise<void> {
       projectId: event.projectId ?? null,
       taskId: event.taskId ?? null,
       narrative: event.narrative ?? null,
+      proposedNarrative: event.proposedNarrative ?? null,
       evidence: event.evidence ?? null,
       editedAt: null,
       kudos: [],
@@ -124,5 +130,30 @@ export function subscribeToPulse(
 export async function toggleKudos(eventId: string, uid: string, hasKudos: boolean) {
   await updateDoc(doc(db, 'pulse', eventId), {
     kudos: hasKudos ? arrayRemove(uid) : arrayUnion(uid),
+  });
+}
+
+/**
+ * Release a held proposal (`ask_first`): the model's sentence becomes the live narrative.
+ *
+ * `editedAt` is set because a human decided to publish it — the same "the human is right"
+ * stamp a reword carries. The rules let the actor change exactly these three fields on
+ * their own event, and no others.
+ */
+export async function approveNarrative(eventId: string, narrative: string) {
+  await updateDoc(doc(db, 'pulse', eventId), {
+    narrative,
+    proposedNarrative: null,
+    editedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Decline a held proposal: the sentence is dropped, the facts stay. No argument, no
+ * "are you sure" — declining to be narrated is always allowed and never questioned.
+ */
+export async function dismissNarrative(eventId: string) {
+  await updateDoc(doc(db, 'pulse', eventId), {
+    proposedNarrative: null,
   });
 }

@@ -117,8 +117,13 @@ function Consent({ uid }: { uid: string }) {
     };
   }, [fetchHandle]);
 
-  /** Link GitHub from here — §4: "anyone who signed up by email can link GitHub later at /connect". */
-  async function linkGithub() {
+  /**
+   * The email-account primary: OAuth first, consent second, one tap. Order matters — the
+   * consent is only recorded after the link succeeds, so "Link GitHub — then let it run"
+   * can never record a yes for an account that failed to link. A failed popup leaves
+   * everything exactly as it was.
+   */
+  async function linkThen(mode: GitHubLink['mode']) {
     setError('');
     setBusy(true);
     try {
@@ -126,9 +131,10 @@ function Consent({ uid }: { uid: string }) {
       await readHandle();
     } catch (err) {
       setError(friendlyError(err));
-    } finally {
       setBusy(false);
+      return;
     }
+    await choose('connected', mode);
   }
 
   async function choose(status: GitHubLink['status'], mode: GitHubLink['mode']) {
@@ -162,10 +168,10 @@ function Consent({ uid }: { uid: string }) {
         <span className="text-sm font-medium text-zinc-100">Pulse</span>
       </div>
 
-      <h1 className="text-sm font-medium text-zinc-100">Connect GitHub</h1>
+      <h1 className="text-base font-medium text-zinc-100">Want your board to run itself?</h1>
       <p className="mt-1 text-[13px] text-zinc-400">
-        Nobody updates Pulse. It reads your work and keeps your board honest on its own — this is
-        the one time it asks.
+        Pulse reads your public GitHub and does the boring part: cards move, tasks appear, your
+        team hears what shipped. This is the one time it asks.
       </p>
 
       {/*
@@ -204,7 +210,7 @@ function Consent({ uid }: { uid: string }) {
       </div>
 
       <div className="mt-5">
-        <HandleNote handle={handle} busy={busy} onLink={linkGithub} />
+        <HandleNote handle={handle} />
       </div>
 
       {error && (
@@ -213,17 +219,39 @@ function Consent({ uid }: { uid: string }) {
         </div>
       )}
 
-      {/* Three choices. Green marks the motivating one and nothing else on this page. */}
+      {/* Three choices, always: yes, yes-but-ask, and a free no. Green marks the one
+          motivating action on this page and nothing else.
+
+          For an email account (no handle yet) "Let it run" would be a dead choice dressed
+          in green — there is nothing to sense. The motivating action for that user is
+          LINKING, so the primary becomes link-then-consent, in that order. The semantics
+          of the three choices are identical in both variants. */}
       <div className="mt-5 flex flex-col gap-2">
-        <Button variant="primary" disabled={busy} onClick={() => choose('connected', 'auto')}>
-          Let it run
-        </Button>
-        <Button disabled={busy} onClick={() => choose('connected', 'ask_first')}>
-          Let it run, but ask me first
-        </Button>
-        <Button disabled={busy} onClick={() => choose('declined', 'ask_first')}>
-          Not now — I&rsquo;ll add tasks myself
-        </Button>
+        {handle === null ? (
+          <>
+            <Button variant="primary" disabled={busy} onClick={() => void linkThen('auto')}>
+              Link GitHub — then let it run
+            </Button>
+            <Button disabled={busy} onClick={() => void linkThen('ask_first')}>
+              Link GitHub, but ask me before posting
+            </Button>
+            <Button disabled={busy} onClick={() => choose('declined', 'ask_first')}>
+              No thanks — I&rsquo;ll run the board by hand
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button variant="primary" disabled={busy} onClick={() => choose('connected', 'auto')}>
+              Let it run
+            </Button>
+            <Button disabled={busy} onClick={() => choose('connected', 'ask_first')}>
+              Let it run, but ask me first
+            </Button>
+            <Button disabled={busy} onClick={() => choose('declined', 'ask_first')}>
+              Not now — I&rsquo;ll add tasks myself
+            </Button>
+          </>
+        )}
       </div>
 
       <p className="mt-4 text-[11px] text-zinc-400">
@@ -271,18 +299,11 @@ function Block({
 
 /**
  * Who Pulse will look for. An email/password account has no GitHub login yet, and there is
- * no honest way to guess one — so it says so plainly and offers the only thing that fixes
- * it, rather than inventing a handle that would silently match nobody.
+ * no honest way to guess one — so it says so plainly. The linking itself now lives in the
+ * primary button below ("Link GitHub — then let it run"), not here: one green action per
+ * page, and for this user linking IS that action.
  */
-function HandleNote({
-  handle,
-  busy,
-  onLink,
-}: {
-  handle: string | null;
-  busy: boolean;
-  onLink: () => void;
-}) {
+function HandleNote({ handle }: { handle: string | null }) {
   if (handle) {
     return (
       <p className="text-xs text-zinc-400">
@@ -294,16 +315,9 @@ function HandleNote({
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3">
       <p className="text-[13px] text-zinc-400">
-        We don&rsquo;t know your GitHub username yet — you signed up with an email, and guessing it
-        from that would attach the wrong person&rsquo;s work to you.
-      </p>
-      <div className="mt-3">
-        <Button disabled={busy} onClick={onLink}>
-          {busy ? 'Working…' : 'Sign in with GitHub to link it'}
-        </Button>
-      </div>
-      <p className="mt-2 text-[11px] text-zinc-400">
-        Without it, Pulse can&rsquo;t find your work — but the board below still works by hand.
+        We don&rsquo;t know your GitHub yet — you signed up with an email, and guessing it from
+        that would attach the wrong person&rsquo;s work to you. Link it below and Pulse starts
+        watching. Without it, the board still works by hand.
       </p>
     </div>
   );

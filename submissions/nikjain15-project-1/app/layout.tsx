@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pulse — the board that fills itself in",
+  title: "Pulse — the board that updates itself",
   description:
-    "You do the work. Pulse watches it happen and writes it down — a project board nobody has to update.",
+    "Do the work. Pulse spots it, moves your card, and tells your team — nobody types in status again.",
 };
 
 export default function RootLayout({

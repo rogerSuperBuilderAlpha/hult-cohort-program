@@ -209,6 +209,48 @@ describe('pulse — nobody can fake, edit, or erase someone else\'s heartbeat', 
     );
   });
 
+  it('lets the actor APPROVE a held ask_first proposal (proposedNarrative → narrative)', async () => {
+    await seed(env, path, pulseEvent(ALICE, { narrative: null, proposedNarrative: 'Pulse wrote this.' }));
+    await assertSucceeds(
+      updateDoc(doc(as(env, ALICE), path), {
+        narrative: 'Pulse wrote this.',
+        proposedNarrative: null,
+        editedAt: new Date(),
+      }),
+    );
+  });
+
+  it('lets the actor DISMISS a held proposal, leaving facts only', async () => {
+    await seed(env, path, pulseEvent(ALICE, { narrative: null, proposedNarrative: 'Pulse wrote this.' }));
+    await assertSucceeds(
+      updateDoc(doc(as(env, ALICE), path), { proposedNarrative: null }),
+    );
+  });
+
+  it("denies A approving B's proposal — a proposal is the actor's alone", async () => {
+    await seed(env, path, pulseEvent(BOB, { narrative: null, proposedNarrative: 'Pulse wrote this about Bob.' }));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), path), {
+        narrative: 'Pulse wrote this about Bob.',
+        proposedNarrative: null,
+        editedAt: new Date(),
+      }),
+    );
+  });
+
+  it('denies smuggling another field in alongside a proposal approval', async () => {
+    // The curation branch is fields-exact: narrative/proposedNarrative/editedAt only.
+    await seed(env, path, pulseEvent(ALICE, { narrative: null, proposedNarrative: 'Pulse wrote this.' }));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), path), {
+        narrative: 'Pulse wrote this.',
+        proposedNarrative: null,
+        editedAt: new Date(),
+        subject: 'a rewritten subject',
+      }),
+    );
+  });
+
   it('lets a signed-in member post an event attributed to themselves', async () => {
     // actorName is now bound to the caller's own member doc, so the actor must have one.
     await seed(env, `members/${ALICE}`, member(ALICE));

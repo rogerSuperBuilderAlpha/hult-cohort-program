@@ -292,7 +292,7 @@ export async function setTaskStatus(
    * failure mode. It is only ever populated for a member who opted into narration, about
    * themselves, after `checkNarrative` passed. `logPulse` renders `undefined` as null.
    */
-  narration?: { narrative: string | null; evidence: Evidence | null }
+  narration?: Narration
 ) {
   if (task.status === status) return;
 
@@ -312,10 +312,9 @@ export async function setTaskStatus(
       subject: task.title,
       projectId: task.projectId,
       taskId: task.id,
-      narrative: narration?.narrative ?? null,
       // The narrative never ships without the evidence it was inferred from. A legible
       // mistake is forgivable; a mysterious one isn't.
-      evidence: narration?.evidence ?? task.evidence,
+      ...narrationFields(narration, task.evidence),
     });
   } else if (status === 'in_progress' && task.status === 'todo') {
     await logPulseOnce(`start_${task.id}`, {
@@ -346,7 +345,7 @@ export async function setTaskStatus(
 export async function announceSensedShip(
   actor: Actor,
   task: { id: string; title: string; projectId: string; evidence: Evidence | null },
-  narration?: { narrative: string | null; evidence: Evidence | null }
+  narration?: Narration
 ) {
   await logPulseOnce(`ship_${task.id}`, {
     kind: 'task_shipped',
@@ -356,9 +355,37 @@ export async function announceSensedShip(
     subject: task.title,
     projectId: task.projectId,
     taskId: task.id,
-    narrative: narration?.narrative ?? null,
-    evidence: narration?.evidence ?? task.evidence,
+    ...narrationFields(narration, task.evidence),
   });
+}
+
+/**
+ * The sentence Pulse wrote, and whether it may publish now or must wait for approval.
+ *
+ * `pending` is the `ask_first` bit: true means hold the sentence as a proposal, false (or
+ * absent) means publish it. Populated only for a consenting member, about themselves,
+ * after checkNarrative passed.
+ */
+export type Narration = { narrative: string | null; evidence: Evidence | null; pending?: boolean };
+
+/**
+ * Route a narration onto a pulse event: live now, or held for approval.
+ *
+ * One place decides `narrative` vs `proposedNarrative`, so every ship path (manual,
+ * sensed, fast-PR) treats `ask_first` identically. The facts (evidence) publish either
+ * way — the receipt is never in question, only the sentence.
+ */
+function narrationFields(
+  narration: Narration | undefined,
+  fallbackEvidence: Evidence | null
+): { narrative: string | null; proposedNarrative: string | null; evidence: Evidence | null } {
+  const sentence = narration?.narrative ?? null;
+  const held = narration?.pending === true;
+  return {
+    narrative: held ? null : sentence,
+    proposedNarrative: held ? sentence : null,
+    evidence: narration?.evidence ?? fallbackEvidence,
+  };
 }
 
 export async function updateTask(

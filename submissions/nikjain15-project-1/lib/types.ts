@@ -204,8 +204,20 @@ export type PulseEvent = {
   /**
    * Model-written. Null for facts-only events — and null is the correct value for anyone
    * who hasn't opted into narration. Every sentence here passed checkNarrative first.
+   *
+   * A pending proposal (see `proposedNarrative`) also leaves this null until the actor
+   * approves — the cohort's feed shows facts only until then.
    */
   narrative: string | null;
+  /**
+   * The 'ask_first' queue. A sentence Pulse wrote and is holding for the actor's approval.
+   *
+   * In `ask_first` mode a ship publishes its FACTS immediately (they can't be wrong) but
+   * parks the model's sentence here, `narrative` still null. Only the actor sees it — it
+   * renders as a proposal on their Home. Approve moves it to `narrative` and clears this;
+   * dismiss clears it and leaves facts only. Null in every other mode.
+   */
+  proposedNarrative: string | null;
   /** What the narrative was inferred from. Rendered with it, always. */
   evidence: Evidence | null;
   /** Set when the human rewords Pulse's sentence. The human is right. */

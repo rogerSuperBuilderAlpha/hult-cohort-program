@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { setTaskStatus } from '@/lib/data';
 import { STATUS_LABELS, STATUSES, type Member, type Project, type Status, type Task } from '@/lib/types';
 import { TaskCard } from './TaskCard';
@@ -88,6 +88,65 @@ export function Board({
     await setTaskStatus(actor, task, status);
   }
 
+  /**
+   * "Pulse did this" — the self-build made visible, once per card.
+   *
+   * The board building itself is the product's whole claim, and it used to happen in
+   * silence: a sensed card slid in indistinguishable from one you made. The first time
+   * YOU see one of YOUR sensed cards, it says so out loud; after that it carries the
+   * normal receipt. Seen-state is presentation, so it lives in localStorage (per member,
+   * per card), not Firestore.
+   *
+   * Guardrails: only your own cards (a flourish on a peer's card would be commentary on
+   * their pace), facts only (no model sentence, so no consent involved), and a static
+   * highlight — no motion, nothing to disable for prefers-reduced-motion.
+   */
+  // A mount-time snapshot on purpose: persisting below must not hide the flourish
+  // mid-session. Lazy state init is the sanctioned "compute once at mount" shape.
+  const [seenSensedAtMount] = useState<ReadonlySet<string>>(() => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      return new Set(
+        JSON.parse(localStorage.getItem(`pulse:did:${actor.uid}`) ?? '[]') as string[]
+      );
+    } catch {
+      return new Set();
+    }
+  });
+
+  const pulseDidIds = useMemo(
+    () =>
+      new Set(
+        tasks
+          .filter(
+            (t) =>
+              t.source === 'sensed' && t.assigneeUid === actor.uid && !seenSensedAtMount.has(t.id)
+          )
+          .map((t) => t.id)
+      ),
+    [tasks, actor.uid, seenSensedAtMount]
+  );
+
+  useEffect(() => {
+    if (pulseDidIds.size === 0) return;
+    try {
+      const key = `pulse:did:${actor.uid}`;
+      const stored = new Set(JSON.parse(localStorage.getItem(key) ?? '[]') as string[]);
+      pulseDidIds.forEach((id) => stored.add(id));
+      localStorage.setItem(key, JSON.stringify([...stored]));
+    } catch {
+      // Storage unavailable — the flourish just shows again next visit. Harmless.
+    }
+  }, [pulseDidIds, actor.uid]);
+
+  /** The one line the flourish says. Facts from the card itself, nothing invented. */
+  function pulseDidLine(task: Task): string {
+    const pr = task.evidence?.prNumbers?.at(-1);
+    if (task.status === 'done' && pr) return `Pulse moved this — PR #${pr} merged`;
+    if (pr) return `Pulse made this card — PR #${pr}`;
+    return 'Pulse made this card from your branch';
+  }
+
   return (
     <div
       className="
@@ -145,6 +204,7 @@ export function Board({
                     task={task}
                     project={projectById.get(task.projectId)}
                     assignee={task.assigneeUid ? memberByUid.get(task.assigneeUid) : undefined}
+                    pulseDid={pulseDidIds.has(task.id) ? pulseDidLine(task) : undefined}
                     onOpen={() => onOpenTask(task)}
                     onStatusChange={(s) => move(task, s)}
                     onDragStart={() => setDragging(task)}
@@ -156,9 +216,9 @@ export function Board({
                 // An empty column is an invitation, not an apology — and "done" quietly
                 // states the product's whole promise: finished work arrives on its own.
                 <p className="py-6 text-center text-xs text-zinc-400">
-                  {status === 'todo' && 'Nothing lined up. + starts the first card.'}
-                  {status === 'in_progress' && 'Nothing in flight right now.'}
-                  {status === 'done' && 'Finished work lands here on its own.'}
+                  {status === 'todo' && 'Empty. Hit + and claim the first card.'}
+                  {status === 'in_progress' && 'Nothing in flight. Yet.'}
+                  {status === 'done' && 'Ship something — it lands here by itself.'}
                 </p>
               )}
             </div>

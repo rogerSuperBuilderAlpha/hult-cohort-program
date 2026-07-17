@@ -20,13 +20,51 @@ export function Modal({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Where focus was before the dialog opened — a card, a "+" button, "New project" —
+    // so it can go back there on close. Without this, closing drops focus to <body> and a
+    // keyboard user is dumped at the top of the document after every create or edit.
+    const opener = document.activeElement as HTMLElement | null;
+
+    const focusable = () =>
+      Array.from(
+        ref.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ) ?? []
+      );
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      // Trap Tab inside the dialog. aria-modal alone does not contain focus, and the page
+      // behind is still in the tab order — a keyboard user could tab out onto controls
+      // they can't see. Cycle at the ends instead.
+      if (e.key === 'Tab') {
+        const items = focusable();
+        if (items.length === 0) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
+
     document.addEventListener('keydown', onKey);
     // Focus moves into the dialog or a keyboard user is left behind it.
-    ref.current?.querySelector<HTMLElement>('input, textarea, select, button')?.focus();
-    return () => document.removeEventListener('keydown', onKey);
+    focusable()[0]?.focus();
+
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      // Return focus to whatever opened the dialog, if it's still on the page.
+      if (opener && document.contains(opener)) opener.focus();
+    };
   }, [onClose]);
 
   return (
@@ -77,12 +115,12 @@ export function Field({
 
   return (
     <div>
-      <label htmlFor={id} className="mb-1 block text-xs text-zinc-500">
+      <label htmlFor={id} className="mb-1 block text-xs text-zinc-400">
         {label}
       </label>
       {cloneElement(children, { id, 'aria-describedby': hint ? hintId : undefined })}
       {hint && (
-        <p id={hintId} className="mt-1 text-xs text-zinc-600">
+        <p id={hintId} className="mt-1 text-xs text-zinc-400">
           {hint}
         </p>
       )}
@@ -90,22 +128,26 @@ export function Field({
   );
 }
 
+// min-h-11 = 44px, the spec's touch-target floor on pointer:coarse, in the BASE so every
+// control inherits it. It used to live only on Select, so Input rendered at 38px — under
+// the floor on the task/project/recipe/settings forms and the recipe search. The
+// placeholder-visible focus ring is here too, so no control falls back to a dark-on-dark
+// border change a keyboard user can't see.
 const CONTROL =
-  'w-full rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 ' +
-  'placeholder:text-zinc-600 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600';
+  'w-full min-h-11 rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 ' +
+  'placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600';
 
 export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${CONTROL} ${props.className ?? ''}`} />;
 }
 
 export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  // Textareas grow, so the 44px floor is a min it always clears — but keep it explicit.
   return <textarea {...props} className={`${CONTROL} resize-y ${props.className ?? ''}`} />;
 }
 
 export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  // min-h-11 = 44px: the spec's touch target floor on pointer:coarse. This control is the
-  // reason drag isn't the only way to move a card.
-  return <select {...props} className={`${CONTROL} min-h-11 ${props.className ?? ''}`} />;
+  return <select {...props} className={`${CONTROL} ${props.className ?? ''}`} />;
 }
 
 export function Button({

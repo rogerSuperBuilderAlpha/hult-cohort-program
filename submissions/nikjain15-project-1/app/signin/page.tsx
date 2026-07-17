@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 
 /** Firebase error codes are not user-facing English. Translate the ones people actually hit. */
@@ -40,17 +40,27 @@ export default function SignInPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
+  // Where to go once auth resolves — ONE redirect path, not two. There used to be an
+  // explicit router.replace here AND this effect firing on `user`, and they raced: a fresh
+  // sign-up would sometimes land on '/' instead of '/connect' depending on which won. Now
+  // the auth action records its intended destination and the effect is the only redirector.
+  // Default '/': a visitor who is already signed in and lands on /signin just bounces home.
+  const dest = useRef('/');
+
   useEffect(() => {
-    if (!loading && user) router.replace('/');
+    if (!loading && user) router.replace(dest.current);
   }, [user, loading, router]);
 
   async function run(fn: () => Promise<void>, next = '/') {
     setError('');
     setBusy(true);
+    dest.current = next;
     try {
       await fn();
-      router.replace(next);
+      // No redirect here — the effect above fires once `user` flips, using dest.current.
     } catch (err) {
+      // Reset intent so a later success doesn't inherit a stale destination.
+      dest.current = '/';
       setError(friendlyError(err));
     } finally {
       setBusy(false);
@@ -80,7 +90,7 @@ export default function SignInPage() {
 
         <div className="my-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-zinc-800" />
-          <span className="text-xs text-zinc-500">or</span>
+          <span className="text-xs text-zinc-400">or</span>
           <div className="h-px flex-1 bg-zinc-800" />
         </div>
 
@@ -116,7 +126,7 @@ export default function SignInPage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
               autoComplete="name"
-              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
+              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
             />
           )}
           <input
@@ -127,7 +137,7 @@ export default function SignInPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             autoComplete="email"
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
+            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
           />
           <input
             type="password"
@@ -137,7 +147,7 @@ export default function SignInPage() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
+            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
           />
 
           {error && (
@@ -155,7 +165,7 @@ export default function SignInPage() {
           </button>
         </form>
 
-        <p className="mt-5 text-center text-sm text-zinc-500">
+        <p className="mt-5 text-center text-sm text-zinc-400">
           {mode === 'signin' ? 'New to the cohort?' : 'Already have an account?'}{' '}
           <button
             onClick={() => {

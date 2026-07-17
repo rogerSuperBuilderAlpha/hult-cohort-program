@@ -84,6 +84,12 @@ function HomeView() {
       {/* Narratives are prose. Past ~68ch they get harder to read, so extra width becomes
           margin and never a second column (§4). Centred from 1440. */}
       <div className="w-full max-w-[68ch] min-[1440px]:mx-auto">
+        {/* One stable page title. Visually the header already reads "Pulse"; a screen
+            reader navigating by heading needs a real h1 that doesn't move or change with
+            state. sr-only so it doesn't duplicate the header on screen. Everything below
+            is h2. */}
+        <h1 className="sr-only">Your week on Pulse</h1>
+
         <ErrorNote>{error}</ErrorNote>
 
         {posted ? (
@@ -211,14 +217,14 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
 
   return (
     <section className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-zinc-400">
         pulse posted this · {relativeTime(event.createdAt.toDate())}
         {event.editedAt && ' · you reworded it'}
       </p>
 
       {editing ? (
         <div className="mt-2">
-          <label htmlFor="posted-wording" className="mb-1 block text-xs text-zinc-500">
+          <label htmlFor="posted-wording" className="mb-1 block text-xs text-zinc-400">
             Your wording
           </label>
           <textarea
@@ -228,7 +234,7 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
             onChange={(e) => setDraft(e.target.value)}
             className="w-full resize-y rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-600 focus:outline-none"
           />
-          <p className="mt-1 text-xs text-zinc-600">
+          <p className="mt-1 text-xs text-zinc-400">
             Leave it empty to keep the post as facts only.
           </p>
           <div className="mt-2 flex gap-2">
@@ -249,7 +255,7 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
         <>
           {/* Plain text. `narrative` came from a model reading commit messages a stranger
               wrote — it is rendered escaped, always. */}
-          <h1 className="mt-1 text-base text-zinc-100">{event.narrative}</h1>
+          <h2 className="mt-1 text-base text-zinc-100">{event.narrative}</h2>
 
           {event.evidence && (
             <p className="mt-1 text-xs text-emerald-500/80">
@@ -266,13 +272,13 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
                 setDraft(event.narrative ?? '');
                 setEditing(true);
               }}
-              className="min-h-11 text-xs text-zinc-500 underline underline-offset-2 hover:text-zinc-300"
+              className="min-h-11 text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-300"
             >
               edit the wording
             </button>
             <button
               onClick={() => void undo()}
-              className="min-h-11 text-xs text-zinc-500 underline underline-offset-2 hover:text-zinc-300"
+              className="min-h-11 text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-300"
             >
               undo
             </button>
@@ -293,7 +299,7 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
 function NothingOfYours() {
   return (
     <section className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-      <h1 className="text-base text-zinc-100">Nothing of yours here yet.</h1>
+      <h2 className="text-base text-zinc-100">Nothing of yours here yet.</h2>
       <p className="mt-1 text-sm text-zinc-400">
         Pulse isn&rsquo;t reading your GitHub, so it has nothing to post as you. The board works
         either way.
@@ -383,7 +389,7 @@ function StandingAsk({ ask, uid, ready }: { ask: Ask; uid: string; ready: boolea
   if (!ready) {
     return (
       <section className="mb-8 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-        <p className="text-sm text-zinc-500">Looking for the one thing that needs you…</p>
+        <p className="text-sm text-zinc-400">Looking for the one thing that needs you…</p>
       </section>
     );
   }
@@ -492,16 +498,16 @@ function CohortWeek({
 
   return (
     <section>
-      <h2 className="text-xs text-zinc-500">The cohort&rsquo;s week</h2>
+      <h2 className="text-xs text-zinc-400">The cohort&rsquo;s week</h2>
 
       <PulseStrip events={events} />
 
       {!ready ? (
-        <p className="mt-4 text-sm text-zinc-500">Loading the feed…</p>
+        <p className="mt-4 text-sm text-zinc-400">Loading the feed…</p>
       ) : events.length === 0 ? (
         // Never padded. An empty feed is a true statement about a young cohort, and the
         // honesty is worth more than a screenful of invented rows.
-        <p className="mt-4 text-sm text-zinc-500">
+        <p className="mt-4 text-sm text-zinc-400">
           Nothing has happened yet. The first person to ship shows up here — live, without
           anybody typing it in.
         </p>
@@ -523,7 +529,7 @@ function CohortWeek({
           {/* A stated limitation, not pagination. Pretending to have more is worse than
               admitting the cap. */}
           {events.length >= 50 && (
-            <p className="border-t border-zinc-800 py-3 text-xs text-zinc-600">
+            <p className="border-t border-zinc-800 py-3 text-xs text-zinc-400">
               ⋯ older — Pulse keeps the last 50 events on this screen.
             </p>
           )}
@@ -587,7 +593,7 @@ function PulseStrip({ events }: { events: PulseEvent[] }) {
           );
         })}
       </div>
-      <p className="mt-1 text-xs text-zinc-600">
+      <p className="mt-1 text-xs text-zinc-400">
         {total === 0
           ? 'no events in the last 7 days'
           : `${total} ${total === 1 ? 'event' : 'events'} · last 7 days · today on the right`}
@@ -647,7 +653,7 @@ function FeedRow({
           </p>
         )}
 
-        <p className="mt-0.5 text-xs text-zinc-600">{relativeTime(event.createdAt.toDate())}</p>
+        <p className="mt-0.5 text-xs text-zinc-400">{relativeTime(event.createdAt.toDate())}</p>
       </div>
 
       {mine ? (
@@ -772,7 +778,7 @@ function Kudos({
 
   if (own || !onToggle) {
     return (
-      <span className={`${shared} text-zinc-600`} title="Your own — kudos come from other people">
+      <span className={`${shared} text-zinc-400`} title="Your own — kudos come from other people">
         {body}
       </span>
     );
@@ -787,7 +793,7 @@ function Kudos({
       }}
       aria-pressed={given}
       aria-label={given ? 'Remove your kudos' : 'Give kudos'}
-      className={`${shared} ${given ? 'text-emerald-400' : 'text-zinc-500 hover:text-zinc-300'} ${
+      className={`${shared} ${given ? 'text-emerald-400' : 'text-zinc-400 hover:text-zinc-300'} ${
         pop ? 'motion-safe:scale-110' : ''
       }`}
     >

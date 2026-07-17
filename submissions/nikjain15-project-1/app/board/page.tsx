@@ -16,7 +16,7 @@ export default function BoardPage() {
   return (
     <AppShell>
       {/* useSearchParams needs a Suspense boundary — the filters read the URL. */}
-      <Suspense fallback={<p className="text-sm text-zinc-500">Loading the board…</p>}>
+      <Suspense fallback={<p className="text-sm text-zinc-400">Loading the board…</p>}>
         <BoardView />
       </Suspense>
     </AppShell>
@@ -58,7 +58,7 @@ function BoardView() {
     <>
       <div className="mb-4">
         <h1 className="text-sm font-medium text-zinc-100">Board</h1>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-zinc-400">
           Every card says where it came from. Drag it, or use the status control.
         </p>
       </div>
@@ -68,7 +68,7 @@ function BoardView() {
       <Filters members={members} projects={liveProjects} onNew={() => setCreating('todo')} />
 
       {!ready ? (
-        <p className="text-sm text-zinc-500">Loading the board…</p>
+        <p className="text-sm text-zinc-400">Loading the board…</p>
       ) : (
         <Board
           actor={actor}

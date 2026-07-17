@@ -52,7 +52,7 @@ function ProjectsView() {
       <div className="mb-4 flex items-center gap-3">
         <div>
           <h1 className="text-sm font-medium text-zinc-100">Projects</h1>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-zinc-400">
             Connected repos become projects. Manual ones are for everything that isn’t code.
           </p>
         </div>
@@ -70,9 +70,9 @@ function ProjectsView() {
       </div>
 
       {!ready ? (
-        <p className="text-sm text-zinc-500">Loading projects…</p>
+        <p className="text-sm text-zinc-400">Loading projects…</p>
       ) : visible.length === 0 ? (
-        <p className="rounded-lg border border-zinc-800 bg-zinc-900/30 py-10 text-center text-sm text-zinc-500">
+        <p className="rounded-lg border border-zinc-800 bg-zinc-900/30 py-10 text-center text-sm text-zinc-400">
           {showArchived ? 'Nothing archived.' : 'No projects yet. Create one to put a task in it.'}
         </p>
       ) : (
@@ -122,12 +122,12 @@ function ProjectRow({
             {project.name}
           </Link>
           {project.description && (
-            <p className="mt-1 line-clamp-2 text-xs text-zinc-500">{project.description}</p>
+            <p className="mt-1 line-clamp-2 text-xs text-zinc-400">{project.description}</p>
           )}
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
             {STATUSES.map((s) => (
-              <span key={s} className="text-xs text-zinc-600">
+              <span key={s} className="text-xs text-zinc-400">
                 {STATUS_LABELS[s].toLowerCase()} · {tasks.filter((t) => t.status === s).length}
               </span>
             ))}
@@ -138,7 +138,7 @@ function ProjectRow({
           {owner && <Avatar member={owner} />}
           <button
             onClick={onEdit}
-            className="min-h-11 px-2 text-xs text-zinc-500 transition-colors hover:text-zinc-200"
+            className="min-h-11 px-2 text-xs text-zinc-400 transition-colors hover:text-zinc-200"
           >
             edit
           </button>
@@ -146,7 +146,7 @@ function ProjectRow({
             // Archive, never delete. The feed references projects by id, and nothing in
             // Project 1 hard-deletes — un-archiving has to stay possible.
             onClick={() => updateProject(project.id, { archived: !project.archived })}
-            className="min-h-11 px-2 text-xs text-zinc-500 transition-colors hover:text-zinc-200"
+            className="min-h-11 px-2 text-xs text-zinc-400 transition-colors hover:text-zinc-200"
           >
             {project.archived ? 'restore' : 'archive'}
           </button>

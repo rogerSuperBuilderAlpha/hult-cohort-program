@@ -28,7 +28,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 text-center">
       <div>
         <p className="text-sm text-zinc-300">This screen broke. Nothing you did is lost.</p>
-        <p className="mx-auto mt-2 max-w-md text-sm text-zinc-500">
+        <p className="mx-auto mt-2 max-w-md text-sm text-zinc-400">
           Your projects and tasks are safe — they live in the database, not on this page.
         </p>
       </div>

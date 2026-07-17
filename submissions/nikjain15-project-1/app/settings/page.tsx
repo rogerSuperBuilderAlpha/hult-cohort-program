@@ -107,7 +107,7 @@ function SettingsView() {
   }, []);
 
   if (link === undefined) {
-    return <p className="text-sm text-zinc-500">Loading your settings…</p>;
+    return <p className="text-sm text-zinc-400">Loading your settings…</p>;
   }
 
   // No link, they declined at /connect, or they disconnected. Don't render a page full of
@@ -140,7 +140,7 @@ function SettingsView() {
     <div className="max-w-2xl">
       <div className="mb-6">
         <h1 className="text-sm font-medium text-zinc-100">Settings</h1>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-zinc-400">
           Connected as {handle ?? 'your GitHub account'}. Everything Pulse promised you could
           change is on this page.
         </p>
@@ -203,7 +203,7 @@ function Card({
   return (
     <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
       <h2 className="text-sm font-medium text-zinc-100">{title}</h2>
-      {description && <p className="mt-1 text-xs text-zinc-500">{description}</p>}
+      {description && <p className="mt-1 text-xs text-zinc-400">{description}</p>}
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -230,7 +230,7 @@ function NotConnected({ declined, deleted }: { declined: boolean; deleted: numbe
           ? 'You told Pulse not to read your GitHub, so there is nothing here to change yet.'
           : 'Pulse isn’t connected to your GitHub, so there is nothing here to change yet.'}
       </p>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="mt-1 text-xs text-zinc-400">
         Your board, your projects and your tasks work exactly the same either way — they never
         depended on this.
       </p>
@@ -280,7 +280,7 @@ function PublishCard({
             />
             <span>
               <span className="block text-sm text-zinc-100">{opt.label}</span>
-              <span className="mt-0.5 block text-xs text-zinc-500">{opt.hint}</span>
+              <span className="mt-0.5 block text-xs text-zinc-400">{opt.hint}</span>
             </span>
           </label>
         ))}
@@ -325,7 +325,7 @@ function BranchTasksCard({
           <span className="block text-sm text-zinc-100">
             New branches become cards on your board
           </span>
-          <span className="mt-0.5 block text-xs text-zinc-500">
+          <span className="mt-0.5 block text-xs text-zinc-400">
             Off means Pulse only moves cards you already made — it infers status, never new work.
           </span>
         </span>
@@ -431,7 +431,7 @@ function PostsCard({
       description="Reword any of these, or delete it. Deleting removes it from every feed, not just yours."
     >
       {posts.length === 0 ? (
-        <p className="text-xs text-zinc-500">Pulse hasn&apos;t posted anything as you yet.</p>
+        <p className="text-xs text-zinc-400">Pulse hasn&apos;t posted anything as you yet.</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {posts.map((post) => (
@@ -479,7 +479,7 @@ function PostRow({
 
   return (
     <li className="rounded border border-zinc-800 p-3">
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-zinc-400">
         {post.kind.replace(/_/g, ' ')} · {post.subject}
       </p>
 
@@ -506,7 +506,7 @@ function PostRow({
         <>
           <p className="mt-1 text-sm text-zinc-100">
             {post.narrative ?? (
-              <span className="text-zinc-500">Facts only — Pulse wrote no sentence here.</span>
+              <span className="text-zinc-400">Facts only — Pulse wrote no sentence here.</span>
             )}
           </p>
           <div className="mt-2 flex gap-2">

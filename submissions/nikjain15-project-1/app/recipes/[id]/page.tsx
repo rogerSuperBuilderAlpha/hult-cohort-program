@@ -42,7 +42,7 @@ function RecipeDetail() {
     [user]
   );
 
-  if (!ready) return <p className="text-sm text-zinc-500">Loading…</p>;
+  if (!ready) return <p className="text-sm text-zinc-400">Loading…</p>;
 
   if (!recipe) {
     return (
@@ -61,7 +61,7 @@ function RecipeDetail() {
 
   return (
     <>
-      <Link href="/recipes" className="text-xs text-zinc-600 hover:text-zinc-400">
+      <Link href="/recipes" className="text-xs text-zinc-400 hover:text-zinc-400">
         ← recipes
       </Link>
 
@@ -73,9 +73,9 @@ function RecipeDetail() {
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
             {author && <Avatar member={author} size={16} />}
-            <span className="text-xs text-zinc-600">{author?.displayName ?? 'a member'}</span>
+            <span className="text-xs text-zinc-400">{author?.displayName ?? 'a member'}</span>
             {recipe.createdAt && (
-              <span className="text-xs text-zinc-600">
+              <span className="text-xs text-zinc-400">
                 {recipe.createdAt.toDate().toLocaleDateString(undefined, {
                   month: 'short',
                   day: 'numeric',
@@ -83,7 +83,7 @@ function RecipeDetail() {
               </span>
             )}
             {recipe.turns > 0 && (
-              <span className="text-xs text-zinc-600">
+              <span className="text-xs text-zinc-400">
                 fought it for {recipe.turns} {recipe.turns === 1 ? 'turn' : 'turns'}
               </span>
             )}
@@ -158,7 +158,7 @@ function Steal({
   return (
     <div className="mt-4 flex flex-wrap items-center gap-3">
       {isAuthor ? (
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-zinc-400">
           {unstuck === 0
             ? 'Yours. Nobody’s needed it yet — that’s fine, it’s here when they do.'
             : `Yours. You unstuck ${unstuck} ${unstuck === 1 ? 'person' : 'people'} with this${
@@ -170,7 +170,7 @@ function Steal({
           <Button variant="primary" onClick={steal} disabled={already && copied}>
             {already ? 'Copy again' : 'Steal'}
           </Button>
-          <span className="text-xs text-zinc-500">
+          <span className="text-xs text-zinc-400">
             {copied
               ? 'Copied. The author will see they unstuck you.'
               : already

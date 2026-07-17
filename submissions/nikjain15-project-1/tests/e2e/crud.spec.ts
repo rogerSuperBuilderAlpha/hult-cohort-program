@@ -40,6 +40,9 @@ test.describe('B1 · B3 — multi-user auth, open registration', () => {
       await signUp(page, name, uniqueEmail(base.toLowerCase()));
 
       await expect(page.getByRole('button', { name: 'sign out' })).toBeVisible();
+      // The member_joined row is on Home, not the board — sign-up now lands on the consent
+      // gate and the helper moves on to /board, so come to Home to read the feed.
+      await page.goto('/');
       await expect(page.getByText(`${name} joined the cohort`)).toBeVisible({ timeout: 15_000 });
 
       await context.close();

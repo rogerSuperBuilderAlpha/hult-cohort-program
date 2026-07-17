@@ -175,6 +175,28 @@ are not product seed data.** The cohort's activity in production is real, which 
 - Layers 2 and 3 are designed and surfaced, **not automated**.
 - Out of scope: comments, notifications, attachments, search, dark mode, presence, webhooks.
 
+### Security posture — deliberate choices, stated plainly
+
+The rules enforce the promises that matter (you post only as yourself; nobody flips your narration
+consent; a private "who's stuck" nudge is readable only by its one intended helper; undo is total).
+These trade-offs are chosen, not overlooked — a staff review flagged each, and they're kept because the
+alternative needs infrastructure that is itself the roadmap (a server identity / Firebase Admin SDK):
+
+- **Any member can edit any project or task.** The board is shared cohort work by design — open
+  assignment is the point — so editing is open too. `creatorUid`/`ownerUid` are immutable, so authorship
+  can't be rewritten; the openness is the collaboration model, not a gap.
+- **Provenance is trust-based, not cryptographic.** `actorName` is denormalised into the feed for cheap
+  reads, sensed-card ids are derived from public data, and a card's evidence is set client-side. A
+  determined peer could forge a plausible-looking receipt. The facts it cites (PR numbers) stay public
+  and checkable; closing the forgery needs the Admin SDK, which is deferred.
+- **`/opt-out` and `/api/narrate` are unauthenticated by design.** Opt-out must not require an account
+  (a signup wall on the exit is worse than none), and narrate has no server session to key auth on.
+  Narrate's inputs are bounded so no single request can run up an unbounded model bill; a per-caller
+  rate limit is the roadmap item.
+- **The opt-out tombstone list is itself readable.** The pre-index runs unauthenticated through the
+  client SDK, so the rules can't tell the landing page from a stranger. Shipping a working opt-out with
+  this flaw beats shipping none; the Admin SDK fixes both.
+
 ## Agent usage
 
 **This design and most of this code came from Claude.** The thesis, the spec and the wireframes came

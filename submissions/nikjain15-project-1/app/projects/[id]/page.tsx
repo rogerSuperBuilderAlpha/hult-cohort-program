@@ -18,7 +18,7 @@ import type { Status, Task } from '@/lib/types';
 export default function ProjectDetailPage() {
   return (
     <AppShell>
-      <Suspense fallback={<p className="text-sm text-zinc-500">Loading…</p>}>
+      <Suspense fallback={<p className="text-sm text-zinc-400">Loading…</p>}>
         <ProjectDetail />
       </Suspense>
     </AppShell>
@@ -53,7 +53,7 @@ function ProjectDetail() {
     [tasks, id, filters]
   );
 
-  if (!ready) return <p className="text-sm text-zinc-500">Loading…</p>;
+  if (!ready) return <p className="text-sm text-zinc-400">Loading…</p>;
 
   if (!project) {
     return (
@@ -69,7 +69,7 @@ function ProjectDetail() {
   return (
     <>
       <div className="mb-4">
-        <Link href="/projects" className="text-xs text-zinc-600 hover:text-zinc-400">
+        <Link href="/projects" className="text-xs text-zinc-400 hover:text-zinc-400">
           ← projects
         </Link>
 
@@ -78,18 +78,18 @@ function ProjectDetail() {
             <h1 className="text-sm font-medium text-zinc-100">
               {project.name}
               {project.archived && (
-                <span className="ml-2 rounded border border-zinc-800 px-1.5 py-0.5 text-xs text-zinc-500">
+                <span className="ml-2 rounded border border-zinc-800 px-1.5 py-0.5 text-xs text-zinc-400">
                   archived
                 </span>
               )}
             </h1>
             {project.description && (
-              <p className="mt-1 text-xs text-zinc-500">{project.description}</p>
+              <p className="mt-1 text-xs text-zinc-400">{project.description}</p>
             )}
             {owner && (
               <div className="mt-2 flex items-center gap-2">
                 <Avatar member={owner} size={16} />
-                <span className="text-xs text-zinc-600">{owner.displayName}</span>
+                <span className="text-xs text-zinc-400">{owner.displayName}</span>
               </div>
             )}
           </div>

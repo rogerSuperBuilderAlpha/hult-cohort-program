@@ -91,7 +91,7 @@ function Ask({
           onChange={(e) => setHandle(e.target.value)}
           placeholder="your-github-handle"
           autoComplete="off"
-          className="min-h-11 flex-1 rounded border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-600 focus:outline-none"
+          className="min-h-11 flex-1 rounded border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none"
         />
         <button
           type="submit"
@@ -123,7 +123,7 @@ function Recognised({ me, shipped }: { me: PublicMember; shipped: PublicMember[]
         </p>
         {/* The receipt. Every claim Pulse makes shows its working. */}
         <p className="mt-1 text-xs text-emerald-500/80">{formatEvidence(me.evidence)}</p>
-        <p className="mt-2 text-xs text-zinc-600">
+        <p className="mt-2 text-xs text-zinc-400">
           last seen {relativeTime(new Date(me.lastSeenAt))}
         </p>
       </div>
@@ -140,7 +140,7 @@ function Recognised({ me, shipped }: { me: PublicMember; shipped: PublicMember[]
       </Link>
 
       {rest.length > 0 && (
-        <p className="mt-6 text-xs text-zinc-600">
+        <p className="mt-6 text-xs text-zinc-400">
           {rest.length} other {rest.length === 1 ? 'person' : 'people'} shipped this week too.
         </p>
       )}
@@ -182,7 +182,7 @@ function Unknown({
         Sign in with GitHub — Pulse will find your work
       </Link>
 
-      <button onClick={onBack} className="ml-3 text-xs text-zinc-500 hover:text-zinc-300">
+      <button onClick={onBack} className="ml-3 text-xs text-zinc-400 hover:text-zinc-300">
         try another handle
       </button>
     </section>
@@ -236,7 +236,7 @@ function Cohort({
 
   return (
     <section className="mt-12 border-t border-zinc-800 pt-6">
-      <h2 className="text-xs text-zinc-500">
+      <h2 className="text-xs text-zinc-400">
         The cohort so far · {shipped.length} of {enrolled}
       </h2>
 
@@ -246,12 +246,12 @@ function Cohort({
             <span className="text-sm text-zinc-100">@{m.handle}</span>
             {/* Facts. No narrative, no rank, no score — and nothing at all about the
                 people who haven't pushed. Pulse never shows the cohort who is quiet. */}
-            <span className="text-xs text-zinc-500">{formatEvidence(m.evidence)}</span>
+            <span className="text-xs text-zinc-400">{formatEvidence(m.evidence)}</span>
           </li>
         ))}
       </ul>
 
-      <p className="mt-4 text-xs text-zinc-600">
+      <p className="mt-4 text-xs text-zinc-400">
         Read from the cohort&rsquo;s public GitHub repo, {relativeTime(new Date(fetchedAt))}. Nothing
         here was typed in, and nothing here is invented.
       </p>
@@ -269,7 +269,7 @@ function Cohort({
 function Disclosure() {
   return (
     <footer className="mt-12 border-t border-zinc-800 pt-6">
-      <p className="text-xs leading-relaxed text-zinc-600">
+      <p className="text-xs leading-relaxed text-zinc-400">
         Pulse reads public activity from the cohort&rsquo;s GitHub repo to show the cohort&rsquo;s work.
         Facts only — AI summaries about a person appear only if they&rsquo;ve connected their own
         account. Built for the Hult Cohort Developer Program, <strong>non-commercial, for cohort use
@@ -281,7 +281,7 @@ function Disclosure() {
       </p>
       {/* Stated because the page collects it. A disclosure that quietly omits the one thing
           a reader wouldn't guess is worth less than no disclosure at all. */}
-      <p className="mt-2 text-xs leading-relaxed text-zinc-600">
+      <p className="mt-2 text-xs leading-relaxed text-zinc-400">
         This site counts page views in aggregate (Vercel Analytics) so we know whether anyone
         opened it. No cookies, no profiles, and nothing that identifies you — Pulse never tracks
         who visits or who&rsquo;s been quiet.

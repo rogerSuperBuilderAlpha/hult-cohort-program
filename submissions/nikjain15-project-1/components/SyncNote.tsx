@@ -21,7 +21,7 @@ export function SyncNote({ outcome }: { outcome: SyncOutcome | null }) {
   if (outcome.kind === 'no_handle') {
     return (
       <p
-        role="status"
+        role="alert"
         className="mb-3 rounded border border-red-900/60 bg-red-950/30 px-3 py-2 text-xs text-red-300"
       >
         Pulse is connected but doesn’t know your GitHub username, so it can’t find your work.{' '}
@@ -36,7 +36,7 @@ export function SyncNote({ outcome }: { outcome: SyncOutcome | null }) {
   if (outcome.kind === 'degraded') {
     return (
       <p
-        role="status"
+        role="alert"
         className="mb-3 rounded border border-red-900/60 bg-red-950/30 px-3 py-2 text-xs text-red-300"
       >
         {outcome.failure === 'rate_limited' ? (
@@ -58,7 +58,7 @@ export function SyncNote({ outcome }: { outcome: SyncOutcome | null }) {
   if (outcome.kind === 'write_failed') {
     return (
       <p
-        role="status"
+        role="alert"
         className="mb-3 rounded border border-red-900/60 bg-red-950/30 px-3 py-2 text-xs text-red-300"
       >
         Pulse read your GitHub but couldn’t finish updating this board, so it might be behind.
@@ -71,7 +71,7 @@ export function SyncNote({ outcome }: { outcome: SyncOutcome | null }) {
   if (outcome.created === 0 && outcome.moved === 0) return null;
 
   return (
-    <p role="status" className="mb-3 text-xs text-zinc-500">
+    <p role="status" className="mb-3 text-xs text-zinc-400">
       Pulse {summarise(outcome.created, outcome.moved)} from your GitHub,{' '}
       {relativeTime(outcome.at)}.
     </p>

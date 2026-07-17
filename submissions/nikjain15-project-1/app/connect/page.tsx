@@ -58,7 +58,7 @@ export default function ConnectPage() {
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-zinc-400">Loading…</p>
       </div>
     );
   }
@@ -87,10 +87,10 @@ function Consent({ uid }: { uid: string }) {
    * cohort repo. It is NOT on the Firebase `User`; sign-in reads it from the credential and
    * persists it onto the member doc, so that doc is the only place to read it back.
    *
-   * If it isn't there, it stays null. Never the email local-part: "nikjain1588@gmail.com"
-   * produced handle "nikjain1588" for a GitHub login of "nikjain15", the join silently
-   * never matched, and a guessed handle can also collide with a real member's login and
-   * attach one person's work to another.
+   * If it isn't there, it stays null. Never the email local-part: an email like
+   * "dev-1588@example.com" produces handle "dev-1588" for a GitHub login of "nikjain15",
+   * the join silently never matches, and a guessed handle can also collide with a real
+   * member's login and attach one person's work to another.
    */
   const fetchHandle = useCallback(async () => {
     const snap = await getDoc(doc(db, 'members', uid));
@@ -226,7 +226,7 @@ function Consent({ uid }: { uid: string }) {
         </Button>
       </div>
 
-      <p className="mt-4 text-[11px] text-zinc-500">
+      <p className="mt-4 text-[11px] text-zinc-400">
         Saying no gives you the full board — projects, tasks, assignees, due dates — with nothing
         automatic. You can change any of this later in{' '}
         <Link href="/settings" className="text-zinc-400 underline underline-offset-4 hover:text-zinc-200">
@@ -250,7 +250,7 @@ function Block({
 }) {
   return (
     <section className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3">
-      <h2 className="text-[11px] text-zinc-500">{title}</h2>
+      <h2 className="text-[11px] text-zinc-400">{title}</h2>
       <ul className="mt-2 space-y-1">
         {items.map((item, i) => (
           <li
@@ -285,7 +285,7 @@ function HandleNote({
 }) {
   if (handle) {
     return (
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-zinc-400">
         Pulse will watch <span className="text-zinc-300">@{handle}</span>.
       </p>
     );
@@ -302,7 +302,7 @@ function HandleNote({
           {busy ? 'Working…' : 'Sign in with GitHub to link it'}
         </Button>
       </div>
-      <p className="mt-2 text-[11px] text-zinc-500">
+      <p className="mt-2 text-[11px] text-zinc-400">
         Without it, Pulse can&rsquo;t find your work — but the board below still works by hand.
       </p>
     </div>

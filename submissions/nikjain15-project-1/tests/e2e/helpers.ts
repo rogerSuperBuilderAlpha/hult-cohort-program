@@ -41,7 +41,12 @@ export async function signUp(page: Page, name: string, email: string): Promise<v
   await page.getByPlaceholder('Password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
 
-  await page.waitForURL(/\/(board|$)/, { timeout: 15_000 }).catch(() => {});
+  // A brand-new account lands on /connect now — the consent gate (spec §5.2), which is
+  // deliberately OUTSIDE AppShell and has no 'sign out'. Wait for auth to settle anywhere,
+  // then head into the app. Going straight to /board leaves the account in the "connected
+  // to nothing" state most tests want: a working manual board with sensing switched off.
+  await page.waitForURL(/\/(connect|board|$)/, { timeout: 15_000 }).catch(() => {});
+  await page.goto('/board');
   // 'sign out' exists only inside AppShell, which renders only with a user — and unlike
   // the nav links it's present at every width (the nav moves to a bottom bar under 480).
   await page.getByRole('button', { name: 'sign out' }).waitFor({ timeout: 15_000 });

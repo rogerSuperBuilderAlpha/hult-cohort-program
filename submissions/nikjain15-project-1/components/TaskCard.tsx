@@ -22,7 +22,7 @@ function formatDue(dueDate: NonNullable<Task['dueDate']>): string {
  */
 function Receipt({ task }: { task: Task }) {
   if (task.source === 'manual') {
-    return <p className="mt-1 text-xs text-zinc-600">you · by hand</p>;
+    return <p className="mt-1 text-xs text-zinc-400">you · by hand</p>;
   }
 
   const line = task.evidence ? formatEvidence(task.evidence) : '';
@@ -64,11 +64,11 @@ export function TaskCard({
       </button>
 
       <div className="mt-3 flex items-center gap-2">
-        {project && <span className="truncate text-xs text-zinc-500">{project.name}</span>}
+        {project && <span className="truncate text-xs text-zinc-400">{project.name}</span>}
 
         <div className="ml-auto flex items-center gap-2">
           {task.dueDate && (
-            <span className={`text-xs ${overdue ? 'text-red-400' : 'text-zinc-500'}`}>
+            <span className={`text-xs ${overdue ? 'text-red-400' : 'text-zinc-400'}`}>
               {formatDue(task.dueDate)}
             </span>
           )}
@@ -85,7 +85,7 @@ export function TaskCard({
         aria-label={`Status for ${task.title}`}
         value={task.status}
         onChange={(e) => onStatusChange(e.target.value as Status)}
-        className="mt-3 min-h-11 w-full rounded border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none"
+        className="mt-3 min-h-11 w-full rounded border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
       >
         {STATUSES.map((s) => (
           <option key={s} value={s}>

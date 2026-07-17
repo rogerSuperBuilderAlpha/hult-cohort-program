@@ -123,13 +123,13 @@ export function Board({
             data-column={status}
           >
             <header className="mb-3 flex items-center justify-between">
-              <h2 className="text-xs text-zinc-500">
+              <h2 className="text-xs text-zinc-400">
                 {STATUS_LABELS[status].toLowerCase()} · {column.length}
               </h2>
               <button
                 onClick={() => onNewTask(status)}
                 aria-label={`New task in ${STATUS_LABELS[status]}`}
-                className="text-xs text-zinc-600 transition-colors hover:text-zinc-300"
+                className="text-xs text-zinc-400 transition-colors hover:text-zinc-300"
               >
                 +
               </button>
@@ -153,7 +153,7 @@ export function Board({
               ))}
 
               {column.length === 0 && (
-                <p className="py-6 text-center text-xs text-zinc-700">nothing here</p>
+                <p className="py-6 text-center text-xs text-zinc-400">nothing here</p>
               )}
             </div>
           </section>

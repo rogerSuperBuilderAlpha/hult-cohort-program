@@ -150,8 +150,16 @@ service cloud.firestore {
                         && request.resource.data.authorUid == resource.data.authorUid
                         && !changed().hasAny(['unstuckUids']))
                       ||
-                      // anyone marking themselves unstuck by it
-                      (changed().hasOnly(['unstuckUids'])
+                      // anyone ELSE marking themselves unstuck by it.
+                      //
+                      // The author is excluded here or this branch would re-grant exactly
+                      // what the branch above denies: an author could add their own uid and
+                      // rank their own recipe. unstuckUids is the only ranking in the
+                      // product and it is supposed to measure generosity — it is the single
+                      // number worth gaming, so the one person who benefits must not be able
+                      // to touch it. You also cannot be unstuck by your own recipe.
+                      (!isSelf(resource.data.authorUid)
+                        && changed().hasOnly(['unstuckUids'])
                         && togglesOnlySelf(resource.data.unstuckUids, request.resource.data.unstuckUids))
                     );
       allow delete: if isSelf(resource.data.authorUid);

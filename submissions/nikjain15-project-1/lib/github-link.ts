@@ -54,6 +54,9 @@ export async function saveConsent(
       excludedRepos: [],
       connectedAt: serverTimestamp(),
       lastSyncedAt: null,
+      // Nothing has been narrated yet. Re-consenting resets it on purpose: the next sync
+      // should get a fresh sentence rather than treat the old one as still current.
+      narrationCacheKey: null,
     },
     { merge: true }
   );
@@ -104,6 +107,15 @@ export async function setExcludedRepos(uid: string, excludedRepos: string[]): Pr
  */
 export async function markSynced(uid: string): Promise<void> {
   await updateDoc(doc(db, 'githubLinks', uid), { lastSyncedAt: serverTimestamp() });
+}
+
+/**
+ * Remember exactly what the last narration described, so unchanged work costs nothing.
+ *
+ * This is the write that pays for the pilot — see the field's note in types.ts.
+ */
+export async function setNarrationCacheKey(uid: string, narrationCacheKey: string): Promise<void> {
+  await updateDoc(doc(db, 'githubLinks', uid), { narrationCacheKey });
 }
 
 /**

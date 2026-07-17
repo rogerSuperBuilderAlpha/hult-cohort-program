@@ -174,7 +174,19 @@ export async function deleteTask(taskId: string) {
  * stays silent: the feed is a record of progress, and un-shipping something isn't
  * news the cohort needs. It also stops someone farming the feed by toggling a task.
  */
-export async function setTaskStatus(actor: Actor, task: Task, status: Status) {
+export async function setTaskStatus(
+  actor: Actor,
+  task: Task,
+  status: Status,
+  /**
+   * The sentence Pulse wrote about this, and the facts it was inferred from.
+   *
+   * Optional, and omitting it publishes FACTS ONLY — the correct default and the safe
+   * failure mode. It is only ever populated for a member who opted into narration, about
+   * themselves, after `checkNarrative` passed. `logPulse` renders `undefined` as null.
+   */
+  narration?: { narrative: string | null; evidence: Evidence | null }
+) {
   if (task.status === status) return;
 
   await updateDoc(doc(db, 'tasks', task.id), {
@@ -191,6 +203,10 @@ export async function setTaskStatus(actor: Actor, task: Task, status: Status) {
       subject: task.title,
       projectId: task.projectId,
       taskId: task.id,
+      narrative: narration?.narrative ?? null,
+      // The narrative never ships without the evidence it was inferred from. A legible
+      // mistake is forgivable; a mysterious one isn't.
+      evidence: narration?.evidence ?? task.evidence,
     });
   } else if (status === 'in_progress' && task.status === 'todo') {
     await logPulse({

@@ -43,7 +43,7 @@ function BoardView() {
   // The board builds itself — but only ever as a bonus on top of a board that already
   // works. Every branch of this hook is best-effort; none of it gates what renders below.
   const { link, ready: linkReady } = useGitHubLink(user!.uid);
-  const outcome = useSync({ actor, link, tasks, projects, ready: ready && linkReady });
+  const outcome = useSync({ actor, link, tasks, projects, members, ready: ready && linkReady });
 
   // Archived projects' tasks stay off the board — archiving is how you get work out of
   // sight without deleting it, and nothing in Project 1 hard-deletes a project.

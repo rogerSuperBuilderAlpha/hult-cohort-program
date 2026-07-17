@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { markSynced } from './github-link';
 import { syncFromGitHub, type SyncOutcome } from './sync';
-import type { GitHubLink, Project, Task } from './types';
+import type { GitHubLink, Member, Project, Task } from './types';
 
 type Actor = { uid: string; name: string; photoURL: string | null };
 
@@ -22,20 +22,22 @@ export function useSync(input: {
   link: GitHubLink | null;
   tasks: Task[];
   projects: Project[];
+  /** The cohort — checkNarrative needs it to reject a sentence naming anyone but you. */
+  members: Member[];
   /** Listeners must have delivered first, or the dedupe runs against an empty board and twins everything. */
   ready: boolean;
 }): SyncOutcome | null {
-  const { actor, link, tasks, projects, ready } = input;
+  const { actor, link, tasks, projects, members, ready } = input;
   const [outcome, setOutcome] = useState<SyncOutcome | null>(null);
 
   // The live board, without making it a dependency: re-running this effect every time a
   // card moves would sync on every keystroke's worth of Firestore traffic. Written in an
   // effect, not during render — a render can be thrown away, and a ref mutated on a
   // discarded render is a real inconsistency, not a lint technicality.
-  const latest = useRef({ tasks, projects, actor, link });
+  const latest = useRef({ tasks, projects, actor, link, members });
   useEffect(() => {
-    latest.current = { tasks, projects, actor, link };
-  }, [tasks, projects, actor, link]);
+    latest.current = { tasks, projects, actor, link, members };
+  }, [tasks, projects, actor, link, members]);
 
   // One sync at a time. Two concurrent runs both see "no card for this branch" and both
   // create one — the twin bug, arrived at from a different direction.
@@ -83,6 +85,7 @@ export function useSync(input: {
           link: current.link,
           tasks: current.tasks,
           projects: current.projects,
+          members: current.members,
         });
 
         // Stamping lastSyncedAt ends the backfill: from here on a status change is real

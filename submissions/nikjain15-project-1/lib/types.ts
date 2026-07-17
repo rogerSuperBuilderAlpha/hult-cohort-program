@@ -122,6 +122,18 @@ export type GitHubLink = {
    * inventing tasks from branch names. Spec §9.
    */
   createTasksFromBranches: boolean;
+  /**
+   * The exact work the last narration described — the budget guard, not an optimisation.
+   *
+   * Uncached, 65 members on a 15-minute poll is ~6,240 model calls/day (~$12.48/day,
+   * ~$524 over the pilot) against ~$11 of credit. Matching this key means the work hasn't
+   * changed, so there is nothing new to say and no call is made. A miss on unchanged work
+   * is a bug.
+   *
+   * null until the first narration. Never used to decide WHETHER someone may be narrated —
+   * that's `narrationOptIn`, and only that.
+   */
+  narrationCacheKey: string | null;
 };
 
 export type Recipe = {

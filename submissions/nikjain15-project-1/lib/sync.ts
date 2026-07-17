@@ -2,11 +2,16 @@
 
 import type { SenseResponse, SensedPull } from '@/app/api/sense/route';
 import { createProject, createSensedTask, setSensedStatusSilently, setTaskStatus } from './data';
+import { setNarrationCacheKey } from './github-link';
 import { COHORT_REPO_NAME } from './github-repo';
+import type { NarrationResult } from './narrate';
 import { branchToTitle, findDuplicate, inferStatus, type GitHubSignal } from './sense';
-import type { Evidence, GitHubLink, Project, Task } from './types';
+import type { Evidence, GitHubLink, Member, Project, Task } from './types';
 
 type Actor = { uid: string; name: string; photoURL: string | null };
+
+/** Just enough of the cohort for checkNarrative to reject a sentence naming anyone else. */
+type CohortNames = Pick<Member, 'uid' | 'handle' | 'displayName'>[];
 
 /**
  * The board builds itself. DESIGN-SPEC §4 — this is the product's whole claim.
@@ -40,6 +45,8 @@ export async function syncFromGitHub(input: {
   link: GitHubLink | null;
   tasks: Task[];
   projects: Project[];
+  /** The cohort, so a narrative that names anyone but the actor can be rejected. */
+  members: CohortNames;
 }): Promise<SyncOutcome> {
   const { actor, link, tasks, projects } = input;
 
@@ -132,7 +139,12 @@ export async function syncFromGitHub(input: {
         // The only path that logs task_started / task_shipped and sets completedAt.
         // A PR closed unmerged infers `todo` and logs nothing — the feed is a record of
         // progress, never a place to be embarrassed.
-        await setTaskStatus(actor, existing, inference.status);
+        //
+        // Narration rides along ONLY on a ship, and only with consent. Everything else
+        // publishes facts.
+        const narration =
+          inference.status === 'done' ? await narrateShip(input, pull, title) : undefined;
+        await setTaskStatus(actor, existing, inference.status, narration);
       }
       moved += 1;
     }
@@ -170,6 +182,64 @@ function winningPulls(pulls: SensedPull[]): SensedPull[] {
   }
 
   return [...best.values()];
+}
+
+/**
+ * One sentence about what you shipped — or nothing, which is always allowed.
+ *
+ * **The gate is `narrationOptIn`, and it is absolute.** A model-written sentence about a
+ * member requires that member's opt-in; no exceptions, and this is about the actor
+ * themselves, so their own `githubLinks` doc is the authoritative answer (types.ts).
+ * Off is not the same as disconnected: sensing still runs, cards still move, and nothing
+ * gets written about you.
+ *
+ * Every failure lands on facts-only, silently. Never publish a suspect sentence, never
+ * surface a scary error in the feed — the facts came from the API and cannot be wrong.
+ *
+ * The cache key is the identity of the WORK, not commit SHAs: this pipeline reads the
+ * PR list, which carries no commit range without an extra call per PR. Same contract —
+ * unchanged work means nothing new to say and no model call — but named honestly.
+ */
+async function narrateShip(
+  input: { actor: Actor; link: GitHubLink | null; members: CohortNames },
+  pull: SensedPull,
+  title: string
+): Promise<{ narrative: string | null; evidence: Evidence | null } | undefined> {
+  const { actor, link, members } = input;
+  if (!link?.narrationOptIn || !link.handle) return undefined;
+
+  const evidence = evidenceFor(pull);
+  const workId = [`pr-${pull.number}`, pull.merged ? 'merged' : pull.state];
+
+  try {
+    const res = await fetch('/api/narrate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        handle: link.handle,
+        displayName: actor.name,
+        evidence,
+        // Public GitHub text, and attacker-controlled: a PR title is whatever someone typed.
+        material: [title, pull.branch].filter(Boolean),
+        commitShas: workId,
+        // checkNarrative needs these to reject a sentence naming anyone but the actor —
+        // injection's entire payoff.
+        otherMembers: members.filter((m) => m.uid !== actor.uid).map(({ handle, displayName }) => ({ handle, displayName })),
+        cachedKey: link.narrationCacheKey ?? null,
+      }),
+    });
+
+    if (!res.ok) return { narrative: null, evidence };
+
+    const result = (await res.json()) as NarrationResult;
+    if (result.kind !== 'narrated') return { narrative: null, evidence };
+
+    // Remember the work we just described, so an unchanged PR never costs another call.
+    await setNarrationCacheKey(actor.uid, result.cacheKey).catch(() => {});
+    return { narrative: result.narrative, evidence };
+  } catch {
+    return { narrative: null, evidence };
+  }
 }
 
 /** Never throws: a dead route must degrade, not break the board. */

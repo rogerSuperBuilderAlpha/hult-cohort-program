@@ -103,6 +103,25 @@ export type GitHubLink = {
   mode: 'auto' | 'ask_first';
   excludedRepos: string[];
   lastSyncedAt: Timestamp | null;
+  /**
+   * The consent record for narration, keyed by uid — and this is the authoritative one.
+   *
+   * `CohortMember.narrationOptIn` is the gate the rules enforce on the public, handle-keyed
+   * doc, but that doc only exists for someone who has already pushed to the cohort repo —
+   * about 8 of 65 people today. Recording consent only there would mean the other ~57 can
+   * agree to narration and have it silently not stick, because there is nothing to write it
+   * to. So consent is recorded here at /connect, and the sync mirrors it onto the
+   * cohortMember doc when that doc first comes into existence.
+   *
+   * Off is not the same as disconnected: off means sensing still runs and nothing gets
+   * published. `status: 'revoked'` is disconnected, and only that.
+   */
+  narrationOptIn: boolean;
+  /**
+   * Off = status inference only: Pulse still moves cards it already knows about, but stops
+   * inventing tasks from branch names. Spec §9.
+   */
+  createTasksFromBranches: boolean;
 };
 
 export type Recipe = {

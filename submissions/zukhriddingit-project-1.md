@@ -7,21 +7,22 @@ and see project progress update.
 
 ## Production URL
 
-**Pending deployment.** A production URL is not available yet; this submission
-is being opened early instead of presenting a local URL as production.
+**https://momentum-bay-two.vercel.app**
 
 - Build repository: https://github.com/zukhriddingit/Momentum
 - Current review branch: https://github.com/zukhriddingit/Momentum/tree/codex/slice-4-demo-pilot-readiness
 - Build pull request: https://github.com/zukhriddingit/Momentum/pull/3
 
-This file and the PR description will be updated with the hosted URL after the
-separate Supabase and Vercel production environments are configured and smoke
-tested.
+The Vercel production deployment uses a separate hosted Supabase project. On
+July 17, 2026, its health endpoint returned HTTP 200 and a fresh-user browser
+smoke test verified immediate password signup, workspace and project creation,
+and persisted authentication/data after reload.
 
 ## Setup steps verified on a fresh clone
 
 Verified on July 17, 2026 from a new clone of commit `29b4491` on the review
-branch.
+branch. The deployed release is `5b30568`; the intervening commit only adds
+Vercel's local project metadata directory to `.gitignore`.
 
 Requirements: Node.js 20.9 or newer, pnpm 11, Docker Desktop, and Chromium for
 Playwright.
@@ -102,9 +103,9 @@ database.
 
 ## Known limitations
 
-- **No hosted production URL yet.** Preview/production Supabase projects, Vercel
-  environment variables, production migration, and hosted smoke testing remain
-  operator work and are deliberately not claimed as complete.
+- The hosted smoke test covers fresh-user signup and self-service onboarding;
+  the seeded 52-point guided-demo identity/reset flow was deliberately not
+  provisioned into the Production database.
 - Resend/email delivery, SMS, phone collection, quiet hours, delivery workers,
   and a production scheduler are deferred. The current deadline scanner creates
   in-app notifications only and requires a trusted caller.

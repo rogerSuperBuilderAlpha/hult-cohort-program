@@ -321,12 +321,48 @@ the triage table above.
 
 ---
 
+## Staff-review regressions — two bugs MY hardening introduced  ·  FIXED
+
+A staff review (Roger Hunt, PR #41) merged the hardening but flagged two defects the pass
+itself created. Both are now fixed on branch `staffreview-fixes`, each with the regression
+test the original suite was missing. The lesson threads both: **a fix that adds an
+invariant has to be tested against the case that VIOLATES it, not just the happy path — and
+our helpers set the two sides equal, so the suite couldn't see the violation.**
+
+### Bug A — tombstone id-squatting (HIGH, cross-member denial)
+The tombstone I added for Item 1 reopened the exact id-squatting hole Item 5 closed for
+tasks. `tombstones/{taskId}` create checked the body `uid` (`isSelf`) but never tied the
+doc id (`s_<uid>_<hash>`, derivable from public data) to the caller. A peer creates
+`tombstones/s_<victim>_<hash>` with their OWN uid in the body → passes → the victim's next
+sync sees `tombstone.exists()` and refuses to rebuild that card forever (update/delete
+denied). A silent, permanent, cross-member suppression of a member's sensed board. My rules
+tests only used same-uid tombstones, so they never exercised the squat.
+**Fix:** `sensedIdMatchesCreator(taskId, request.auth.uid)` on create — the guard the tasks
+rule already uses. **Guarded by:** a rules test where a peer squats a victim's tombstone id
+(red before, verified). Same-uid tombstoning still works.
+
+### Bug B — actorName sourced from the wrong place (MEDIUM, silent feed loss)
+The Item 5 `actorName` binding (rules require `actorName == members/<uid>.displayName`) was
+correct, but five pages + Home derived the name as `user.displayName ?? email-local`. A
+GitHub-auth member with no GitHub display name has their login on the member doc (`nameFor`
+falls to it) but sent the email local-part, so the rule rejected every event from them and
+`logPulse` swallowed it — a silent feed loss with no visible failure. (Home was worse: a
+`?? ''` fallback could publish a nameless recipe.)
+**Fix:** `AuthProvider` tracks the member doc's `displayName` live and exposes it as
+`memberName`; every actor uses `memberName ?? <old fallback>`. One source of truth, the
+exact string the rule enforces. Email users are unaffected (their value was already equal).
+**Guarded by:** rules tests that seed a member whose displayName (login) differs from the
+email local-part, asserting the local-part is rejected and the displayName accepted — the
+coverage the same-name helper hid.
+
+---
+
 ## Test-suite growth
 
 | Suite | Before | After |
 |---|---|---|
 | unit | 121 | 133 (+2 Unicode, +1 multi-PR cache, + concurrent additions) |
-| rules | 92 | 102 (+10: id-squat, tombstones, actorName forgery) |
+| rules | 92 | 112 (+10 hardening, +2 tombstone-squat, +2 actorName mismatch) |
 | integration | 0 | 7 (new project: items 1–4, +2 narration-cache) |
 | e2e | 49 | 49 (no regression from any fix) |
 

@@ -77,21 +77,22 @@ export function TaskCard({
       </div>
 
       {/* The status control. Present at every size — B6 is graded and drag alone fails
-          on touch. 44px min target on coarse pointers. */}
-      <label className="mt-3 block">
-        <span className="sr-only">Status for {task.title}</span>
-        <select
-          value={task.status}
-          onChange={(e) => onStatusChange(e.target.value as Status)}
-          className="min-h-11 w-full rounded border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none"
-        >
-          {STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {STATUS_LABELS[s]}
-            </option>
-          ))}
-        </select>
-      </label>
+          on touch. 44px min target on coarse pointers.
+
+          aria-label rather than a wrapping <label>: wrapping would fold every option's
+          text into the control's accessible name. */}
+      <select
+        aria-label={`Status for ${task.title}`}
+        value={task.status}
+        onChange={(e) => onStatusChange(e.target.value as Status)}
+        className="mt-3 min-h-11 w-full rounded border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none"
+      >
+        {STATUSES.map((s) => (
+          <option key={s} value={s}>
+            {STATUS_LABELS[s]}
+          </option>
+        ))}
+      </select>
     </article>
   );
 }

@@ -122,20 +122,20 @@ function FilterSelect({
   options: { value: string; label: string }[];
 }) {
   return (
-    <label className="contents">
-      <span className="sr-only">Filter by {label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        data-filter={label}
-        className="min-h-11 rounded border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    // aria-label, not a wrapping <label>: wrapping folds every option's text into the
+    // control's accessible name, so "assignee" would announce as the whole cohort roster.
+    <select
+      aria-label={`Filter by ${label}`}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      data-filter={label}
+      className="min-h-11 rounded border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none"
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
   );
 }

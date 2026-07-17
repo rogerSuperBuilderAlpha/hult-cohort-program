@@ -16,7 +16,7 @@ import { useAuth } from '@/lib/auth-context';
  * a blind redirect to /signin makes the two pages bounce off each other forever.
  */
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -33,9 +33,14 @@ export default function Home() {
       <p className="max-w-sm text-sm text-zinc-400">
         Signed in as {user.email}. The cohort feed lands here next.
       </p>
-      <a href="/signin" className="mt-2 text-xs text-zinc-500 underline">
+      <button
+        // Has to sign out first. Linking straight to /signin was a dead end: that page
+        // sends signed-in users back here, so the two just bounced off each other.
+        onClick={() => signOut().then(() => router.replace('/signin'))}
+        className="mt-2 text-xs text-zinc-500 underline"
+      >
         sign in as someone else
-      </a>
+      </button>
     </main>
   );
 }

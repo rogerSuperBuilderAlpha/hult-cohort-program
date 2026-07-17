@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { cloneElement, useEffect, useId, useRef } from 'react';
 
 /**
  * Shared primitives. Deliberately small — the spec's visual language is two weights, four
@@ -52,6 +52,17 @@ export function Modal({
   );
 }
 
+/**
+ * A labelled control.
+ *
+ * Explicit htmlFor/id association, not a wrapping <label>. Wrapping looks tidier but
+ * computes the accessible name from the label's whole text content — which swallows both
+ * the hint and, for a <select>, every option. The project picker announced itself as
+ * "Project ProbeProj Shape 17..." and the date field as "Due Optional. Red if past."
+ *
+ * The hint is attached with aria-describedby instead, so it's still announced — after the
+ * name, as description, which is what it is.
+ */
 export function Field({
   label,
   hint,
@@ -59,14 +70,23 @@ export function Field({
 }: {
   label: string;
   hint?: string;
-  children: React.ReactNode;
+  children: React.ReactElement<{ id?: string; 'aria-describedby'?: string }>;
 }) {
+  const id = useId();
+  const hintId = `${id}-hint`;
+
   return (
-    <label className="block">
-      <span className="mb-1 block text-xs text-zinc-500">{label}</span>
-      {children}
-      {hint && <span className="mt-1 block text-xs text-zinc-600">{hint}</span>}
-    </label>
+    <div>
+      <label htmlFor={id} className="mb-1 block text-xs text-zinc-500">
+        {label}
+      </label>
+      {cloneElement(children, { id, 'aria-describedby': hint ? hintId : undefined })}
+      {hint && (
+        <p id={hintId} className="mt-1 text-xs text-zinc-600">
+          {hint}
+        </p>
+      )}
+    </div>
   );
 }
 

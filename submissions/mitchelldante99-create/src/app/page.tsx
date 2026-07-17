@@ -20,7 +20,7 @@ export default function Home() {
       </h1>
       <p style={{ color: "var(--text-muted)" }} className="text-lg mb-10">
         The project management platform built by and for the Hult Cohort
-        Developer Program — accounts, projects, tasks, and status workflows
+        Developer Program: accounts, projects, tasks, and status workflows
         in one place.
       </p>
       <div className="flex items-center justify-center gap-4">

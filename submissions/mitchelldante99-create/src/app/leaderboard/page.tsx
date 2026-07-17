@@ -18,9 +18,10 @@ export default function LeaderboardPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
+    if (loading || !user) return;
     const unsub = subscribeLeaderboard(setUsers);
     return () => unsub();
-  }, []);
+  }, [loading, user]);
 
   if (loading || !user) return null;
 
@@ -33,7 +34,7 @@ export default function LeaderboardPage() {
       </p>
 
       {users.length === 0 ? (
-        <p style={{ color: "var(--text-muted)" }}>No activity yet — complete a task to appear here.</p>
+        <p style={{ color: "var(--text-muted)" }}>No activity yet. Complete a task to appear here.</p>
       ) : (
         <div className="flex flex-col gap-2">
           {users.map((u, i) => (

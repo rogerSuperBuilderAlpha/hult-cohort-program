@@ -23,9 +23,10 @@ export default function DashboardPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
+    if (loading || !user) return;
     const unsub = subscribeProjects(setProjects);
     return () => unsub();
-  }, []);
+  }, [loading, user]);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();

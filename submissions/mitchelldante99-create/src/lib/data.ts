@@ -5,10 +5,11 @@ import { Project, Task, TaskStatus, TaskPriority, UserProfile } from "./types";
 
 export function subscribeProjects(cb: (projects: Project[]) => void) {
   async function load() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("projects")
       .select("*")
       .order("created_at", { ascending: false });
+    if (error) console.error("subscribeProjects load error:", error);
     cb((data as Project[]) || []);
   }
   load();
@@ -58,11 +59,12 @@ export async function setProjectArchived(projectId: string, archived: boolean) {
 
 export function subscribeTasks(projectId: string, cb: (tasks: Task[]) => void) {
   async function load() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("tasks")
       .select("*")
       .eq("project_id", projectId)
       .order("created_at", { ascending: false });
+    if (error) console.error("subscribeTasks load error:", error);
     cb((data as Task[]) || []);
   }
   load();
@@ -135,10 +137,11 @@ export async function deleteTask(taskId: string) {
 
 export function subscribeLeaderboard(cb: (users: UserProfile[]) => void) {
   async function load() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .order("total_completed", { ascending: false });
+    if (error) console.error("subscribeLeaderboard load error:", error);
     cb((data as UserProfile[]) || []);
   }
   load();
@@ -155,10 +158,11 @@ export function subscribeLeaderboard(cb: (users: UserProfile[]) => void) {
 
 export function subscribeAllUsers(cb: (users: UserProfile[]) => void) {
   async function load() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .order("display_name", { ascending: true });
+    if (error) console.error("subscribeAllUsers load error:", error);
     cb((data as UserProfile[]) || []);
   }
   load();

@@ -14,6 +14,7 @@ import {
   setProjectArchived,
 } from "@/lib/data";
 import { Task, TaskStatus, TaskPriority, STATUS_ORDER, STATUS_LABELS, UserProfile, Project } from "@/lib/types";
+import { Calendar, UserRound, Flag } from "lucide-react";
 import TaskCard from "@/components/TaskCard";
 
 export default function ProjectPage() {
@@ -44,16 +45,19 @@ export default function ProjectPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
+    if (loading || !user) return;
     const unsub = subscribeTasks(id, setTasks);
     return () => unsub();
-  }, [id]);
+  }, [id, loading, user]);
 
   useEffect(() => {
+    if (loading || !user) return;
     const unsub = subscribeAllUsers(setUsers);
     return () => unsub();
-  }, []);
+  }, [loading, user]);
 
   useEffect(() => {
+    if (loading || !user) return;
     const unsub = subscribeProjects((projects) => {
       const p = projects.find((p) => p.id === id) || null;
       setProject(p);
@@ -207,21 +211,55 @@ export default function ProjectPage() {
             onChange={(e) => setTaskDesc(e.target.value)}
             rows={2}
           />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <select value={priority} onChange={(e) => setPriority(e.target.value as TaskPriority)}>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
-            </select>
-            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-            <select value={assigneeUid} onChange={(e) => setAssigneeUid(e.target.value)}>
-              <option value="">Unassigned</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.display_name}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium flex items-center gap-1.5" style={{ color: "var(--text-muted)" }}>
+                <Flag size={13} /> Priority
+              </label>
+              <div className="flex gap-1.5">
+                {(["High", "Medium", "Low"] as TaskPriority[]).map((p) => {
+                  const active = priority === p;
+                  const color =
+                    p === "High" ? "var(--priority-high)" : p === "Medium" ? "var(--priority-medium)" : "var(--priority-low)";
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPriority(p)}
+                      className="flex-1 py-2 rounded-lg text-xs font-semibold border transition-colors"
+                      style={{
+                        borderColor: active ? color : "var(--border)",
+                        background: active ? `${color}22` : "transparent",
+                        color: active ? color : "var(--text-muted)",
+                      }}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium flex items-center gap-1.5" style={{ color: "var(--text-muted)" }}>
+                <Calendar size={13} /> Due date
+              </label>
+              <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium flex items-center gap-1.5" style={{ color: "var(--text-muted)" }}>
+                <UserRound size={13} /> Assign to
+              </label>
+              <select value={assigneeUid} onChange={(e) => setAssigneeUid(e.target.value)}>
+                <option value="">Unassigned</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.display_name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <button
             type="submit"

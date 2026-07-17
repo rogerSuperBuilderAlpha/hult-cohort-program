@@ -4,14 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Project, Task } from "@/lib/types";
 import { subscribeTasks } from "@/lib/data";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function ProjectCard({ project }: { project: Project }) {
+  const { user, loading } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
+    if (loading || !user) return;
     const unsub = subscribeTasks(project.id, setTasks);
     return () => unsub();
-  }, [project.id]);
+  }, [project.id, loading, user]);
 
   const total = tasks.length;
   const done = tasks.filter((t) => t.status === "done").length;

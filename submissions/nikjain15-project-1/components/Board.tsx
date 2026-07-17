@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { setTaskStatus } from '@/lib/data';
 import { STATUS_LABELS, STATUSES, type Member, type Project, type Status, type Task } from '@/lib/types';
 import { TaskCard } from './TaskCard';
@@ -33,19 +33,58 @@ export function Board({
 }) {
   const [dragging, setDragging] = useState<Task | null>(null);
   const [dragOver, setDragOver] = useState<Status | null>(null);
-  // Celebration: the card pulses once when it lands in done. Motion is honoured only if
-  // the user hasn't asked for less of it (handled in CSS via motion-reduce).
-  const [celebrating, setCelebrating] = useState<string | null>(null);
+  const [celebrating, setCelebrating] = useState<ReadonlySet<string>>(new Set());
 
   const projectById = new Map(projects.map((p) => [p.id, p]));
   const memberByUid = new Map(members.map((m) => [m.uid, m]));
 
+  /**
+   * A card pulses once when it LANDS in done — however it got there.
+   *
+   * This used to fire only inside `move()`, the drag/select path, so the only completion
+   * that celebrated was one you performed by hand. The product's whole claim is that you
+   * don't move the cards: a merged PR that made the board build itself slid into done in
+   * total silence, and so did a teammate's card arriving over the listener. The best beat
+   * in the product was the one it didn't mark.
+   *
+   * Watching the data instead of the interaction covers all three at once — your move,
+   * Pulse's sync, and a peer's — because they all arrive the same way: as a status change
+   * on a snapshot. The manual case still feels instant; Firestore applies local writes
+   * before the server round-trip.
+   *
+   * `seen` is what stops a page load from celebrating every card already finished: it is
+   * seeded with the first delivery, so there is nothing to compare against and nothing
+   * pulses. Only a transition observed while you're watching counts.
+   *
+   * Compared during render rather than in an effect — React's documented shape for
+   * adjusting state when a prop changes, and it starts the pulse on the same render the
+   * card arrives rather than a frame later.
+   */
+  const [seen, setSeen] = useState<Task[]>(tasks);
+
+  if (tasks !== seen) {
+    const before = new Map(seen.map((t) => [t.id, t.status]));
+    const landed = tasks
+      .filter((t) => {
+        const was = before.get(t.id);
+        return was !== undefined && was !== 'done' && t.status === 'done';
+      })
+      .map((t) => t.id);
+
+    setSeen(tasks);
+    if (landed.length > 0) setCelebrating((current) => new Set([...current, ...landed]));
+  }
+
+  useEffect(() => {
+    if (celebrating.size === 0) return;
+    // 600ms matches the keyframe. Cleared on unmount so a state write can't land on a
+    // board that's already gone.
+    const timer = setTimeout(() => setCelebrating(new Set()), 600);
+    return () => clearTimeout(timer);
+  }, [celebrating]);
+
   async function move(task: Task, status: Status) {
     if (task.status === status) return;
-    if (status === 'done') {
-      setCelebrating(task.id);
-      setTimeout(() => setCelebrating(null), 600);
-    }
     await setTaskStatus(actor, task, status);
   }
 
@@ -100,7 +139,7 @@ export function Board({
               {column.map((task) => (
                 <div
                   key={task.id}
-                  className={celebrating === task.id ? 'motion-safe:animate-[pulse-once_600ms_ease-out]' : ''}
+                  className={celebrating.has(task.id) ? 'motion-safe:animate-[pulse-once_600ms_ease-out]' : ''}
                 >
                   <TaskCard
                     task={task}

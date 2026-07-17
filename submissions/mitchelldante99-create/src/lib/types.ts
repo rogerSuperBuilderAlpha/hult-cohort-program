@@ -18,6 +18,7 @@ export interface Project {
   created_by: string;
   created_by_name: string;
   created_at: string;
+  archived: boolean;
 }
 
 export interface Task {

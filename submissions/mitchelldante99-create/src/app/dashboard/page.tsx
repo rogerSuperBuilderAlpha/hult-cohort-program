@@ -16,6 +16,8 @@ export default function DashboardPage() {
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const [showArchived, setShowArchived] = useState(false);
+
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
@@ -59,6 +61,16 @@ export default function DashboardPage() {
         </button>
       </div>
 
+      <label className="flex items-center gap-2 text-xs mb-4" style={{ color: "var(--text-muted)" }}>
+        <input
+          type="checkbox"
+          checked={showArchived}
+          onChange={(e) => setShowArchived(e.target.checked)}
+          className="w-auto"
+        />
+        Show archived projects
+      </label>
+
       {showForm && (
         <form
           onSubmit={handleCreate}
@@ -88,7 +100,7 @@ export default function DashboardPage() {
         </form>
       )}
 
-      {projects.length === 0 ? (
+      {projects.filter((p) => showArchived || !p.archived).length === 0 ? (
         <div
           className="text-center py-16 rounded-xl border border-dashed"
           style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
@@ -97,9 +109,11 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {projects.map((p) => (
-            <ProjectCard key={p.id} project={p} />
-          ))}
+          {projects
+            .filter((p) => showArchived || !p.archived)
+            .map((p) => (
+              <ProjectCard key={p.id} project={p} />
+            ))}
         </div>
       )}
     </div>

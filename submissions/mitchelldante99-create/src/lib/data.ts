@@ -38,8 +38,19 @@ export async function createProject(
   if (error) throw error;
 }
 
-export async function deleteProject(projectId: string) {
-  const { error } = await supabase.from("projects").delete().eq("id", projectId);
+export async function updateProject(
+  projectId: string,
+  updates: { name?: string; description?: string }
+) {
+  const { error } = await supabase.from("projects").update(updates).eq("id", projectId);
+  if (error) throw error;
+}
+
+export async function setProjectArchived(projectId: string, archived: boolean) {
+  const { error } = await supabase
+    .from("projects")
+    .update({ archived })
+    .eq("id", projectId);
   if (error) throw error;
 }
 
@@ -97,75 +108,30 @@ export async function createTask(
 }
 
 export async function updateTaskStatus(
-  projectId: string,
   taskId: string,
-  status: TaskStatus,
-  actingUserUid: string
+  status: TaskStatus
 ) {
+  if (status === "done") {
+    const { error } = await supabase.rpc("complete_task", { p_task_id: taskId });
+    if (error) throw error;
+    return;
+  }
+
   const { error } = await supabase
     .from("tasks")
-    .update({
-      status,
-      completed_at: status === "done" ? new Date().toISOString() : null,
-    })
+    .update({ status, completed_at: null })
     .eq("id", taskId);
   if (error) throw error;
-
-  if (status === "done") {
-    await bumpStreak(actingUserUid);
-  }
 }
 
-export async function deleteTask(projectId: string, taskId: string) {
+export async function deleteTask(taskId: string) {
   const { error } = await supabase.from("tasks").delete().eq("id", taskId);
   if (error) throw error;
 }
 
-// ---------- Streaks / motivation ----------
-
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function daysBetween(a: string, b: string) {
-  const dA = new Date(a + "T00:00:00");
-  const dB = new Date(b + "T00:00:00");
-  return Math.round((dB.getTime() - dA.getTime()) / 86400000);
-}
-
-async function bumpStreak(uid: string) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", uid)
-    .single();
-  if (!profile) return;
-
-  const today = todayStr();
-
-  if (profile.last_completed_date === today) {
-    await supabase
-      .from("profiles")
-      .update({ total_completed: profile.total_completed + 1 })
-      .eq("id", uid);
-    return;
-  }
-
-  let newStreak = 1;
-  if (profile.last_completed_date) {
-    const gap = daysBetween(profile.last_completed_date, today);
-    if (gap === 1) newStreak = profile.streak + 1;
-  }
-
-  await supabase
-    .from("profiles")
-    .update({
-      streak: newStreak,
-      last_completed_date: today,
-      total_completed: profile.total_completed + 1,
-    })
-    .eq("id", uid);
-}
+// Streak bumping now happens server-side in the complete_task() Postgres
+// function (see supabase_migration_2.sql) so clients can't self-report
+// fake completions by writing directly to profiles.streak/total_completed.
 
 export function subscribeLeaderboard(cb: (users: UserProfile[]) => void) {
   async function load() {

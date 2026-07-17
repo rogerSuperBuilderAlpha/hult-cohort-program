@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import {
@@ -10,6 +10,8 @@ import {
   deleteTask,
   subscribeAllUsers,
   subscribeProjects,
+  updateProject,
+  setProjectArchived,
 } from "@/lib/data";
 import { Task, TaskStatus, TaskPriority, STATUS_ORDER, STATUS_LABELS, UserProfile, Project } from "@/lib/types";
 import TaskCard from "@/components/TaskCard";
@@ -31,6 +33,12 @@ export default function ProjectPage() {
   const [dueDate, setDueDate] = useState("");
   const [assigneeUid, setAssigneeUid] = useState("");
 
+  const [assigneeFilter, setAssigneeFilter] = useState("");
+
+  const [editingProject, setEditingProject] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
@@ -47,10 +55,20 @@ export default function ProjectPage() {
 
   useEffect(() => {
     const unsub = subscribeProjects((projects) => {
-      setProject(projects.find((p) => p.id === id) || null);
+      const p = projects.find((p) => p.id === id) || null;
+      setProject(p);
+      if (p) {
+        setEditName(p.name);
+        setEditDesc(p.description);
+      }
     });
     return () => unsub();
   }, [id]);
+
+  const visibleTasks = useMemo(
+    () => (assigneeFilter ? tasks.filter((t) => t.assignee_id === assigneeFilter) : tasks),
+    [tasks, assigneeFilter]
+  );
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -78,32 +96,103 @@ export default function ProjectPage() {
     }
   }
 
+  async function handleSaveProject(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editName.trim()) return;
+    await updateProject(id, { name: editName.trim(), description: editDesc.trim() });
+    setEditingProject(false);
+  }
+
+  const isOwner = project && user && project.created_by === user.id;
+
   if (loading || !user) return null;
 
   return (
     <div className="max-w-5xl mx-auto px-5 py-10">
       <div className="flex items-start justify-between mb-6 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">{project?.name || "Project"}</h1>
-          {project?.description && (
-            <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-              {project.description}
-            </p>
+        <div className="flex-1 min-w-0">
+          {editingProject ? (
+            <form onSubmit={handleSaveProject} className="flex flex-col gap-2 max-w-md">
+              <input value={editName} onChange={(e) => setEditName(e.target.value)} required />
+              <textarea
+                value={editDesc}
+                onChange={(e) => setEditDesc(e.target.value)}
+                rows={2}
+                placeholder="Description"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  style={{ background: "var(--accent)", color: "#fff" }}
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingProject(false)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold border"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold">{project?.name || "Project"}</h1>
+                {project?.archived && (
+                  <span
+                    className="text-[10px] font-bold uppercase px-2 py-0.5 rounded"
+                    style={{ background: "var(--surface)", color: "var(--text-muted)" }}
+                  >
+                    Archived
+                  </span>
+                )}
+              </div>
+              {project?.description && (
+                <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+                  {project.description}
+                </p>
+              )}
+            </>
           )}
         </div>
-        <button
-          onClick={() => setShowForm((s) => !s)}
-          className="px-4 py-2 rounded-lg font-semibold text-sm shrink-0"
-          style={{ background: "var(--accent)", color: "#fff" }}
-        >
-          {showForm ? "Cancel" : "+ New task"}
-        </button>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {isOwner && !editingProject && (
+            <>
+              <button
+                onClick={() => setEditingProject(true)}
+                className="px-3 py-2 rounded-lg font-semibold text-xs border"
+                style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => setProjectArchived(id, !project?.archived)}
+                className="px-3 py-2 rounded-lg font-semibold text-xs border"
+                style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
+              >
+                {project?.archived ? "Unarchive" : "Archive"}
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => setShowForm((s) => !s)}
+            className="px-4 py-2 rounded-lg font-semibold text-sm"
+            style={{ background: "var(--accent)", color: "#fff" }}
+          >
+            {showForm ? "Cancel" : "+ New task"}
+          </button>
+        </div>
       </div>
 
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="mb-8 p-5 rounded-xl border flex flex-col gap-3"
+          className="mb-6 p-5 rounded-xl border flex flex-col gap-3"
           style={{ background: "var(--surface)", borderColor: "var(--border)" }}
         >
           <input
@@ -145,9 +234,27 @@ export default function ProjectPage() {
         </form>
       )}
 
+      <div className="flex items-center gap-2 mb-5">
+        <label className="text-xs" style={{ color: "var(--text-muted)" }}>
+          Filter by assignee:
+        </label>
+        <select
+          value={assigneeFilter}
+          onChange={(e) => setAssigneeFilter(e.target.value)}
+          className="max-w-[200px]"
+        >
+          <option value="">Everyone</option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.display_name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {STATUS_ORDER.map((status) => {
-          const columnTasks = tasks.filter((t) => t.status === status);
+          const columnTasks = visibleTasks.filter((t) => t.status === status);
           return (
             <div key={status}>
               <h2
@@ -172,10 +279,8 @@ export default function ProjectPage() {
                     <TaskCard
                       key={task.id}
                       task={task}
-                      onStatusChange={(newStatus: TaskStatus) =>
-                        updateTaskStatus(id, task.id, newStatus, user.id)
-                      }
-                      onDelete={() => deleteTask(id, task.id)}
+                      onStatusChange={(newStatus: TaskStatus) => updateTaskStatus(task.id, newStatus)}
+                      onDelete={() => deleteTask(task.id)}
                     />
                   ))
                 )}

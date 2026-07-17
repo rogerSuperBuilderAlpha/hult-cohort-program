@@ -82,9 +82,12 @@ npm run dev:emulator          # terminal 2 — app pointed at the emulator
 ```
 app/
   signin/          GitHub OAuth + email/password. Errors in plain language, never a raw code.
-  board/           Three columns. Carousel under 768, grid at 768.
+  board/           Three columns. Carousel under 768, grid at 768. Builds itself from GitHub.
   projects/        List, archive toggle; [id] is the project's own board.
   recipes/         What the cohort figured out, indexed by problem; [id] is one, with Steal.
+  api/sense/       Reads the PUBLIC cohort repo server-side (holds GITHUB_TOKEN). Facts only.
+  api/narrate/     Calls the model server-side (holds ANTHROPIC_API_KEY). One sentence, or none.
+  api/opt-out/     Tombstone a handle. No auth, on purpose — leaving must not cost an account.
 lib/
   types.ts         Authoritative for what exists. Member, Project, Task, PulseEvent,
                    CohortMember, Evidence, GitHubLink, Recipe, Introduction.
@@ -92,6 +95,10 @@ lib/
   data.ts          Projects and tasks. setTaskStatus is the only path that logs events.
   recipes.ts       The bank's writes. recipe-index.ts is its pure ordering/search, split
                    out so unit tests can load it without live Firebase config.
+  sync.ts          The board building itself: GitHub facts -> cards. Reads server-side,
+                   writes in the browser as you (Firestore rules need a signed-in user and
+                   there is no Admin SDK, so the server has no identity to write as).
+  use-sync.ts      The trigger: on sign-in, then a 15-minute poll while the tab is open.
   sense.ts         Pure sensing logic: branch→title, dedupe, status inference, evidence
                    receipts, the standing-ask ladder, narration cache key, checkNarrative.
   auth-context.tsx Sign-in, and the member doc. handle is the GitHub login or null.
@@ -113,8 +120,15 @@ firestore.rules    The product's ethical promises, enforced.
 - **`checkNarrative` is the prompt-injection backstop.** Commit messages are attacker-controlled text
   that a model turns into a post published to 64 people with no human in the loop. A narrative may
   only ever describe the actor — injection's payoff is publishing an insult about someone else.
-- **Narration is cached by commit SHA range**, and members with no new commits are skipped entirely.
-  That's a budget requirement, not an optimisation: uncached is ~$524 over the pilot.
+- **Narration is cached by the identity of the work it describes**, and unchanged work is skipped
+  without a model call. That's a budget requirement, not an optimisation: uncached is ~$524 over the
+  pilot against ~$11 of credit. (The key is the PR set, not a commit range — this pipeline reads the
+  PR list, which carries no commit range without an extra call per PR.)
+- **The first sync is a backfill and logs nothing.** Your PR history isn't news; announcing last
+  week's merges to 64 people would present stale as live.
+- **Sensing only ever touches your own cards.** The task list is cohort-wide, so matching an inferred
+  title against all of it let one member's sync move another's card — found by adversarial review,
+  reproduced, fixed.
 
 ---
 
@@ -124,8 +138,8 @@ firestore.rules    The product's ethical promises, enforced.
 npm run typecheck
 npm run lint
 npm run test:unit          # 108 tests — pure logic, no network
-npm run test:rules         # 76 tests — security rules against the emulator
-npm run test:e2e           # Playwright, B1–B10, against the emulator
+npm run test:rules         # 92 tests — security rules against the emulator
+npm run test:e2e           # 40 tests — Playwright, B1–B10 + spec §4, on the emulator
 npm run test:e2e:smoke     # against the deployed URL
 npm run gate               # all of it
 ```

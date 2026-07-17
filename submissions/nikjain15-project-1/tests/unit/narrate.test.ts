@@ -40,7 +40,7 @@ async function run(overrides: Record<string, unknown> = {}) {
     material: ['Fix the OAuth redirect loop'],
     commitShas: ['aaa111', 'bbb222'],
     otherMembers: COHORT,
-    cachedKey: null,
+    narratedKeys: [],
     ...overrides,
   });
 }
@@ -54,9 +54,9 @@ beforeEach(() => {
 describe('the budget guard — this is what pays for the pilot', () => {
   it('makes NO model call when the commit range is unchanged', async () => {
     const { narrationCacheKey } = await import('@/lib/sense');
-    const cachedKey = narrationCacheKey('nikjain15', ['aaa111', 'bbb222']);
+    const narratedKeys = [narrationCacheKey('nikjain15', ['aaa111', 'bbb222'])];
 
-    const result = await run({ cachedKey });
+    const result = await run({ narratedKeys });
 
     expect(result).toEqual({ kind: 'skipped_cached' });
     // The assertion that matters: uncached narration is ~$524 over the pilot against

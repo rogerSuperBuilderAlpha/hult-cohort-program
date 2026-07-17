@@ -489,14 +489,21 @@ export function narrationCacheKey(handle: string, commitShas: readonly string[])
   return `${handle.toLowerCase()}:${sorted.join(',')}`;
 }
 
-/** No new commits → no model call at all. The skip that pays for the pilot. */
+/**
+ * Should this work be narrated, or has it already been?
+ *
+ * `narratedKeys` is the SET of everything Pulse has described for this member (a member
+ * ships many PRs; each is its own key). Skip when this work's key is already in the set —
+ * the skip that pays for the pilot. A single-slot cache remembered only the LAST work and
+ * re-billed every earlier one; membership in the set fixes that.
+ */
 export function shouldNarrate(
-  cachedKey: string | null,
+  narratedKeys: readonly string[],
   handle: string,
   commitShas: readonly string[]
 ): boolean {
   if (commitShas.length === 0) return false;
-  return cachedKey !== narrationCacheKey(handle, commitShas);
+  return !narratedKeys.includes(narrationCacheKey(handle, commitShas));
 }
 
 /* --------------------------------------------------- sensed card identity */

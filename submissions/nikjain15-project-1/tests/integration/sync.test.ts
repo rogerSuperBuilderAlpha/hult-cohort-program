@@ -32,7 +32,7 @@ function liveLink(user: TestUser, over: Partial<GitHubLink> = {}): GitHubLink {
     lastSyncedAt: new Date('2026-01-01') as never,
     narrationOptIn: false,
     createTasksFromBranches: true,
-    narrationCacheKey: null,
+    narratedWorkKeys: [],
     ...over,
   };
 }

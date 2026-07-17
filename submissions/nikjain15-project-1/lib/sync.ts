@@ -9,7 +9,7 @@ import {
   setTaskStatus,
   type Narration,
 } from './data';
-import { setNarrationCacheKey } from './github-link';
+import { markWorkNarrated } from './github-link';
 import { COHORT_REPO_NAME } from './github-repo';
 import type { NarrationResult } from './narrate';
 import { autoNarrationAllowed, branchToTitle, findDuplicate, inferStatus, narrationWanted, type GitHubSignal } from './sense';
@@ -269,7 +269,7 @@ async function narrateShip(
         // checkNarrative needs these to reject a sentence naming anyone but the actor —
         // injection's entire payoff.
         otherMembers: members.filter((m) => m.uid !== actor.uid).map(({ handle, displayName }) => ({ handle, displayName })),
-        cachedKey: link.narrationCacheKey ?? null,
+        narratedKeys: link.narratedWorkKeys ?? [],
       }),
     });
 
@@ -278,8 +278,9 @@ async function narrateShip(
     const result = (await res.json()) as NarrationResult;
     if (result.kind !== 'narrated') return { narrative: null, evidence, pending };
 
-    // Remember the work we just described, so an unchanged PR never costs another call.
-    await setNarrationCacheKey(actor.uid, result.cacheKey).catch(() => {});
+    // Remember THIS work — add it to the set, never overwrite. A member ships many PRs;
+    // remembering only the last re-bills and re-announces every earlier one.
+    await markWorkNarrated(actor.uid, result.cacheKey).catch(() => {});
     return { narrative: result.narrative, evidence, pending };
   } catch {
     return { narrative: null, evidence, pending };

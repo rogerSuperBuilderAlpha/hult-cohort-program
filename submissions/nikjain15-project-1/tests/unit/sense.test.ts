@@ -606,27 +606,40 @@ describe('shouldNarrate', () => {
   it('spends nothing when the commit range is unchanged', () => {
     // The budget guard: a cache miss on an unchanged range is a bug, not an
     // inefficiency — uncached, the pilot costs ~$524 against ~$11 of credit.
-    const cached = narrationCacheKey(handle, shas);
+    const cached = [narrationCacheKey(handle, shas)];
     expect(shouldNarrate(cached, handle, shas)).toBe(false);
   });
 
   it('spends nothing when the same commits arrive in a different order', () => {
-    const cached = narrationCacheKey(handle, ['abc123', 'def456']);
+    const cached = [narrationCacheKey(handle, ['abc123', 'def456'])];
     expect(shouldNarrate(cached, handle, ['def456', 'abc123'])).toBe(false);
   });
 
   it('spends nothing when there are no commits at all', () => {
-    expect(shouldNarrate(null, handle, [])).toBe(false);
-    expect(shouldNarrate(narrationCacheKey(handle, shas), handle, [])).toBe(false);
+    expect(shouldNarrate([], handle, [])).toBe(false);
+    expect(shouldNarrate([narrationCacheKey(handle, shas)], handle, [])).toBe(false);
   });
 
   it('narrates when a new commit lands', () => {
-    const cached = narrationCacheKey(handle, shas);
+    const cached = [narrationCacheKey(handle, shas)];
     expect(shouldNarrate(cached, handle, [...shas, 'f00ba7'])).toBe(true);
   });
 
   it('narrates when nothing has been cached yet', () => {
-    expect(shouldNarrate(null, handle, shas)).toBe(true);
+    expect(shouldNarrate([], handle, shas)).toBe(true);
+  });
+
+  it('remembers EVERY narrated PR, not just the last — the single-slot cost bug', () => {
+    // A member ships two PRs. Each is its own work key. A single-slot cache would keep
+    // only the second, so re-sensing the first would re-bill and re-announce it. The set
+    // remembers both, and still narrates genuinely-new work.
+    const pr40 = ['pr-40', 'merged'];
+    const pr50 = ['pr-50', 'merged'];
+    const narrated = [narrationCacheKey(handle, pr40), narrationCacheKey(handle, pr50)];
+
+    expect(shouldNarrate(narrated, handle, pr40)).toBe(false); // first PR still cached
+    expect(shouldNarrate(narrated, handle, pr50)).toBe(false); // second PR cached
+    expect(shouldNarrate(narrated, handle, ['pr-99', 'merged'])).toBe(true); // new work bills
   });
 });
 

@@ -54,8 +54,9 @@ export type NarrationInput = {
   commitShas: string[];
   /** Everyone else in the cohort — used to reject a narrative that names any of them. */
   otherMembers: { handle: string | null; displayName: string }[];
-  /** The SHA range already narrated for this member, if any. */
-  cachedKey: string | null;
+  /** Every work key already narrated for this member. A set, not one slot: a member ships
+   *  many PRs, and remembering only the last re-bills every earlier one. */
+  narratedKeys: string[];
 };
 
 export type NarrationResult =
@@ -82,9 +83,9 @@ function getClient(): Anthropic | null {
  * numbers, filenames) come from the API and can't be wrong, so they're always publishable.
  */
 export async function narrate(input: NarrationInput): Promise<NarrationResult> {
-  // The budget guard, first: an unchanged SHA range costs nothing. A cache miss on an
-  // unchanged range is a bug, not an inefficiency.
-  if (!shouldNarrate(input.cachedKey, input.handle, input.commitShas)) {
+  // The budget guard, first: work already in the narrated set costs nothing. A cache miss
+  // on unchanged work is a bug, not an inefficiency.
+  if (!shouldNarrate(input.narratedKeys, input.handle, input.commitShas)) {
     return { kind: 'skipped_cached' };
   }
 

@@ -28,7 +28,7 @@ export default function ProjectDetailPage() {
 function ProjectDetail() {
   // Client component: params is a plain object, not the promise a server component gets.
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, memberName } = useAuth();
   const { tasks, projects, members, ready } = useCohort();
   const filters = useFilters();
 
@@ -39,10 +39,11 @@ function ProjectDetail() {
   const actor = useMemo(
     () => ({
       uid: user!.uid,
-      name: user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+      // From the member doc, not the Firebase User — the rules check actorName against it.
+      name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
       photoURL: user!.photoURL,
     }),
-    [user]
+    [user, memberName]
   );
 
   const project = projects.find((p) => p.id === id);

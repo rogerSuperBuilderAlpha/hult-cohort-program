@@ -25,7 +25,7 @@ export default function RecipesPage() {
 }
 
 function RecipesView() {
-  const { user } = useAuth();
+  const { user, memberName } = useAuth();
   const { members } = useCohort();
   const { recipes, ready } = useRecipes();
   const router = useRouter();
@@ -39,10 +39,11 @@ function RecipesView() {
   const actor = useMemo(
     () => ({
       uid: user!.uid,
-      name: user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+      // From the member doc, not the Firebase User — the rules check actorName against it.
+      name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
       photoURL: user!.photoURL,
     }),
-    [user]
+    [user, memberName]
   );
 
   const memberByUid = useMemo(() => new Map(members.map((m) => [m.uid, m])), [members]);

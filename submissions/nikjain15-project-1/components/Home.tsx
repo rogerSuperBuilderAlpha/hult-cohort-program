@@ -63,7 +63,7 @@ const MOTION_CSS = `
 /* ----------------------------------------------------------------------- view */
 
 function HomeView() {
-  const { user } = useAuth();
+  const { user, memberName } = useAuth();
   const uid = user!.uid;
 
   const { tasks, projects, members, ready } = useCohort();
@@ -149,7 +149,13 @@ function HomeView() {
 
         {offer && (
           <RecipeOfferCard
-            actor={{ uid, name: user!.displayName ?? '', photoURL: user!.photoURL }}
+            actor={{
+              uid,
+              // Member doc, not the User: the rules reject a mismatched actorName, and the
+              // old `?? ''` fallback could even publish a nameless recipe. See auth-context.
+              name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+              photoURL: user!.photoURL,
+            }}
             offer={offer}
             onGone={() => setOfferGone(true)}
           />

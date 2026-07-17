@@ -11,13 +11,22 @@ import {
   updateProfile,
   type User,
 } from 'firebase/auth';
-import { doc, runTransaction, serverTimestamp } from 'firebase/firestore';
+import { doc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from './firebase';
 import { logPulse } from './pulse';
 
 type AuthContextValue = {
   user: User | null;
+  /**
+   * The actor's display name as recorded on their MEMBER DOC — the exact value
+   * firestore.rules checks `actorName` against on every pulse write. Every write must use
+   * this, never `user.displayName ?? email-local`: the two drift for a GitHub user with no
+   * GitHub display name (login on the doc, email-local on the User), and that drift made the
+   * pulse rule silently reject their events while `logPulse` swallowed the error. null until
+   * the member doc listener delivers.
+   */
+  memberName: string | null;
   loading: boolean;
   signInWithGithub: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -48,6 +57,17 @@ let pendingSignupName: string | null = null;
  * because updateProfile() hasn't propagated to `User` by the time onAuthStateChanged
  * fires — without it, someone who signs up as "Grace Hopper" is called "grace".
  */
+/**
+ * Live-subscribe to a member's own displayName. Module-level so the state update stays out
+ * of the effect body (the codebase's `subscribeTo*` shape), and so the exact string the
+ * pulse rules enforce is what every write attributes itself with.
+ */
+function watchMemberName(uid: string, onName: (name: string | null) => void): () => void {
+  return onSnapshot(doc(db, 'members', uid), (snap) =>
+    onName((snap.data()?.displayName as string | undefined) ?? null)
+  );
+}
+
 function nameFor(user: User, githubLogin?: string | null, preferred?: string | null): string {
   return (
     preferred?.trim() ||
@@ -132,6 +152,7 @@ async function ensureMember(user: User, githubLogin?: string | null, preferredNa
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [memberName, setMemberName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(
@@ -144,8 +165,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  // Track the member doc's displayName live, so every write attributes itself with the
+  // exact string the rules enforce. Created in ensureMember before this runs, so by the
+  // time anyone ships a card it's populated; the fallback in useAuth consumers only covers
+  // the first paint. The listener lives in a module fn so the state update stays out of the
+  // effect body — same shape as the lib `subscribeTo*` helpers.
+  useEffect(() => {
+    if (!user) return;
+    return watchMemberName(user.uid, setMemberName);
+  }, [user]);
+
   const value: AuthContextValue = {
     user,
+    memberName,
     loading,
     signInWithGithub: async () => {
       const result = await signInWithPopup(auth, new GithubAuthProvider());

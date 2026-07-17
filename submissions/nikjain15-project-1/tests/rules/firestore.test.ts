@@ -302,6 +302,32 @@ describe('pulse — nobody can fake, edit, or erase someone else\'s heartbeat', 
     );
   });
 
+  // The coverage gap staff review found: every test above happens to give the member doc
+  // and the event the SAME name string, so none of them exercised a legitimate member
+  // whose canonical name differs from a naively-derived one. A GitHub-auth member with no
+  // GitHub display name has their login on the member doc (nameFor falls to it), but the
+  // client used to send the email local-part — so the rule silently rejected every event
+  // and logPulse swallowed it. These pin both halves of the contract the client fix relies on.
+  it('rejects the email-local-part name the old client sent (the silent-drop bug)', async () => {
+    await seed(env, `members/${ALICE}`, member(ALICE, {
+      displayName: 'nikjain15',
+      email: 'nikjain@example.com',
+    }));
+    await assertFails(
+      addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE, { actorName: 'nikjain' })),
+    );
+  });
+
+  it('accepts the member-doc displayName the fixed client now sends', async () => {
+    await seed(env, `members/${ALICE}`, member(ALICE, {
+      displayName: 'nikjain15',
+      email: 'nikjain@example.com',
+    }));
+    await assertSucceeds(
+      addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE, { actorName: 'nikjain15' })),
+    );
+  });
+
   it('lets a signed-in member read the cohort feed', async () => {
     await bobsEvent();
     await assertSucceeds(getDocs(collection(as(env, ALICE), 'pulse')));

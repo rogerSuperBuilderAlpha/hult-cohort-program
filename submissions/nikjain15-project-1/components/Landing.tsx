@@ -279,6 +279,13 @@ function Disclosure() {
         </Link>
         .
       </p>
+      {/* Stated because the page collects it. A disclosure that quietly omits the one thing
+          a reader wouldn't guess is worth less than no disclosure at all. */}
+      <p className="mt-2 text-xs leading-relaxed text-zinc-600">
+        This site counts page views in aggregate (Vercel Analytics) so we know whether anyone
+        opened it. No cookies, no profiles, and nothing that identifies you — Pulse never tracks
+        who visits or who&rsquo;s been quiet.
+      </p>
     </footer>
   );
 }

@@ -657,6 +657,25 @@ describe('tombstones — deletion sticks, and only you can record your own', () 
     await assertFails(deleteDoc(doc(as(env, ALICE), `tombstones/${id}`)));
     await assertFails(updateDoc(doc(as(env, ALICE), `tombstones/${id}`), { uid: BOB }));
   });
+
+  // The squat, exactly as staff review found it: BOB writes his OWN uid (so `isSelf`
+  // passes) into a tombstone whose DOC ID is ALICE's sensed card. Without tying the id to
+  // the caller, this suppresses ALICE's card on every future sync, permanently and
+  // silently. The earlier tests only used same-uid tombstones, which is why they missed it.
+  it("denies a peer squatting a victim's tombstone id with their own uid", async () => {
+    await assertFails(
+      setDoc(doc(as(env, BOB), `tombstones/${id}`), { uid: BOB, createdAt: new Date() }),
+    );
+  });
+
+  it('lets that same peer tombstone their OWN sensed card', async () => {
+    await assertSucceeds(
+      setDoc(doc(as(env, BOB), `tombstones/s_${BOB}_deadbeef`), {
+        uid: BOB,
+        createdAt: new Date(),
+      }),
+    );
+  });
 });
 
 /* ==========================================================================

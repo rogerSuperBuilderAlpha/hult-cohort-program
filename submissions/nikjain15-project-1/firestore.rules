@@ -148,10 +148,18 @@ service cloud.firestore {
     // creator, so `uid` here is their own. Permanent, like optOuts: a tombstone that
     // anyone could lift is not a tombstone. Un-deleting a card is a deliberate manual
     // rebuild (create a fresh manual card), never an update to this row.
+    // The doc id is the sensed task id (`s_<uid>_<hash>`), derivable from public data, so
+    // the id must be tied to the caller exactly as tasks are — otherwise a peer creates
+    // `tombstones/s_<victim>_<hash>` with their OWN uid in the body (which `isSelf` happily
+    // accepts) and the victim's next sync sees `tombstone.exists()` and refuses to rebuild
+    // that card forever. Update/delete are denied, so the suppression is permanent: a silent,
+    // cross-member denial of a member's sensed board. `sensedIdMatchesCreator` closes it, the
+    // same guard the tasks rule already uses.
     match /tombstones/{taskId} {
       allow read: if signedIn();
       allow create: if isSelf(request.resource.data.uid)
-                    && request.resource.data.keys().hasOnly(['uid', 'createdAt']);
+                    && request.resource.data.keys().hasOnly(['uid', 'createdAt'])
+                    && sensedIdMatchesCreator(taskId, request.auth.uid);
       allow update, delete: if false;
     }
 

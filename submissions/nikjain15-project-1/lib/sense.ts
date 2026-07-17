@@ -111,6 +111,21 @@ export function titlesMatch(a: string, b: string): boolean {
   return na.length > 0 && na === normaliseTitle(b);
 }
 
+/**
+ * How many files two sets of paths share.
+ *
+ * The weak broker signal (LAYER-2-3-DESIGN.md, rung 2): "their problem touches files
+ * you've shipped." GitHub paths are case-sensitive and already normalised, so this is an
+ * exact-path intersection — a fuzzy match here would claim knowledge nobody has. Empty
+ * paths never count, so a file with no name can't manufacture an overlap.
+ */
+export function fileOverlap(a: readonly string[], b: readonly string[]): number {
+  const set = new Set(a.filter(Boolean));
+  let n = 0;
+  for (const f of b) if (f && set.has(f)) n += 1;
+  return n;
+}
+
 /** Find an existing task an inferred title should update rather than duplicate. */
 export function findDuplicate<T extends { id: string; title: string }>(
   candidates: readonly T[],

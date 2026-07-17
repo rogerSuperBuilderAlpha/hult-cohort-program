@@ -34,11 +34,16 @@ Ordered. Higher wins.
 7. **Never present a stale feed as live.** Degrade loudly.
 8. **No secrets committed.** `.env*` is gitignored. Never `NEXT_PUBLIC_` a secret — that prefix ships
    it to every browser.
+9. **Every user-facing string follows [VOICE.md](VOICE.md).** Tagline is "the board that
+   updates itself" — never "the cohort's heartbeat". Empty states invite, receipts stay
+   verbatim, spans read human ("about 7 days from start to finish"). Grep `tests/` before
+   changing any string — several are pinned. When voice and an ethics rule above collide,
+   the ethic wins.
 
 ## Where the bodies are buried
 
 - **`Member.handle` is the GitHub login or `null`.** Never derive it from an email local-part. That
-  bug shipped once: `nikjain1588@gmail.com` → handle `nikjain1588`, but the login is `nikjain15`, so
+  bug shipped once: `dev-1588@example.com` → handle `nikjain1588`, but the login is `nikjain15`, so
   the join against the cohort repo silently never matched. A guessed handle can also collide with a
   real member's login and attach one person's work to another. The login is only on
   `getAdditionalUserInfo(result)?.username` at sign-in time — grab it there or it's gone.

@@ -22,7 +22,7 @@ function formatDue(dueDate: NonNullable<Task['dueDate']>): string {
  */
 function Receipt({ task }: { task: Task }) {
   if (task.source === 'manual') {
-    return <p className="mt-1 text-xs text-zinc-600">you · by hand</p>;
+    return <p className="mt-1 text-xs text-zinc-400">you · by hand</p>;
   }
 
   const line = task.evidence ? formatEvidence(task.evidence) : '';
@@ -37,6 +37,7 @@ export function TaskCard({
   task,
   project,
   assignee,
+  pulseDid,
   onOpen,
   onStatusChange,
   onDragStart,
@@ -44,6 +45,11 @@ export function TaskCard({
   task: Task;
   project?: { name: string };
   assignee?: Member;
+  /**
+   * One-time "Pulse did this" line for a sensed card the owner hasn't seen yet — the
+   * self-build made visible. Static highlight, facts only, decided by the Board.
+   */
+  pulseDid?: string;
   onOpen: () => void;
   onStatusChange: (status: Status) => void;
   onDragStart?: (e: React.DragEvent) => void;
@@ -56,19 +62,22 @@ export function TaskCard({
       // real control and drag is the enhancement. Never the only path.
       draggable
       onDragStart={onDragStart}
-      className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 transition-colors hover:border-zinc-700 [@media(pointer:coarse)]:[-webkit-user-drag:none]"
+      className={`rounded-lg border bg-zinc-900 p-3 transition-colors [@media(pointer:coarse)]:[-webkit-user-drag:none] ${
+        pulseDid ? 'border-emerald-500/60' : 'border-zinc-800 hover:border-zinc-700'
+      }`}
     >
       <button onClick={onOpen} className="w-full text-left">
         <h3 className="text-sm text-zinc-100">{task.title}</h3>
+        {pulseDid && <p className="mt-1 text-xs font-medium text-emerald-400">{pulseDid}</p>}
         <Receipt task={task} />
       </button>
 
       <div className="mt-3 flex items-center gap-2">
-        {project && <span className="truncate text-xs text-zinc-500">{project.name}</span>}
+        {project && <span className="truncate text-xs text-zinc-400">{project.name}</span>}
 
         <div className="ml-auto flex items-center gap-2">
           {task.dueDate && (
-            <span className={`text-xs ${overdue ? 'text-red-400' : 'text-zinc-500'}`}>
+            <span className={`text-xs ${overdue ? 'text-red-400' : 'text-zinc-400'}`}>
               {formatDue(task.dueDate)}
             </span>
           )}
@@ -85,7 +94,7 @@ export function TaskCard({
         aria-label={`Status for ${task.title}`}
         value={task.status}
         onChange={(e) => onStatusChange(e.target.value as Status)}
-        className="mt-3 min-h-11 w-full rounded border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none"
+        className="mt-3 min-h-11 w-full rounded border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
       >
         {STATUSES.map((s) => (
           <option key={s} value={s}>

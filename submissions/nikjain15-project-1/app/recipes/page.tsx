@@ -17,7 +17,7 @@ export default function RecipesPage() {
   return (
     <AppShell>
       {/* useSearchParams suspends; without this the whole route bails to client-only. */}
-      <Suspense fallback={<p className="text-sm text-zinc-500">Loading…</p>}>
+      <Suspense fallback={<p className="text-sm text-zinc-400">Loading…</p>}>
         <RecipesView />
       </Suspense>
     </AppShell>
@@ -67,7 +67,7 @@ function RecipesView() {
       <div className="mb-4 flex flex-wrap items-start gap-3">
         <div>
           <h1 className="text-sm font-medium text-zinc-100">What the cohort has figured out</h1>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-zinc-400">
             {ready ? (
               <>
                 {recipes.length} {recipes.length === 1 ? 'recipe' : 'recipes'} · {steals}{' '}
@@ -102,7 +102,7 @@ function RecipesView() {
               className={`min-h-11 rounded px-3 text-xs transition-colors ${
                 sort === option
                   ? 'bg-zinc-900 text-zinc-100'
-                  : 'text-zinc-500 hover:text-zinc-200'
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               {option === 'unstuck' ? 'most unstuck' : 'newest'}
@@ -112,11 +112,11 @@ function RecipesView() {
       </div>
 
       {!ready ? (
-        <p className="text-sm text-zinc-500">Loading recipes…</p>
+        <p className="text-sm text-zinc-400">Loading recipes…</p>
       ) : visible.length === 0 ? (
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/30 px-6 py-12 text-center">
           {term ? (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-zinc-400">
               Nothing banked for “{term}” yet. You might be the first one here.
             </p>
           ) : (
@@ -124,7 +124,7 @@ function RecipesView() {
             // than an apology for an empty table.
             <>
               <p className="text-sm text-zinc-300">Nothing banked yet.</p>
-              <p className="mx-auto mt-2 max-w-md text-sm text-zinc-500">
+              <p className="mx-auto mt-2 max-w-md text-sm text-zinc-400">
                 When you finish something hard, keep what worked — someone else is about to
                 hit it.
               </p>
@@ -176,9 +176,9 @@ function RecipeRow({
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
         {author && <Avatar member={author} size={16} />}
-        <span className="text-xs text-zinc-600">{authorName}</span>
+        <span className="text-xs text-zinc-400">{authorName}</span>
         {recipe.turns > 0 && (
-          <span className="text-xs text-zinc-600">
+          <span className="text-xs text-zinc-400">
             {recipe.turns} {recipe.turns === 1 ? 'turn' : 'turns'}
           </span>
         )}

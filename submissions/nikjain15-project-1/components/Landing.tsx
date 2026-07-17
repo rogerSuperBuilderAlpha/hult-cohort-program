@@ -26,9 +26,20 @@ export function Landing({ snapshot }: { snapshot: CohortSnapshot }) {
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-12 sm:py-20">
-      <header className="mb-10 flex items-center gap-2">
-        <span className="h-3 w-3 rounded-full bg-emerald-400" aria-hidden />
-        <span className="text-sm font-medium text-zinc-100">Pulse</span>
+      <header className="mb-10">
+        <div className="flex items-center gap-2">
+          <span className="h-3 w-3 rounded-full bg-emerald-400" aria-hidden />
+          <span className="text-sm font-medium text-zinc-100">Pulse</span>
+        </div>
+        {/* A stranger's first read must say what this IS before it shows off. Punchy and
+            concrete: the thing it kills (updating a board), the magic (it does it for you). */}
+        <h1 className="mt-4 text-2xl font-medium tracking-tight text-zinc-100">
+          The board that updates itself.
+        </h1>
+        <p className="mt-2 text-sm text-zinc-300">
+          Do the work — Pulse spots it, moves your card, and tells your team. Before
+          you&rsquo;ve even switched tabs.
+        </p>
       </header>
 
       {snapshot.degraded ? (
@@ -67,12 +78,12 @@ function Ask({
 }) {
   return (
     <section>
-      <h1 className="text-2xl font-medium tracking-tight text-zinc-100">
+      <h2 className="text-xl font-medium tracking-tight text-zinc-100">
         {shipped.length} people have shipped this week.
-      </h1>
+      </h2>
       <p className="mt-3 text-sm text-zinc-400">
-        Pulse already read the cohort&rsquo;s public repo. Tell it your GitHub handle and it will show
-        you your week — no account needed.
+        Pulse already read the cohort&rsquo;s public repo. Type your GitHub handle — it shows you
+        your week. No account needed.
       </p>
 
       <form
@@ -91,14 +102,14 @@ function Ask({
           onChange={(e) => setHandle(e.target.value)}
           placeholder="your-github-handle"
           autoComplete="off"
-          className="min-h-11 flex-1 rounded border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-600 focus:outline-none"
+          className="min-h-11 flex-1 rounded border border-zinc-800 bg-zinc-900 px-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-600 focus:outline-none"
         />
         <button
           type="submit"
           disabled={!handle.trim()}
           className="min-h-11 rounded bg-emerald-500 px-4 text-sm font-medium text-emerald-950 transition-colors hover:bg-emerald-400 disabled:opacity-40"
         >
-          Show me
+          Show me my week
         </button>
       </form>
     </section>
@@ -110,9 +121,9 @@ function Recognised({ me, shipped }: { me: PublicMember; shipped: PublicMember[]
 
   return (
     <section>
-      <h1 className="text-2xl font-medium tracking-tight text-zinc-100">
+      <h2 className="text-xl font-medium tracking-tight text-zinc-100">
         You&rsquo;re @{me.handle}. Here&rsquo;s your week already.
-      </h1>
+      </h2>
 
       <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
         <p className="text-sm text-zinc-100">
@@ -123,7 +134,7 @@ function Recognised({ me, shipped }: { me: PublicMember; shipped: PublicMember[]
         </p>
         {/* The receipt. Every claim Pulse makes shows its working. */}
         <p className="mt-1 text-xs text-emerald-500/80">{formatEvidence(me.evidence)}</p>
-        <p className="mt-2 text-xs text-zinc-600">
+        <p className="mt-2 text-xs text-zinc-400">
           last seen {relativeTime(new Date(me.lastSeenAt))}
         </p>
       </div>
@@ -140,7 +151,7 @@ function Recognised({ me, shipped }: { me: PublicMember; shipped: PublicMember[]
       </Link>
 
       {rest.length > 0 && (
-        <p className="mt-6 text-xs text-zinc-600">
+        <p className="mt-6 text-xs text-zinc-400">
           {rest.length} other {rest.length === 1 ? 'person' : 'people'} shipped this week too.
         </p>
       )}
@@ -167,9 +178,9 @@ function Unknown({
     <section>
       {/* Built as one string rather than JSX text around an expression: interpolating
           next to text let the separating space get eaten, and it rendered "8people". */}
-      <h1 className="text-2xl font-medium tracking-tight text-zinc-100">
+      <h2 className="text-xl font-medium tracking-tight text-zinc-100">
         {`${shipped.length} ${shipped.length === 1 ? 'person has' : 'people have'} shipped this week. You’re not one of them yet.`}
-      </h1>
+      </h2>
       <p className="mt-3 text-sm text-zinc-400">
         Pulse read the cohort&rsquo;s public repo and couldn&rsquo;t find anything from @{handle}. That
         isn&rsquo;t a judgement — it just means there&rsquo;s nothing public yet.
@@ -182,7 +193,7 @@ function Unknown({
         Sign in with GitHub — Pulse will find your work
       </Link>
 
-      <button onClick={onBack} className="ml-3 text-xs text-zinc-500 hover:text-zinc-300">
+      <button onClick={onBack} className="ml-3 text-xs text-zinc-400 hover:text-zinc-300">
         try another handle
       </button>
     </section>
@@ -199,9 +210,9 @@ function Degraded({ snapshot }: { snapshot: CohortSnapshot }) {
 
   return (
     <section>
-      <h1 className="text-2xl font-medium tracking-tight text-zinc-100">
+      <h2 className="text-xl font-medium tracking-tight text-zinc-100">
         Pulse can&rsquo;t read GitHub right now.
-      </h1>
+      </h2>
       {/* Degrade loudly. A stale feed presented as live is the exact lie every other
           board tells — the one this product exists to avoid. */}
       <p className="mt-3 text-sm text-zinc-400">
@@ -236,7 +247,7 @@ function Cohort({
 
   return (
     <section className="mt-12 border-t border-zinc-800 pt-6">
-      <h2 className="text-xs text-zinc-500">
+      <h2 className="text-xs text-zinc-400">
         The cohort so far · {shipped.length} of {enrolled}
       </h2>
 
@@ -246,12 +257,12 @@ function Cohort({
             <span className="text-sm text-zinc-100">@{m.handle}</span>
             {/* Facts. No narrative, no rank, no score — and nothing at all about the
                 people who haven't pushed. Pulse never shows the cohort who is quiet. */}
-            <span className="text-xs text-zinc-500">{formatEvidence(m.evidence)}</span>
+            <span className="text-xs text-zinc-400">{formatEvidence(m.evidence)}</span>
           </li>
         ))}
       </ul>
 
-      <p className="mt-4 text-xs text-zinc-600">
+      <p className="mt-4 text-xs text-zinc-400">
         Read from the cohort&rsquo;s public GitHub repo, {relativeTime(new Date(fetchedAt))}. Nothing
         here was typed in, and nothing here is invented.
       </p>
@@ -269,7 +280,7 @@ function Cohort({
 function Disclosure() {
   return (
     <footer className="mt-12 border-t border-zinc-800 pt-6">
-      <p className="text-xs leading-relaxed text-zinc-600">
+      <p className="text-xs leading-relaxed text-zinc-400">
         Pulse reads public activity from the cohort&rsquo;s GitHub repo to show the cohort&rsquo;s work.
         Facts only — AI summaries about a person appear only if they&rsquo;ve connected their own
         account. Built for the Hult Cohort Developer Program, <strong>non-commercial, for cohort use
@@ -281,7 +292,7 @@ function Disclosure() {
       </p>
       {/* Stated because the page collects it. A disclosure that quietly omits the one thing
           a reader wouldn't guess is worth less than no disclosure at all. */}
-      <p className="mt-2 text-xs leading-relaxed text-zinc-600">
+      <p className="mt-2 text-xs leading-relaxed text-zinc-400">
         This site counts page views in aggregate (Vercel Analytics) so we know whether anyone
         opened it. No cookies, no profiles, and nothing that identifies you — Pulse never tracks
         who visits or who&rsquo;s been quiet.

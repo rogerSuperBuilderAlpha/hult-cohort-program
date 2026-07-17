@@ -2,15 +2,17 @@
 
 import type { SenseResponse, SensedPull } from '@/app/api/sense/route';
 import {
+  announceSensedShip,
   createSensedTask,
   ensureRepoProject as ensureSharedRepoProject,
   setSensedStatusSilently,
   setTaskStatus,
+  type Narration,
 } from './data';
 import { setNarrationCacheKey } from './github-link';
 import { COHORT_REPO_NAME } from './github-repo';
 import type { NarrationResult } from './narrate';
-import { branchToTitle, findDuplicate, inferStatus, type GitHubSignal } from './sense';
+import { autoNarrationAllowed, branchToTitle, findDuplicate, inferStatus, narrationWanted, type GitHubSignal } from './sense';
 import type { Evidence, GitHubLink, Member, Project, Task } from './types';
 
 type Actor = { uid: string; name: string; photoURL: string | null };
@@ -123,7 +125,7 @@ export async function syncFromGitHub(input: {
         // Created lazily: a member with no sensed work gets no empty project they didn't ask
         // for, and the first card is what makes the project mean something.
         projectId ??= await ensureRepoProject(actor);
-        const { id, created: didCreate } = await createSensedTask(actor, {
+        const { id, created: didCreate, tombstoned } = await createSensedTask(actor, {
           projectId,
           title,
           description: `Pulse built this from ${pull.branch ? `\`${pull.branch}\`` : `PR #${pull.number}`}. Edit or delete it — it's yours.`,
@@ -132,15 +134,36 @@ export async function syncFromGitHub(input: {
           branch: pull.branch,
           dedupeKey: dedupeKeyFor(pull),
         });
-        // Only push to `fresh` (the same-run dedupe list) when we actually wrote — but
-        // count only a real write. A no-op means the card already existed, and telling the
-        // member "Pulse built 1 card" when it built zero is the receipt lying about itself.
+        // The member deleted this card on purpose. Respect it: don't rebuild (the
+        // transaction already refused), and don't add a phantom to the same-run dedupe
+        // list — a later pull matching this title would try to move a card that no longer
+        // exists.
+        if (tombstoned) continue;
+        // Only push to `fresh` (the same-run dedupe list) when the card really exists —
+        // but count only a real write. A no-op means the card already existed, and telling
+        // the member "Pulse built 1 card" when it built zero is the receipt lying about
+        // itself.
         fresh.push({ id, title, branch: pull.branch, status: inference.status } as Task);
-        if (didCreate) created += 1;
+        if (didCreate) {
+          created += 1;
+          // Fast PR: opened AND merged inside one poll window, so the card is born at
+          // `done` and the transition path never runs. Announce the ship here — unless
+          // this is the backfill, which is silent by design. Idempotent via `ship_<id>`.
+          if (!backfilling && inference.status === 'done') {
+            const narration = await narrateShip(input, pull, title);
+            await announceSensedShip(actor, { id, title, projectId: projectId!, evidence: evidenceFor(pull) }, narration);
+          }
+        }
         continue;
       }
 
       if (existing.status === inference.status) continue;
+
+      // The human wins. A card a person moved to `done` by hand must not be dragged back
+      // by a still-open PR on the next poll: Pulse advances cards, it never overrules a
+      // completion. (A genuine merge infers `done` too, so this only ever blocks a
+      // regression OUT of done, never a legitimate ship.)
+      if (existing.status === 'done' && inference.status !== 'done') continue;
 
       if (backfilling) {
         await setSensedStatusSilently(existing.id, inference.status);
@@ -202,6 +225,14 @@ function winningPulls(pulls: SensedPull[]): SensedPull[] {
  * Off is not the same as disconnected: sensing still runs, cards still move, and nothing
  * gets written about you.
  *
+ * **`ask_first` holds the sentence for approval — it does not skip it.** The consent
+ * screen promises "nothing goes out under your name until you say so." So `ask_first`
+ * still writes a sentence (this function returns it), but marks it `pending`: the ship
+ * publishes its FACTS immediately and parks the sentence as a proposal only the actor
+ * sees, on their Home, to approve or dismiss. `auto` publishes the sentence at once. Both
+ * require opt-in; the difference is the `pending` bit, routed downstream by
+ * `narrationFields`. This is the queue the consent screen always described.
+ *
  * Every failure lands on facts-only, silently. Never publish a suspect sentence, never
  * surface a scary error in the feed — the facts came from the API and cannot be wrong.
  *
@@ -213,9 +244,13 @@ async function narrateShip(
   input: { actor: Actor; link: GitHubLink | null; members: CohortNames },
   pull: SensedPull,
   title: string
-): Promise<{ narrative: string | null; evidence: Evidence | null } | undefined> {
+): Promise<Narration | undefined> {
   const { actor, link, members } = input;
-  if (!link?.narrationOptIn || !link.handle) return undefined;
+  // Generate for BOTH consenting modes — `auto` and `ask_first` both want a sentence
+  // written; they differ only in whether it publishes now or waits. `pending` carries that
+  // difference downstream, where one place routes it to `narrative` vs `proposedNarrative`.
+  if (!narrationWanted(link) || !link) return undefined;
+  const pending = !autoNarrationAllowed(link);
 
   const evidence = evidenceFor(pull);
   const workId = [`pr-${pull.number}`, pull.merged ? 'merged' : pull.state];
@@ -238,16 +273,16 @@ async function narrateShip(
       }),
     });
 
-    if (!res.ok) return { narrative: null, evidence };
+    if (!res.ok) return { narrative: null, evidence, pending };
 
     const result = (await res.json()) as NarrationResult;
-    if (result.kind !== 'narrated') return { narrative: null, evidence };
+    if (result.kind !== 'narrated') return { narrative: null, evidence, pending };
 
     // Remember the work we just described, so an unchanged PR never costs another call.
     await setNarrationCacheKey(actor.uid, result.cacheKey).catch(() => {});
-    return { narrative: result.narrative, evidence };
+    return { narrative: result.narrative, evidence, pending };
   } catch {
-    return { narrative: null, evidence };
+    return { narrative: null, evidence, pending };
   }
 }
 

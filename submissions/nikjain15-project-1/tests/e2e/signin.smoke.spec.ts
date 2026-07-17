@@ -25,8 +25,14 @@ test('registration is open — the sign-up path is reachable without an invite',
   await page.goto('/signin');
 
   // B1 requires all 65 accounts to work with no allowlist and no manual DB edits.
-  // If this link disappears, registration has quietly closed.
-  await expect(page.getByRole('link', { name: /create an account|sign up/i })).toBeVisible();
+  // If this control disappears, registration has quietly closed. A button, not a link:
+  // "Create an account" toggles the form in place rather than navigating, so button is
+  // the correct role — the old link-only locator failed against the real page.
+  await expect(
+    page
+      .getByRole('button', { name: /create an account|sign up/i })
+      .or(page.getByRole('link', { name: /create an account|sign up/i }))
+  ).toBeVisible();
 });
 
 test('no server-side secret reaches the browser bundle', async ({ page }) => {

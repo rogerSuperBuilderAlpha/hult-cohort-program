@@ -17,7 +17,10 @@ const BASE_URL = process.env.BASE_URL ?? DEPLOYED;
  *
  * A default that quietly writes fixtures to production is a loaded gun. Fail loudly instead.
  */
-const isDestructiveRun = !process.argv.some((a) => a.includes('smoke'));
+// An env flag, not argv sniffing: Playwright re-imports this config inside every worker
+// process, whose argv no longer carries the CLI's `--project smoke` — so the argv check
+// misfired there and killed the smoke suite mid-run. Env vars reach the workers intact.
+const isDestructiveRun = process.env.PLAYWRIGHT_SMOKE !== '1';
 const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(BASE_URL);
 
 if (isDestructiveRun && !isLocal) {

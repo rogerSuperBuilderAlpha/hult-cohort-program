@@ -124,7 +124,7 @@ export default function OptOutPage() {
         </section>
       )}
 
-      <p className="mt-12 border-t border-zinc-800 pt-6 text-xs text-zinc-600">
+      <p className="mt-12 border-t border-zinc-800 pt-6 text-xs text-zinc-400">
         <Link href="/" className="underline underline-offset-2 hover:text-zinc-400">
           Back to Pulse
         </Link>

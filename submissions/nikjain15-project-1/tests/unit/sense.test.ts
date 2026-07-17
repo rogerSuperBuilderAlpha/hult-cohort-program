@@ -12,6 +12,8 @@ import {
   narrationCacheKey,
   shouldNarrate,
   sensedTaskId,
+  autoNarrationAllowed,
+  narrationWanted,
   NARRATIVE_MAX_CHARS,
   type AskContext,
 } from '../../lib/sense';
@@ -204,7 +206,7 @@ describe('inferStatus', () => {
 describe('formatEvidence', () => {
   it('renders commits, PR and span as one receipt line', () => {
     expect(formatEvidence({ commits: 6, prNumbers: [41], files: [], spanHours: 2 })).toBe(
-      '6 commits · PR #41 · 2h between first and last'
+      '6 commits · PR #41 · 2h from start to finish'
     );
   });
 
@@ -241,7 +243,16 @@ describe('formatEvidence', () => {
 
   it('rounds a span of an hour or more to whole hours', () => {
     expect(formatEvidence({ commits: 2, prNumbers: [], files: [], spanHours: 2.6 })).toBe(
-      '2 commits · 3h between first and last'
+      '2 commits · 3h from start to finish'
+    );
+  });
+
+  it('phrases a span of two days or more in days, not a wall of hours', () => {
+    expect(formatEvidence({ commits: 2, prNumbers: [25, 37], files: [], spanHours: 169 })).toBe(
+      '2 commits · PR #25, PR #37 · about 7 days from start to finish'
+    );
+    expect(formatEvidence({ commits: 1, prNumbers: [], files: [], spanHours: 26 })).toBe(
+      '1 commit · 26h from start to finish'
     );
   });
 
@@ -488,6 +499,23 @@ describe('checkNarrative', () => {
     });
   });
 
+  it('rejects a member name with a zero-width char spliced in (injection evasion)', () => {
+    // U+200B between "Mar" and "cus" renders as "Marcus" but dodges a naive word match.
+    // A commit message can steer the model to emit exactly this.
+    expect(checkNarrative('Mar\u200Bcus broke the build', actor, others)).toEqual({
+      ok: false,
+      reason: 'names_another_member',
+    });
+  });
+
+  it('rejects a member name obfuscated with a combining accent', () => {
+    // "Ma" + combining acute + "rcus" renders as "Márcus" — not the literal ASCII "Marcus".
+    expect(checkNarrative('Ma\u0301rcus broke the build', actor, others)).toEqual({
+      ok: false,
+      reason: 'names_another_member',
+    });
+  });
+
   it('publishes a narrative naming the actor themselves', () => {
     expect(checkNarrative('Nikhil broke the build and fixed it', actor, others)).toEqual({
       ok: true,
@@ -649,5 +677,59 @@ describe('sensedTaskId — the same work has one address', () => {
     for (const b of ['a', 'bb', 'ccc', 'feat/x', 'main', 'x'.repeat(200)]) {
       expect(sensedTaskId(UID, b)).toMatch(/^s_uid_nik_[0-9a-f]{8}$/);
     }
+  });
+});
+
+/**
+ * The consent gate for auto-narration. `ask_first` used to be stored and never read, so
+ * it auto-published exactly like `auto` — the consent screen promised "nothing goes out
+ * until you say so" and the code broke that promise. These pin the three gates.
+ */
+describe('autoNarrationAllowed — the honesty gate', () => {
+  const base = { narrationOptIn: true, handle: 'nikjain15', mode: 'auto' as const };
+
+  it('allows only when opted in, with a handle, and mode is auto', () => {
+    expect(autoNarrationAllowed(base)).toBe(true);
+  });
+
+  it('refuses in ask_first — the mode whose whole promise is "ask me first"', () => {
+    expect(autoNarrationAllowed({ ...base, mode: 'ask_first' })).toBe(false);
+  });
+
+  it('refuses without opt-in — a sentence about a person needs their yes', () => {
+    expect(autoNarrationAllowed({ ...base, narrationOptIn: false })).toBe(false);
+  });
+
+  it('refuses without a captured handle — nothing to narrate', () => {
+    expect(autoNarrationAllowed({ ...base, handle: '' })).toBe(false);
+  });
+
+  it('refuses on a null link', () => {
+    expect(autoNarrationAllowed(null)).toBe(false);
+  });
+});
+
+/**
+ * The model-call gate — distinct from autoNarrationAllowed. BOTH consenting modes want a
+ * sentence written; ask_first just holds it. So narrationWanted is true for ask_first
+ * (where autoNarrationAllowed is false) — that's what makes the approval queue possible.
+ */
+describe('narrationWanted — generate at all (auto OR ask_first)', () => {
+  it('is true for auto (opted in, with a handle)', () => {
+    expect(narrationWanted({ narrationOptIn: true, handle: 'nikjain15' })).toBe(true);
+  });
+
+  it('is true for ask_first too — the sentence gets written, then held', () => {
+    // The link would carry mode: 'ask_first'; narrationWanted ignores mode by design.
+    expect(narrationWanted({ narrationOptIn: true, handle: 'nikjain15' })).toBe(true);
+  });
+
+  it('is false without opt-in, and false without a handle', () => {
+    expect(narrationWanted({ narrationOptIn: false, handle: 'nikjain15' })).toBe(false);
+    expect(narrationWanted({ narrationOptIn: true, handle: '' })).toBe(false);
+  });
+
+  it('is false on a null link', () => {
+    expect(narrationWanted(null)).toBe(false);
   });
 });

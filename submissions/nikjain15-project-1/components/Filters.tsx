@@ -129,7 +129,7 @@ function FilterSelect({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       data-filter={label}
-      className="min-h-11 rounded border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none"
+      className="min-h-11 rounded border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-400 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
     >
       {options.map((o) => (
         <option key={o.value} value={o.value}>

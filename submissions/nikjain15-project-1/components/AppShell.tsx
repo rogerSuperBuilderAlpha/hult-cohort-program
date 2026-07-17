@@ -7,7 +7,9 @@ import { useAuth } from '@/lib/auth-context';
 import { OfflineBanner } from './OfflineBanner';
 
 const NAV = [
-  { href: '/', label: 'week 1' },
+  // "home", not "week 1": next to the other one-word tabs, the trailing digit read as a
+  // notification badge in first-run testing — the one thing this nav must never imply.
+  { href: '/', label: 'home' },
   { href: '/board', label: 'board' },
   { href: '/projects', label: 'projects' },
   { href: '/recipes', label: 'recipes' },
@@ -32,7 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-zinc-400">Loading…</p>
       </div>
     );
   }
@@ -70,13 +72,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="ml-auto flex items-center gap-3">
             <Link
               href="/settings"
-              className="text-xs text-zinc-500 transition-colors hover:text-zinc-200"
+              className="text-xs text-zinc-400 transition-colors hover:text-zinc-200"
             >
               settings
             </Link>
             <button
               onClick={() => signOut().then(() => router.replace('/signin'))}
-              className="text-xs text-zinc-500 transition-colors hover:text-zinc-200"
+              className="text-xs text-zinc-400 transition-colors hover:text-zinc-200"
             >
               sign out
             </button>
@@ -96,7 +98,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             href={item.href}
             aria-current={isActive(pathname, item.href) ? 'page' : undefined}
             className={`flex min-h-[44px] flex-1 items-center justify-center py-3 text-xs transition-colors ${
-              isActive(pathname, item.href) ? 'text-zinc-100' : 'text-zinc-500'
+              isActive(pathname, item.href) ? 'text-zinc-100' : 'text-zinc-400'
             }`}
           >
             {item.label}
@@ -117,7 +119,7 @@ function NavLink({ href, label, active }: { href: string; label: string; active:
       href={href}
       aria-current={active ? 'page' : undefined}
       className={`rounded px-2 py-1 text-xs transition-colors ${
-        active ? 'bg-zinc-900 text-zinc-100' : 'text-zinc-500 hover:text-zinc-200'
+        active ? 'bg-zinc-900 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200'
       }`}
     >
       {label}

@@ -1,6 +1,24 @@
 import { NextResponse } from 'next/server';
 import { narrate, type NarrationResult } from '@/lib/narrate';
+import { evictExpired, hitRateLimit, type RateLimitState } from '@/lib/rate-limit';
 import type { Evidence } from '@/lib/types';
+
+/**
+ * Per-IP rate limit, module-level so it survives between requests on a warm instance.
+ *
+ * 20 model calls per minute per IP. A real member's sync narrates a handful of times and is
+ * SHA-range-cached besides, so this never touches a legitimate user; it caps a loop from one
+ * origin at 20/min/instance instead of unbounded. Best-effort by design (see lib/rate-limit).
+ */
+const RATE_LIMIT = 20;
+const WINDOW_MS = 60_000;
+const rateStore = new Map<string, RateLimitState>();
+
+/** The caller's IP, as Vercel's proxy reports it. Falls back to a shared bucket. */
+function clientIp(request: Request): string {
+  const fwd = request.headers.get('x-forwarded-for');
+  return fwd?.split(',')[0]?.trim() || 'unknown';
+}
 
 /**
  * POST /api/narrate — one sentence about what YOU shipped. DESIGN-SPEC §4.
@@ -51,6 +69,17 @@ export async function POST(request: Request) {
 
   if (typeof body?.handle !== 'string' || !body.handle || typeof body.displayName !== 'string') {
     return NextResponse.json({ error: 'invalid' }, { status: 400 });
+  }
+
+  // Rate-check before the model call — the whole point is to not pay for the abusive one.
+  const now = Date.now();
+  evictExpired(rateStore, now, WINDOW_MS);
+  const gate = hitRateLimit(rateStore, clientIp(request), now, RATE_LIMIT, WINDOW_MS);
+  if (gate.limited) {
+    return NextResponse.json(
+      { error: 'rate_limited' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(gate.retryAfterMs / 1000)) } }
+    );
   }
 
   /**

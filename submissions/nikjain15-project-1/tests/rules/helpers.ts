@@ -170,6 +170,21 @@ export function task(creatorUid: string, over: Record<string, unknown> = {}) {
     dueDate: null,
     createdAt: new Date('2026-01-01T00:00:00Z'),
     completedAt: null,
+    // The provenance fields. A card says on its face where it came from, and `evidence`
+    // is the receipt backing that claim — so the rules have to defend them.
+    source: 'manual',
+    evidence: null,
+    branch: null,
     ...over,
   };
+}
+
+/** A card Pulse built, carrying the receipt that makes it believable. */
+export function sensedTask(creatorUid: string, over: Record<string, unknown> = {}) {
+  return task(creatorUid, {
+    source: 'sensed',
+    evidence: { commits: 0, prNumbers: [41], files: [], spanHours: null },
+    branch: 'feat/real-branch',
+    ...over,
+  });
 }

@@ -29,6 +29,7 @@ import {
   pulseEvent,
   recipe,
   seed,
+  sensedTask,
   task,
 } from './helpers';
 
@@ -535,5 +536,165 @@ describe('anonymous access — a signed-out visitor sees nothing, anywhere', () 
     for (const name of collections) {
       await assertFails(addDoc(collection(anon, name), { hello: 'world' }));
     }
+  });
+});
+
+/**
+ * The receipt is the product's honesty, so the rules have to defend it.
+ *
+ * Every one of these was permitted until 2026-07-17. The `tasks` update rule pinned
+ * `creatorUid` and left the rest of the document open — which is the same shape of
+ * mistake three times over in this file's history: the rule reasons carefully about WHO
+ * may write and not at all about WHAT.
+ */
+describe('tasks — a receipt cannot be forged', () => {
+  const path = 'tasks/task_1';
+
+  it('denies stamping a fabricated receipt onto your own manual card', async () => {
+    await seed(env, path, task(ALICE));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), path), {
+        source: 'sensed',
+        evidence: { commits: 999, prNumbers: [1337], files: [], spanHours: 40 },
+      })
+    );
+  });
+
+  it("denies rewriting the evidence on someone else's card", async () => {
+    await seed(env, path, sensedTask(BOB));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), path), {
+        evidence: { commits: 0, prNumbers: [1], files: [], spanHours: null },
+      })
+    );
+  });
+
+  it('denies even the author rewriting their own evidence', async () => {
+    // Same standard the pulse rules already hold: a receipt you can edit isn't one.
+    await seed(env, path, sensedTask(ALICE));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), path), {
+        evidence: { commits: 500, prNumbers: [2], files: [], spanHours: 99 },
+      })
+    );
+  });
+
+  it('denies repointing `branch` — the key another member\'s sync trusts', async () => {
+    await seed(env, path, sensedTask(BOB));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { branch: 'feat/mine' }));
+  });
+
+  it('denies backdating createdAt', async () => {
+    await seed(env, path, task(ALICE));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), path), { createdAt: new Date('2020-01-01T00:00:00Z') })
+    );
+  });
+
+  it('still lets the cohort do the work: edit, assign and move a card', async () => {
+    // The point of the lock is to leave normal collaboration untouched. B5-B7 are graded.
+    await seed(env, path, task(BOB));
+    await assertSucceeds(
+      updateDoc(doc(as(env, ALICE), path), {
+        title: 'Renamed by a teammate',
+        assigneeUid: ALICE,
+        status: 'in_progress',
+      })
+    );
+  });
+
+  it('still lets Pulse move a sensed card without touching its receipt', async () => {
+    await seed(env, path, sensedTask(ALICE));
+    await assertSucceeds(
+      updateDoc(doc(as(env, ALICE), path), { status: 'done', completedAt: new Date() })
+    );
+  });
+});
+
+/**
+ * Counts are `array.length`, but the rules reasoned in SETS — and Firestore arrays allow
+ * duplicates. So `[]` -> `[alice, alice, alice]` had a symmetric difference of {alice} and
+ * sailed through, letting anyone set the two numbers in the product to whatever they liked
+ * by repeating their own uid.
+ *
+ * The recipe case is the one that matters: `unstuckUids` is the ONLY ranking here, and it
+ * is supposed to measure generosity.
+ */
+describe('arrays — you cannot inflate a count by repeating yourself', () => {
+  it('denies padding kudos with your own uid many times', async () => {
+    await seed(env, 'pulse/event_1', pulseEvent(BOB));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), 'pulse/event_1'), { kudos: [ALICE, ALICE, ALICE] })
+    );
+  });
+
+  it("denies inflating someone else's recipe rank by repeating yourself", async () => {
+    await seed(env, 'recipes/recipe_1', recipe(BOB));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), 'recipes/recipe_1'), { unstuckUids: [ALICE, ALICE, ALICE] })
+    );
+  });
+
+  it('denies a duplicate slipped in alongside a legitimate toggle', async () => {
+    await seed(env, 'pulse/event_1', pulseEvent(BOB, { kudos: [BOB] }));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), 'pulse/event_1'), { kudos: [BOB, ALICE, ALICE] })
+    );
+  });
+
+  it('still lets one person give kudos once', async () => {
+    await seed(env, 'pulse/event_1', pulseEvent(BOB));
+    await assertSucceeds(updateDoc(doc(as(env, ALICE), 'pulse/event_1'), { kudos: [ALICE] }));
+  });
+
+  it('still lets one person be unstuck once', async () => {
+    await seed(env, 'recipes/recipe_1', recipe(BOB));
+    await assertSucceeds(
+      updateDoc(doc(as(env, ALICE), 'recipes/recipe_1'), { unstuckUids: [ALICE] })
+    );
+  });
+});
+
+/**
+ * The exit. Deliberately unauthenticated — "someone who wants out shouldn't have to create
+ * an account to leave" — so these tests pin the SHAPE of a deliberate trade rather than
+ * proving it safe. There were no tests here at all until 2026-07-17, on the one collection
+ * that anyone on the internet can write to.
+ */
+describe('optOuts — the exit has no signup wall, and no way back in', () => {
+  it('lets a stranger with no account tombstone a handle', async () => {
+    await assertSucceeds(
+      setDoc(doc(asAnon(env), 'optOuts/somebody'), {
+        handle: 'somebody',
+        createdAt: new Date(),
+      })
+    );
+  });
+
+  it('denies a tombstone whose handle does not match its doc id', async () => {
+    // The doc id is the join key the landing page filters on; a mismatch would hide
+    // one person while claiming to be about another.
+    await assertFails(
+      setDoc(doc(asAnon(env), 'optOuts/somebody'), {
+        handle: 'someone-else',
+        createdAt: new Date(),
+      })
+    );
+  });
+
+  it('denies smuggling extra fields into a tombstone', async () => {
+    await assertFails(
+      setDoc(doc(asAnon(env), 'optOuts/somebody'), {
+        handle: 'somebody',
+        createdAt: new Date(),
+        note: 'anything at all',
+      })
+    );
+  });
+
+  it('denies lifting a tombstone — un-removing someone is a deliberate manual act', async () => {
+    await seed(env, 'optOuts/somebody', { handle: 'somebody', createdAt: new Date() });
+    await assertFails(deleteDoc(doc(as(env, ALICE), 'optOuts/somebody')));
+    await assertFails(updateDoc(doc(as(env, ALICE), 'optOuts/somebody'), { handle: 'other' }));
   });
 });

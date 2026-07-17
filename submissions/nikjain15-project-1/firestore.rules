@@ -28,10 +28,23 @@ service cloud.firestore {
 
     // The symmetric difference of two uid arrays — i.e. who was added or removed.
     // Used to prove a member only ever toggles *themselves* in a list.
+    //
+    // Set logic alone is NOT enough, and this was a live hole: Firestore arrays allow
+    // duplicates, and every count in the product is `array.length`, not set size. So
+    // [] -> [alice, alice, alice] has a symmetric difference of {alice} and passed —
+    // letting anyone set kudos, or a recipe's "people unstuck", to any number they liked
+    // by repeating their own uid. `noDuplicates` is what makes the set reasoning and the
+    // length reasoning agree.
     function togglesOnlySelf(before, after) {
-      return after.toSet().difference(before.toSet())
-               .union(before.toSet().difference(after.toSet()))
-               .hasOnly([request.auth.uid]);
+      return noDuplicates(after)
+             && after.toSet().difference(before.toSet())
+                  .union(before.toSet().difference(after.toSet()))
+                  .hasOnly([request.auth.uid]);
+    }
+
+    // A list whose set has the same size holds no repeats.
+    function noDuplicates(list) {
+      return list.toSet().size() == list.size();
     }
 
     // --- members -------------------------------------------------------------
@@ -78,10 +91,29 @@ service cloud.firestore {
     // --- tasks ---------------------------------------------------------------
     // Open creation and editing: the cohort assigns work to each other by design.
     // creatorUid is immutable so authorship can't be rewritten.
+    //
+    // The receipt is frozen after creation. `source` and `evidence` are what the card
+    // claims about where it came from — "PR #41", the thing types.ts calls facts that
+    // "cannot be wrong" — and they were writable by any signed-in member on any card.
+    // Anyone could stamp `source: 'sensed'` and invented evidence onto their own manual
+    // card, or rewrite someone else's, forging the exact badge this product's honesty
+    // rests on. The `pulse` rules already refuse to let even the actor rewrite their own
+    // evidence; tasks now agree.
+    //
+    // `branch` is frozen with them: it's the dedupe key the sync trusts, so a member who
+    // can rewrite it can aim another member's next sync at a card of their choosing.
+    //
+    // ⚠️ Create-time is a different problem and the rules cannot solve it: sensing writes
+    // from the browser (no Admin SDK — the server has no identity), so a member can create
+    // a card with a fabricated receipt in the first place. Nothing here can check GitHub.
+    // What's contained is tampering with a card that already exists — and the fabrication
+    // is self-limiting, because PR numbers are public and checkable by anyone reading them.
     match /tasks/{taskId} {
       allow read: if signedIn();
       allow create: if signedIn() && isSelf(request.resource.data.creatorUid);
-      allow update: if signedIn() && request.resource.data.creatorUid == resource.data.creatorUid;
+      allow update: if signedIn()
+                    && request.resource.data.creatorUid == resource.data.creatorUid
+                    && !changed().hasAny(['source', 'evidence', 'branch', 'createdAt']);
       allow delete: if signedIn() && isSelf(resource.data.creatorUid);
     }
 

@@ -47,12 +47,13 @@ Adapted from [DORA](https://github.com/kperpignant/DORA) for hackathon use (Cler
 - **Similar-issue retrieval:** Past bugs inform assignee ranking and triage rationale, reducing duplicate work and onboarding friction for new teammates
 - **Structured output on the ticket:** Triage decision, suggested assignee, and reasoning are written back to the issue so the team sees actionable output, not a chat sidebar
 - **BYOK in Settings:** Each teammate brings their own OpenRouter (and optional OpenAI) key so the cohort can use AI without a shared deployment secret or billing on the builder
-- **Open access for teammates:** Any signed-in Clerk user can view and work on all projects; admin-only actions (create/delete projects, admin panel) stay with the builder account
+- **Open access for teammates:** Any signed-in Clerk user can create projects, view/work on all projects, and assign any signed-in cohort member; admin panel stays with GitHub user `kperpignant`
 - **Clear empty states:** UI prompts users to add an OpenRouter key when AI triage is unavailable, instead of failing silently
 
 ## Known limitations
 
-- **Sole admin:** Only GitHub user `kperpignant` has admin access (project create/delete, admin panel); not configurable via UI
+- **Sole admin:** Only GitHub user `kperpignant` has admin panel access (user management, blocked emails); not configurable via UI
+- **Project archive:** Creators can archive their own projects (soft-delete); legacy projects without `createdById` are admin-only to edit/archive
 - **AI requires BYOK:** Auto-triage runs only if the bug creator has an OpenRouter key in Settings; no shared deployment `OPENROUTER_API_KEY`
 - **BYOK tradeoff:** Per-user API keys are stored on Convex user records and are visible to Convex deployment admins — use revocable keys
 - **Optional email:** Assignment notifications via Resend are optional and not required for core PM flows

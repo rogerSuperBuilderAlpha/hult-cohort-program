@@ -5,6 +5,8 @@ import {
   announceSensedShip,
   createSensedTask,
   ensureRepoProject as ensureSharedRepoProject,
+  reconcileRepoProjects,
+  repoProjectId,
   setSensedStatusSilently,
   setTaskStatus,
   type Narration,
@@ -72,6 +74,16 @@ export async function syncFromGitHub(input: {
    * is broken — which it is, quietly. Say it out loud instead.
    */
   if (!link.handle) return { kind: 'no_handle' };
+
+  // Fold any legacy twin repo-project into the canonical one before touching the board.
+  // Best-effort and independent of GitHub — a maintenance write, not part of the sensing
+  // result — so a failure here degrades to "not migrated yet", never a broken sync. Runs
+  // as a cheap no-op scan once the twins are gone.
+  try {
+    await reconcileRepoProjects(COHORT_REPO_NAME, projects, tasks);
+  } catch (err) {
+    console.warn('reconcileRepoProjects skipped:', err);
+  }
 
   const response = await fetchSense(link.handle);
   if (!response) return { kind: 'degraded', failure: 'unreachable', resetAt: null };
@@ -367,8 +379,16 @@ function evidenceFor(pull: SensedPull): Evidence {
   return { commits: 0, prNumbers: [pull.number], files: [], spanHours };
 }
 
-function findRepoProject(projects: Project[]): Project | undefined {
-  return projects.find((p) => !p.archived && p.name === COHORT_REPO_NAME);
+export function findRepoProject(projects: Project[]): Project | undefined {
+  // Deterministic on purpose. A name match alone let `Array.find` return whichever of a
+  // canonical doc and a legacy twin sorted first, so new sensed cards scattered onto both.
+  // Prefer the canonical repo-keyed id; the name fallback only covers the instant before
+  // that doc exists.
+  const canonicalId = repoProjectId(COHORT_REPO_NAME);
+  return (
+    projects.find((p) => p.id === canonicalId && !p.archived) ??
+    projects.find((p) => !p.archived && p.name === COHORT_REPO_NAME)
+  );
 }
 
 /**

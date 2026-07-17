@@ -89,11 +89,21 @@ export async function createProject(
  * Silent by design — see `createProject`. The feed row would read "Nik created
  * hult-cohort-program", and Nik didn't. Pulse did.
  */
+/**
+ * The canonical, deterministic id for a repo's shared project. Derived from the repo and
+ * NOT the uid, so everyone connecting the same repo lands on one document. Keep this the
+ * single source of the id format — `findRepoProject` and `reconcileRepoProjects` both key
+ * off it, and a second copy of `repo_${repo}` somewhere else is how the twins came back.
+ */
+export function repoProjectId(repo: string): string {
+  return `repo_${repo}`;
+}
+
 export async function ensureRepoProject(
   actor: Actor,
   input: { repo: string; description: string }
 ): Promise<string> {
-  const id = `repo_${input.repo}`;
+  const id = repoProjectId(input.repo);
   const ref = doc(db, 'projects', id);
 
   await runTransaction(db, async (tx) => {
@@ -110,6 +120,53 @@ export async function ensureRepoProject(
   });
 
   return id;
+}
+
+/**
+ * Drain and retire legacy twin repo-projects.
+ *
+ * Before `ensureRepoProject` keyed the doc by repo, two members — or one member in two
+ * tabs — racing the connect flow each saw no project and each created one under a random
+ * `addDoc` id, both named after the repo. The deterministic id stops NEW twins; these are
+ * the ones already sitting in prod, splitting the cohort's cards across two boards.
+ *
+ * Reassign every stranded card to the canonical project, then archive the empty shell
+ * (nothing here hard-deletes — spec §7). Idempotent and convergent: two clients running
+ * this write the same `projectId` reassignments and the same `archived: true`, so a race
+ * between them settles rather than fights. A no-op unless a twin actually exists — the
+ * common path is one array scan and no writes.
+ *
+ * A twin is a non-canonical, unarchived project whose name equals the repo. The repo name
+ * is a GitHub slug (`hult-cohort-program`); a human naming a manual project exactly that
+ * is the one false positive, and vanishingly unlikely against that string.
+ */
+export async function reconcileRepoProjects(
+  repo: string,
+  projects: Project[],
+  tasks: Task[]
+): Promise<{ tasksMoved: number; projectsArchived: number }> {
+  const canonicalId = repoProjectId(repo);
+  // No canonical doc yet means no twin to fold into it — the guard creates it on the next
+  // sensed card, and there is nothing to migrate onto in the meantime.
+  if (!projects.some((p) => p.id === canonicalId)) {
+    return { tasksMoved: 0, projectsArchived: 0 };
+  }
+
+  const twins = projects.filter(
+    (p) => p.id !== canonicalId && !p.archived && p.name === repo
+  );
+  if (twins.length === 0) return { tasksMoved: 0, projectsArchived: 0 };
+
+  const twinIds = new Set(twins.map((p) => p.id));
+  const stranded = tasks.filter((t) => twinIds.has(t.projectId));
+
+  for (const task of stranded) {
+    await updateDoc(doc(db, 'tasks', task.id), { projectId: canonicalId });
+  }
+  for (const twin of twins) {
+    await updateDoc(doc(db, 'projects', twin.id), { archived: true });
+  }
+  return { tasksMoved: stranded.length, projectsArchived: twins.length };
 }
 
 export async function updateProject(

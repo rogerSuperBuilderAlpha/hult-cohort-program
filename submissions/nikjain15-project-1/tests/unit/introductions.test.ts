@@ -17,6 +17,7 @@ function intro(state: Introduction['state'], over: Partial<Introduction> = {}): 
     stuckUid: 'stuck',
     helperUid: 'me',
     recipeId: 'r1',
+    problem: 'Firestore rules denied a read',
     state,
     createdAt: { toDate: () => new Date(), toMillis: () => 0 } as unknown as Introduction['createdAt'],
     ...over,

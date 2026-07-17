@@ -166,6 +166,13 @@ export type Introduction = {
   stuckUid: string;
   helperUid: string;
   recipeId: string | null;
+  /**
+   * The problem, in the words the stuck person's own work uses — what the helper is
+   * being asked about. Written by the broker job with the rest of the doc; the helper
+   * can never edit it (rules allow only `state`), so an intro can't be reworded into a
+   * different claim after the fact.
+   */
+  problem: string;
   state: 'suggested' | 'sent' | 'dismissed';
   createdAt: Timestamp;
 };

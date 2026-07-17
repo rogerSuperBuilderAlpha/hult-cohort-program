@@ -12,6 +12,10 @@ import { formatEvidence, relativeTime } from '@/lib/sense';
  * with the cohort's real week rendered live at the bottom. Same server-fetched snapshot the
  * landing uses, so the numbers here are the numbers there — read from the public repo, never
  * invented. Facts only; nothing on this page narrates anyone.
+ *
+ * DESIGN-SPEC §4: sentence case, 11–14px, two weights, hairline borders. Green is the
+ * motivating action and nothing else is coloured — so the only green here is the brand mark
+ * and the one sign-in button, exactly as the landing does it.
  */
 export const metadata: Metadata = {
   title: 'How Pulse works',
@@ -43,8 +47,8 @@ export default async function HowPage() {
 
       {/* -------------------------------------------------- the problem */}
       <section className="border-t border-zinc-800 pt-6">
-        <h2 className="text-xs uppercase tracking-wide text-zinc-500">The problem</h2>
-        <p className="mt-3 text-base leading-relaxed text-zinc-200">
+        <h2 className="text-xs text-zinc-400">The problem</h2>
+        <p className="mt-3 text-sm leading-relaxed text-zinc-200">
           Every task board dies the same way: updating it is manual, boring, and the first thing to
           go. But this cohort&rsquo;s work is already legible — dozens of people running coding agents
           against public repos. The status is already out there. Nobody should be typing it in.
@@ -53,7 +57,7 @@ export default async function HowPage() {
 
       {/* -------------------------------------------------- three layers */}
       <section className="mt-12 border-t border-zinc-800 pt-6">
-        <h2 className="text-xs uppercase tracking-wide text-zinc-500">How it works · three layers</h2>
+        <h2 className="text-xs text-zinc-400">How it works · three layers</h2>
         <p className="mt-3 text-sm text-zinc-300">
           Remove the model and there&rsquo;s no product left. That&rsquo;s the test Pulse is built to pass —
           and why a chat box in the corner was rejected.
@@ -62,19 +66,19 @@ export default async function HowPage() {
           <Layer
             step="1"
             name="Sense"
-            status="shipped"
+            status="Shipped"
             body="Pulse reads your commits and PRs, and writes your week in plain English."
           />
           <Layer
             step="2"
             name="Bank"
-            status="designed"
+            status="Designed"
             body="Pulse pulls how a problem got solved from the session that solved it, and keeps it."
           />
           <Layer
             step="3"
             name="Broker"
-            status="designed"
+            status="Designed"
             body="Pulse spots who's stuck on what someone already solved, and makes the introduction."
           />
         </ol>
@@ -82,7 +86,7 @@ export default async function HowPage() {
 
       {/* -------------------------------------------------- the flow */}
       <section className="mt-12 border-t border-zinc-800 pt-6">
-        <h2 className="text-xs uppercase tracking-wide text-zinc-500">What happens on every load</h2>
+        <h2 className="text-xs text-zinc-400">What happens on every load</h2>
         <ol className="mt-5 space-y-4">
           <Flow
             tag="Source"
@@ -110,7 +114,7 @@ export default async function HowPage() {
 
       {/* -------------------------------------------------- consent */}
       <section className="mt-12 border-t border-zinc-800 pt-6">
-        <h2 className="text-xs uppercase tracking-wide text-zinc-500">The line Pulse won&rsquo;t cross</h2>
+        <h2 className="text-xs text-zinc-400">The line Pulse won&rsquo;t cross</h2>
         <p className="mt-3 text-sm text-zinc-300">
           A model writes a sentence <em>as</em> a person only when all three hold. It&rsquo;s off for
           everyone who hasn&rsquo;t connected their own account.
@@ -128,7 +132,7 @@ export default async function HowPage() {
       {/* -------------------------------------------------- live data */}
       {shipped.length > 0 && (
         <section className="mt-12 border-t border-zinc-800 pt-6">
-          <h2 className="text-xs uppercase tracking-wide text-zinc-500">
+          <h2 className="text-xs text-zinc-400">
             The cohort so far · {shipped.length} of {ENROLLED}
           </h2>
           <p className="mt-3 text-sm text-zinc-300">Read live from the public repo as you loaded this.</p>
@@ -192,6 +196,10 @@ export default async function HowPage() {
 
 /* ------------------------------------------------------------------ pieces */
 
+/**
+ * One layer. The status is a fact, not a colour — "Shipped" and "Designed" both read in the
+ * same zinc, because green on this page is reserved for the one motivating action (sign in).
+ */
 function Layer({
   step,
   name,
@@ -201,19 +209,17 @@ function Layer({
   step: string;
   name: string;
   body: string;
-  status: 'shipped' | 'designed';
+  status: string;
 }) {
   return (
-    <li className="flex gap-4 rounded border border-zinc-800 p-4">
+    <li className="flex gap-4 rounded-lg border border-zinc-800 p-4">
       <span className="mt-0.5 text-xs text-zinc-500 tabular-nums" aria-hidden>
         {step}
       </span>
       <div className="flex-1">
         <div className="flex items-baseline gap-3">
           <span className="text-sm font-medium text-zinc-100">{name}</span>
-          <span className={`text-xs ${status === 'shipped' ? 'text-emerald-400' : 'text-zinc-500'}`}>
-            {status === 'shipped' ? 'Shipped' : 'Designed'}
-          </span>
+          <span className="text-xs text-zinc-500">{status}</span>
         </div>
         <p className="mt-1 text-sm text-zinc-400">{body}</p>
       </div>
@@ -221,6 +227,10 @@ function Layer({
   );
 }
 
+/**
+ * One step of the load path. A plain zinc rule down the left ties the steps together —
+ * hairline only, nothing coloured.
+ */
 function Flow({
   tag,
   title,
@@ -234,12 +244,9 @@ function Flow({
 }) {
   return (
     <li className="relative pl-5">
-      <span
-        className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-emerald-400"
-        aria-hidden
-      />
+      <span className="absolute left-0 top-1.5 h-2 w-2 rounded-full border border-zinc-600" aria-hidden />
       {!last && <span className="absolute left-[3.5px] top-4 bottom-[-1rem] w-px bg-zinc-800" aria-hidden />}
-      <p className="text-xs uppercase tracking-wide text-zinc-500">{tag}</p>
+      <p className="text-xs text-zinc-500">{tag}</p>
       <p className="mt-1 text-sm font-medium text-zinc-100">{title}</p>
       <p className="mt-1 text-sm text-zinc-400">{body}</p>
     </li>
@@ -248,14 +255,9 @@ function Flow({
 
 function Gate({ name, body }: { name: string; body: string }) {
   return (
-    <li className="flex gap-3 rounded border border-zinc-800 p-4">
-      <span className="text-sm text-emerald-400" aria-hidden>
-        ✓
-      </span>
-      <div>
-        <p className="text-sm font-medium text-zinc-100">{name}</p>
-        <p className="mt-1 text-sm text-zinc-400">{body}</p>
-      </div>
+    <li className="rounded-lg border border-zinc-800 p-4">
+      <p className="text-sm font-medium text-zinc-100">{name}</p>
+      <p className="mt-1 text-sm text-zinc-400">{body}</p>
     </li>
   );
 }

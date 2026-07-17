@@ -2,25 +2,77 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 /**
- * `/approach` — how Pulse is built, and why it's built that way. Public, signed out.
+ * `/approach` — how Pulse is built, and why. Public, signed out, static.
  *
- * A companion to `/how`: that page walks what Pulse does; this one walks the architecture,
- * what makes it different, and how it's tested. Static — no data, no model — so it loads
- * instantly and reads the same every time.
- *
- * DESIGN-SPEC §4: sentence case, 11–14px, two weights, hairline borders. Green is the one
- * motivating action and nothing else is coloured — so the only green here is the brand mark
- * and the sign-in button.
+ * Companion to `/how`: that page walks what Pulse does; this walks the architecture, what
+ * makes it different, and how it's tested. DESIGN-SPEC §4 — sentence case, 11–14px, hairline
+ * borders, cards on zinc-900. Green is the one motivating action, so every marker and bar is
+ * zinc; emphasis is weight, not hue.
  */
 export const metadata: Metadata = {
   title: 'How Pulse is built',
   description: 'The architecture behind Pulse — a pure sensing core, consent enforced twice, and a test pyramid that proves it.',
 };
 
+const DIFFERENT = [
+  {
+    name: 'It passes the AI-first test',
+    body: 'Take the model out and there’s no product left. The sensing, the writing, and the matching are the product — which is why the chat box in the corner was rejected.',
+  },
+  {
+    name: 'It shows facts before it shows anyone',
+    body: 'A stranger sees the cohort’s real week before making an account. The value sits in front of the signup, because merged PRs are public record.',
+  },
+  {
+    name: 'It never invents to look busy',
+    body: 'Most of the cohort hasn’t pushed yet, and Pulse says so. The gap between enrolled and shipped is left honest, not padded.',
+  },
+  {
+    name: 'It breaks honestly',
+    body: 'When GitHub is unreachable, Pulse shows nothing rather than a stale board dressed as live — the one failure every other board has.',
+  },
+  {
+    name: 'It reads hostile text safely',
+    body: 'Pulse feeds commit messages and PR titles to a model, then posts to the cohort. A guard holds every sentence to describing only the person who did the work.',
+  },
+];
+
+const ARCH = [
+  {
+    tag: 'The core',
+    title: 'A pure sensing core, kept apart on purpose',
+    body: 'The logic that decides what Pulse asserts about a person is pure functions — no network, no database, no model in the path. The most consequential code is also the most testable.',
+  },
+  {
+    tag: 'Two paths, one shape',
+    title: 'A server read for everyone, Firestore for you',
+    body: 'A signed-out visitor gets a server-side read of the public repo — no auth, no model, one call. A signed-in member gets their board from Firestore. Both render the same fact shape.',
+  },
+  {
+    tag: 'Built in layers',
+    title: 'Sense ships, Bank and Broker build behind it',
+    body: 'Each capability is a clean seam. Sense reads and writes the week today; Bank keeps how a problem got solved; Broker matches who’s stuck to who solved it.',
+  },
+  {
+    tag: 'Consent, twice',
+    title: 'The rule lives in the code and in the rules',
+    body: 'A model narrates as a person only when they opted in, linked an account, and didn’t pick ask-first. That rule is enforced in the pure core and again in Firestore’s security rules.',
+  },
+];
+
+// Widest rung is the base of the pyramid: many fast unit checks, narrowing to a few end-to-end.
+const TESTS = [
+  { name: 'End to end', body: 'Playwright drives the real flows in a browser — the way a person does.', w: 'w-[36%]' },
+  { name: 'Integration', body: 'Sensing and syncing run against the emulator, so a real board comes out.', w: 'w-[52%]' },
+  { name: 'Firestore rules', body: 'The access and consent model is proven against the emulator.', w: 'w-[68%]' },
+  { name: 'Unit', body: 'The pure sensing core is checked exhaustively, no GitHub, no model.', w: 'w-[84%]' },
+  { name: 'Typecheck and lint', body: 'The types hold and the code reads to one standard.', w: 'w-full' },
+];
+
 export default function ApproachPage() {
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-12 sm:py-20">
-      <header className="mb-12">
+      <header className="mb-14">
         <Link href="/" className="flex w-fit items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-emerald-400" aria-hidden />
           <span className="text-sm font-medium text-zinc-100">Pulse</span>
@@ -28,7 +80,7 @@ export default function ApproachPage() {
         <h1 className="mt-6 text-2xl font-medium tracking-tight text-zinc-100">
           How Pulse is built, and why.
         </h1>
-        <p className="mt-3 text-sm text-zinc-300">
+        <p className="mt-3 text-sm leading-relaxed text-zinc-300">
           One idea shapes every part of this: keep what Pulse <em>knows</em> apart from what Pulse
           <em> says</em>. Facts are public record and safe to show. A sentence a model writes about
           a person is a disclosure, and it waits for their yes.
@@ -43,105 +95,89 @@ export default function ApproachPage() {
       </header>
 
       {/* -------------------------------------------------- what makes it different */}
-      <section className="border-t border-zinc-800 pt-6">
-        <h2 className="text-xs text-zinc-400">What makes it different</h2>
-        <ul className="mt-5 space-y-3">
-          <Point
-            name="It passes the AI-first test"
-            body="Take the model out and there's no product left. Pulse doesn't bolt a chat box onto a task board — the sensing, the writing, and the matching are the product. That test is why the chat box was rejected."
-          />
-          <Point
-            name="It shows facts before it shows anyone"
-            body="A stranger sees the cohort's real week before making an account. The value sits in front of the signup, not behind it, because merged PRs are public record."
-          />
-          <Point
-            name="It never invents to look busy"
-            body="Most of the cohort hasn't pushed yet, and Pulse says so. The gap between enrolled and shipped is left honest rather than padded with rows that aren't real."
-          />
-          <Point
-            name="It breaks honestly"
-            body="When GitHub is unreachable, Pulse says so and shows nothing rather than a stale board dressed as live — the one failure every other board has."
-          />
-          <Point
-            name="It reads hostile text safely"
-            body="Pulse feeds commit messages and PR titles — text anyone can write — to a model, then posts to the whole cohort. A guard holds every sentence to describing only the person who did the work, so a planted line can never publish something about someone else."
-          />
-        </ul>
-      </section>
+      <Band label="What makes it different">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {DIFFERENT.map((d) => (
+            <div key={d.name} className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+              <p className="text-sm font-medium text-zinc-100">{d.name}</p>
+              <p className="mt-1 text-sm leading-relaxed text-zinc-400">{d.body}</p>
+            </div>
+          ))}
+        </div>
+      </Band>
 
       {/* -------------------------------------------------- architecture */}
-      <section className="mt-12 border-t border-zinc-800 pt-6">
-        <h2 className="text-xs text-zinc-400">The architecture</h2>
-        <ol className="mt-5 space-y-4">
-          <Flow
-            tag="The core"
-            title="A pure sensing core, kept apart on purpose"
-            body="The logic that decides what Pulse asserts about a person is pure functions — no network, no database, no model in the path. The most consequential code is also the most testable, so a model writing about someone can never happen by accident."
-          />
-          <Flow
-            tag="Two paths, one shape"
-            title="A server read for everyone, Firestore for you"
-            body="A signed-out visitor gets a server-side read of the public repo — no auth, no model, one call. A signed-in member gets their own board from Firestore. Both render the same fact shape, so the numbers match everywhere."
-          />
-          <Flow
-            tag="Built in layers"
-            title="Sense ships, Bank and Broker build behind it"
-            body="Each capability is a clean seam. Sense reads and writes the week today; Bank keeps how a problem got solved; Broker matches who's stuck to who solved it. Layer 1 stands alone while the rest are designed behind it."
-          />
-          <Flow
-            tag="Consent, twice"
-            title="The rule lives in the code and in the rules"
-            body="A model narrates as a person only when they opted in, linked an account, and didn't pick ask-first. That rule is enforced in the pure core and again in Firestore's security rules — two checks, not one."
-            last
-          />
-        </ol>
-      </section>
+      <Band label="The architecture">
+        <div className="relative">
+          <span className="absolute left-[15px] top-3 bottom-3 w-px bg-zinc-800" aria-hidden />
+          <div className="space-y-3">
+            {ARCH.map((a) => (
+              <div key={a.tag} className="relative pl-8">
+                <span className="absolute left-[11px] top-1.5 h-2 w-2 rounded-full border border-zinc-500 bg-zinc-950" aria-hidden />
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+                  <p className="text-xs text-zinc-500">{a.tag}</p>
+                  <p className="mt-1 text-sm font-medium text-zinc-100">{a.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-zinc-400">{a.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Band>
 
       {/* -------------------------------------------------- testing */}
-      <section className="mt-12 border-t border-zinc-800 pt-6">
-        <h2 className="text-xs text-zinc-400">How it&rsquo;s tested</h2>
-        <p className="mt-3 text-sm text-zinc-300">
-          Every change clears the whole gate before it merges. Each rung proves a different thing.
+      <Band label="How it’s tested">
+        <p className="mb-5 text-sm leading-relaxed text-zinc-300">
+          Every change clears the whole gate before it merges. Many fast checks at the base, a few
+          real-browser runs at the top — each rung proves a different thing.
         </p>
-        <ol className="mt-5 space-y-3">
-          <Test name="Typecheck and lint" body="The types hold and the code reads to one standard." />
-          <Test name="Unit" body="The pure sensing core — titles, evidence, and the consent gates — is checked exhaustively, without touching GitHub or a model." />
-          <Test name="Firestore rules" body="The access and consent model is run against the Firebase emulator, so a member can only ever read and write what the rules allow." />
-          <Test name="Integration" body="Sensing and syncing run end to end against the emulator, so a real board comes out the far side." />
-          <Test name="End to end" body="Playwright drives the real flows in a browser — sign in, the board, the consent screen — the way a person does." />
-        </ol>
-      </section>
+        <div className="space-y-2">
+          {TESTS.map((t) => (
+            <div key={t.name} className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+              <div className={`mx-auto ${t.w}`}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-sm font-medium text-zinc-100">{t.name}</span>
+                </div>
+                <p className="mt-0.5 text-xs leading-relaxed text-zinc-400">{t.body}</p>
+                <div className="mt-2 h-1 w-full rounded-full bg-zinc-700" aria-hidden />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Band>
 
       {/* -------------------------------------------------- stack */}
-      <section className="mt-12 border-t border-zinc-800 pt-6">
-        <h2 className="text-xs text-zinc-400">Built with</h2>
-        <p className="mt-3 text-sm text-zinc-300">
-          Next 16 and React 19, Firebase for auth and Firestore, the Anthropic SDK for narration,
-          Vercel for hosting, Playwright and Vitest for the tests.
-        </p>
-        <p className="mt-3 text-sm text-zinc-400">
+      <Band label="Built with">
+        <div className="flex flex-wrap gap-2">
+          {['Next 16', 'React 19', 'Firebase', 'Firestore', 'Anthropic SDK', 'Vercel', 'Playwright', 'Vitest'].map(
+            (t) => (
+              <span key={t} className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300">
+                {t}
+              </span>
+            )
+          )}
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-zinc-400">
           The Firebase keys ship in the client by design — access is held by the security rules, not
           by hiding the keys. The server secrets never reach the browser.
         </p>
-      </section>
+      </Band>
 
       {/* -------------------------------------------------- see it live */}
-      <section className="mt-12 border-t border-zinc-800 pt-6">
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/how"
-            className="inline-flex min-h-11 items-center rounded border border-zinc-800 px-4 text-sm text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
-          >
-            See what Pulse does
-          </Link>
-          <Link
-            href="/signin"
-            className="inline-flex min-h-11 items-center rounded bg-emerald-500 px-4 text-sm font-medium text-emerald-950 transition-colors hover:bg-emerald-400"
-          >
-            Sign in — yours is waiting
-          </Link>
-        </div>
-      </section>
+      <div className="mt-12 flex flex-wrap gap-3 border-t border-zinc-800 pt-8">
+        <Link
+          href="/how"
+          className="inline-flex min-h-11 items-center rounded border border-zinc-800 px-4 text-sm text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
+        >
+          See what Pulse does
+        </Link>
+        <Link
+          href="/signin"
+          className="inline-flex min-h-11 items-center rounded bg-emerald-500 px-4 text-sm font-medium text-emerald-950 transition-colors hover:bg-emerald-400"
+        >
+          Sign in — yours is waiting
+        </Link>
+      </div>
 
       <footer className="mt-12 border-t border-zinc-800 pt-6">
         <p className="text-xs leading-relaxed text-zinc-400">
@@ -159,46 +195,12 @@ export default function ApproachPage() {
   );
 }
 
-/* ------------------------------------------------------------------ pieces */
-
-function Point({ name, body }: { name: string; body: string }) {
+/** A titled band: a small zinc label, a hairline top rule, and its content. */
+function Band({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <li className="rounded-lg border border-zinc-800 p-4">
-      <p className="text-sm font-medium text-zinc-100">{name}</p>
-      <p className="mt-1 text-sm text-zinc-400">{body}</p>
-    </li>
-  );
-}
-
-function Flow({
-  tag,
-  title,
-  body,
-  last,
-}: {
-  tag: string;
-  title: string;
-  body: string;
-  last?: boolean;
-}) {
-  return (
-    <li className="relative pl-5">
-      <span className="absolute left-0 top-1.5 h-2 w-2 rounded-full border border-zinc-600" aria-hidden />
-      {!last && <span className="absolute left-[3.5px] top-4 bottom-[-1rem] w-px bg-zinc-800" aria-hidden />}
-      <p className="text-xs text-zinc-500">{tag}</p>
-      <p className="mt-1 text-sm font-medium text-zinc-100">{title}</p>
-      <p className="mt-1 text-sm text-zinc-400">{body}</p>
-    </li>
-  );
-}
-
-function Test({ name, body }: { name: string; body: string }) {
-  return (
-    <li className="flex gap-4 rounded-lg border border-zinc-800 p-4">
-      <div className="flex-1">
-        <p className="text-sm font-medium text-zinc-100">{name}</p>
-        <p className="mt-1 text-sm text-zinc-400">{body}</p>
-      </div>
-    </li>
+    <section className="mt-12 border-t border-zinc-800 pt-6">
+      <h2 className="mb-4 text-xs text-zinc-400">{label}</h2>
+      {children}
+    </section>
   );
 }

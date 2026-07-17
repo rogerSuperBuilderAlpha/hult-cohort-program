@@ -44,12 +44,12 @@ export default function SignInPage() {
     if (!loading && user) router.replace('/');
   }, [user, loading, router]);
 
-  async function run(fn: () => Promise<void>) {
+  async function run(fn: () => Promise<void>, next = '/') {
     setError('');
     setBusy(true);
     try {
       await fn();
-      router.replace('/');
+      router.replace(next);
     } catch (err) {
       setError(friendlyError(err));
     } finally {
@@ -87,41 +87,57 @@ export default function SignInPage() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            run(() =>
-              mode === 'signin'
-                ? signInWithEmail(email, password)
-                : signUpWithEmail(email, password, name || email.split('@')[0])
+            // A brand-new account has never seen the consent gate — send it there, per
+            // spec §5.2. /connect is the one screen that buys autonomy, and a sign-up that
+            // skips it leaves sensing switched off with nothing pointing the way in. A
+            // returning sign-in has already decided, so it lands home.
+            run(
+              () =>
+                mode === 'signin'
+                  ? signInWithEmail(email, password)
+                  : signUpWithEmail(email, password, name || email.split('@')[0]),
+              mode === 'signin' ? '/' : '/connect'
             );
           }}
           className="space-y-3"
         >
+          {/*
+            aria-label on each field, not just a placeholder. A placeholder is not an
+            accessible name — a screen reader announces a bare "edit text", and the hint
+            vanishes the moment someone types. This is the front door of the app, and it
+            was the one form that missed the label discipline the rest of the app uses.
+            focus:ring so the focus state is visible, not a 1.5:1 border change on dark.
+          */}
           {mode === 'signup' && (
             <input
               type="text"
+              aria-label="Your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
               autoComplete="name"
-              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600"
+              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
             />
           )}
           <input
             type="email"
             required
+            aria-label="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             autoComplete="email"
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600"
+            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
           />
           <input
             type="password"
             required
+            aria-label="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600"
+            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
           />
 
           {error && (

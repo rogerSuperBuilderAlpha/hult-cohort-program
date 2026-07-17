@@ -319,6 +319,32 @@ the credential is the last wire, not a blocker for the rest.
 
 ---
 
+## ✅ Layer 3 complete (emulator-verified) — the job, the helper offer, the opt-in, 2026-07-17
+
+The "still gated" list above shrank to one word: **prod**. The whole Broker now runs and is
+verified on the emulator, where the Admin SDK needs no credential; `FIREBASE_SERVICE_ACCOUNT`
+in Vercel is the only remaining wire.
+
+| Piece | State |
+|---|---|
+| The broker job — gather (aging in_progress + explicit opt-in, never absence) → match → create-if-absent upserts at derived ids | ✅ `lib/broker-admin.ts` + `lib/broker-job.ts`, 13 integration tests on a real Firestore |
+| Re-runs converge; a dismissal outlives every future run; an opted-out helper is never matched | ✅ integration-pinned |
+| `intro_made` publishes ONLY after help visibly lands (sent + unstuck-by-that-recipe), once, both names verified | ✅ integration-pinned, incl. the never-for-suggested case |
+| `POST /api/broker` — secret-gated cron door; 503s loudly with a reason when unconfigured | ✅ `app/api/broker/route.ts` |
+| Rung 1 live on Home — "{name} is stuck on something you solved", Send → `sent` + lands on the recipe, "not now" → dismissed forever | ✅ e2e both moves, **watched in a browser** |
+| The privacy acceptance test — FAILS if any cohort surface ever shows a stuck signal; proven able to fail via a seeded leak | ✅ `broker-privacy.spec.ts`, green WITH the helper UI live |
+| "I'm stuck on this" — assignee-only flag (rules-unforgeable, 5 tests), quiet modal control, renders nowhere the cohort can see | ✅ **watched in a browser**, stuckSince landed under real rules |
+
+Gate at this commit: **typecheck ✅ · lint ✅ · 188 unit ✅ · 113 rules ✅ · 13 integration ✅ ·
+full e2e 59 passed + 2 flaky-green-on-retry, 0 failures ✅**.
+
+👤 **Nik, the one action:** Firebase console → Project settings → Service accounts → Generate
+new private key → paste the JSON into a Vercel env var `FIREBASE_SERVICE_ACCOUNT` (server-side
+only, never committed), plus a `BROKER_SECRET` for the cron, and point a Vercel cron at
+`POST /api/broker` with header `x-broker-secret`. Everything else already works.
+
+---
+
 ## ✅ Layer 2 — Bank draws its own draft, built + driven 2026-07-17
 
 `LAYER-2-3-DESIGN.md`, increment set A. The recipe write path was already built (`RecipeModal` +

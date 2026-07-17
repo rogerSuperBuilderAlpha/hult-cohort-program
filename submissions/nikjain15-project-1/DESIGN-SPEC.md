@@ -89,12 +89,20 @@ gh api "repos/rogerSuperBuilderAlpha/hult-cohort-program/pulls?state=all&per_pag
 
 ## 4. Foundations
 
+### Voice — see [VOICE.md](VOICE.md), which governs every string
+
+The product's writing IS its personality: **plain, warm, alive** — never peppy, corporate or
+apologetic. Tagline: **"Pulse — the board that updates itself."** Every hero line leads with a
+verb Pulse owns; receipts stay verbatim (PR #s) while everything around them reads human
+("about 7 days from start to finish"). Copy changes check VOICE.md first, tests second
+(strings may be pinned), ethics always.
+
 ### Visual language
 
 | | |
 |---|---|
 | Type | System sans. 11/12/13/14px. Two weights: 400, 500. Sentence case everywhere. |
-| Surfaces | White cards on light-gray. Dark mode out of scope. |
+| Surfaces | Dark: zinc-900 cards on zinc-950. (Spec originally said light; the build went dark and dark is now canonical.) |
 | Borders | Hairline. Radius 8px cards, 4px controls. |
 | Colour | **Green** = the motivating action (approve, steal, send). **Red** = debt or time against you. **Nothing else is coloured.** |
 | Density | Feed rows ~44px. Comfortable — reviewers skim on phones. |

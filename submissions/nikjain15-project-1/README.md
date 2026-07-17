@@ -2,9 +2,11 @@
 
 **Project 1 · [@nikjain15](https://github.com/nikjain15)** · Hult Cohort Developer Program, Summer Pilot 2026
 
-> **Pulse senses the work, banks how it got solved, and hands that to the next person who gets stuck.**
+> **Pulse — the board that updates itself.** It senses the work, banks how it got solved, and
+> hands that to the next person who gets stuck.
 
-**Production: https://pm-nikjain15.vercel.app**
+**Production: https://pm-nikjain15.vercel.app** · Every user-facing string follows
+[VOICE.md](VOICE.md); the design system is [DESIGN-SPEC.md](DESIGN-SPEC.md) §4.
 
 Every task board dies the same way: updating it is manual, boring, and the first thing to go. This
 cohort's work is already legible — 65 people running coding agents against public repos. The status is

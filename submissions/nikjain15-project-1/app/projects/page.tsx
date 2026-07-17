@@ -73,7 +73,7 @@ function ProjectsView() {
         <p className="text-sm text-zinc-400">Loading projects…</p>
       ) : visible.length === 0 ? (
         <p className="rounded-lg border border-zinc-800 bg-zinc-900/30 py-10 text-center text-sm text-zinc-400">
-          {showArchived ? 'Nothing archived.' : 'No projects yet. Create one to put a task in it.'}
+          {showArchived ? 'Nothing archived.' : 'No projects yet. Make one — every task needs a home.'}
         </p>
       ) : (
         <ul className="space-y-2">

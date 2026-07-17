@@ -59,7 +59,7 @@ function BoardView() {
       <div className="mb-4">
         <h1 className="text-sm font-medium text-zinc-100">Board</h1>
         <p className="mt-1 text-xs text-zinc-400">
-          Every card says where it came from. Drag it, or use the status control.
+          Pulse moves these when you ship. Drag works too — every card says where it came from.
         </p>
       </div>
 

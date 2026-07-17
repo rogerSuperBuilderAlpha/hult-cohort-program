@@ -82,8 +82,8 @@ function Ask({
         {shipped.length} people have shipped this week.
       </h2>
       <p className="mt-3 text-sm text-zinc-400">
-        Pulse already read the cohort&rsquo;s public repo. Tell it your GitHub handle and it will show
-        you your week — no account needed.
+        Pulse already read the cohort&rsquo;s public repo. Type your GitHub handle — it shows you
+        your week. No account needed.
       </p>
 
       <form
@@ -109,7 +109,7 @@ function Ask({
           disabled={!handle.trim()}
           className="min-h-11 rounded bg-emerald-500 px-4 text-sm font-medium text-emerald-950 transition-colors hover:bg-emerald-400 disabled:opacity-40"
         >
-          Show me
+          Show me my week
         </button>
       </form>
     </section>

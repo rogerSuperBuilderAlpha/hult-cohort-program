@@ -34,6 +34,11 @@ Ordered. Higher wins.
 7. **Never present a stale feed as live.** Degrade loudly.
 8. **No secrets committed.** `.env*` is gitignored. Never `NEXT_PUBLIC_` a secret — that prefix ships
    it to every browser.
+9. **Every user-facing string follows [VOICE.md](VOICE.md).** Tagline is "the board that
+   updates itself" — never "the cohort's heartbeat". Empty states invite, receipts stay
+   verbatim, spans read human ("about 7 days from start to finish"). Grep `tests/` before
+   changing any string — several are pinned. When voice and an ethics rule above collide,
+   the ethic wins.
 
 ## Where the bodies are buried
 

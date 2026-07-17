@@ -32,10 +32,10 @@ export function useSync(input: {
   // card moves would sync on every keystroke's worth of Firestore traffic. Written in an
   // effect, not during render — a render can be thrown away, and a ref mutated on a
   // discarded render is a real inconsistency, not a lint technicality.
-  const latest = useRef({ tasks, projects, actor });
+  const latest = useRef({ tasks, projects, actor, link });
   useEffect(() => {
-    latest.current = { tasks, projects, actor };
-  }, [tasks, projects, actor]);
+    latest.current = { tasks, projects, actor, link };
+  }, [tasks, projects, actor, link]);
 
   // One sync at a time. Two concurrent runs both see "no card for this branch" and both
   // create one — the twin bug, arrived at from a different direction.
@@ -43,6 +43,27 @@ export function useSync(input: {
 
   const uid = actor?.uid ?? null;
   const canSync = ready && !!uid && link?.status === 'connected';
+
+  /**
+   * Depend on the SCALARS this effect reads — never on the `link` object.
+   *
+   * `subscribeToLink` mints a fresh object on every snapshot, and this effect's success
+   * path writes `markSynced` to the very document that listener watches. With `link` in
+   * the deps that closes a circle: sync → markSynced → snapshot → new object identity →
+   * effect re-runs → sync. Measured on the board it settled after a couple of passes
+   * rather than running away, so this is not the live billing incident it looks like —
+   * but an effect whose output is its own input is one Firestore behaviour away from
+   * being one, and the fix costs nothing. `running` wouldn't save it either: that guard
+   * is released in `finally`, so a re-entry that is sequential rather than concurrent
+   * walks straight past it.
+   *
+   * lastSyncedAt is read as a boolean (backfilling or not), so only its NULLNESS belongs
+   * here — depending on the timestamp itself would re-arm the circle on every stamp.
+   */
+  const linkHandle = link?.handle ?? null;
+  const linkStatus = link?.status ?? null;
+  const linkCreatesTasks = link?.createTasksFromBranches ?? false;
+  const linkBackfilling = link?.lastSyncedAt === null;
 
   useEffect(() => {
     if (!canSync) return;
@@ -59,20 +80,26 @@ export function useSync(input: {
 
         const result = await syncFromGitHub({
           actor: current.actor,
-          link,
+          link: current.link,
           tasks: current.tasks,
           projects: current.projects,
         });
 
-        if (cancelled) return;
-        setOutcome(result);
-
-        // Stamping lastSyncedAt is what ends the backfill: from here on, a status change
-        // is real news and logs to the feed. Only stamp on success — a failed sync must
-        // not silently promote the next one out of backfill mode and announce old work.
+        // Stamping lastSyncedAt ends the backfill: from here on a status change is real
+        // news and logs to the feed. Only on success — a failed sync must not silently
+        // promote the next one out of backfill mode and announce last week's work.
+        //
+        // Deliberately BEFORE the `cancelled` check. This used to bail first, and in
+        // StrictMode that meant the run that survives is the cancelled one: it created the
+        // cards, then skipped the stamp, so lastSyncedAt stayed null and the backfill never
+        // ended. The writes already happened — refusing to record that is how you get a
+        // board that re-backfills forever.
         if (result.kind === 'synced') await markSynced(current.actor.uid);
+
+        // `cancelled` guards only the state write — the component may be gone.
+        if (!cancelled) setOutcome(result);
       } catch (err) {
-        // Belt and braces: syncFromGitHub already swallows its own failures.
+        // Belt and braces: syncFromGitHub handles its own failures and returns an outcome.
         console.error('sync: failed', err);
       } finally {
         running.current = false;
@@ -86,8 +113,9 @@ export function useSync(input: {
       cancelled = true;
       clearInterval(timer);
     };
-    // link is the whole gate; uid identifies the actor. Deliberately NOT tasks/projects.
-  }, [canSync, uid, link]);
+    // Scalars only — never the `link` object (see above). Deliberately NOT tasks/projects:
+    // re-running on every card move would sync on every keystroke's worth of traffic.
+  }, [canSync, uid, linkHandle, linkStatus, linkCreatesTasks, linkBackfilling]);
 
   return outcome;
 }

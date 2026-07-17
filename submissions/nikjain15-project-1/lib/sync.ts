@@ -24,6 +24,14 @@ export type SyncOutcome =
   | { kind: 'synced'; created: number; moved: number; at: Date }
   /** Say so out loud. Never present a stale board as a live one. */
   | { kind: 'degraded'; failure: 'rate_limited' | 'unreachable'; resetAt: Date | null }
+  /**
+   * We reached GitHub but couldn't write the board. Distinct from `degraded` because
+   * blaming the network for a permissions or offline failure sends people to look in the
+   * wrong place — and the partial counts matter: some cards may already have landed.
+   */
+  | { kind: 'write_failed'; created: number; moved: number }
+  /** Connected, but the GitHub login was never captured. A failure, not a choice. */
+  | { kind: 'no_handle' }
   /** Not connected, or task-building switched off in Settings. Not an error. */
   | { kind: 'off' };
 
@@ -38,7 +46,18 @@ export async function syncFromGitHub(input: {
   // Settings is not decoration: `off` here means off. `createTasksFromBranches` false
   // still allows status inference on cards Pulse already knows about (spec §9), but it
   // must never invent a new one.
-  if (!link || link.status !== 'connected' || !link.handle) return { kind: 'off' };
+  if (!link || link.status !== 'connected') return { kind: 'off' };
+
+  /**
+   * Connected, but we never captured the GitHub login — `saveConsent` writes '' when it
+   * wasn't available, and the login only exists on `getAdditionalUserInfo()` at sign-in.
+   *
+   * This is NOT `off`. `off` means you chose this; this means we lost something and can
+   * do nothing, while Settings cheerfully says "connected". Silence there is the failure
+   * mode where a member consents, sees nothing happen forever, and concludes the product
+   * is broken — which it is, quietly. Say it out loud instead.
+   */
+  if (!link.handle) return { kind: 'no_handle' };
 
   const response = await fetchSense(link.handle);
   if (!response) return { kind: 'degraded', failure: 'unreachable', resetAt: null };
@@ -54,47 +73,103 @@ export async function syncFromGitHub(input: {
   // 64 feeds for last week's merges is exactly the stale-as-live failure the feed forbids.
   const backfilling = link.lastSyncedAt === null;
 
+  /**
+   * ONLY MY OWN WORK. This scoping is load-bearing, not a tidy-up.
+   *
+   * `tasks` is the whole cohort's — `subscribeToTasks` is unfiltered, because the board is
+   * shared by design. Matching an inferred title against that list let my sync mutate
+   * SOMEONE ELSE'S card: a peer hand-writes "Fix the build", I open a PR called "Fix the
+   * build", and my sync moves their card and (after the backfill) publishes "I shipped" it
+   * to 64 feeds. Confirmed in a browser against a real cohort PR title, not hypothesised —
+   * the victim's manual card went todo → done, completedAt set, creatorUid still theirs.
+   *
+   * The rules can't catch this: I'm a signed-in member, I'm not rewriting authorship, and
+   * I genuinely am the actor on the event. Every write is legal. It's this list that was
+   * wrong. Same trap as the guessed handle in AGENTS.md — one person's work attached to
+   * another — reached through the dedupe instead.
+   */
+  const mine = tasks.filter((t) => t.creatorUid === actor.uid || t.assigneeUid === actor.uid);
+
   let projectId: string | null = findRepoProject(projects)?.id ?? null;
   let created = 0;
   let moved = 0;
 
-  for (const pull of response.pulls) {
-    const title = titleFor(pull);
-    const existing = matchTask(tasks, pull, title);
-    const inference = inferStatus(signalFor(pull));
+  // Cards created during THIS run. `mine` is a listener snapshot taken before the loop, so
+  // it never sees them: two PRs on one branch, or two titles that normalise the same, would
+  // each miss the other's card and twin it.
+  const fresh: Task[] = [];
 
-    if (!existing) {
-      if (!link.createTasksFromBranches) continue;
+  try {
+    for (const pull of winningPulls(response.pulls)) {
+      const title = titleFor(pull);
+      const existing = matchTask([...mine, ...fresh], pull, title);
+      const inference = inferStatus(signalFor(pull));
 
-      // Created lazily: a member with no sensed work gets no empty project they didn't ask
-      // for, and the first card is what makes the project mean something.
-      projectId ??= await ensureRepoProject(actor);
-      await createSensedTask(actor, {
-        projectId,
-        title,
-        description: `Pulse built this from ${pull.branch ? `\`${pull.branch}\`` : `PR #${pull.number}`}. Edit or delete it — it's yours.`,
-        status: inference.status,
-        evidence: evidenceFor(pull),
-        branch: pull.branch,
-      });
-      created += 1;
-      continue;
+      if (!existing) {
+        if (!link.createTasksFromBranches) continue;
+
+        // Created lazily: a member with no sensed work gets no empty project they didn't ask
+        // for, and the first card is what makes the project mean something.
+        projectId ??= await ensureRepoProject(actor);
+        const id = await createSensedTask(actor, {
+          projectId,
+          title,
+          description: `Pulse built this from ${pull.branch ? `\`${pull.branch}\`` : `PR #${pull.number}`}. Edit or delete it — it's yours.`,
+          status: inference.status,
+          evidence: evidenceFor(pull),
+          branch: pull.branch,
+        });
+        fresh.push({ id, title, branch: pull.branch, status: inference.status } as Task);
+        created += 1;
+        continue;
+      }
+
+      if (existing.status === inference.status) continue;
+
+      if (backfilling) {
+        await setSensedStatusSilently(existing.id, inference.status);
+      } else {
+        // The only path that logs task_started / task_shipped and sets completedAt.
+        // A PR closed unmerged infers `todo` and logs nothing — the feed is a record of
+        // progress, never a place to be embarrassed.
+        await setTaskStatus(actor, existing, inference.status);
+      }
+      moved += 1;
     }
-
-    if (existing.status === inference.status) continue;
-
-    if (backfilling) {
-      await setSensedStatusSilently(existing.id, inference.status);
-    } else {
-      // The only path that logs task_started / task_shipped and sets completedAt.
-      // A PR closed unmerged infers `todo` and logs nothing — the feed is a record of
-      // progress, never a place to be embarrassed.
-      await setTaskStatus(actor, existing, inference.status);
-    }
-    moved += 1;
+  } catch (err) {
+    // Firestore rejects on permission-denied, offline, or a failed precondition. This used
+    // to escape and leave `outcome` null, which renders NOTHING — a board that quietly
+    // stopped updating, which is the exact failure SyncNote exists to prevent. Say it.
+    console.error('sync: write failed', err);
+    return { kind: 'write_failed', created, moved };
   }
 
   return { kind: 'synced', created, moved, at: new Date() };
+}
+
+/**
+ * One PR per branch: the one that decides the card's state.
+ *
+ * A branch legitimately has several PRs — the first attempt abandoned, the second merged.
+ * Processing both let an abandoned PR outrank the merged one, so the card flapped
+ * done→todo→done on every poll and re-announced "shipped!" to the cohort each time it
+ * bounced back. Merged is the strongest signal and it is terminal: once work has landed,
+ * a closed sibling PR says nothing about it.
+ */
+function winningPulls(pulls: SensedPull[]): SensedPull[] {
+  const rank = (p: SensedPull) => (p.merged ? 3 : p.state === 'open' ? 2 : 1);
+  const best = new Map<string, SensedPull>();
+
+  for (const pull of pulls) {
+    // No branch → nothing to collide with; key on the PR itself.
+    const key = pull.branch ?? `#${pull.number}`;
+    const held = best.get(key);
+    if (!held || rank(pull) > rank(held) || (rank(pull) === rank(held) && pull.number > held.number)) {
+      best.set(key, pull);
+    }
+  }
+
+  return [...best.values()];
 }
 
 /** Never throws: a dead route must degrade, not break the board. */

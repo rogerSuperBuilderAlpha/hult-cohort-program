@@ -127,7 +127,13 @@ service cloud.firestore {
                     && sensedIdMatchesCreator(taskId, request.auth.uid);
       allow update: if signedIn()
                     && request.resource.data.creatorUid == resource.data.creatorUid
-                    && !changed().hasAny(['source', 'evidence', 'branch', 'createdAt']);
+                    && !changed().hasAny(['source', 'evidence', 'branch', 'createdAt'])
+                    // "I'm stuck on this" is the assignee's own voice and nobody else's.
+                    // The broker treats it as its strongest signal precisely because it
+                    // carries zero inference — which it only stays if a peer cannot flag
+                    // you, and you cannot flag a card that isn't yours to be stuck on.
+                    && (!changed().hasAny(['stuckSince'])
+                        || isSelf(resource.data.assigneeUid));
       allow delete: if signedIn() && isSelf(resource.data.creatorUid);
     }
 

@@ -151,8 +151,23 @@ export async function createTask(
     source: 'manual' as const,
     evidence: null,
     branch: null,
+    stuckSince: null,
   });
   return ref.id;
+}
+
+/**
+ * The assignee's own "I'm stuck on this" — on or off, no questions either way.
+ *
+ * Only the assignee may flip it (the rules enforce it: declaring a PEER stuck is exactly
+ * the kind of claim this product exists to refuse). The timestamp is when they asked,
+ * read only by the server-side broker job; it never renders to the cohort. Clearing it
+ * withdraws the ask silently — help that hasn't arrived yet simply doesn't.
+ */
+export async function setTaskStuck(taskId: string, stuck: boolean): Promise<void> {
+  await updateDoc(doc(db, 'tasks', taskId), {
+    stuckSince: stuck ? serverTimestamp() : null,
+  });
 }
 
 /**
@@ -220,6 +235,7 @@ export async function createSensedTask(
       createdAt: serverTimestamp(),
       completedAt: fields.status === 'done' ? serverTimestamp() : null,
       source: 'sensed' as const,
+      stuckSince: null,
     });
     return { created: true, tombstoned: false };
   });

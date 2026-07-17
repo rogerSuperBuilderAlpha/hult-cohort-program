@@ -773,6 +773,45 @@ describe('tasks — a receipt cannot be forged', () => {
 });
 
 /**
+ * "I'm stuck on this" is the Broker's strongest signal BECAUSE it carries zero
+ * inference — which it only stays if it is unforgeable. A peer who can flag you stuck
+ * has manufactured the exact claim ("so-and-so is struggling") this product refuses to
+ * infer, and laundered it through the one channel the broker trusts completely.
+ */
+describe('tasks — only the assignee can say "I\'m stuck"', () => {
+  const path = 'tasks/task_1';
+
+  it('lets the assignee flag their own card, and clear it again', async () => {
+    await seed(env, path, task(BOB, { assigneeUid: ALICE }));
+    await assertSucceeds(updateDoc(doc(as(env, ALICE), path), { stuckSince: new Date() }));
+    await assertSucceeds(updateDoc(doc(as(env, ALICE), path), { stuckSince: null }));
+  });
+
+  it('denies a peer declaring the assignee stuck', async () => {
+    await seed(env, path, task(BOB, { assigneeUid: BOB }));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { stuckSince: new Date() }));
+  });
+
+  it('denies even the card\'s creator flagging someone else\'s struggle', async () => {
+    // Creating the card gives you no voice about the assignee's state of mind.
+    await seed(env, path, task(ALICE, { assigneeUid: BOB }));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { stuckSince: new Date() }));
+  });
+
+  it('denies flagging an unassigned card — there is nobody to be stuck', async () => {
+    await seed(env, path, task(ALICE, { assigneeUid: null }));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { stuckSince: new Date() }));
+  });
+
+  it('leaves normal edits by peers untouched when the flag stays put', async () => {
+    await seed(env, path, task(BOB, { assigneeUid: BOB, stuckSince: new Date() }));
+    await assertSucceeds(
+      updateDoc(doc(as(env, ALICE), path), { title: 'Renamed by a teammate' })
+    );
+  });
+});
+
+/**
  * Counts are `array.length`, but the rules reasoned in SETS — and Firestore arrays allow
  * duplicates. So `[]` -> `[alice, alice, alice]` had a symmetric difference of {alice} and
  * sailed through, letting anyone set the two numbers in the product to whatever they liked

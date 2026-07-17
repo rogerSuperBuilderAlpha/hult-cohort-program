@@ -64,6 +64,7 @@ describe('two tabs cannot double-post a ship (item 2)', () => {
       source: 'manual',
       evidence: null,
       branch: null,
+      stuckSince: null,
     };
 
     // Tab A and Tab B both ship, each unaware the other did.

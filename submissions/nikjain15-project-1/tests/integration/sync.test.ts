@@ -99,7 +99,7 @@ describe('sync', () => {
       {
         id, projectId: 'repo_x', title: 'Fast merge two', description: '', status: 'done',
         assigneeUid: user.uid, creatorUid: user.uid, dueDate: null, createdAt: null as never,
-        completedAt: null, source: 'sensed', evidence: null, branch,
+        completedAt: null, source: 'sensed', evidence: null, branch, stuckSince: null,
       },
     ];
 
@@ -122,7 +122,7 @@ describe('sync', () => {
     const todoSnapshot: Task = {
       id, projectId: 'repo_x', title: 'Human finishes early', description: '', status: 'todo',
       assigneeUid: user.uid, creatorUid: user.uid, dueDate: null, createdAt: null as never,
-      completedAt: null, source: 'sensed', evidence: null, branch,
+      completedAt: null, source: 'sensed', evidence: null, branch, stuckSince: null,
     };
     await setTaskStatus(actor, todoSnapshot, 'done');
 

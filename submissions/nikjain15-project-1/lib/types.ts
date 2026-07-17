@@ -75,6 +75,14 @@ export type Task = {
   evidence: Evidence | null;
   /** Branch that produced a sensed card. The dedupe key against re-syncs. */
   branch: string | null;
+  /**
+   * The assignee's own "I'm stuck on this" — the Broker's strongest signal, and the
+   * only one with zero inference in it. Set and cleared ONLY by the assignee (the rules
+   * enforce it: nobody may declare a peer stuck), read ONLY by the server-side broker
+   * job. It renders nowhere the cohort can see — no badge, no board marker, nothing.
+   * Asking for help quietly is the whole dignity of the feature.
+   */
+  stuckSince: Timestamp | null;
 };
 
 /**

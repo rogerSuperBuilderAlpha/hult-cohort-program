@@ -175,6 +175,8 @@ export function task(creatorUid: string, over: Record<string, unknown> = {}) {
     source: 'manual',
     evidence: null,
     branch: null,
+    // The assignee's own quiet ask. Only they may flip it — see the stuck-flag tests.
+    stuckSince: null,
     ...over,
   };
 }

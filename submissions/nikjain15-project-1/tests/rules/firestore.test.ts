@@ -257,6 +257,28 @@ describe('pulse — nobody can fake, edit, or erase someone else\'s heartbeat', 
     await assertSucceeds(addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE)));
   });
 
+  it('denies a client forging an intro_made — only the trusted job may say who was helped', async () => {
+    // intro_made is the Broker's one public moment: "{actor} unstuck {other}". It names
+    // someone as previously stuck, so it may originate ONLY server-side (Admin SDK), when
+    // a real introduction resolved. A member hand-writing it, even honestly attributed to
+    // themselves, would publicly imply a peer was stuck with no resolved intro and no
+    // consent behind it — the exact surveillance leak the asymmetry forbids.
+    await seed(env, `members/${ALICE}`, member(ALICE));
+    await assertFails(
+      addDoc(
+        collection(as(env, ALICE), 'pulse'),
+        pulseEvent(ALICE, { kind: 'intro_made', subject: 'the OAuth redirect loop', otherName: `Member ${BOB}`, otherUid: BOB }),
+      ),
+    );
+  });
+
+  it('still lets a client post every other kind — the intro_made lock is surgical', async () => {
+    await seed(env, `members/${ALICE}`, member(ALICE));
+    await assertSucceeds(
+      addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE, { kind: 'recipe_banked', subject: 'A recipe' })),
+    );
+  });
+
   it("denies A posting under B's NAME even with A's own uid — no impersonation via actorName", async () => {
     // The forgery the feed made effective: actorUid is honestly ALICE, but actorName is
     // BOB's — and the feed renders actorName verbatim, so it would display as BOB.

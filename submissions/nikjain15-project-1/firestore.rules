@@ -187,6 +187,13 @@ service cloud.firestore {
       allow create: if signedIn()
                     && isSelf(request.resource.data.actorUid)
                     && request.resource.data.kudos.size() == 0
+                    // `intro_made` names someone as previously stuck. It is the one public
+                    // moment of the Broker, allowed ONLY when help actually landed — a fact
+                    // only the trusted server job (Admin SDK, which bypasses these rules)
+                    // can vouch for. A client must never forge it: "I unstuck Bob" written
+                    // by hand publicly implies Bob was stuck, with no resolved introduction
+                    // and no consent behind it. Every other kind stays client-writable.
+                    && request.resource.data.kind != 'intro_made'
                     && request.resource.data.actorName ==
                        get(/databases/$(database)/documents/members/$(request.auth.uid)).data.displayName;
 

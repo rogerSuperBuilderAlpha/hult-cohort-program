@@ -222,4 +222,13 @@ export type PulseEvent = {
   evidence: Evidence | null;
   /** Set when the human rewords Pulse's sentence. The human is right. */
   editedAt: Timestamp | null;
+  /**
+   * The second party — used only by `intro_made`: "{actor} unstuck {otherName} on
+   * {subject}". Null for every other kind. Denormalised like `actorName` so the feed
+   * renders without a join. The moment help lands is the ONE time stuckness becomes
+   * public, and only as a resolved thank-you with the helped person's implied consent —
+   * so this names them, never "stuck for N days", never any shame residue.
+   */
+  otherUid: string | null;
+  otherName: string | null;
 };

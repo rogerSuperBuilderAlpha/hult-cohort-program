@@ -294,6 +294,31 @@ be done from here.
 
 ---
 
+## ✅ Layer 3 groundwork — the Broker's core + the intro_made public moment, 2026-07-17
+
+Everything the Broker needs that does NOT need the Admin SDK credential. The scheduled
+write-job is the only gated piece (see the 👤 Nik handoff below).
+
+| Piece | State |
+|---|---|
+| `matchIntroductions` — pure matching core: recipe-author > file-toucher, never the stuck person, load-cap, opt-ins first | ✅ `lib/broker.ts`, 14 unit cases pin the ethic |
+| The surveillance line is unrepresentable — `StuckSignal` has no "last seen"/"days quiet" field | ✅ absence cannot become a signal by construction |
+| `intro_made` second party — `otherUid`/`otherName` on `PulseEvent`, so the feed renders "{actor} unstuck {other} on {problem}" | ✅ **watched in a browser** (screenshot) |
+| The one public moment carries no shame — no "stuck for N days", no debt framing | ✅ e2e asserts the absence |
+| **Rules hardening:** a client cannot forge an `intro_made` — it may originate ONLY server-side (the trusted job), when help actually landed | ✅ `firestore.rules`, 2 new rules tests |
+| The `introductions` doc stays helper-only, uncounted, unlistable (unchanged, re-verified) | ✅ existing rules suite |
+
+Gate: **typecheck ✅ · lint ✅ · 176 unit ✅ · 108 rules ✅ · 5 integration ✅ · full e2e
+(59 passed; approval-queue flaked once under load, green in isolation — same flake class as
+the pre-existing crud due-date test) ✅**.
+
+Still gated on Nik's credential: the scheduled broker job that gathers stuck signals, calls
+`matchIntroductions`, and writes the `introductions` + `intro_made` docs with the Admin SDK.
+The matching, the state machine, and the public-moment rendering are all built and verified;
+the credential is the last wire, not a blocker for the rest.
+
+---
+
 ## ✅ Layer 2 — Bank draws its own draft, built + driven 2026-07-17
 
 `LAYER-2-3-DESIGN.md`, increment set A. The recipe write path was already built (`RecipeModal` +

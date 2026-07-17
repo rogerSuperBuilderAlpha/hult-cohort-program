@@ -37,6 +37,9 @@ type NewPulse = {
    */
   proposedNarrative?: string | null;
   evidence?: Evidence | null;
+  /** The second party, for `intro_made` only — the helped person. Null everywhere else. */
+  otherUid?: string | null;
+  otherName?: string | null;
 };
 
 /**
@@ -55,6 +58,8 @@ export async function logPulse(event: NewPulse): Promise<void> {
       proposedNarrative: event.proposedNarrative ?? null,
       evidence: event.evidence ?? null,
       editedAt: null,
+      otherUid: event.otherUid ?? null,
+      otherName: event.otherName ?? null,
       kudos: [],
       createdAt: serverTimestamp(),
     });
@@ -95,6 +100,8 @@ export async function logPulseOnce(eventId: string, event: NewPulse): Promise<vo
         narrative: event.narrative ?? null,
         evidence: event.evidence ?? null,
         editedAt: null,
+        otherUid: event.otherUid ?? null,
+        otherName: event.otherName ?? null,
         kudos: [],
         createdAt: serverTimestamp(),
       });

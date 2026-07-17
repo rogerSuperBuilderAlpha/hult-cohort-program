@@ -941,11 +941,18 @@ function RowCopy({ event }: { event: PulseEvent }) {
         </>
       );
     case 'intro_made':
-      // §6 wants "{actor} unstuck {other} on {problem}". `PulseEvent` carries one subject
-      // and no field for the second party, and Broker (which would write these) isn't
-      // built — so the problem clause is dropped rather than guessed at. Adding the field
-      // is part of layer 3's PR, not something to fake from here.
-      return (
+      // §6: "{actor} unstuck {other} on {problem}". The second party now rides on the
+      // event (`otherName`, denormalised like `actorName`), and `subject` carries the
+      // problem — so the full sentence renders. This is the ONE time stuckness is public,
+      // and only as a resolved thank-you: no "was stuck for N days", no shame residue.
+      // A legacy row without `otherName` degrades to the actor + problem rather than
+      // guessing a name.
+      return event.otherName ? (
+        <>
+          {actor} unstuck{' '}
+          <strong className="font-medium text-zinc-100">{event.otherName}</strong> on {subject}
+        </>
+      ) : (
         <>
           {actor} unstuck {subject}
         </>

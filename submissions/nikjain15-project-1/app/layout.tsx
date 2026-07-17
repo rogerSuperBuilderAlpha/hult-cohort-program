@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pulse — the cohort's heartbeat",
+  title: "Pulse — the board that fills itself in",
   description:
-    "See what the cohort is shipping, in real time. A project management platform built to motivate people to ship.",
+    "You do the work. Pulse watches it happen and writes it down — a project board nobody has to update.",
 };
 
 export default function RootLayout({

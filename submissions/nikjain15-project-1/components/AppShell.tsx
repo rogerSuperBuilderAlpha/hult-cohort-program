@@ -7,7 +7,9 @@ import { useAuth } from '@/lib/auth-context';
 import { OfflineBanner } from './OfflineBanner';
 
 const NAV = [
-  { href: '/', label: 'week 1' },
+  // "home", not "week 1": next to the other one-word tabs, the trailing digit read as a
+  // notification badge in first-run testing — the one thing this nav must never imply.
+  { href: '/', label: 'home' },
   { href: '/board', label: 'board' },
   { href: '/projects', label: 'projects' },
   { href: '/recipes', label: 'recipes' },

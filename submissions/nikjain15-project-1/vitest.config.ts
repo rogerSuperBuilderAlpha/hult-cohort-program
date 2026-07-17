@@ -32,6 +32,22 @@ export default defineConfig({
           hookTimeout: 30_000,
         },
       },
+      {
+        resolve: { alias },
+        test: {
+          name: 'integration',
+          include: ['tests/integration/**/*.test.ts'],
+          environment: 'node',
+          // Drives the REAL lib/data functions against the emulator through the real
+          // client SDK: NEXT_PUBLIC_USE_EMULATOR makes lib/firebase connect there, so the
+          // firestore.rules under test apply to every write exactly as in the browser.
+          env: { NEXT_PUBLIC_USE_EMULATOR: '1' },
+          // One shared emulator dataset, cleared between tests — must not race.
+          fileParallelism: false,
+          testTimeout: 20_000,
+          hookTimeout: 30_000,
+        },
+      },
     ],
   },
 });

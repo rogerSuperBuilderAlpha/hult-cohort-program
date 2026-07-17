@@ -210,7 +210,32 @@ describe('pulse — nobody can fake, edit, or erase someone else\'s heartbeat', 
   });
 
   it('lets a signed-in member post an event attributed to themselves', async () => {
+    // actorName is now bound to the caller's own member doc, so the actor must have one.
+    await seed(env, `members/${ALICE}`, member(ALICE));
     await assertSucceeds(addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE)));
+  });
+
+  it("denies A posting under B's NAME even with A's own uid — no impersonation via actorName", async () => {
+    // The forgery the feed made effective: actorUid is honestly ALICE, but actorName is
+    // BOB's — and the feed renders actorName verbatim, so it would display as BOB.
+    await seed(env, `members/${ALICE}`, member(ALICE));
+    await seed(env, `members/${BOB}`, member(BOB));
+    await assertFails(
+      addDoc(
+        collection(as(env, ALICE), 'pulse'),
+        pulseEvent(ALICE, { actorName: `Member ${BOB}` }),
+      ),
+    );
+  });
+
+  it('denies posting with a made-up actorName that matches no member doc', async () => {
+    await seed(env, `members/${ALICE}`, member(ALICE));
+    await assertFails(
+      addDoc(
+        collection(as(env, ALICE), 'pulse'),
+        pulseEvent(ALICE, { actorName: 'Totally Not Alice' }),
+      ),
+    );
   });
 
   it('lets a signed-in member read the cohort feed', async () => {
@@ -495,6 +520,78 @@ describe('projects and tasks — shared work, honest authorship', () => {
   it('lets the creator delete their own task', async () => {
     await seed(env, 'tasks/task_1', task(ALICE));
     await assertSucceeds(deleteDoc(doc(as(env, ALICE), 'tasks/task_1')));
+  });
+});
+
+/* ==========================================================================
+ * sensed-card id squatting — a predictable id must belong to its creator.
+ *
+ * sensedTaskId = `s_<uid>_<fnv1a(branch|pr)>`. The uid is readable and the branch/PR is
+ * public, so the id is guessable. If a peer could create a doc at `s_<victim>_<hash>`,
+ * the victim's create-if-absent transaction would find it and no-op forever — silently
+ * blocking that card from their board, with no error and no way to delete the squat.
+ * ========================================================================== */
+describe('tasks — nobody can squat a victim\'s sensed-card id', () => {
+  const victimId = `s_${BOB}_deadbeef`;
+
+  it("denies a peer creating a doc at the victim's derived sensed id", async () => {
+    await assertFails(
+      setDoc(doc(as(env, ALICE), `tasks/${victimId}`), sensedTask(ALICE)),
+    );
+  });
+
+  it('denies squatting even when the squatter stamps it manual to dodge the check', async () => {
+    // Setting source:'manual' must not buy a bypass — the id shape is what's guarded, and
+    // a manual card at that id still blocks the victim's transaction.
+    await assertFails(
+      setDoc(doc(as(env, ALICE), `tasks/${victimId}`), task(ALICE)),
+    );
+  });
+
+  it('lets the rightful owner create their own sensed card at that id', async () => {
+    await assertSucceeds(
+      setDoc(doc(as(env, BOB), `tasks/${victimId}`), sensedTask(BOB)),
+    );
+  });
+
+  it('still lets manual cards use any (non-sensed-shaped) auto id', async () => {
+    // addDoc auto-ids never start with `s_`, so open manual creation is unaffected.
+    await assertSucceeds(addDoc(collection(as(env, ALICE), 'tasks'), task(ALICE)));
+  });
+});
+
+/* ==========================================================================
+ * tombstones — a deleted sensed card stays deleted, and nobody forges yours.
+ * ========================================================================== */
+describe('tombstones — deletion sticks, and only you can record your own', () => {
+  const id = `s_${ALICE}_deadbeef`;
+
+  it('lets a member tombstone their own deleted sensed card', async () => {
+    await assertSucceeds(
+      setDoc(doc(as(env, ALICE), `tombstones/${id}`), { uid: ALICE, createdAt: new Date() }),
+    );
+  });
+
+  it("denies forging a tombstone under someone else's uid", async () => {
+    await assertFails(
+      setDoc(doc(as(env, ALICE), `tombstones/${id}`), { uid: BOB, createdAt: new Date() }),
+    );
+  });
+
+  it('denies extra fields on a tombstone', async () => {
+    await assertFails(
+      setDoc(doc(as(env, ALICE), `tombstones/${id}`), {
+        uid: ALICE,
+        createdAt: new Date(),
+        evil: true,
+      }),
+    );
+  });
+
+  it('denies lifting a tombstone — deletion is permanent', async () => {
+    await seed(env, `tombstones/${id}`, { uid: ALICE, createdAt: new Date() });
+    await assertFails(deleteDoc(doc(as(env, ALICE), `tombstones/${id}`)));
+    await assertFails(updateDoc(doc(as(env, ALICE), `tombstones/${id}`), { uid: BOB }));
   });
 });
 

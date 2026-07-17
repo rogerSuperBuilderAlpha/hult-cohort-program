@@ -3,17 +3,19 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
   orderBy,
   query,
   runTransaction,
   serverTimestamp,
+  setDoc,
   updateDoc,
   where,
   type Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { logPulse } from './pulse';
+import { logPulse, logPulseOnce } from './pulse';
 import { sensedTaskId } from './sense';
 import type { Evidence, Member, Project, Status, Task } from './types';
 
@@ -185,20 +187,30 @@ export async function createSensedTask(
     branch: string | null;
     dedupeKey: string;
   }
-): Promise<{ id: string; created: boolean }> {
+): Promise<{ id: string; created: boolean; tombstoned: boolean }> {
   const { dedupeKey, ...fields } = input;
   const id = sensedTaskId(actor.uid, dedupeKey);
   const ref = doc(db, 'tasks', id);
+  // A card the member deleted on purpose leaves a tombstone at the SAME derived id.
+  // Without this check every 15-minute poll rebuilds it from the same branch/PR, so the
+  // card's own "delete it — it's yours" is a lie. Checked inside the transaction so the
+  // decision is atomic with the create. See `deleteTask`.
+  const tombstoneRef = doc(db, 'tombstones', id);
 
   // Whether THIS call wrote the card, decided inside the transaction. The caller counts
   // real creations for SyncNote — "Pulse built 3 cards" must mean three, not three
   // no-ops. A receipt-driven product whose own receipt overcounts is the one lie it can't
   // afford.
-  const created = await runTransaction(db, async (tx) => {
-    const existing = await tx.get(ref);
+  const outcome = await runTransaction(db, async (tx) => {
+    // All reads before any write — a transaction invariant. The tombstone read is what
+    // makes deletion stick against the next sync.
+    const [existing, tombstone] = await Promise.all([tx.get(ref), tx.get(tombstoneRef)]);
+    // Deliberately deleted. Never rebuild it, and tell the caller so it doesn't treat a
+    // phantom as a real card in this run's dedupe list.
+    if (tombstone.exists()) return { created: false, tombstoned: true };
     // Somebody already built this — another tab, another run, or a poll that overlapped.
     // That's a success, not a conflict: the card they made is the card this one would be.
-    if (existing.exists()) return false;
+    if (existing.exists()) return { created: false, tombstoned: false };
 
     tx.set(ref, {
       ...fields,
@@ -209,10 +221,10 @@ export async function createSensedTask(
       completedAt: fields.status === 'done' ? serverTimestamp() : null,
       source: 'sensed' as const,
     });
-    return true;
+    return { created: true, tombstoned: false };
   });
 
-  return { id, created };
+  return { id, ...outcome };
 }
 
 /**
@@ -231,8 +243,35 @@ export async function setSensedStatusSilently(taskId: string, status: Status) {
   });
 }
 
+/**
+ * Delete a task, and — for a sensed card — remember that it was deleted.
+ *
+ * A sensed card is addressed by a derived id (`sensedTaskId`) and rebuilt by every sync
+ * from the same branch/PR. Deleting the document alone leaves nothing to stop the next
+ * poll recreating it, which turned the card's own "delete it — it's yours" into a lie
+ * every real user hit. The tombstone records the intent at the same id, and
+ * `createSensedTask` refuses to rebuild anything tombstoned.
+ *
+ * The tombstone is written BEFORE the delete on purpose: a poll that interleaves must
+ * never find the card gone and the tombstone not yet there, or it would rebuild in the
+ * gap. Only sensed cards get one — a manual card has a random id nothing re-derives.
+ *
+ * The delete rule already guarantees the caller is the card's creator, so the tombstone's
+ * `uid` is the caller's own and satisfies its create rule.
+ */
 export async function deleteTask(taskId: string) {
-  await deleteDoc(doc(db, 'tasks', taskId));
+  const ref = doc(db, 'tasks', taskId);
+  const snap = await getDoc(ref);
+  const task = snap.data() as Task | undefined;
+
+  if (task?.source === 'sensed') {
+    await setDoc(doc(db, 'tombstones', taskId), {
+      uid: task.creatorUid,
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  await deleteDoc(ref);
 }
 
 /**
@@ -262,8 +301,10 @@ export async function setTaskStatus(
     completedAt: status === 'done' ? serverTimestamp() : null,
   });
 
+  // Keyed by the work, not minted fresh: two tabs shipping the same card from a stale
+  // snapshot must announce it ONCE, not once each into 64 feeds. See logPulseOnce.
   if (status === 'done') {
-    await logPulse({
+    await logPulseOnce(`ship_${task.id}`, {
       kind: 'task_shipped',
       actorUid: actor.uid,
       actorName: actor.name,
@@ -277,7 +318,7 @@ export async function setTaskStatus(
       evidence: narration?.evidence ?? task.evidence,
     });
   } else if (status === 'in_progress' && task.status === 'todo') {
-    await logPulse({
+    await logPulseOnce(`start_${task.id}`, {
       kind: 'task_started',
       actorUid: actor.uid,
       actorName: actor.name,
@@ -287,6 +328,37 @@ export async function setTaskStatus(
       taskId: task.id,
     });
   }
+}
+
+/**
+ * Announce a card that was SENSED for the first time already at `done`.
+ *
+ * A PR that opens AND merges inside one 15-minute poll window is first seen by Pulse when
+ * it is already merged, so `createSensedTask` builds the card straight into `done` and the
+ * transition path in `setTaskStatus` — the usual home of `task_shipped` — never runs. The
+ * common case for small work would ship silently, un-announced, forever (the next poll
+ * finds the card already done and logs nothing). This is the one create path allowed to
+ * emit `task_shipped`, and it stays honest by routing through the same idempotent
+ * `ship_<id>` key, so a later real transition can never double it.
+ *
+ * Never fired during the first-sync backfill — a member's PR history is not news.
+ */
+export async function announceSensedShip(
+  actor: Actor,
+  task: { id: string; title: string; projectId: string; evidence: Evidence | null },
+  narration?: { narrative: string | null; evidence: Evidence | null }
+) {
+  await logPulseOnce(`ship_${task.id}`, {
+    kind: 'task_shipped',
+    actorUid: actor.uid,
+    actorName: actor.name,
+    actorPhotoURL: actor.photoURL,
+    subject: task.title,
+    projectId: task.projectId,
+    taskId: task.id,
+    narrative: narration?.narrative ?? null,
+    evidence: narration?.evidence ?? task.evidence,
+  });
 }
 
 export async function updateTask(

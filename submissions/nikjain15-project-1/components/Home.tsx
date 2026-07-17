@@ -100,7 +100,12 @@ function HomeView() {
           link?.status === 'declined' && <NothingOfYours />
         )}
 
-        <StandingAsk ask={ask} uid={uid} ready={ready} />
+        {/* One card, not two stacked negations: when the invitation above is showing and
+            the ask ladder only has its floor to offer, "nothing of yours" + "nothing needs
+            you" reads like the product shrugging twice. The invitation wins the slot. */}
+        {!(!posted && link?.status === 'declined' && ask.kind === 'nothing') && (
+          <StandingAsk ask={ask} uid={uid} ready={ready} />
+        )}
 
         <CohortWeek
           events={events}
@@ -299,10 +304,10 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
 function NothingOfYours() {
   return (
     <section className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-      <h2 className="text-base text-zinc-100">Nothing of yours here yet.</h2>
+      <h2 className="text-base text-zinc-100">Your board is ready.</h2>
       <p className="mt-1 text-sm text-zinc-400">
-        Pulse isn&rsquo;t reading your GitHub, so it has nothing to post as you. The board works
-        either way.
+        Pulse can&rsquo;t see your work yet — you said not now, and that stands until you say
+        otherwise. Everything here works by hand in the meantime.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Link
@@ -738,7 +743,10 @@ function RowCopy({ event }: { event: PulseEvent }) {
 
 /** Filenames are the widest part of the evidence line — they return at 768 (§4). */
 function FileList({ files }: { files: string[] }) {
-  if (files.length === 0) return null;
+  // Evidence arrives from Firestore, where an older or hand-written event may carry an
+  // evidence object with no files array at all. One malformed row must not blank the
+  // whole feed — this crashed Home behind the error boundary before it was guarded.
+  if (!files || files.length === 0) return null;
   return (
     <span className="hidden min-[768px]:inline"> · {files.slice(0, 3).join(', ')}</span>
   );

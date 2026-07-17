@@ -6,7 +6,27 @@
  * without touching GitHub or spending a model call.
  */
 
-import type { Evidence, Status } from './types';
+import type { Evidence, GitHubLink, Status } from './types';
+
+/**
+ * May Pulse auto-write a sentence as this member, right now, without asking?
+ *
+ * Three gates, all required:
+ *   - `narrationOptIn` — the absolute consent gate; a sentence about a person needs their
+ *     yes.
+ *   - a captured `handle` — no login, nothing to narrate.
+ *   - `mode` is not `ask_first` — that mode's whole promise is "nothing goes out under
+ *     your name until you say so". Auto-narrating in it makes the consent screen a lie.
+ *
+ * Pure and here (not in the client-only sync module) so it can be tested exhaustively —
+ * this decides whether a model writes about someone, which is the line the product must
+ * never cross by accident.
+ */
+export function autoNarrationAllowed(
+  link: Pick<GitHubLink, 'narrationOptIn' | 'handle' | 'mode'> | null
+): boolean {
+  return !!link && link.narrationOptIn && !!link.handle && link.mode !== 'ask_first';
+}
 
 export type { Evidence };
 
@@ -128,10 +148,14 @@ export function inferStatus(signal: GitHubSignal): StatusInference {
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /**
- * Render evidence as a receipt: "6 commits · PR #41 · 2h between first and last".
+ * Render evidence as a receipt: "6 commits · PR #41 · 2h from start to finish".
  *
  * Every inference renders with this. A legible mistake is forgivable; a mysterious one
  * isn't — and this line is the whole difference between the two.
+ *
+ * The span is phrased for a human, not a git log: "169h between first and last" made
+ * first-run readers squint (and read as slightly surveillant). Long spans read in days.
+ * The PR numbers stay verbatim — they're the checkable part of the receipt.
  */
 export function formatEvidence(evidence: Evidence): string {
   const parts: string[] = [];
@@ -141,7 +165,12 @@ export function formatEvidence(evidence: Evidence): string {
     parts.push(evidence.prNumbers.map((n) => `PR #${n}`).join(', '));
   }
   if (evidence.spanHours !== null && evidence.spanHours >= 1) {
-    parts.push(`${Math.round(evidence.spanHours)}h between first and last`);
+    const hours = Math.round(evidence.spanHours);
+    parts.push(
+      hours < 48
+        ? `${hours}h from start to finish`
+        : `about ${plural(Math.round(hours / 24), 'day')} from start to finish`
+    );
   }
 
   return parts.join(' · ');

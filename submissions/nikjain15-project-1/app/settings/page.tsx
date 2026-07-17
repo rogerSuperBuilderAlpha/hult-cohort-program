@@ -60,7 +60,7 @@ const PUBLISH_OPTIONS: { value: Publish; label: string; hint: string }[] = [
   {
     value: 'ask_first',
     label: 'Ask me first instead',
-    hint: 'Restores the approval queue. Nothing goes out under your name until you say so.',
+    hint: 'Pulse still senses your work and moves your cards, and posts the plain facts — but it never writes a sentence as you. You add the words yourself, or switch this on later.',
   },
   {
     value: 'off',

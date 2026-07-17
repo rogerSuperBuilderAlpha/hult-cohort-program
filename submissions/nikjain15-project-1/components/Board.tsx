@@ -153,7 +153,13 @@ export function Board({
               ))}
 
               {column.length === 0 && (
-                <p className="py-6 text-center text-xs text-zinc-400">nothing here</p>
+                // An empty column is an invitation, not an apology — and "done" quietly
+                // states the product's whole promise: finished work arrives on its own.
+                <p className="py-6 text-center text-xs text-zinc-400">
+                  {status === 'todo' && 'Nothing lined up. + starts the first card.'}
+                  {status === 'in_progress' && 'Nothing in flight right now.'}
+                  {status === 'done' && 'Finished work lands here on its own.'}
+                </p>
               )}
             </div>
           </section>

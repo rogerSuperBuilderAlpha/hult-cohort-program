@@ -8,6 +8,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
 } from 'firebase/firestore';
@@ -53,6 +54,47 @@ export async function logPulse(event: NewPulse): Promise<void> {
     });
   } catch (err) {
     console.error('pulse: failed to log event', err);
+  }
+}
+
+/**
+ * Append an event at most ONCE, addressed by a caller-derived id.
+ *
+ * `logPulse` uses `addDoc` — a fresh id every call — which is correct for a genuinely new
+ * event (a project created, a member joined). But a STATUS transition can be fired twice
+ * for the same work: two tabs each hold a pre-ship snapshot, both pass
+ * `setTaskStatus`'s stale-snapshot guard, and both announce the same ship into 64 feeds.
+ *
+ * Keying the event by the work it describes (`ship_<taskId>`) and creating it inside a
+ * transaction makes the second writer a no-op — the same shape that stopped twin cards in
+ * `createSensedTask`. Idempotent by construction: a re-fired effect, an overlapping poll,
+ * or a second device all converge on the one event.
+ *
+ * If the actor later deletes the post (undo is total), the derived doc is gone, so a
+ * genuine re-ship recreates it — deletion doesn't permanently mute the work.
+ *
+ * Never throws, same as `logPulse`: a dropped feed row must not fail the action.
+ */
+export async function logPulseOnce(eventId: string, event: NewPulse): Promise<void> {
+  try {
+    await runTransaction(db, async (tx) => {
+      const ref = doc(db, 'pulse', eventId);
+      const existing = await tx.get(ref);
+      // Another tab, device, or overlapping poll already announced this exact work.
+      if (existing.exists()) return;
+      tx.set(ref, {
+        ...event,
+        projectId: event.projectId ?? null,
+        taskId: event.taskId ?? null,
+        narrative: event.narrative ?? null,
+        evidence: event.evidence ?? null,
+        editedAt: null,
+        kudos: [],
+        createdAt: serverTimestamp(),
+      });
+    });
+  } catch (err) {
+    console.error('pulse: failed to log event once', err);
   }
 }
 

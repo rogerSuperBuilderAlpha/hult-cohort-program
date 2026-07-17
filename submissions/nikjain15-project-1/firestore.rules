@@ -108,13 +108,45 @@ service cloud.firestore {
     // a card with a fabricated receipt in the first place. Nothing here can check GitHub.
     // What's contained is tampering with a card that already exists — and the fabrication
     // is self-limiting, because PR numbers are public and checkable by anyone reading them.
+    // A sensed card's id is derived and PUBLIC: `s_<uid>_<fnv1a(branch|pr)>`
+    // (`lib/sense.ts`), and both the uid (readable in `members`) and the branch/PR name are
+    // public. Left unconstrained, a peer could pre-create `s_<victim>_<hash>` with their own
+    // creatorUid — the create rule only checked `isSelf(creatorUid)`, not the id — and the
+    // victim's `createSensedTask` transaction would then find the doc already there and
+    // no-op FOREVER, silently blocking that card from ever appearing on the victim's board.
+    // So: any id shaped like a sensed id must belong to the creator. Manual cards use
+    // addDoc auto-ids (no underscore), so they never match this shape.
+    function sensedIdMatchesCreator(taskId, uid) {
+      return !taskId.matches('s_.*')
+             || taskId.matches('s_' + uid + '_[0-9a-f]{8}');
+    }
     match /tasks/{taskId} {
       allow read: if signedIn();
-      allow create: if signedIn() && isSelf(request.resource.data.creatorUid);
+      allow create: if signedIn()
+                    && isSelf(request.resource.data.creatorUid)
+                    && sensedIdMatchesCreator(taskId, request.auth.uid);
       allow update: if signedIn()
                     && request.resource.data.creatorUid == resource.data.creatorUid
                     && !changed().hasAny(['source', 'evidence', 'branch', 'createdAt']);
       allow delete: if signedIn() && isSelf(resource.data.creatorUid);
+    }
+
+    // --- tombstones ----------------------------------------------------------
+    // A sensed card the member deleted on purpose. Doc id = the card's derived id
+    // (`sensedTaskId`), so `createSensedTask` can refuse to rebuild it on the next sync.
+    //
+    // Without this, every 15-minute poll resurrected a deleted sensed card, making the
+    // card's own "delete it — it's yours" a lie for every real user.
+    //
+    // Create is the deleter's own act — the task delete rule already proves they are the
+    // creator, so `uid` here is their own. Permanent, like optOuts: a tombstone that
+    // anyone could lift is not a tombstone. Un-deleting a card is a deliberate manual
+    // rebuild (create a fresh manual card), never an update to this row.
+    match /tombstones/{taskId} {
+      allow read: if signedIn();
+      allow create: if isSelf(request.resource.data.uid)
+                    && request.resource.data.keys().hasOnly(['uid', 'createdAt']);
+      allow update, delete: if false;
     }
 
     // --- comments ------------------------------------------------------------
@@ -145,9 +177,18 @@ service cloud.firestore {
     match /pulse/{eventId} {
       allow read: if signedIn();
 
+      // `actorUid` self-attribution alone was not enough: the feed renders the denormalised
+      // `actorName` verbatim and never re-joins to `members`, so a peer could append an
+      // event with their own `actorUid` but a VICTIM's `actorName` and have it display as
+      // the victim ("nobody can fake a teammate shipping" was only half-true). Bind the
+      // stored name to the caller's own member doc — the one name they cannot forge. Every
+      // honest write already sets `actorName` to exactly this (the auth displayName the
+      // sign-up flow mirrors into the member doc), so the happy path is unaffected.
       allow create: if signedIn()
                     && isSelf(request.resource.data.actorUid)
-                    && request.resource.data.kudos.size() == 0;
+                    && request.resource.data.kudos.size() == 0
+                    && request.resource.data.actorName ==
+                       get(/databases/$(database)/documents/members/$(request.auth.uid)).data.displayName;
 
       allow update: if signedIn()
                     && (

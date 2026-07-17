@@ -26,9 +26,17 @@ export function Landing({ snapshot }: { snapshot: CohortSnapshot }) {
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-12 sm:py-20">
-      <header className="mb-10 flex items-center gap-2">
-        <span className="h-3 w-3 rounded-full bg-emerald-400" aria-hidden />
-        <span className="text-sm font-medium text-zinc-100">Pulse</span>
+      <header className="mb-10">
+        <div className="flex items-center gap-2">
+          <span className="h-3 w-3 rounded-full bg-emerald-400" aria-hidden />
+          <span className="text-sm font-medium text-zinc-100">Pulse</span>
+        </div>
+        {/* A stranger's first read must say what this IS before it shows off. One line,
+            no jargon: the artifact everyone knows (a board), the magic (fills itself). */}
+        <p className="mt-3 text-sm text-zinc-300">
+          The board that fills itself in. You do the work — Pulse watches it happen and writes
+          it down, so nobody types in status again.
+        </p>
       </header>
 
       {snapshot.degraded ? (

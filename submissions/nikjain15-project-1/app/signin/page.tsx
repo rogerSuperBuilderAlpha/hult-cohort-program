@@ -73,7 +73,7 @@ export default function SignInPage() {
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-semibold tracking-tight">Pulse</h1>
           <p className="mt-2 text-sm text-zinc-400">
-            The cohort&rsquo;s heartbeat. See what everyone&rsquo;s shipping.
+            The board that fills itself in. You do the work — it writes it down.
           </p>
         </div>
 

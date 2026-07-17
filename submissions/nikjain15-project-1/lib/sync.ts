@@ -2,6 +2,7 @@
 
 import type { SenseResponse, SensedPull } from '@/app/api/sense/route';
 import {
+  announceSensedShip,
   createSensedTask,
   ensureRepoProject as ensureSharedRepoProject,
   setSensedStatusSilently,
@@ -10,7 +11,7 @@ import {
 import { setNarrationCacheKey } from './github-link';
 import { COHORT_REPO_NAME } from './github-repo';
 import type { NarrationResult } from './narrate';
-import { branchToTitle, findDuplicate, inferStatus, type GitHubSignal } from './sense';
+import { autoNarrationAllowed, branchToTitle, findDuplicate, inferStatus, type GitHubSignal } from './sense';
 import type { Evidence, GitHubLink, Member, Project, Task } from './types';
 
 type Actor = { uid: string; name: string; photoURL: string | null };
@@ -123,7 +124,7 @@ export async function syncFromGitHub(input: {
         // Created lazily: a member with no sensed work gets no empty project they didn't ask
         // for, and the first card is what makes the project mean something.
         projectId ??= await ensureRepoProject(actor);
-        const { id, created: didCreate } = await createSensedTask(actor, {
+        const { id, created: didCreate, tombstoned } = await createSensedTask(actor, {
           projectId,
           title,
           description: `Pulse built this from ${pull.branch ? `\`${pull.branch}\`` : `PR #${pull.number}`}. Edit or delete it — it's yours.`,
@@ -132,15 +133,36 @@ export async function syncFromGitHub(input: {
           branch: pull.branch,
           dedupeKey: dedupeKeyFor(pull),
         });
-        // Only push to `fresh` (the same-run dedupe list) when we actually wrote — but
-        // count only a real write. A no-op means the card already existed, and telling the
-        // member "Pulse built 1 card" when it built zero is the receipt lying about itself.
+        // The member deleted this card on purpose. Respect it: don't rebuild (the
+        // transaction already refused), and don't add a phantom to the same-run dedupe
+        // list — a later pull matching this title would try to move a card that no longer
+        // exists.
+        if (tombstoned) continue;
+        // Only push to `fresh` (the same-run dedupe list) when the card really exists —
+        // but count only a real write. A no-op means the card already existed, and telling
+        // the member "Pulse built 1 card" when it built zero is the receipt lying about
+        // itself.
         fresh.push({ id, title, branch: pull.branch, status: inference.status } as Task);
-        if (didCreate) created += 1;
+        if (didCreate) {
+          created += 1;
+          // Fast PR: opened AND merged inside one poll window, so the card is born at
+          // `done` and the transition path never runs. Announce the ship here — unless
+          // this is the backfill, which is silent by design. Idempotent via `ship_<id>`.
+          if (!backfilling && inference.status === 'done') {
+            const narration = await narrateShip(input, pull, title);
+            await announceSensedShip(actor, { id, title, projectId: projectId!, evidence: evidenceFor(pull) }, narration);
+          }
+        }
         continue;
       }
 
       if (existing.status === inference.status) continue;
+
+      // The human wins. A card a person moved to `done` by hand must not be dragged back
+      // by a still-open PR on the next poll: Pulse advances cards, it never overrules a
+      // completion. (A genuine merge infers `done` too, so this only ever blocks a
+      // regression OUT of done, never a legitimate ship.)
+      if (existing.status === 'done' && inference.status !== 'done') continue;
 
       if (backfilling) {
         await setSensedStatusSilently(existing.id, inference.status);
@@ -202,6 +224,16 @@ function winningPulls(pulls: SensedPull[]): SensedPull[] {
  * Off is not the same as disconnected: sensing still runs, cards still move, and nothing
  * gets written about you.
  *
+ * **`ask_first` also holds the sentence back.** The consent screen and Settings promise
+ * "nothing goes out under your name until you say so", and until now `mode` was stored but
+ * never read here — so `ask_first` auto-published exactly like `auto`, which made the
+ * promise a lie. A promise the code doesn't keep is the dark pattern this whole design
+ * refuses. In `ask_first` the ship still posts its FACTS (the receipt can't be wrong and
+ * isn't about putting words in your mouth); only the model-written sentence waits. The
+ * full approve-and-publish queue is the richer version of this and is still to build; this
+ * is the honest floor — auto-writing nothing beats auto-writing without the consent the
+ * screen claimed.
+ *
  * Every failure lands on facts-only, silently. Never publish a suspect sentence, never
  * surface a scary error in the feed — the facts came from the API and cannot be wrong.
  *
@@ -215,7 +247,7 @@ async function narrateShip(
   title: string
 ): Promise<{ narrative: string | null; evidence: Evidence | null } | undefined> {
   const { actor, link, members } = input;
-  if (!link?.narrationOptIn || !link.handle) return undefined;
+  if (!autoNarrationAllowed(link) || !link) return undefined;
 
   const evidence = evidenceFor(pull);
   const workId = [`pr-${pull.number}`, pull.merged ? 'merged' : pull.state];

@@ -52,9 +52,12 @@ test.describe('B1 · B3 — multi-user auth, open registration', () => {
     await page.getByPlaceholder('Password').fill('emulator-pw-123');
     await page.getByRole('button', { name: 'Create account' }).click();
 
+    // Scoped to the form: Next renders its own always-present empty
+    // role="alert" route announcer, so a bare getByRole('alert') is ambiguous.
+    const error = page.locator('form [role="alert"]');
     // Plain language that says what to do next — never a raw Firebase code.
-    await expect(page.getByRole('alert')).toContainText(/sign in instead/i);
-    await expect(page.getByRole('alert')).not.toContainText('auth/');
+    await expect(error).toContainText(/sign in instead/i);
+    await expect(error).not.toContainText('auth/');
   });
 });
 
@@ -114,28 +117,44 @@ test.describe('B5 · B6 — tasks and the status workflow', () => {
     await expect(page.locator('[data-column="done"] h2')).toContainText('done · 1');
   });
 
-  test('an overdue task shows its due date in red, and a finished one does not', async ({ page }) => {
+  test('a due date is red only while it is overdue', async ({ page }) => {
     await signUp(page, 'Due Watcher', uniqueEmail('due'));
     const project = uniqueName('Gamma');
     await createProject(page, project);
 
-    const title = uniqueName('Overdue thing');
-    await page.goto('/board');
-    await page.getByRole('button', { name: '+ add' }).click();
-    await page.getByPlaceholder('Finish Firestore rules').fill(title);
-    await page.getByLabel('Project', { exact: true }).selectOption({ label: project });
-    await page.getByLabel('Due', { exact: true }).fill('2020-01-01');
-    await page.getByRole('button', { name: 'Create task' }).click();
+    const overdue = uniqueName('Overdue thing');
+    const upcoming = uniqueName('Upcoming thing');
 
-    const card = page.locator('article', { hasText: title });
-    // Red means debt or time against you. Nothing else in the product is red.
-    await expect(card.getByText('Jan 1, 2020')).toHaveCSS('color', 'rgb(255, 100, 103)');
+    for (const [title, date] of [
+      [overdue, '2020-01-01'],
+      [upcoming, '2099-01-01'],
+    ]) {
+      await page.goto('/board');
+      await page.getByRole('button', { name: '+ add' }).click();
+      await page.getByPlaceholder('Finish Firestore rules').fill(title);
+      await page.getByLabel('Project', { exact: true }).selectOption({ label: project });
+      await page.getByLabel('Due', { exact: true }).fill(date);
+      await page.getByRole('button', { name: 'Create task' }).click();
+    }
+
+    // Compare the two computed colours rather than pinning a literal: Tailwind 4 emits
+    // lab()/oklch(), so a hard-coded rgb() would be testing the CSS engine's serialisation
+    // rather than the product's promise. The promise is: red means debt, and nothing else.
+    const colourOf = (title: string, day: string) =>
+      page
+        .locator('article', { hasText: title })
+        .getByText(day)
+        .evaluate((el) => getComputedStyle(el).color);
+
+    const overdueColour = await colourOf(overdue, 'Jan 1');
+    const upcomingColour = await colourOf(upcoming, 'Jan 1');
+    expect(overdueColour).not.toBe(upcomingColour);
 
     // Done is not debt — finishing something late must not keep shouting at you.
-    await card.getByRole('combobox').selectOption('done');
-    await expect(
-      page.locator('article', { hasText: title }).getByText('Jan 1, 2020')
-    ).not.toHaveCSS('color', 'rgb(255, 100, 103)');
+    await page.locator('article', { hasText: overdue }).getByRole('combobox').selectOption('done');
+    await expect
+      .poll(() => colourOf(overdue, 'Jan 1'))
+      .toBe(upcomingColour);
   });
 });
 

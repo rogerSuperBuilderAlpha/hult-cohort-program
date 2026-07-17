@@ -12,7 +12,7 @@
     "test:rules": "firebase emulators:exec --only firestore --project demo-pulse \"vitest run --project rules\"",
     "test:integration": "firebase emulators:exec --only firestore,auth --project demo-pulse \"vitest run --project integration\"",
     "test:e2e": "BASE_URL=http://localhost:3000 playwright test --project full",
-    "test:e2e:smoke": "playwright test --project smoke",
+    "test:e2e:smoke": "PLAYWRIGHT_SMOKE=1 playwright test --project smoke",
     "emulator": "firebase emulators:start --only firestore,auth --project demo-pulse",
     "gate": "npm run typecheck && npm run lint && npm run test:unit && npm run test:rules && npm run test:integration && npm run test:e2e:smoke",
     "dev:emulator": "NEXT_PUBLIC_USE_EMULATOR=1 next dev"

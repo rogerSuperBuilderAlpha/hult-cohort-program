@@ -59,7 +59,7 @@ Pulse is **not**: **peppy · corporate · apologetic.**
 | Surface | String |
 |---|---|
 | Landing hero | "The board that updates itself." |
-| Sign-in | "Your week is already written. Sign in to see it." |
+| Sign-in | "The board that updates itself. Sign in — yours is waiting." |
 | Consent headline | "Want your board to run itself?" |
 | Consent, no GitHub | "Link GitHub — then let it run" |
 | Home, declined | "Your board is live. Pulse just can't see you yet." |

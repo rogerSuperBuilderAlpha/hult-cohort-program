@@ -105,6 +105,7 @@ function ProjectDetail() {
 
       {/* Project is fixed by the route, so that filter would be a no-op here. */}
       <Filters
+        uid={actor.uid}
         members={members}
         projects={projects}
         showProject={false}

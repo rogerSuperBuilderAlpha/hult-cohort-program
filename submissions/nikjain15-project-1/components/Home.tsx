@@ -632,7 +632,8 @@ function AskCard({
   return (
     <>
       <h2 className="text-base text-zinc-100">{headline}</h2>
-      <p className="mt-1 text-sm text-zinc-400">{detail}</p>
+      {/* Two lines, never a wall — the ask is the nudge, the board has the spec. */}
+      <p className="mt-1 line-clamp-2 text-sm text-zinc-400">{detail}</p>
       {/* Green, because this is the motivating action — the only thing on Home that gets
           a colour besides debt. */}
       <Link

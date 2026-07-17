@@ -65,7 +65,7 @@ function BoardView() {
 
       <SyncNote outcome={outcome} />
 
-      <Filters members={members} projects={liveProjects} onNew={() => setCreating('todo')} />
+      <Filters uid={actor.uid} members={members} projects={liveProjects} onNew={() => setCreating('todo')} />
 
       {!ready ? (
         <p className="text-sm text-zinc-400">Loading the board…</p>

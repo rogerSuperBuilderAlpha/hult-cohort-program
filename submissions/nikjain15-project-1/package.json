@@ -17,6 +17,7 @@
     "dev:emulator": "NEXT_PUBLIC_USE_EMULATOR=1 next dev"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.1",
     "@vercel/analytics": "^2.0.1",
     "firebase": "^12.16.0",
     "next": "16.2.10",

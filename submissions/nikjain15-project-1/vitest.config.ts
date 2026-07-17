@@ -1,4 +1,10 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
+
+// tsconfig defines `@/*` -> `./*`. Vitest resolves modules itself and doesn't read
+// tsconfig paths, so it needs the same alias or `@/lib/...` imports fail at runtime
+// while typecheck stays green.
+const alias = { '@': fileURLToPath(new URL('.', import.meta.url)) };
 
 // Two projects, because they need incompatible environments: unit tests are pure and
 // parallel, rules tests talk to one shared emulator and must not race each other.
@@ -6,6 +12,7 @@ export default defineConfig({
   test: {
     projects: [
       {
+        resolve: { alias },
         test: {
           name: 'unit',
           include: ['tests/unit/**/*.test.ts'],
@@ -13,6 +20,7 @@ export default defineConfig({
         },
       },
       {
+        resolve: { alias },
         test: {
           name: 'rules',
           include: ['tests/rules/**/*.test.ts'],

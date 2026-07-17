@@ -165,6 +165,41 @@ service cloud.firestore {
       allow delete: if isSelf(resource.data.authorUid);
     }
 
+    // --- optOuts -------------------------------------------------------------
+    // Tombstoned handles. Doc id = lowercased github login.
+    //
+    // Create is open and UNAUTHENTICATED on purpose. The spec's requirement is that
+    // leaving must not cost you an account — "someone who wants out shouldn't have to
+    // create an account to leave" — so the exit cannot be gated on auth. The asymmetry
+    // is what makes that safe: a create here can only ever HIDE a handle. It cannot add
+    // one, alter anyone's facts, or cause a word to be written about anybody.
+    //
+    // Update and delete are denied. A tombstone that can be lifted by whoever finds the
+    // endpoint is not a tombstone; un-removing someone is a deliberate manual act.
+    //
+    // ⚠️ `read: if true` is a real, conscious trade. The pre-index runs server-side
+    // through the CLIENT SDK unauthenticated (there is no firebase-admin here and no
+    // service-account key), so the rules cannot tell the landing page apart from a
+    // stranger. Public read means the list of people who asked to be hidden is itself
+    // readable — the weakest part of this design, and it's in the PR's limitations.
+    // The fix is the Admin SDK, which needs a credential Nik has to create.
+    // Shipping a working opt-out with this flaw beats shipping none.
+    match /optOuts/{handle} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['handle', 'createdAt'])
+                    && request.resource.data.handle is string
+                    && request.resource.data.handle == handle
+                    && request.resource.data.handle.size() > 0
+                    && request.resource.data.handle.size() <= 39
+                    // A timestamp, not necessarily request.time: the write comes over the
+                    // REST API from the server, which can't express serverTimestamp()
+                    // without a transform. The value is informational — it records when
+                    // someone asked to leave, and nothing depends on it being exact.
+                    // What matters is the handle, and that is pinned to the doc id above.
+                    && request.resource.data.createdAt is timestamp;
+      allow update, delete: if false;
+    }
+
     // --- introductions -------------------------------------------------------
     // "Marcus is stuck on what you solved." This is the most sensitive collection
     // in the product: it names someone who is struggling.

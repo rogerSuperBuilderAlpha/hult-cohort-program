@@ -33,10 +33,15 @@ export const db = getFirestore(app);
  * product seed data: fake cohort activity in the collection reviewers read would make the
  * submission's central honesty claim false, and the claim is the strongest thing it has.
  *
- * Guarded on getApps().length because HMR re-runs this module, and connecting an already
- * connected emulator throws.
+ * Connects on the SERVER as well as the browser. It used to be gated on
+ * `typeof window !== 'undefined'`, which quietly broke every server-side Firestore
+ * caller — the /api/opt-out route handler and the landing page's opt-out filter both run
+ * on the server and were reaching for production with a throwaway key.
+ *
+ * The globalThis flag is the re-entry guard: HMR re-runs this module, and connecting an
+ * already-connected emulator throws.
  */
-if (useEmulator && typeof window !== 'undefined' && !(globalThis as EmulatorFlag).__pulseEmulator) {
+if (useEmulator && !(globalThis as EmulatorFlag).__pulseEmulator) {
   (globalThis as EmulatorFlag).__pulseEmulator = true;
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   connectFirestoreEmulator(db, '127.0.0.1', 8080);

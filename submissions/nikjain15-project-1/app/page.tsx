@@ -1,6 +1,7 @@
 import { HomeOrLanding } from '@/components/HomeOrLanding';
-import { participantsOnly } from '@/lib/pre-index';
-import { buildCohortSnapshot } from '@/lib/pre-index';
+import type { CohortSnapshot } from '@/lib/cohort';
+import { removeOptedOut } from '@/lib/opt-out';
+import { buildCohortSnapshot, participantsOnly } from '@/lib/pre-index';
 
 /**
  * Root.
@@ -20,9 +21,24 @@ export const revalidate = 900;
 export default async function Page() {
   const snapshot = await buildCohortSnapshot();
 
-  return (
-    <HomeOrLanding
-      snapshot={{ ...snapshot, members: participantsOnly(snapshot.members) }}
-    />
-  );
+  return <HomeOrLanding snapshot={await visibleCohort(snapshot)} />;
+}
+
+/**
+ * The cohort, minus anyone who asked to be removed.
+ *
+ * Fails CLOSED: if the opt-out list is unreadable we cannot prove nobody here asked to be
+ * removed, so the page degrades to showing nothing rather than falling back to the
+ * unfiltered list. That fallback would be the one failure this page must never have —
+ * quietly displaying a person who explicitly asked not to be displayed. An empty page is
+ * a bad day; that would be a broken promise.
+ *
+ * Kept out of the component so the try/catch wraps the data, never the JSX.
+ */
+async function visibleCohort(snapshot: CohortSnapshot): Promise<CohortSnapshot> {
+  try {
+    return { ...snapshot, members: await removeOptedOut(participantsOnly(snapshot.members)) };
+  } catch {
+    return { ...snapshot, members: [], degraded: { kind: 'unreachable', resetAt: null } };
+  }
 }

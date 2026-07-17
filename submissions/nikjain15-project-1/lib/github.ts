@@ -1,3 +1,4 @@
+import { COHORT_REPO_SLUG } from './github-repo';
 import type { Evidence } from './types';
 
 /**
@@ -10,7 +11,8 @@ import type { Evidence } from './types';
  * exactly that, so the code may not quietly read more than the promise.
  */
 
-export const COHORT_REPO = 'rogerSuperBuilderAlpha/hult-cohort-program';
+/** Re-exported so existing server-side callers keep their import site. */
+export const COHORT_REPO = COHORT_REPO_SLUG;
 
 const API = 'https://api.github.com';
 

@@ -95,6 +95,18 @@ export async function setExcludedRepos(uid: string, excludedRepos: string[]): Pr
 }
 
 /**
+ * Record that a sync completed.
+ *
+ * This is what ends the backfill. `lastSyncedAt: null` means "Pulse has never looked at
+ * this member", and the first pass lands their whole PR history on the board silently —
+ * old merges are not news. Stamping this promotes every later run to logging real
+ * transitions, so it may only ever be written after a sync that actually succeeded.
+ */
+export async function markSynced(uid: string): Promise<void> {
+  await updateDoc(doc(db, 'githubLinks', uid), { lastSyncedAt: serverTimestamp() });
+}
+
+/**
  * The narration gate. Only the member it describes may flip it, and the rules enforce that
  * — a model may not write a sentence about someone who hasn't asked for it.
  *

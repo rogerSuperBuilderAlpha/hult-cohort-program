@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { logPulse } from './pulse';
-import type { Member, Project, Status, Task } from './types';
+import type { Evidence, Member, Project, Status, Task } from './types';
 
 type Actor = { uid: string; name: string; photoURL: string | null };
 
@@ -37,7 +37,17 @@ export function subscribeToProjects(onData: (projects: Project[]) => void): () =
 
 export async function createProject(
   actor: Actor,
-  input: { name: string; description: string }
+  input: { name: string; description: string },
+  /**
+   * `silent` is for the project Pulse creates for a connected repo.
+   *
+   * The feed row would read "Nik created hult-cohort-program" — but Nik didn't, Pulse
+   * did, on their behalf. Firestore rules require every write to be attributed to the
+   * signed-in user, so the doc is theirs either way; announcing it as a thing they chose
+   * to do is the part that isn't true. Pulse says when Pulse did it, and when Pulse did
+   * it quietly, it says nothing at all.
+   */
+  options: { silent?: boolean } = {}
 ): Promise<string> {
   const ref = await addDoc(collection(db, 'projects'), {
     ...input,
@@ -45,6 +55,8 @@ export async function createProject(
     archived: false,
     createdAt: serverTimestamp(),
   });
+
+  if (options.silent) return ref.id;
 
   await logPulse({
     kind: 'project_created',
@@ -99,6 +111,56 @@ export async function createTask(
     branch: null,
   });
   return ref.id;
+}
+
+/**
+ * A card Pulse built for you, from a branch you pushed.
+ *
+ * Separate from `createTask` because the two differ in the one way that matters: this one
+ * carries a receipt. `source: 'sensed'` makes the card say so on its face, and `evidence`
+ * is what it says — "PR #41" is checkable, and a board that grows cards nobody made is a
+ * board nobody trusts.
+ *
+ * `branch` is the dedupe key against every future re-sync. Without it a 15-minute poll
+ * would twin every card it already made.
+ */
+export async function createSensedTask(
+  actor: Actor,
+  input: {
+    projectId: string;
+    title: string;
+    description: string;
+    status: Status;
+    evidence: Evidence;
+    branch: string | null;
+  }
+): Promise<string> {
+  const ref = await addDoc(collection(db, 'tasks'), {
+    ...input,
+    assigneeUid: actor.uid,
+    creatorUid: actor.uid,
+    dueDate: null,
+    createdAt: serverTimestamp(),
+    completedAt: input.status === 'done' ? serverTimestamp() : null,
+    source: 'sensed' as const,
+  });
+  return ref.id;
+}
+
+/**
+ * Move a sensed card without announcing it.
+ *
+ * The backfill path. On a member's FIRST sync their whole history arrives at once, and
+ * routing that through `setTaskStatus` would fire "shipped!" into 64 people's feeds for
+ * PRs that merged last week. That's stale news presented as live, which is the one thing
+ * the feed may never do. Cards land at their true state, silently; from the second sync
+ * on, real transitions log normally through `setTaskStatus`.
+ */
+export async function setSensedStatusSilently(taskId: string, status: Status) {
+  await updateDoc(doc(db, 'tasks', taskId), {
+    status,
+    completedAt: status === 'done' ? serverTimestamp() : null,
+  });
 }
 
 export async function deleteTask(taskId: string) {

@@ -4,9 +4,12 @@ import { Suspense, useMemo, useState } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { Board } from '@/components/Board';
 import { applyFilters, Filters, useFilters } from '@/components/Filters';
+import { SyncNote } from '@/components/SyncNote';
 import { TaskModal } from '@/components/TaskModal';
 import { useAuth } from '@/lib/auth-context';
+import { useGitHubLink } from '@/lib/use-github-link';
 import { useCohort } from '@/lib/use-cohort';
+import { useSync } from '@/lib/use-sync';
 import type { Status, Task } from '@/lib/types';
 
 export default function BoardPage() {
@@ -37,6 +40,11 @@ function BoardView() {
     [user]
   );
 
+  // The board builds itself — but only ever as a bonus on top of a board that already
+  // works. Every branch of this hook is best-effort; none of it gates what renders below.
+  const { link, ready: linkReady } = useGitHubLink(user!.uid);
+  const outcome = useSync({ actor, link, tasks, projects, ready: ready && linkReady });
+
   // Archived projects' tasks stay off the board — archiving is how you get work out of
   // sight without deleting it, and nothing in Project 1 hard-deletes a project.
   const liveProjects = useMemo(() => projects.filter((p) => !p.archived), [projects]);
@@ -54,6 +62,8 @@ function BoardView() {
           Every card says where it came from. Drag it, or use the status control.
         </p>
       </div>
+
+      <SyncNote outcome={outcome} />
 
       <Filters members={members} projects={liveProjects} onNew={() => setCreating('todo')} />
 

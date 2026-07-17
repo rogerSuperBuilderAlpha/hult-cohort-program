@@ -21,24 +21,31 @@ export function useCohort() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    let loaded = 0;
-    const settle = () => {
-      loaded += 1;
-      if (loaded >= 3) setReady(true);
+    // Which collections have delivered at least once — a SET, not a counter.
+    //
+    // A counter was the bug: projects and members re-fire on every cohort write, and they
+    // are the small, fast collections while tasks is the largest. Two project snapshots
+    // plus one member snapshot reaches three, and `ready` flips with `tasks` still empty.
+    // That is exactly the state use-sync warns against — the dedupe then runs against an
+    // empty board and twins a manual card against the sensed one it should have updated.
+    const delivered = new Set<string>();
+    const settle = (name: string) => {
+      delivered.add(name);
+      if (delivered.size >= 3) setReady(true);
     };
 
     const unsubs = [
       subscribeToTasks((t) => {
         setTasks(t);
-        settle();
+        settle('tasks');
       }),
       subscribeToProjects((p) => {
         setProjects(p);
-        settle();
+        settle('projects');
       }),
       subscribeToMembers((m) => {
         setMembers(m);
-        settle();
+        settle('members');
       }),
     ];
 

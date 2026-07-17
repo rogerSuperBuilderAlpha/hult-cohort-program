@@ -185,16 +185,20 @@ export async function createSensedTask(
     branch: string | null;
     dedupeKey: string;
   }
-): Promise<string> {
+): Promise<{ id: string; created: boolean }> {
   const { dedupeKey, ...fields } = input;
   const id = sensedTaskId(actor.uid, dedupeKey);
   const ref = doc(db, 'tasks', id);
 
-  await runTransaction(db, async (tx) => {
+  // Whether THIS call wrote the card, decided inside the transaction. The caller counts
+  // real creations for SyncNote — "Pulse built 3 cards" must mean three, not three
+  // no-ops. A receipt-driven product whose own receipt overcounts is the one lie it can't
+  // afford.
+  const created = await runTransaction(db, async (tx) => {
     const existing = await tx.get(ref);
     // Somebody already built this — another tab, another run, or a poll that overlapped.
     // That's a success, not a conflict: the card they made is the card this one would be.
-    if (existing.exists()) return;
+    if (existing.exists()) return false;
 
     tx.set(ref, {
       ...fields,
@@ -205,9 +209,10 @@ export async function createSensedTask(
       completedAt: fields.status === 'done' ? serverTimestamp() : null,
       source: 'sensed' as const,
     });
+    return true;
   });
 
-  return id;
+  return { id, created };
 }
 
 /**

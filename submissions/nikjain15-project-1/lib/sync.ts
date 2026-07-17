@@ -123,7 +123,7 @@ export async function syncFromGitHub(input: {
         // Created lazily: a member with no sensed work gets no empty project they didn't ask
         // for, and the first card is what makes the project mean something.
         projectId ??= await ensureRepoProject(actor);
-        const id = await createSensedTask(actor, {
+        const { id, created: didCreate } = await createSensedTask(actor, {
           projectId,
           title,
           description: `Pulse built this from ${pull.branch ? `\`${pull.branch}\`` : `PR #${pull.number}`}. Edit or delete it — it's yours.`,
@@ -132,8 +132,11 @@ export async function syncFromGitHub(input: {
           branch: pull.branch,
           dedupeKey: dedupeKeyFor(pull),
         });
+        // Only push to `fresh` (the same-run dedupe list) when we actually wrote — but
+        // count only a real write. A no-op means the card already existed, and telling the
+        // member "Pulse built 1 card" when it built zero is the receipt lying about itself.
         fresh.push({ id, title, branch: pull.branch, status: inference.status } as Task);
-        created += 1;
+        if (didCreate) created += 1;
         continue;
       }
 

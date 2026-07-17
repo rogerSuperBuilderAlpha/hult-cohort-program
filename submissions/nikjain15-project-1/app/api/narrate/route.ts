@@ -53,17 +53,43 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid' }, { status: 400 });
   }
 
+  /**
+   * Bound every array before it reaches the model.
+   *
+   * This route has no auth — it can't, there's no server session and no Admin SDK, which
+   * is a real limitation stated in the PR. What it CAN do is refuse to turn one request
+   * into an unbounded bill. `buildPrompt` already caps each line at 500 chars but never
+   * capped the array, so a single POST with a 200k-element `material` was one enormous
+   * input-token charge against ~$11 of pilot credit. A real member's week is a handful of
+   * commits; these ceilings are far above that and far below abuse.
+   */
   const result: NarrationResult = await narrate({
-    handle: body.handle,
-    displayName: body.displayName,
-    evidence: body.evidence,
-    material: Array.isArray(body.material) ? body.material : [],
-    commitShas: Array.isArray(body.commitShas) ? body.commitShas : [],
-    otherMembers: Array.isArray(body.otherMembers) ? body.otherMembers : [],
-    cachedKey: body.cachedKey ?? null,
+    handle: body.handle.slice(0, 39),
+    displayName: body.displayName.slice(0, 120),
+    // Defaulted, not trusted: an omitted or malformed evidence would throw inside
+    // formatEvidence, and narrate() promises never to throw.
+    evidence: isEvidence(body.evidence)
+      ? body.evidence
+      : { commits: 0, prNumbers: [], files: [], spanHours: null },
+    material: (Array.isArray(body.material) ? body.material : []).slice(0, 50),
+    commitShas: (Array.isArray(body.commitShas) ? body.commitShas : []).slice(0, 200),
+    otherMembers: (Array.isArray(body.otherMembers) ? body.otherMembers : []).slice(0, 100),
+    cachedKey: typeof body.cachedKey === 'string' ? body.cachedKey : null,
   });
 
   // 200 on every path: facts_only and skipped_cached are outcomes the caller handles, not
   // errors. narrate() never throws.
   return NextResponse.json(result);
+}
+
+/** Enough of an Evidence shape that formatEvidence won't throw on it. */
+function isEvidence(v: unknown): v is import('@/lib/types').Evidence {
+  if (typeof v !== 'object' || v === null) return false;
+  const e = v as Record<string, unknown>;
+  return (
+    typeof e.commits === 'number' &&
+    Array.isArray(e.prNumbers) &&
+    Array.isArray(e.files) &&
+    (e.spanHours === null || typeof e.spanHours === 'number')
+  );
 }

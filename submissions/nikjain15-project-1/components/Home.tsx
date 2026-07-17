@@ -10,9 +10,14 @@ import { useAuth } from '@/lib/auth-context';
 import { db } from '@/lib/firebase';
 import { saveConsent, subscribeToLink } from '@/lib/github-link';
 import { approveNarrative, dismissNarrative, subscribeToPulse, toggleKudos } from '@/lib/pulse';
+import { useRouter } from 'next/navigation';
+import { findRecipeOffer, RecipeOfferCard } from '@/components/RecipeOffer';
+import { selectHelperIntro } from '@/lib/intro-state';
+import { actOnIntroduction, subscribeToIntroductions } from '@/lib/introductions';
 import { formatEvidence, relativeTime, selectAsk, type Ask, type AskContext } from '@/lib/sense';
-import type { GitHubLink, Member, PulseEvent, Task } from '@/lib/types';
+import type { GitHubLink, Introduction, Member, PulseEvent, Recipe, Task } from '@/lib/types';
 import { useCohort } from '@/lib/use-cohort';
+import { useRecipes } from '@/lib/use-recipes';
 
 /**
  * Home — `/` signed in. DESIGN-SPEC §6.
@@ -58,11 +63,12 @@ const MOTION_CSS = `
 /* ----------------------------------------------------------------------- view */
 
 function HomeView() {
-  const { user } = useAuth();
+  const { user, memberName } = useAuth();
   const uid = user!.uid;
 
   const { tasks, projects, members, ready } = useCohort();
   const { events, fresh, ready: feedReady } = usePulseFeed();
+  const { recipes } = useRecipes();
   const [link, setLink] = useState<GitHubLink | null>(null);
   // null-before-first-snapshot and null-because-no-doc are different states: the second
   // means this member never finished /connect, and gets the "one decision waiting" card.
@@ -82,9 +88,36 @@ function HomeView() {
   // (narrative: null) are not receipts — there is no model sentence to stand behind.
   const posted = useMemo(() => findPostedRow(events, uid), [events, uid]);
 
+  /**
+   * Rung 1 of the ask ladder: introductions addressed to YOU, and only you — the query
+   * itself is scoped to your uid because the rules deny every other read. The broker job
+   * writes these server-side; this listener is the one place in the product they surface.
+   */
+  const [intros, setIntros] = useState<Introduction[]>([]);
+  useEffect(() => subscribeToIntroductions(uid, setIntros), [uid]);
+  const helperIntro = useMemo(() => selectHelperIntro(intros), [intros]);
+
+  // The stuck person's name, from the member doc — never guessed. An intro whose person
+  // we can't name yet renders nothing rather than "someone" (a nameless nudge reads as
+  // gossip, and the next snapshot will have the member doc anyway).
+  const stuckName = useMemo(
+    () => (helperIntro ? (members.find((m) => m.uid === helperIntro.stuckUid)?.displayName ?? null) : null),
+    [helperIntro, members]
+  );
+
   const ask = useMemo(
-    () => selectAsk(buildAskContext({ uid, tasks, projects, ready })),
-    [uid, tasks, projects, ready]
+    () => selectAsk(buildAskContext({ uid, tasks, projects, ready, helperIntro, stuckName })),
+    [uid, tasks, projects, ready, helperIntro, stuckName]
+  );
+
+  // "That one took a while. Keep what worked?" — Layer 2's offer, for YOUR newest hard
+  // ship only. `offerGone` exists because the dismissal lives in localStorage, which
+  // isn't reactive — the card has to leave the screen the moment it's resolved, not on
+  // the next snapshot.
+  const [offerGone, setOfferGone] = useState(false);
+  const offer = useMemo(
+    () => (offerGone ? null : findRecipeOffer(events, recipes, uid)),
+    [events, recipes, uid, offerGone]
   );
 
   return (
@@ -114,6 +147,20 @@ function HomeView() {
           link?.status === 'declined' && <NothingOfYours />
         )}
 
+        {offer && (
+          <RecipeOfferCard
+            actor={{
+              uid,
+              // Member doc, not the User: the rules reject a mismatched actorName, and the
+              // old `?? ''` fallback could even publish a nameless recipe. See auth-context.
+              name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+              photoURL: user!.photoURL,
+            }}
+            offer={offer}
+            onGone={() => setOfferGone(true)}
+          />
+        )}
+
         {/* One card, not two stacked negations: when an invitation above is showing and
             the ask ladder only has its floor to offer, "nothing of yours" + "nothing needs
             you" reads like the product shrugging twice. The invitation wins the slot. */}
@@ -122,12 +169,13 @@ function HomeView() {
           linkReady &&
           (link === null || link?.status === 'declined') &&
           ask.kind === 'nothing'
-        ) && <StandingAsk ask={ask} uid={uid} ready={ready} />}
+        ) && <StandingAsk ask={ask} uid={uid} ready={ready} intro={helperIntro} onError={setError} />}
 
         <CohortWeek
           events={events}
           fresh={fresh}
           members={members}
+          recipes={recipes}
           ready={feedReady}
           uid={uid}
           onError={setError}
@@ -493,28 +541,34 @@ function NothingOfYours() {
 /* -------------------------------------------------- 2 · the standing ask */
 
 /**
- * Build the ladder's input from what actually exists today.
+ * Build the ladder's input from what actually exists.
  *
- * `brokerMatch` and `weakMatch` are **null and hard-coded null**: layer 3 (Broker) is
- * designed, not built, so there is no match to offer. Filling them with a plausible
- * stand-in would fabricate a person being stuck — the single most dishonest thing this
- * screen could do. Rungs 1 and 2 cannot fire until Broker ships and populates them.
- *
- * That leaves rungs 3, 4 and 5 live today.
+ * `brokerMatch` (rung 1) is fed by the ONE live introduction addressed to this member —
+ * written server-side by the broker job, readable by nobody else. It is never fabricated:
+ * no intro, no name, no rung. `weakMatch` stays null — its signal (a problem touching
+ * files you shipped, with no recipe) is a broker-job draft with `strength: 'files'` and
+ * no recipeId, which rung 1 already carries; a second, vaguer rung would be a second ask.
  */
 function buildAskContext({
   uid,
   tasks,
   projects,
   ready,
+  helperIntro,
+  stuckName,
 }: {
   uid: string;
   tasks: Task[];
   projects: { id: string; archived: boolean }[];
   ready: boolean;
+  helperIntro: Introduction | null;
+  stuckName: string | null;
 }): AskContext {
   const empty: AskContext = {
-    brokerMatch: null,
+    // Only with a real name: a nameless "someone is stuck" reads as gossip, and the
+    // member doc that names them arrives on the next snapshot anyway.
+    brokerMatch:
+      helperIntro && stuckName ? { helperName: stuckName, problem: helperIntro.problem ?? '' } : null,
     weakMatch: null,
     unclaimedTask: null,
     oldestInProgress: null,
@@ -553,7 +607,19 @@ function buildAskContext({
  * path here that renders two. Two asks is a backlog, and a backlog is what this product
  * deleted.
  */
-function StandingAsk({ ask, uid, ready }: { ask: Ask; uid: string; ready: boolean }) {
+function StandingAsk({
+  ask,
+  uid,
+  ready,
+  intro,
+  onError,
+}: {
+  ask: Ask;
+  uid: string;
+  ready: boolean;
+  intro: Introduction | null;
+  onError: (m: string | null) => void;
+}) {
   if (!ready) {
     return (
       <section className="mb-8 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
@@ -564,23 +630,30 @@ function StandingAsk({ ask, uid, ready }: { ask: Ask; uid: string; ready: boolea
 
   return (
     <section className="mb-8 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-      <AskBody ask={ask} uid={uid} />
+      <AskBody ask={ask} uid={uid} intro={intro} onError={onError} />
     </section>
   );
 }
 
-function AskBody({ ask, uid }: { ask: Ask; uid: string }) {
+function AskBody({
+  ask,
+  uid,
+  intro,
+  onError,
+}: {
+  ask: Ask;
+  uid: string;
+  intro: Introduction | null;
+  onError: (m: string | null) => void;
+}) {
   switch (ask.kind) {
-    // Rungs 1 and 2 are unreachable today — Broker isn't built. They render correctly the
-    // day it starts populating brokerMatch/weakMatch, and not a moment before.
     case 'broker':
-      return (
-        <AskCard
-          headline={`${ask.helperName} is stuck on something you solved`}
-          detail={ask.problem}
-          cta={{ label: 'Send them what worked', href: '/recipes' }}
-        />
-      );
+      // selectAsk only returns broker when brokerMatch was fed from a live intro, so
+      // intro is present here; the guard keeps a future refactor honest rather than
+      // rendering a nudge with no doc behind it.
+      return intro ? (
+        <BrokerAsk intro={intro} stuckName={ask.helperName} onError={onError} />
+      ) : null;
     case 'weak_match':
       return (
         <AskCard
@@ -620,6 +693,76 @@ function AskBody({ ask, uid }: { ask: Ask; uid: string }) {
   }
 }
 
+/**
+ * Rung 1 — "{name} is stuck on something you solved". The helper's private offer, and
+ * the only place in the product an introduction ever renders.
+ *
+ * Send marks the intro `sent` and lands the helper on the recipe (the thing to actually
+ * hand over). "not now" dismisses — silent, terminal, no trace anywhere; the listener
+ * drops the rung and the ladder falls through to the next ask. Neither move publishes a
+ * word: `intro_made` is server-written, and only after help visibly lands.
+ */
+function BrokerAsk({
+  intro,
+  stuckName,
+  onError,
+}: {
+  intro: Introduction;
+  stuckName: string;
+  onError: (m: string | null) => void;
+}) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  const send = async () => {
+    if (busy) return;
+    setBusy(true);
+    onError(null);
+    try {
+      await actOnIntroduction(intro, 'send');
+      // The recipe IS what gets sent — land on it so it can be shared or walked through.
+      router.push(intro.recipeId ? `/recipes/${intro.recipeId}` : '/recipes');
+    } catch {
+      onError("We couldn't mark that sent. The offer is still yours — try again.");
+      setBusy(false);
+    }
+  };
+
+  const dismiss = async () => {
+    onError(null);
+    try {
+      await actOnIntroduction(intro, 'dismiss');
+    } catch {
+      onError("We couldn't dismiss that. Try again.");
+    }
+  };
+
+  return (
+    <>
+      <h2 className="text-base text-zinc-100">{stuckName} is stuck on something you solved</h2>
+      <p className="mt-1 line-clamp-2 text-sm text-zinc-400">{intro.problem}</p>
+      {intro.recipeId && (
+        <p className="mt-1 text-xs text-zinc-400">You banked a recipe for this.</p>
+      )}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          disabled={busy}
+          onClick={() => void send()}
+          className="inline-flex min-h-11 items-center rounded bg-emerald-500 px-3 text-sm font-medium text-emerald-950 transition-colors hover:bg-emerald-400 disabled:opacity-60"
+        >
+          Send {stuckName} what worked
+        </button>
+        <button
+          onClick={() => void dismiss()}
+          className="min-h-11 px-2 text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-300"
+        >
+          not now
+        </button>
+      </div>
+    </>
+  );
+}
+
 function AskCard({
   headline,
   detail,
@@ -632,7 +775,8 @@ function AskCard({
   return (
     <>
       <h2 className="text-base text-zinc-100">{headline}</h2>
-      <p className="mt-1 text-sm text-zinc-400">{detail}</p>
+      {/* Two lines, never a wall — the ask is the nudge, the board has the spec. */}
+      <p className="mt-1 line-clamp-2 text-sm text-zinc-400">{detail}</p>
       {/* Green, because this is the motivating action — the only thing on Home that gets
           a colour besides debt. */}
       <Link
@@ -651,6 +795,7 @@ function CohortWeek({
   events,
   fresh,
   members,
+  recipes,
   ready,
   uid,
   onError,
@@ -658,11 +803,19 @@ function CohortWeek({
   events: PulseEvent[];
   fresh: ReadonlySet<string>;
   members: Member[];
+  recipes: Recipe[];
   ready: boolean;
   uid: string;
   onError: (m: string | null) => void;
 }) {
   const byUid = useMemo(() => new Map(members.map((m) => [m.uid, m])), [members]);
+
+  // The recipe chip (§6): a shipped row whose task got banked links straight to the
+  // recipe. Derived from the listener already in memory — no per-row query.
+  const recipeByTask = useMemo(
+    () => new Map(recipes.filter((r) => r.taskId !== null).map((r) => [r.taskId!, r.id])),
+    [recipes]
+  );
 
   return (
     <section>
@@ -687,6 +840,7 @@ function CohortWeek({
                 key={event.id}
                 event={event}
                 member={byUid.get(event.actorUid)}
+                recipeId={event.taskId !== null ? (recipeByTask.get(event.taskId) ?? null) : null}
                 uid={uid}
                 fresh={fresh.has(event.id)}
                 onError={onError}
@@ -775,12 +929,15 @@ function PulseStrip({ events }: { events: PulseEvent[] }) {
 function FeedRow({
   event,
   member,
+  recipeId,
   uid,
   fresh,
   onError,
 }: {
   event: PulseEvent;
   member: Member | undefined;
+  /** A recipe banked for this row's task — the chip that links the ship to what worked. */
+  recipeId: string | null;
   uid: string;
   fresh: boolean;
   onError: (m: string | null) => void;
@@ -821,7 +978,20 @@ function FeedRow({
           </p>
         )}
 
-        <p className="mt-0.5 text-xs text-zinc-400">{relativeTime(event.createdAt.toDate())}</p>
+        <p className="mt-0.5 text-xs text-zinc-400">
+          {relativeTime(event.createdAt.toDate())}
+          {recipeId && (
+            <>
+              {' · '}
+              <Link
+                href={`/recipes/${recipeId}`}
+                className="rounded border border-zinc-800 px-1.5 py-0.5 text-zinc-300 transition-colors hover:border-zinc-600"
+              >
+                recipe
+              </Link>
+            </>
+          )}
+        </p>
       </div>
 
       {mine ? (
@@ -892,11 +1062,18 @@ function RowCopy({ event }: { event: PulseEvent }) {
         </>
       );
     case 'intro_made':
-      // §6 wants "{actor} unstuck {other} on {problem}". `PulseEvent` carries one subject
-      // and no field for the second party, and Broker (which would write these) isn't
-      // built — so the problem clause is dropped rather than guessed at. Adding the field
-      // is part of layer 3's PR, not something to fake from here.
-      return (
+      // §6: "{actor} unstuck {other} on {problem}". The second party now rides on the
+      // event (`otherName`, denormalised like `actorName`), and `subject` carries the
+      // problem — so the full sentence renders. This is the ONE time stuckness is public,
+      // and only as a resolved thank-you: no "was stuck for N days", no shame residue.
+      // A legacy row without `otherName` degrades to the actor + problem rather than
+      // guessing a name.
+      return event.otherName ? (
+        <>
+          {actor} unstuck{' '}
+          <strong className="font-medium text-zinc-100">{event.otherName}</strong> on {subject}
+        </>
+      ) : (
         <>
           {actor} unstuck {subject}
         </>

@@ -29,6 +29,8 @@ export type SensedPull = {
   state: 'open' | 'closed';
   merged: boolean;
   createdAt: string;
+  /** When it merged — with createdAt, the span of the work, no extra API call. */
+  mergedAt: string | null;
 };
 
 export type SenseResponse =
@@ -72,5 +74,6 @@ function toSensed(pull: GitHubPull): SensedPull {
     state: pull.state,
     merged: pull.merged_at !== null,
     createdAt: pull.created_at,
+    mergedAt: pull.merged_at,
   };
 }

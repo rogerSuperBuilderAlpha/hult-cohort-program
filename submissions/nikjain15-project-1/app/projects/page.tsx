@@ -25,7 +25,7 @@ export default function ProjectsPage() {
  * `user!.uid` a real crash at prerender.
  */
 function ProjectsView() {
-  const { user } = useAuth();
+  const { user, memberName } = useAuth();
   const { tasks, projects, members, ready } = useCohort();
 
   const [editing, setEditing] = useState<Project | null>(null);
@@ -35,10 +35,11 @@ function ProjectsView() {
   const actor = useMemo(
     () => ({
       uid: user!.uid,
-      name: user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+      // From the member doc, not the Firebase User — the rules check actorName against it.
+      name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
       photoURL: user!.photoURL,
     }),
-    [user]
+    [user, memberName]
   );
 
   const memberByUid = useMemo(() => new Map(members.map((m) => [m.uid, m])), [members]);

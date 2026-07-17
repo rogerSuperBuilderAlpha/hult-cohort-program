@@ -257,6 +257,28 @@ describe('pulse — nobody can fake, edit, or erase someone else\'s heartbeat', 
     await assertSucceeds(addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE)));
   });
 
+  it('denies a client forging an intro_made — only the trusted job may say who was helped', async () => {
+    // intro_made is the Broker's one public moment: "{actor} unstuck {other}". It names
+    // someone as previously stuck, so it may originate ONLY server-side (Admin SDK), when
+    // a real introduction resolved. A member hand-writing it, even honestly attributed to
+    // themselves, would publicly imply a peer was stuck with no resolved intro and no
+    // consent behind it — the exact surveillance leak the asymmetry forbids.
+    await seed(env, `members/${ALICE}`, member(ALICE));
+    await assertFails(
+      addDoc(
+        collection(as(env, ALICE), 'pulse'),
+        pulseEvent(ALICE, { kind: 'intro_made', subject: 'the OAuth redirect loop', otherName: `Member ${BOB}`, otherUid: BOB }),
+      ),
+    );
+  });
+
+  it('still lets a client post every other kind — the intro_made lock is surgical', async () => {
+    await seed(env, `members/${ALICE}`, member(ALICE));
+    await assertSucceeds(
+      addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE, { kind: 'recipe_banked', subject: 'A recipe' })),
+    );
+  });
+
   it("denies A posting under B's NAME even with A's own uid — no impersonation via actorName", async () => {
     // The forgery the feed made effective: actorUid is honestly ALICE, but actorName is
     // BOB's — and the feed renders actorName verbatim, so it would display as BOB.
@@ -277,6 +299,32 @@ describe('pulse — nobody can fake, edit, or erase someone else\'s heartbeat', 
         collection(as(env, ALICE), 'pulse'),
         pulseEvent(ALICE, { actorName: 'Totally Not Alice' }),
       ),
+    );
+  });
+
+  // The coverage gap staff review found: every test above happens to give the member doc
+  // and the event the SAME name string, so none of them exercised a legitimate member
+  // whose canonical name differs from a naively-derived one. A GitHub-auth member with no
+  // GitHub display name has their login on the member doc (nameFor falls to it), but the
+  // client used to send the email local-part — so the rule silently rejected every event
+  // and logPulse swallowed it. These pin both halves of the contract the client fix relies on.
+  it('rejects the email-local-part name the old client sent (the silent-drop bug)', async () => {
+    await seed(env, `members/${ALICE}`, member(ALICE, {
+      displayName: 'nikjain15',
+      email: 'nikjain@example.com',
+    }));
+    await assertFails(
+      addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE, { actorName: 'nikjain' })),
+    );
+  });
+
+  it('accepts the member-doc displayName the fixed client now sends', async () => {
+    await seed(env, `members/${ALICE}`, member(ALICE, {
+      displayName: 'nikjain15',
+      email: 'nikjain@example.com',
+    }));
+    await assertSucceeds(
+      addDoc(collection(as(env, ALICE), 'pulse'), pulseEvent(ALICE, { actorName: 'nikjain15' })),
     );
   });
 
@@ -635,6 +683,25 @@ describe('tombstones — deletion sticks, and only you can record your own', () 
     await assertFails(deleteDoc(doc(as(env, ALICE), `tombstones/${id}`)));
     await assertFails(updateDoc(doc(as(env, ALICE), `tombstones/${id}`), { uid: BOB }));
   });
+
+  // The squat, exactly as staff review found it: BOB writes his OWN uid (so `isSelf`
+  // passes) into a tombstone whose DOC ID is ALICE's sensed card. Without tying the id to
+  // the caller, this suppresses ALICE's card on every future sync, permanently and
+  // silently. The earlier tests only used same-uid tombstones, which is why they missed it.
+  it("denies a peer squatting a victim's tombstone id with their own uid", async () => {
+    await assertFails(
+      setDoc(doc(as(env, BOB), `tombstones/${id}`), { uid: BOB, createdAt: new Date() }),
+    );
+  });
+
+  it('lets that same peer tombstone their OWN sensed card', async () => {
+    await assertSucceeds(
+      setDoc(doc(as(env, BOB), `tombstones/s_${BOB}_deadbeef`), {
+        uid: BOB,
+        createdAt: new Date(),
+      }),
+    );
+  });
 });
 
 /* ==========================================================================
@@ -746,6 +813,45 @@ describe('tasks — a receipt cannot be forged', () => {
     await seed(env, path, sensedTask(ALICE));
     await assertSucceeds(
       updateDoc(doc(as(env, ALICE), path), { status: 'done', completedAt: new Date() })
+    );
+  });
+});
+
+/**
+ * "I'm stuck on this" is the Broker's strongest signal BECAUSE it carries zero
+ * inference — which it only stays if it is unforgeable. A peer who can flag you stuck
+ * has manufactured the exact claim ("so-and-so is struggling") this product refuses to
+ * infer, and laundered it through the one channel the broker trusts completely.
+ */
+describe('tasks — only the assignee can say "I\'m stuck"', () => {
+  const path = 'tasks/task_1';
+
+  it('lets the assignee flag their own card, and clear it again', async () => {
+    await seed(env, path, task(BOB, { assigneeUid: ALICE }));
+    await assertSucceeds(updateDoc(doc(as(env, ALICE), path), { stuckSince: new Date() }));
+    await assertSucceeds(updateDoc(doc(as(env, ALICE), path), { stuckSince: null }));
+  });
+
+  it('denies a peer declaring the assignee stuck', async () => {
+    await seed(env, path, task(BOB, { assigneeUid: BOB }));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { stuckSince: new Date() }));
+  });
+
+  it('denies even the card\'s creator flagging someone else\'s struggle', async () => {
+    // Creating the card gives you no voice about the assignee's state of mind.
+    await seed(env, path, task(ALICE, { assigneeUid: BOB }));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { stuckSince: new Date() }));
+  });
+
+  it('denies flagging an unassigned card — there is nobody to be stuck', async () => {
+    await seed(env, path, task(ALICE, { assigneeUid: null }));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { stuckSince: new Date() }));
+  });
+
+  it('leaves normal edits by peers untouched when the flag stays put', async () => {
+    await seed(env, path, task(BOB, { assigneeUid: BOB, stuckSince: new Date() }));
+    await assertSucceeds(
+      updateDoc(doc(as(env, ALICE), path), { title: 'Renamed by a teammate' })
     );
   });
 });

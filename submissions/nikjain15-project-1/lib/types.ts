@@ -75,6 +75,14 @@ export type Task = {
   evidence: Evidence | null;
   /** Branch that produced a sensed card. The dedupe key against re-syncs. */
   branch: string | null;
+  /**
+   * The assignee's own "I'm stuck on this" — the Broker's strongest signal, and the
+   * only one with zero inference in it. Set and cleared ONLY by the assignee (the rules
+   * enforce it: nobody may declare a peer stuck), read ONLY by the server-side broker
+   * job. It renders nowhere the cohort can see — no badge, no board marker, nothing.
+   * Asking for help quietly is the whole dignity of the feature.
+   */
+  stuckSince: Timestamp | null;
 };
 
 /**
@@ -123,17 +131,24 @@ export type GitHubLink = {
    */
   createTasksFromBranches: boolean;
   /**
-   * The exact work the last narration described — the budget guard, not an optimisation.
+   * Every distinct piece of work Pulse has already narrated — the budget guard, not an
+   * optimisation.
    *
    * Uncached, 65 members on a 15-minute poll is ~6,240 model calls/day (~$12.48/day,
-   * ~$524 over the pilot) against ~$11 of credit. Matching this key means the work hasn't
-   * changed, so there is nothing new to say and no call is made. A miss on unchanged work
-   * is a bug.
+   * ~$524 over the pilot) against ~$11 of credit. If a work's key is in this set, it has
+   * already been described, so there is nothing new to say and no call is made. A miss on
+   * unchanged work is a bug.
    *
-   * null until the first narration. Never used to decide WHETHER someone may be narrated —
-   * that's `narrationOptIn`, and only that.
+   * A SET, not a single slot. It used to be one scalar `narrationCacheKey`, but narration
+   * is keyed PER PR (`pr-<n>`), so shipping a second PR overwrote the first's key — and
+   * re-sensing the first then missed the cache, paying for an unchanged narration and
+   * announcing the same ship twice. Any member with ≥2 shipped PRs hit it. A set remembers
+   * every one. Grows with a member's shipped work (bounded by their PR count); never used
+   * to decide WHETHER someone may be narrated — that's `narrationOptIn`, and only that.
+   *
+   * Empty until the first narration.
    */
-  narrationCacheKey: string | null;
+  narratedWorkKeys: string[];
 };
 
 export type Recipe = {
@@ -159,6 +174,13 @@ export type Introduction = {
   stuckUid: string;
   helperUid: string;
   recipeId: string | null;
+  /**
+   * The problem, in the words the stuck person's own work uses — what the helper is
+   * being asked about. Written by the broker job with the rest of the doc; the helper
+   * can never edit it (rules allow only `state`), so an intro can't be reworded into a
+   * different claim after the fact.
+   */
+  problem: string;
   state: 'suggested' | 'sent' | 'dismissed';
   createdAt: Timestamp;
 };
@@ -222,4 +244,13 @@ export type PulseEvent = {
   evidence: Evidence | null;
   /** Set when the human rewords Pulse's sentence. The human is right. */
   editedAt: Timestamp | null;
+  /**
+   * The second party — used only by `intro_made`: "{actor} unstuck {otherName} on
+   * {subject}". Null for every other kind. Denormalised like `actorName` so the feed
+   * renders without a join. The moment help lands is the ONE time stuckness becomes
+   * public, and only as a resolved thank-you with the helped person's implied consent —
+   * so this names them, never "stuck for N days", never any shame residue.
+   */
+  otherUid: string | null;
+  otherName: string | null;
 };

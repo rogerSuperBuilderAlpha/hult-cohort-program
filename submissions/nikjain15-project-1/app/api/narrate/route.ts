@@ -56,7 +56,8 @@ export type NarrateRequest = {
   /** Identity of the work being described. See the cache note in lib/sync.ts. */
   commitShas: string[];
   otherMembers: { handle: string | null; displayName: string }[];
-  cachedKey: string | null;
+  /** Every work key already narrated for this member. A set — see lib/types.ts. */
+  narratedKeys: string[];
 };
 
 export async function POST(request: Request) {
@@ -103,7 +104,9 @@ export async function POST(request: Request) {
     material: (Array.isArray(body.material) ? body.material : []).slice(0, 50),
     commitShas: (Array.isArray(body.commitShas) ? body.commitShas : []).slice(0, 200),
     otherMembers: (Array.isArray(body.otherMembers) ? body.otherMembers : []).slice(0, 100),
-    cachedKey: typeof body.cachedKey === 'string' ? body.cachedKey : null,
+    // Bounded like the rest: the set grows with a member's shipped work, but a single
+    // request must never turn it into an unbounded input. 1000 PRs is far above a pilot.
+    narratedKeys: (Array.isArray(body.narratedKeys) ? body.narratedKeys : []).slice(0, 1000),
   });
 
   // 200 on every path: facts_only and skipped_cached are outcomes the caller handles, not

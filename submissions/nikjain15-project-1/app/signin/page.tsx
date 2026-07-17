@@ -73,7 +73,7 @@ export default function SignInPage() {
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-semibold tracking-tight">Pulse</h1>
           <p className="mt-2 text-sm text-zinc-400">
-            Your week is already written. Sign in to see it.
+            The board that updates itself. Sign in — yours is waiting.
           </p>
         </div>
 

@@ -294,6 +294,83 @@ be done from here.
 
 ---
 
+## ✅ Layer 3 groundwork — the Broker's core + the intro_made public moment, 2026-07-17
+
+Everything the Broker needs that does NOT need the Admin SDK credential. The scheduled
+write-job is the only gated piece (see the 👤 Nik handoff below).
+
+| Piece | State |
+|---|---|
+| `matchIntroductions` — pure matching core: recipe-author > file-toucher, never the stuck person, load-cap, opt-ins first | ✅ `lib/broker.ts`, 14 unit cases pin the ethic |
+| The surveillance line is unrepresentable — `StuckSignal` has no "last seen"/"days quiet" field | ✅ absence cannot become a signal by construction |
+| `intro_made` second party — `otherUid`/`otherName` on `PulseEvent`, so the feed renders "{actor} unstuck {other} on {problem}" | ✅ **watched in a browser** (screenshot) |
+| The one public moment carries no shame — no "stuck for N days", no debt framing | ✅ e2e asserts the absence |
+| **Rules hardening:** a client cannot forge an `intro_made` — it may originate ONLY server-side (the trusted job), when help actually landed | ✅ `firestore.rules`, 2 new rules tests |
+| The `introductions` doc stays helper-only, uncounted, unlistable (unchanged, re-verified) | ✅ existing rules suite |
+
+Gate: **typecheck ✅ · lint ✅ · 176 unit ✅ · 108 rules ✅ · 5 integration ✅ · full e2e
+(59 passed; approval-queue flaked once under load, green in isolation — same flake class as
+the pre-existing crud due-date test) ✅**.
+
+Still gated on Nik's credential: the scheduled broker job that gathers stuck signals, calls
+`matchIntroductions`, and writes the `introductions` + `intro_made` docs with the Admin SDK.
+The matching, the state machine, and the public-moment rendering are all built and verified;
+the credential is the last wire, not a blocker for the rest.
+
+---
+
+## ✅ Layer 3 complete (emulator-verified) — the job, the helper offer, the opt-in, 2026-07-17
+
+The "still gated" list above shrank to one word: **prod**. The whole Broker now runs and is
+verified on the emulator, where the Admin SDK needs no credential; `FIREBASE_SERVICE_ACCOUNT`
+in Vercel is the only remaining wire.
+
+| Piece | State |
+|---|---|
+| The broker job — gather (aging in_progress + explicit opt-in, never absence) → match → create-if-absent upserts at derived ids | ✅ `lib/broker-admin.ts` + `lib/broker-job.ts`, 13 integration tests on a real Firestore |
+| Re-runs converge; a dismissal outlives every future run; an opted-out helper is never matched | ✅ integration-pinned |
+| `intro_made` publishes ONLY after help visibly lands (sent + unstuck-by-that-recipe), once, both names verified | ✅ integration-pinned, incl. the never-for-suggested case |
+| `POST /api/broker` — secret-gated cron door; 503s loudly with a reason when unconfigured | ✅ `app/api/broker/route.ts` |
+| Rung 1 live on Home — "{name} is stuck on something you solved", Send → `sent` + lands on the recipe, "not now" → dismissed forever | ✅ e2e both moves, **watched in a browser** |
+| The privacy acceptance test — FAILS if any cohort surface ever shows a stuck signal; proven able to fail via a seeded leak | ✅ `broker-privacy.spec.ts`, green WITH the helper UI live |
+| "I'm stuck on this" — assignee-only flag (rules-unforgeable, 5 tests), quiet modal control, renders nowhere the cohort can see | ✅ **watched in a browser**, stuckSince landed under real rules |
+
+Gate at this commit: **typecheck ✅ · lint ✅ · 188 unit ✅ · 113 rules ✅ · 13 integration ✅ ·
+full e2e 59 passed + 2 flaky-green-on-retry, 0 failures ✅**.
+
+👤 **Nik, the one action:** Firebase console → Project settings → Service accounts → Generate
+new private key → paste the JSON into a Vercel env var `FIREBASE_SERVICE_ACCOUNT` (server-side
+only, never committed), plus a `BROKER_SECRET` for the cron, and point a Vercel cron at
+`POST /api/broker` with header `x-broker-secret`. Everything else already works.
+
+---
+
+## ✅ Layer 2 — Bank draws its own draft, built + driven 2026-07-17
+
+`LAYER-2-3-DESIGN.md`, increment set A. The recipe write path was already built (`RecipeModal` +
+`createRecipe`); this adds the *draft*, so nobody has to paste from a blank page after a hard fight.
+
+| Piece | State |
+|---|---|
+| `/api/extract-recipe` — server route, rate-limited like `/api/narrate`, reads the PR's commits server-side | ✅ `lib/extract.ts`, no secret leaves the server |
+| Never fabricate — thin/dead-GitHub/no-key/unparseable all land on `thin: true`, extract nothing | ✅ 10 unit cases in `extract.test.ts` |
+| The offer — "That one took a while. Keep what worked?" on Home, actor's own hard ship only, dismissible, once | ✅ `RecipeOffer.tsx`, `selectRecipeOffer` |
+| "looks like a fight" threshold (≥6 commits or ≥24h span), pinned so tuning is a decision not drift | ✅ `looksLikeAFight`, unit-pinned |
+| Pre-fill — "Draft it for me" → route → `RecipeModal` pre-filled; human edits, taps Bank it | ✅ **watched in a browser** (offer card + pre-filled modal screenshotted) |
+| Banked recipe's `taskId` links back to the card → feed recipe chip points at it | ✅ e2e asserts the chip appears |
+| Never nag — a trivial ship gets no offer at all | ✅ e2e `a trivial ship gets no offer` |
+| "not now" tombstones the offer; a reload doesn't resurrect it; banking retires it too | ✅ e2e, localStorage-scoped per uid |
+
+Gate at this commit: **typecheck ✅ · lint ✅ · 162 unit ✅ · 106 rules ✅ · 5 integration ✅ ·
+full e2e 57 passed (1 pre-existing flaky, green on retry) ✅**. The extraction output is a private
+draft a human edits before it's ever a recipe, so facts-vs-narrative (rule 3) holds without a
+`checkNarrative` pass — no model text goes public here.
+
+**Layer 3 (Broker) is not in this PR** — it needs the Firebase Admin SDK, which needs a
+service-account credential only Nik can create. See the handoff at the end of this file.
+
+---
+
 ## ✅ `/recipes` + `/recipes/[id]` — built and driven, 2026-07-16
 
 The nav linked to `/recipes` and it 404'd. A reviewer clicks nav. Spec §8, now built and **watched

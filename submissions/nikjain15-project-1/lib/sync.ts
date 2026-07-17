@@ -5,11 +5,13 @@ import {
   announceSensedShip,
   createSensedTask,
   ensureRepoProject as ensureSharedRepoProject,
+  reconcileRepoProjects,
+  repoProjectId,
   setSensedStatusSilently,
   setTaskStatus,
   type Narration,
 } from './data';
-import { setNarrationCacheKey } from './github-link';
+import { markWorkNarrated } from './github-link';
 import { COHORT_REPO_NAME } from './github-repo';
 import type { NarrationResult } from './narrate';
 import { autoNarrationAllowed, branchToTitle, findDuplicate, inferStatus, narrationWanted, type GitHubSignal } from './sense';
@@ -72,6 +74,16 @@ export async function syncFromGitHub(input: {
    * is broken — which it is, quietly. Say it out loud instead.
    */
   if (!link.handle) return { kind: 'no_handle' };
+
+  // Fold any legacy twin repo-project into the canonical one before touching the board.
+  // Best-effort and independent of GitHub — a maintenance write, not part of the sensing
+  // result — so a failure here degrades to "not migrated yet", never a broken sync. Runs
+  // as a cheap no-op scan once the twins are gone.
+  try {
+    await reconcileRepoProjects(COHORT_REPO_NAME, projects, tasks);
+  } catch (err) {
+    console.warn('reconcileRepoProjects skipped:', err);
+  }
 
   const response = await fetchSense(link.handle);
   if (!response) return { kind: 'degraded', failure: 'unreachable', resetAt: null };
@@ -269,7 +281,7 @@ async function narrateShip(
         // checkNarrative needs these to reject a sentence naming anyone but the actor —
         // injection's entire payoff.
         otherMembers: members.filter((m) => m.uid !== actor.uid).map(({ handle, displayName }) => ({ handle, displayName })),
-        cachedKey: link.narrationCacheKey ?? null,
+        narratedKeys: link.narratedWorkKeys ?? [],
       }),
     });
 
@@ -278,8 +290,9 @@ async function narrateShip(
     const result = (await res.json()) as NarrationResult;
     if (result.kind !== 'narrated') return { narrative: null, evidence, pending };
 
-    // Remember the work we just described, so an unchanged PR never costs another call.
-    await setNarrationCacheKey(actor.uid, result.cacheKey).catch(() => {});
+    // Remember THIS work — add it to the set, never overwrite. A member ships many PRs;
+    // remembering only the last re-bills and re-announces every earlier one.
+    await markWorkNarrated(actor.uid, result.cacheKey).catch(() => {});
     return { narrative: result.narrative, evidence, pending };
   } catch {
     return { narrative: null, evidence, pending };
@@ -350,13 +363,32 @@ function signalFor(pull: SensedPull): GitHubSignal {
  * without an extra call per PR, and `formatEvidence` omits a zero rather than printing
  * "0 commits". Inflating it with a guess would make the receipt a lie, which defeats the
  * only thing a receipt is for.
+ *
+ * The span here is PR opened → merged — the work item's own start-to-finish, which the
+ * list carries for free. Only a MERGED pull gets one: an open PR's span grows with every
+ * poll, and a receipt that quietly rewrites itself is the stale-as-live failure in
+ * miniature. This span is also what `looksLikeAFight` reads, so the recipe offer can
+ * recognise a hard ship without an extra API call per PR.
  */
 function evidenceFor(pull: SensedPull): Evidence {
-  return { commits: 0, prNumbers: [pull.number], files: [], spanHours: null };
+  let spanHours: number | null = null;
+  if (pull.merged && pull.mergedAt) {
+    const span = (new Date(pull.mergedAt).getTime() - new Date(pull.createdAt).getTime()) / 3_600_000;
+    if (Number.isFinite(span) && span >= 0) spanHours = span;
+  }
+  return { commits: 0, prNumbers: [pull.number], files: [], spanHours };
 }
 
-function findRepoProject(projects: Project[]): Project | undefined {
-  return projects.find((p) => !p.archived && p.name === COHORT_REPO_NAME);
+export function findRepoProject(projects: Project[]): Project | undefined {
+  // Deterministic on purpose. A name match alone let `Array.find` return whichever of a
+  // canonical doc and a legacy twin sorted first, so new sensed cards scattered onto both.
+  // Prefer the canonical repo-keyed id; the name fallback only covers the instant before
+  // that doc exists.
+  const canonicalId = repoProjectId(COHORT_REPO_NAME);
+  return (
+    projects.find((p) => p.id === canonicalId && !p.archived) ??
+    projects.find((p) => !p.archived && p.name === COHORT_REPO_NAME)
+  );
 }
 
 /**

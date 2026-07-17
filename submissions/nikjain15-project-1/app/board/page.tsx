@@ -24,7 +24,7 @@ export default function BoardPage() {
 }
 
 function BoardView() {
-  const { user } = useAuth();
+  const { user, memberName } = useAuth();
   const { tasks, projects, members, ready } = useCohort();
   const filters = useFilters();
 
@@ -34,10 +34,11 @@ function BoardView() {
   const actor = useMemo(
     () => ({
       uid: user!.uid,
-      name: user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+      // From the member doc, not the Firebase User — the rules check actorName against it.
+      name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
       photoURL: user!.photoURL,
     }),
-    [user]
+    [user, memberName]
   );
 
   // The board builds itself — but only ever as a bonus on top of a board that already
@@ -65,7 +66,7 @@ function BoardView() {
 
       <SyncNote outcome={outcome} />
 
-      <Filters members={members} projects={liveProjects} onNew={() => setCreating('todo')} />
+      <Filters uid={actor.uid} members={members} projects={liveProjects} onNew={() => setCreating('todo')} />
 
       {!ready ? (
         <p className="text-sm text-zinc-400">Loading the board…</p>

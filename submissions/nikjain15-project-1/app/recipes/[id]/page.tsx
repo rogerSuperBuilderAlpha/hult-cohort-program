@@ -24,7 +24,7 @@ export default function RecipeDetailPage() {
 function RecipeDetail() {
   // Client component: useParams is synchronous. Don't "fix" this to the promise form.
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, memberName } = useAuth();
   const { members } = useCohort();
   const { recipes, ready } = useRecipes();
 
@@ -36,10 +36,11 @@ function RecipeDetail() {
   const actor = useMemo(
     () => ({
       uid: user!.uid,
-      name: user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+      // From the member doc, not the Firebase User — the rules check actorName against it.
+      name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
       photoURL: user!.photoURL,
     }),
-    [user]
+    [user, memberName]
   );
 
   if (!ready) return <p className="text-sm text-zinc-400">Loading…</p>;

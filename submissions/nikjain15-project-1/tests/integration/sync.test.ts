@@ -32,7 +32,7 @@ function liveLink(user: TestUser, over: Partial<GitHubLink> = {}): GitHubLink {
     lastSyncedAt: new Date('2026-01-01') as never,
     narrationOptIn: false,
     createTasksFromBranches: true,
-    narrationCacheKey: null,
+    narratedWorkKeys: [],
     ...over,
   };
 }
@@ -73,7 +73,7 @@ describe('sync', () => {
   it('announces a PR that opened AND merged inside one poll window (item 3)', async () => {
     const actor = { uid: user.uid, name: user.name, photoURL: null };
     const branch = 'feat/fast-merge';
-    stubSense([{ number: 7, title: 'Fast merge', branch, state: 'closed', merged: true, createdAt: '2026-01-01T00:00:00Z' }]);
+    stubSense([{ number: 7, title: 'Fast merge', branch, state: 'closed', merged: true, createdAt: '2026-01-01T00:00:00Z', mergedAt: '2026-01-01T01:00:00Z' }]);
 
     const outcome = await syncFromGitHub({ actor, link: liveLink(user), tasks: [], projects: [], members: [] });
     expect(outcome.kind).toBe('synced');
@@ -92,14 +92,14 @@ describe('sync', () => {
   it('does not re-announce the same fast-merged PR on the next poll (idempotent)', async () => {
     const actor = { uid: user.uid, name: user.name, photoURL: null };
     const branch = 'feat/fast-merge-2';
-    stubSense([{ number: 8, title: 'Fast merge two', branch, state: 'closed', merged: true, createdAt: '2026-01-01T00:00:00Z' }]);
+    stubSense([{ number: 8, title: 'Fast merge two', branch, state: 'closed', merged: true, createdAt: '2026-01-01T00:00:00Z', mergedAt: '2026-01-01T01:00:00Z' }]);
 
     const id = sensedTaskId(user.uid, branch);
     const tasksAfterFirst = (): Task[] => [
       {
         id, projectId: 'repo_x', title: 'Fast merge two', description: '', status: 'done',
         assigneeUid: user.uid, creatorUid: user.uid, dueDate: null, createdAt: null as never,
-        completedAt: null, source: 'sensed', evidence: null, branch,
+        completedAt: null, source: 'sensed', evidence: null, branch, stuckSince: null,
       },
     ];
 
@@ -122,12 +122,12 @@ describe('sync', () => {
     const todoSnapshot: Task = {
       id, projectId: 'repo_x', title: 'Human finishes early', description: '', status: 'todo',
       assigneeUid: user.uid, creatorUid: user.uid, dueDate: null, createdAt: null as never,
-      completedAt: null, source: 'sensed', evidence: null, branch,
+      completedAt: null, source: 'sensed', evidence: null, branch, stuckSince: null,
     };
     await setTaskStatus(actor, todoSnapshot, 'done');
 
     // Next poll: the PR is still OPEN (not merged). Inference would say in_progress.
-    stubSense([{ number: 9, title: 'Human finishes early', branch, state: 'open', merged: false, createdAt: '2026-01-01T00:00:00Z' }]);
+    stubSense([{ number: 9, title: 'Human finishes early', branch, state: 'open', merged: false, createdAt: '2026-01-01T00:00:00Z', mergedAt: null }]);
     const doneSnapshot: Task = { ...todoSnapshot, status: 'done' };
     await syncFromGitHub({ actor, link: liveLink(user), tasks: [doneSnapshot], projects: [], members: [] });
 

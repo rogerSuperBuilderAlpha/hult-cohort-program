@@ -8,26 +8,41 @@ import { Button, ErrorNote, Field, Input, Modal, Textarea } from './ui';
 type Actor = { uid: string; name: string; photoURL: string | null };
 
 /**
+ * A model-written draft to start from — Layer 2's "Draft it for me", pre-filling this
+ * modal from a merged PR's public evidence. The human edits and confirms; nothing here
+ * publishes on its own, which is what keeps facts-vs-narrative intact. `taskId` links
+ * the banked recipe back to the shipped card so the feed's recipe chip can point at it.
+ * `note` is the calm one-liner for a thin draft ("not enough in the evidence").
+ */
+export type RecipeDraft = {
+  problem: string;
+  body: string;
+  taskId: string | null;
+  note?: string;
+};
+
+/**
  * Bank what worked.
  *
- * Week 1 this is the only way a recipe exists — you paste the session that got you
- * unstuck. Pulling it out of the session automatically is the week-2 PR, and the shape
- * of the doc is the same either way, so that PR replaces this modal's input rather than
- * this modal's model.
+ * Week 1 this was paste-only — you typed the problem and pasted the session. Layer 2
+ * adds `draft`: extraction pre-fills these same fields and the human still edits and
+ * taps Bank it. The shape of the doc never changed, so the write path didn't either.
  */
 export function RecipeModal({
   actor,
   recipe,
+  draft,
   onClose,
   onCreated,
 }: {
   actor: Actor;
   recipe?: Recipe | null;
+  draft?: RecipeDraft | null;
   onClose: () => void;
   onCreated?: (id: string) => void;
 }) {
-  const [problem, setProblem] = useState(recipe?.problem ?? '');
-  const [body, setBody] = useState(recipe?.body ?? '');
+  const [problem, setProblem] = useState(recipe?.problem ?? draft?.problem ?? '');
+  const [body, setBody] = useState(recipe?.body ?? draft?.body ?? '');
   const [turns, setTurns] = useState(String(recipe?.turns ?? ''));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -53,7 +68,10 @@ export function RecipeModal({
         await updateRecipe(recipe.id, input);
         onClose();
       } else {
-        const id = await createRecipe(actor, input);
+        // taskId rides only on CREATE — it's the link back to the shipped card the draft
+        // came from. Folding it into `input` would also send it through updateRecipe on
+        // the edit path and silently null an existing recipe's link.
+        const id = await createRecipe(actor, { ...input, taskId: draft?.taskId ?? null });
         onCreated?.(id);
       }
     } catch (err) {
@@ -66,6 +84,11 @@ export function RecipeModal({
   return (
     <Modal title={recipe ? 'Edit recipe' : 'Bank what worked'} onClose={onClose}>
       <div className="space-y-4">
+        {draft?.note && (
+          // A thin draft, said calmly. Never an apology, never an error code — the
+          // fields below work exactly as they always did.
+          <p className="text-xs text-zinc-400">{draft.note}</p>
+        )}
         <Field label="The problem" hint="In your words. This is how someone finds it.">
           <Input
             value={problem}

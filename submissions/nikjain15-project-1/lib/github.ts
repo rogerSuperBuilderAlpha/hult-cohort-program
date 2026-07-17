@@ -94,6 +94,23 @@ export async function fetchPullFiles(number: number): Promise<SyncResult<{ filen
   return get<{ filename: string }[]>(`/repos/${COHORT_REPO}/pulls/${number}/files?per_page=100`, 900);
 }
 
+export type GitHubCommit = {
+  sha: string;
+  commit: { message: string; author: { date: string } | null };
+};
+
+/**
+ * One PR's commits — messages and timestamps only, never diffs or file contents.
+ *
+ * This stays inside the consent screen's scope ("commit messages, PR titles, filenames
+ * and branch names") and it's what recipe extraction reads: the messages are the story
+ * of the fight, and first→last timestamp is the honest span of it. Cached like the
+ * pulls list — extraction is a rare explicit tap, not a poll.
+ */
+export async function fetchPullCommits(number: number): Promise<SyncResult<GitHubCommit[]>> {
+  return get<GitHubCommit[]>(`/repos/${COHORT_REPO}/pulls/${number}/commits?per_page=100`, 900);
+}
+
 /**
  * Build one member's evidence from the repo's PRs. Facts only — this is what the landing
  * page may show about someone who has never opted into anything, because merged PRs are

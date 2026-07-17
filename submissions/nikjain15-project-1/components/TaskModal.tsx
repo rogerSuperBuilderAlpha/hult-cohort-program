@@ -2,7 +2,7 @@
 
 import { Timestamp } from 'firebase/firestore';
 import { useState } from 'react';
-import { createTask, deleteTask, setTaskStatus, updateTask } from '@/lib/data';
+import { createTask, deleteTask, setTaskStatus, setTaskStuck, updateTask } from '@/lib/data';
 import { STATUS_LABELS, STATUSES, type Member, type Project, type Status, type Task } from '@/lib/types';
 import { Button, ErrorNote, Field, Input, Modal, Select, Textarea } from './ui';
 
@@ -46,6 +46,10 @@ export function TaskModal({
   const [due, setDue] = useState(
     task?.dueDate ? task.dueDate.toDate().toISOString().slice(0, 10) : ''
   );
+  // "I'm stuck on this" — only offered on YOUR OWN existing card (the rules deny it to
+  // anyone else, and a create can't be stuck yet: you haven't fought it).
+  const [stuck, setStuck] = useState(!!task?.stuckSince);
+  const canFlagStuck = !!task && task.assigneeUid === actor.uid;
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -71,6 +75,10 @@ export function TaskModal({
         // Status goes through setTaskStatus, not updateTask: it's the only path that
         // logs task_started / task_shipped and sets completedAt correctly.
         if (status !== task.status) await setTaskStatus(actor, task, status);
+        // Separate write, only on change: the rules gate this field to the assignee,
+        // and folding it into the shared patch would fail the whole save for a peer
+        // legitimately editing other fields.
+        if (canFlagStuck && stuck !== !!task.stuckSince) await setTaskStuck(task.id, stuck);
       } else {
         await createTask(actor, {
           projectId,
@@ -187,6 +195,32 @@ export function TaskModal({
             <Input type="date" value={due} onChange={(e) => setDue(e.target.value)} />
           </Field>
         </div>
+
+        {canFlagStuck && (
+          // Quiet on purpose, and invisible to everyone else everywhere: no badge on the
+          // card, no board marker, nothing in the feed. Asking for help costs nothing
+          // and shows nowhere — that's what makes it safe to ask.
+          <label className="flex min-h-11 items-start gap-2 pt-1 text-sm text-zinc-300">
+            <input
+              type="checkbox"
+              checked={stuck}
+              onChange={(e) => setStuck(e.target.checked)}
+              // Explicit name, not just the wrapping label: this project already shipped
+              // one a11y bug from trusting label composition (see AGENTS.md on <select>),
+              // and a screen reader hearing "on, checkbox" here would miss the one thing
+              // that makes ticking it safe — what it does and who can see it.
+              aria-label="I'm stuck on this"
+              className="mt-1 h-4 w-4 accent-emerald-500"
+            />
+            <span>
+              I&rsquo;m stuck on this
+              <span className="block text-xs text-zinc-400">
+                Asks quietly. One person who&rsquo;s solved it may get a nudge — nobody else
+                sees a thing.
+              </span>
+            </span>
+          </label>
+        )}
 
         <ErrorNote>{error}</ErrorNote>
 

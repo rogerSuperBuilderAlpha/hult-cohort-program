@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
+import { OfflineBanner } from './OfflineBanner';
 
 const NAV = [
   { href: '/', label: 'week 1' },
@@ -41,6 +42,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
+      {/* Above the header, so it is the first thing read and cannot be scrolled past. */}
+      <OfflineBanner />
+
       {/*
         Releases under max-HEIGHT:500px, not max-width. `max-[500px]:static` is Tailwind's
         max-*width* variant, so this did the opposite of what the comment above claimed on

@@ -266,7 +266,7 @@ Two read-only reviewers swept the rules/DB and appsec/LLM surfaces. **XSS: clean
 | `checkNarrative` Unicode/zero-width evasion | real | **fixing** — see AI-safety item below |
 | `checkNarrative` displayName carve-out (4a) | real, narrow | **documented residual** — requires attacker to rename self to victim; my actorName binding already forces the feed to show the collision. Closing it fully means rejecting all same-name narratives to facts-only (safe but lossy); deferred as a product call. |
 | `checkNarrative` first-name-only vs null-handle multi-word name (4b) | real, narrow | **documented residual** — the whole-token match is a deliberate precision/recall choice; splitting into first-names would over-reject legitimate narratives about the actor. |
-| single-slot narration cache double-narrates ≥2 shipped PRs | real | **documented** — `narrationCacheKey` is one scalar per member but keyed per-PR; a second shipped PR overwrites the first, so re-sensing PR #1 misses cache. Budget/spam risk. Fix needs a per-work cache map (deferred; noted for the roadmap). |
+| single-slot narration cache double-narrates ≥2 shipped PRs | real | **FIXED** (residual #2) — `narrationCacheKey` scalar → `narratedWorkKeys` set; `markWorkNarrated` arrayUnions each PR's key; `shouldNarrate` checks membership. Unit + integration tests pin that a second PR never evicts the first. |
 | `/api/narrate` unauth cost amplification | real, acknowledged | README security posture documents unauth + bounded inputs; per-caller rate limit is the stated roadmap item. Not a regression. |
 | `/api/opt-out` unauth irreversible tombstone | real, acknowledged | README documents this as a deliberate "no signup wall on the exit" tradeoff; Admin SDK is the stated fix. |
 | archive/rename shared `repo_*` project hides everyone's cards | real | **documented residual** — overlaps the README's "any member can edit any project" tradeoff; a targeted `repo_*`-archive guard is a candidate fix but changes the open-collaboration model. Flagged. |
@@ -325,34 +325,62 @@ the triage table above.
 
 | Suite | Before | After |
 |---|---|---|
-| unit | 121 | 128 (+2 Unicode + concurrent additions) |
+| unit | 121 | 133 (+2 Unicode, +1 multi-PR cache, + concurrent additions) |
 | rules | 92 | 102 (+10: id-squat, tombstones, actorName forgery) |
-| integration | 0 | 5 (new project: items 1–4) |
+| integration | 0 | 7 (new project: items 1–4, +2 narration-cache) |
 | e2e | 49 | 49 (no regression from any fix) |
 
 New `test:integration` script added to the gate so items 1–4 stay protected.
 
 ---
 
-## Still fragile (read this last)
+## Residual #2 — narration cache  ·  FIXED (isolated branch `audit-admin-hardening`)
 
-Two things I'd watch, honestly:
+Was: `narrationCacheKey` was one string on `githubLinks/{uid}`, but each PR computes its own
+key, so shipping a second PR overwrote the first's. Re-sensing the first then missed cache —
+a paid model call for unchanged work plus a duplicate "shipped" announcement. Any member
+with ≥2 shipped PRs hits it, and it spends the ~$11 credit the narration budget rests on.
 
-1. **Provenance is still trust-based at *create* time.** The rules now stop a peer
-   impersonating your *name* and squatting your *ids*, but a signed-in member can still
-   `addDoc` a task stamped `source: 'sensed'` with fabricated `evidence`, and can still put
-   a victim's name in a pulse event's free-text `narrative`/`subject` (now attributed to the
-   attacker, not the victim). Closing these needs a **server identity (Firebase Admin SDK)**
-   so events and receipts are authored where a client can't forge them. This is the single
-   dependency under the most-serious residuals (create-time forgery, the opt-out tombstone
-   read, `/api/*` per-caller limits) — it's the real next investment, and it's a credential
-   Nik has to create, not code I can write.
+Now: `narratedWorkKeys: string[]` (a set). `markWorkNarrated` arrayUnions each PR's key;
+`shouldNarrate` checks membership; the `/api/narrate` request bounds the set at 1000. Guarded
+by `tests/unit/sense.test.ts` (multi-PR case) and `tests/integration/narration-cache.test.ts`
+(accumulation + no-duplicate, against the emulator under real rules).
 
-2. **The narration cache is a single slot per member, keyed per-PR.** `narrationCacheKey`
-   is one string on `githubLinks/{uid}`, but each PR computes its own key, so shipping a
-   second PR overwrites the first's key. Re-sensing the first PR then misses the cache — a
-   paid model call for unchanged work and a risk of a duplicate announcement. It hasn't
-   bitten because most members have ≤1 shipped PR today; it will as the cohort ships more.
-   The fix is a per-work cache (a map or a `narratedWorkIds` set), not a scalar — a small,
-   safe change I scoped but did not land this pass. **Recommend doing it before the pilot
-   scales**, because it spends the ~$11 credit the whole narration budget rests on.
+---
+
+## Residual #1 — create-time forgery / Admin SDK  ·  DEFERRED (with rationale)
+
+**Why it's necessary.** The rules now stop a peer impersonating your *name* and squatting
+your *ids*, but a signed-in member can still `addDoc` a task stamped `source: 'sensed'` with
+fabricated `evidence`, and can still author a pulse event whose free-text `narrative` names a
+victim (attributed to the attacker, not the victim). Provenance and narration are enforced in
+TypeScript, and TypeScript is not a trust boundary — a client can hit Firestore directly. The
+only real close is a **server identity (Firebase Admin SDK)** so receipts and narratives are
+authored where a client can't forge them, plus rules that deny clients those fields. This is
+the single dependency under the most-serious residuals (create-time forgery, the opt-out
+tombstone read, `/api/*` per-caller limits) — the real next investment.
+
+**Why it can be deferred, safely, for now.**
+- **The worst forgery is bounded by publicity.** Fabricated `evidence` cites PR numbers, which
+  are public and checkable by anyone reading the feed — a fake receipt is falsifiable, not
+  silent.
+- **The name-impersonation cross-over is already closed.** Item 5's `actorName` binding means a
+  forged narrative is attributed to *its author*, not the victim — removing injection's payoff
+  (publishing an insult that appears to come from, or targets, someone else with authority).
+- **The blast radius is a trusted, accountable cohort of 65**, not the open internet — the
+  README frames provenance as trust-based *by design* for exactly this reason.
+- **It reverses a documented core design** ("sensing writes in the browser, on purpose") and
+  is a multi-file rearchitecture of the **same narration subsystem the live session is actively
+  rebuilding** (the ask_first approval queue). Building it in parallel guarantees a brutal
+  merge. The correct sequencing is: land the approval-queue work first, then build the Admin
+  SDK path *once* on top of the settled design — including server-routed rewords (the reword
+  feature is itself a narrative-write path, so it must re-run `checkNarrative` server-side or
+  it reopens the hole).
+- **It needs a credential only Nik can create** (a Firebase service-account key) for
+  production; the code + emulator test can be built without it, but the cutover can't ship
+  without it.
+
+**Plan when unblocked:** `firebase-admin` (emulator-aware) → `/api/sync` server-authors sensed
+cards, evidence, and the ship event's narrative via admin → client trigger sends its ID token →
+rules deny client `source:'sensed'`/`evidence`/pulse-`narrative` while keeping the manual board
+(B4–B8) client-writable → server-routed reword endpoint re-runs `checkNarrative`.

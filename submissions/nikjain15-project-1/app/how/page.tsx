@@ -43,6 +43,13 @@ export default async function HowPage() {
           Do the work — Pulse spots it, moves your card, and tells your team. This page walks the
           whole path, and shows the cohort&rsquo;s real week at the end.
         </p>
+        <p className="mt-4 text-sm text-zinc-400">
+          Want how it&rsquo;s built?{' '}
+          <Link href="/approach" className="text-zinc-300 underline underline-offset-2 hover:text-zinc-100">
+            Read the architecture
+          </Link>
+          .
+        </p>
       </header>
 
       {/* -------------------------------------------------- the problem */}

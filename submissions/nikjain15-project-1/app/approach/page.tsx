@@ -39,24 +39,24 @@ const DIFFERENT = [
 
 const ARCH = [
   {
-    tag: 'The core',
-    title: 'A pure sensing core, kept apart on purpose',
-    body: 'The logic that decides what Pulse asserts about a person is pure functions — no network, no database, no model in the path. The most consequential code is also the most testable.',
+    tag: 'Step 1',
+    title: 'One place turns activity into facts',
+    body: 'A single piece of code reads commits and PRs and writes down plain facts — who did what, and when. It doesn’t call the AI or touch a database, so it’s easy to test and hard to get wrong.',
   },
   {
-    tag: 'Two paths, one shape',
-    title: 'A server read for everyone, Firestore for you',
-    body: 'A signed-out visitor gets a server-side read of the public repo — no auth, no model, one call. A signed-in member gets their board from Firestore. Both render the same fact shape.',
+    tag: 'Step 2',
+    title: 'Signed out reads GitHub, signed in reads your board',
+    body: 'A visitor who isn’t logged in sees the cohort read straight from the public repo. A logged-in member sees their own board. Both show the same facts, so nothing ever contradicts itself.',
   },
   {
-    tag: 'Built in layers',
-    title: 'Sense ships, Bank and Broker build behind it',
-    body: 'Each capability is a clean seam. Sense reads and writes the week today; Bank keeps how a problem got solved; Broker matches who’s stuck to who solved it.',
+    tag: 'Step 3',
+    title: 'The AI writes only with your permission',
+    body: 'Before a sentence goes out under your name, Pulse checks your choice in two places — once in the app, once in the database. Two locks, so a mistake in one can’t slip through.',
   },
   {
-    tag: 'Consent, twice',
-    title: 'The rule lives in the code and in the rules',
-    body: 'A model narrates as a person only when they opted in, linked an account, and didn’t pick ask-first. That rule is enforced in the pure core and again in Firestore’s security rules.',
+    tag: 'Step 4',
+    title: 'Built one layer at a time',
+    body: 'Sense works today. Bank and Broker are designed to slot in behind it later, without redoing what’s already built.',
   },
 ];
 
@@ -107,7 +107,11 @@ export default function ApproachPage() {
       </Band>
 
       {/* -------------------------------------------------- architecture */}
-      <Band label="The architecture">
+      <Band label="How it fits together">
+        <p className="mb-5 text-sm leading-relaxed text-zinc-300">
+          Four steps, in plain terms: read the work into facts, show those facts two ways, guard
+          anything the AI writes, and build the rest in layers.
+        </p>
         <div className="relative">
           <span className="absolute left-[15px] top-3 bottom-3 w-px bg-zinc-800" aria-hidden />
           <div className="space-y-3">

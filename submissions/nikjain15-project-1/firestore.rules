@@ -1,0 +1,254 @@
+rules_version = '2';
+
+// Pulse — Firestore security rules.
+//
+// Model: the cohort is a trusted-but-accountable group. Any signed-in member can read
+// the shared work and create their own (that's the point — shared projects, open assignment).
+// What's locked down is *impersonation*, *erasure of others*, and *unconsented narration*.
+//
+// Two rules here exist because the product makes promises, and a promise the rules
+// don't enforce is marketing:
+//   1. You can always delete what Pulse posted as you (undo must be total).
+//   2. Nobody sees a private "so-and-so is stuck" nudge except its one intended reader.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Fields a request is trying to change.
+    function changed() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // The symmetric difference of two uid arrays — i.e. who was added or removed.
+    // Used to prove a member only ever toggles *themselves* in a list.
+    //
+    // Set logic alone is NOT enough, and this was a live hole: Firestore arrays allow
+    // duplicates, and every count in the product is `array.length`, not set size. So
+    // [] -> [alice, alice, alice] has a symmetric difference of {alice} and passed —
+    // letting anyone set kudos, or a recipe's "people unstuck", to any number they liked
+    // by repeating their own uid. `noDuplicates` is what makes the set reasoning and the
+    // length reasoning agree.
+    function togglesOnlySelf(before, after) {
+      return noDuplicates(after)
+             && after.toSet().difference(before.toSet())
+                  .union(before.toSet().difference(after.toSet()))
+                  .hasOnly([request.auth.uid]);
+    }
+
+    // A list whose set has the same size holds no repeats.
+    function noDuplicates(list) {
+      return list.toSet().size() == list.size();
+    }
+
+    // --- members -------------------------------------------------------------
+    // Readable by the cohort (needed to render assignees and the feed).
+    // Writable only by the member themselves. uid is immutable.
+    match /members/{uid} {
+      allow read: if signedIn();
+      allow create: if isSelf(uid) && request.resource.data.uid == uid;
+      allow update: if isSelf(uid) && request.resource.data.uid == resource.data.uid;
+      allow delete: if false;
+    }
+
+    // --- cohortMembers -------------------------------------------------------
+    // Pre-indexed from the PUBLIC cohort repo, before anyone signs up. Facts only.
+    //
+    // Written exclusively by the server (Admin SDK bypasses these rules), so clients
+    // get no write at all — a member must never be able to forge someone else's
+    // commit counts. The single exception is narrationOptIn: the gate that decides
+    // whether a model may write sentences about you. Only you may flip it, and only it.
+    match /cohortMembers/{handle} {
+      allow read: if signedIn();
+      allow create, delete: if false;
+      allow update: if isSelf(resource.data.uid)
+                    && changed().hasOnly(['narrationOptIn']);
+    }
+
+    // --- githubLinks ---------------------------------------------------------
+    // Your connection + consent state. Nobody else's business, ever.
+    match /githubLinks/{uid} {
+      allow read, write: if isSelf(uid);
+    }
+
+    // --- projects ------------------------------------------------------------
+    // Anyone signed in can create and edit projects (shared cohort work).
+    // ownerUid is set at creation and cannot be reassigned afterwards.
+    match /projects/{projectId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && isSelf(request.resource.data.ownerUid);
+      allow update: if signedIn() && request.resource.data.ownerUid == resource.data.ownerUid;
+      // Archive instead of delete — the feed references projects by id.
+      allow delete: if false;
+    }
+
+    // --- tasks ---------------------------------------------------------------
+    // Open creation and editing: the cohort assigns work to each other by design.
+    // creatorUid is immutable so authorship can't be rewritten.
+    //
+    // The receipt is frozen after creation. `source` and `evidence` are what the card
+    // claims about where it came from — "PR #41", the thing types.ts calls facts that
+    // "cannot be wrong" — and they were writable by any signed-in member on any card.
+    // Anyone could stamp `source: 'sensed'` and invented evidence onto their own manual
+    // card, or rewrite someone else's, forging the exact badge this product's honesty
+    // rests on. The `pulse` rules already refuse to let even the actor rewrite their own
+    // evidence; tasks now agree.
+    //
+    // `branch` is frozen with them: it's the dedupe key the sync trusts, so a member who
+    // can rewrite it can aim another member's next sync at a card of their choosing.
+    //
+    // ⚠️ Create-time is a different problem and the rules cannot solve it: sensing writes
+    // from the browser (no Admin SDK — the server has no identity), so a member can create
+    // a card with a fabricated receipt in the first place. Nothing here can check GitHub.
+    // What's contained is tampering with a card that already exists — and the fabrication
+    // is self-limiting, because PR numbers are public and checkable by anyone reading them.
+    match /tasks/{taskId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && isSelf(request.resource.data.creatorUid);
+      allow update: if signedIn()
+                    && request.resource.data.creatorUid == resource.data.creatorUid
+                    && !changed().hasAny(['source', 'evidence', 'branch', 'createdAt']);
+      allow delete: if signedIn() && isSelf(resource.data.creatorUid);
+    }
+
+    // --- comments ------------------------------------------------------------
+    // Out of scope for Project 1, but the rule stays so the collection can't be
+    // abused if something writes to it.
+    match /comments/{commentId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && isSelf(request.resource.data.authorUid);
+      allow update, delete: if signedIn() && isSelf(resource.data.authorUid);
+    }
+
+    // --- pulse ---------------------------------------------------------------
+    // The heartbeat. Append-only for everyone else; yours remains yours.
+    //
+    // You may only append events attributed to yourself, so nobody can fake a
+    // teammate shipping.
+    //
+    // Two permitted updates:
+    //   - anyone may toggle kudos, but only their OWN uid within the array;
+    //   - the actor may edit the narrative Pulse wrote as them ("edit the wording").
+    // Everything else about a past event is frozen: a feed you can rewrite is a
+    // feed nobody trusts.
+    //
+    // Delete is allowed for the ACTOR ONLY. This reverses the old `if false` on
+    // purpose: the product tells people "undo, any time", and an undo that left the
+    // row in 64 other feeds would make that a lie. Pulse posts without asking —
+    // the price is that taking it back must always work.
+    match /pulse/{eventId} {
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+                    && isSelf(request.resource.data.actorUid)
+                    && request.resource.data.kudos.size() == 0;
+
+      allow update: if signedIn()
+                    && (
+                      // kudos toggle — own uid only
+                      (changed().hasOnly(['kudos'])
+                        && togglesOnlySelf(resource.data.kudos, request.resource.data.kudos))
+                      ||
+                      // the actor rewording their own post
+                      (isSelf(resource.data.actorUid)
+                        && changed().hasOnly(['narrative', 'editedAt']))
+                    );
+
+      allow delete: if isSelf(resource.data.actorUid);
+    }
+
+    // --- recipes -------------------------------------------------------------
+    // The cohort's bank of what actually worked. Read by everyone, written by the
+    // person who solved it.
+    //
+    // unstuckUids is how a recipe earns its rank, so any member may add themselves
+    // to it — and only themselves. That number is the one ranking in the product,
+    // and it measures generosity, not output.
+    match /recipes/{recipeId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && isSelf(request.resource.data.authorUid)
+                    && request.resource.data.unstuckUids.size() == 0;
+      allow update: if signedIn()
+                    && (
+                      // author editing their own recipe (but not inflating its rank)
+                      (isSelf(resource.data.authorUid)
+                        && request.resource.data.authorUid == resource.data.authorUid
+                        && !changed().hasAny(['unstuckUids']))
+                      ||
+                      // anyone ELSE marking themselves unstuck by it.
+                      //
+                      // The author is excluded here or this branch would re-grant exactly
+                      // what the branch above denies: an author could add their own uid and
+                      // rank their own recipe. unstuckUids is the only ranking in the
+                      // product and it is supposed to measure generosity — it is the single
+                      // number worth gaming, so the one person who benefits must not be able
+                      // to touch it. You also cannot be unstuck by your own recipe.
+                      (!isSelf(resource.data.authorUid)
+                        && changed().hasOnly(['unstuckUids'])
+                        && togglesOnlySelf(resource.data.unstuckUids, request.resource.data.unstuckUids))
+                    );
+      allow delete: if isSelf(resource.data.authorUid);
+    }
+
+    // --- optOuts -------------------------------------------------------------
+    // Tombstoned handles. Doc id = lowercased github login.
+    //
+    // Create is open and UNAUTHENTICATED on purpose. The spec's requirement is that
+    // leaving must not cost you an account — "someone who wants out shouldn't have to
+    // create an account to leave" — so the exit cannot be gated on auth. The asymmetry
+    // is what makes that safe: a create here can only ever HIDE a handle. It cannot add
+    // one, alter anyone's facts, or cause a word to be written about anybody.
+    //
+    // Update and delete are denied. A tombstone that can be lifted by whoever finds the
+    // endpoint is not a tombstone; un-removing someone is a deliberate manual act.
+    //
+    // ⚠️ `read: if true` is a real, conscious trade. The pre-index runs server-side
+    // through the CLIENT SDK unauthenticated (there is no firebase-admin here and no
+    // service-account key), so the rules cannot tell the landing page apart from a
+    // stranger. Public read means the list of people who asked to be hidden is itself
+    // readable — the weakest part of this design, and it's in the PR's limitations.
+    // The fix is the Admin SDK, which needs a credential Nik has to create.
+    // Shipping a working opt-out with this flaw beats shipping none.
+    match /optOuts/{handle} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['handle', 'createdAt'])
+                    && request.resource.data.handle is string
+                    && request.resource.data.handle == handle
+                    && request.resource.data.handle.size() > 0
+                    && request.resource.data.handle.size() <= 39
+                    // A timestamp, not necessarily request.time: the write comes over the
+                    // REST API from the server, which can't express serverTimestamp()
+                    // without a transform. The value is informational — it records when
+                    // someone asked to leave, and nothing depends on it being exact.
+                    // What matters is the handle, and that is pinned to the doc id above.
+                    && request.resource.data.createdAt is timestamp;
+      allow update, delete: if false;
+    }
+
+    // --- introductions -------------------------------------------------------
+    // "Marcus is stuck on what you solved." This is the most sensitive collection
+    // in the product: it names someone who is struggling.
+    //
+    // Readable ONLY by the one peer being asked to help — never by the cohort, and
+    // never by the person it describes. The spec's rule is asymmetric on purpose:
+    // the cohort sees nothing, one peer sees an offer to help, and the quiet member
+    // receives help rather than a flag. A cohort-readable "who's stuck" list is
+    // exactly the surveillance this design refuses to build.
+    //
+    // Created server-side only — a client must not be able to declare someone stuck.
+    match /introductions/{introId} {
+      allow read: if isSelf(resource.data.helperUid);
+      allow create: if false;
+      allow update: if isSelf(resource.data.helperUid)
+                    && changed().hasOnly(['state']);
+      allow delete: if false;
+    }
+  }
+}

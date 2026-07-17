@@ -19,12 +19,29 @@ import { createProject, createTask, signOut, signUp, uniqueEmail, uniqueName } f
  */
 
 test.describe('B1 · B3 — multi-user auth, open registration', () => {
+  /**
+   * These used to assert the text "you're in", which the home rework deleted — so they
+   * failed on a sentence rather than on anything true about auth, and took the rest of
+   * the suite's confidence down with them.
+   *
+   * What B1 actually claims is that a stranger can register with no allowlist and no
+   * manual DB edits. The proof of that isn't a greeting: it's that a brand-new account
+   * ends up signed in AND its member doc reaches the cohort feed under its own name.
+   * That's structure, and a copy edit can't quietly invalidate it.
+   */
   test('signs up two fresh accounts with no allowlist and no manual DB edits', async ({ browser }) => {
-    for (const name of ['Ada Lovelace', 'Grace Hopper']) {
+    for (const base of ['Ada', 'Grace']) {
       const context = await browser.newContext();
       const page = await context.newPage();
-      await signUp(page, name, uniqueEmail(name.split(' ')[0].toLowerCase()));
-      await expect(page.getByText(/you’re in|you're in/i)).toBeVisible();
+
+      // Unique: the feed is cohort-wide and persists, so a fixed name matches every
+      // previous run's row too and the locator goes ambiguous.
+      const name = uniqueName(base);
+      await signUp(page, name, uniqueEmail(base.toLowerCase()));
+
+      await expect(page.getByRole('button', { name: 'sign out' })).toBeVisible();
+      await expect(page.getByText(`${name} joined the cohort`)).toBeVisible({ timeout: 15_000 });
+
       await context.close();
     }
   });
@@ -38,7 +55,9 @@ test.describe('B1 · B3 — multi-user auth, open registration', () => {
     await page.getByPlaceholder('Password').fill('emulator-pw-123');
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 
-    await expect(page.getByText(/you’re in|you're in/i)).toBeVisible({ timeout: 15_000 });
+    // Back inside the shell, and off the sign-in page — the two things "signed in" means.
+    await expect(page.getByRole('button', { name: 'sign out' })).toBeVisible({ timeout: 15_000 });
+    await expect(page).not.toHaveURL(/\/signin/);
   });
 
   test('says what to do when the email is already registered', async ({ page }) => {

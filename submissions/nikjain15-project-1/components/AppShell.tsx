@@ -41,7 +41,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur max-[500px]:static">
+      {/*
+        Releases under max-HEIGHT:500px, not max-width. `max-[500px]:static` is Tailwind's
+        max-*width* variant, so this did the opposite of what the comment above claimed on
+        both axes: it stayed sticky on a landscape phone (390px tall — exactly where a
+        sticky header eats the screen the board needs) and went static on a tall narrow
+        phone, where sticking is the whole point. Height is the thing that breaks here, so
+        height is what the query asks about.
+      */}
+      <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur [@media(max-height:500px)]:static">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-4 px-4">
           <Link href="/" className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-emerald-400" aria-hidden />

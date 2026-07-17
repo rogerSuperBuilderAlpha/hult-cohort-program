@@ -22,7 +22,17 @@ export function uniqueName(base: string): string {
   return `${base} ${Date.now()}-${Math.floor(Math.random() * 1e4)}`;
 }
 
-/** Sign up a fresh account through the real UI — no manual DB edits, which is B1's point. */
+/**
+ * Sign up a fresh account through the real UI — no manual DB edits, which is B1's point.
+ *
+ * Waits for the signed-in **shell**, not for a sentence.
+ *
+ * This used to wait for the text "you're in", which the home rework deleted — and every
+ * test in the full suite starts here, so the whole thing went red at once and stayed red
+ * while the checklist still claimed e2e green. A copy edit must not be able to do that
+ * again: the nav is structure, it's the thing that proves you're actually signed in, and
+ * it only renders once AppShell has a user.
+ */
 export async function signUp(page: Page, name: string, email: string): Promise<void> {
   await page.goto('/signin');
   await page.getByRole('button', { name: /create an account/i }).click();
@@ -30,8 +40,11 @@ export async function signUp(page: Page, name: string, email: string): Promise<v
   await page.getByPlaceholder('you@example.com').fill(email);
   await page.getByPlaceholder('Password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
+
   await page.waitForURL(/\/(board|$)/, { timeout: 15_000 }).catch(() => {});
-  await page.getByText(/you’re in|you're in/i).waitFor({ timeout: 15_000 });
+  // 'sign out' exists only inside AppShell, which renders only with a user — and unlike
+  // the nav links it's present at every width (the nav moves to a bottom bar under 480).
+  await page.getByRole('button', { name: 'sign out' }).waitFor({ timeout: 15_000 });
 }
 
 /** Sign out through the real control, the way a person would. */

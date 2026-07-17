@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   onSnapshot,
   orderBy,
@@ -80,16 +81,28 @@ export async function createTask(
     description: string;
     assigneeUid: string | null;
     dueDate: Timestamp | null;
+    status?: Status;
   }
 ): Promise<string> {
+  const { status = 'todo', ...rest } = input;
+
   const ref = await addDoc(collection(db, 'tasks'), {
-    ...input,
-    status: 'todo' as Status,
+    ...rest,
+    status,
     creatorUid: actor.uid,
     createdAt: serverTimestamp(),
-    completedAt: null,
+    completedAt: status === 'done' ? serverTimestamp() : null,
+    // Manual by definition — this is the path for anyone who declined GitHub, and their
+    // cards read "you · by hand" rather than carrying a receipt they never earned.
+    source: 'manual' as const,
+    evidence: null,
+    branch: null,
   });
   return ref.id;
+}
+
+export async function deleteTask(taskId: string) {
+  await deleteDoc(doc(db, 'tasks', taskId));
 }
 
 /**
@@ -132,7 +145,7 @@ export async function setTaskStatus(actor: Actor, task: Task, status: Status) {
 
 export async function updateTask(
   taskId: string,
-  patch: Partial<Pick<Task, 'title' | 'description' | 'assigneeUid' | 'dueDate'>>
+  patch: Partial<Pick<Task, 'title' | 'description' | 'assigneeUid' | 'dueDate' | 'projectId'>>
 ) {
   await updateDoc(doc(db, 'tasks', taskId), patch);
 }

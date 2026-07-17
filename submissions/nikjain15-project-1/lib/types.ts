@@ -39,6 +39,21 @@ export type Project = {
   createdAt: Timestamp;
 };
 
+/**
+ * Evidence for anything Pulse asserts. Never render an inference without it.
+ *
+ * This is what makes autonomy tolerable: Pulse posts without asking, so every claim it
+ * makes has to show its working. "6 commits · PR #41 · 2h between first and last" is the
+ * difference between a mistake you can forgive and one you can't.
+ */
+export type Evidence = {
+  commits: number;
+  prNumbers: number[];
+  files: string[];
+  /** first → last commit: how long they fought it. */
+  spanHours: number | null;
+};
+
 export type Task = {
   id: string;
   projectId: string;
@@ -50,6 +65,71 @@ export type Task = {
   dueDate: Timestamp | null;
   createdAt: Timestamp;
   completedAt: Timestamp | null;
+  /**
+   * How this card came to exist. Manual cards read "you · by hand"; sensed cards carry
+   * their receipt. Pulse says when Pulse did it — a board that silently grows cards
+   * nobody made is a board nobody trusts.
+   */
+  source: 'manual' | 'sensed';
+  /** Only on sensed cards. Facts from the GitHub API, so it cannot be wrong. */
+  evidence: Evidence | null;
+  /** Branch that produced a sensed card. The dedupe key against re-syncs. */
+  branch: string | null;
+};
+
+/**
+ * A member indexed from the PUBLIC cohort repo, before they ever sign up.
+ *
+ * Facts only. This is what lets the landing page know a reviewer who has never opened
+ * Pulse — and `narrationOptIn` is what stops it writing sentences about them.
+ */
+export type CohortMember = {
+  /** github login, from the repo's PRs. Match case-insensitively. */
+  handle: string;
+  /** set once they sign in and their login matches. */
+  uid: string | null;
+  evidence: Evidence;
+  lastSeenAt: Timestamp;
+  /** false until consent. Gates ALL model-written text about this person. */
+  narrationOptIn: boolean;
+};
+
+export type GitHubLink = {
+  uid: string;
+  handle: string;
+  connectedAt: Timestamp;
+  status: 'connected' | 'declined' | 'revoked';
+  /** 'ask_first' restores the approval queue the default deliberately removes. */
+  mode: 'auto' | 'ask_first';
+  excludedRepos: string[];
+  lastSyncedAt: Timestamp | null;
+};
+
+export type Recipe = {
+  id: string;
+  problem: string;
+  body: string;
+  authorUid: string;
+  taskId: string | null;
+  turns: number;
+  /** The only ranking in the product: people unstuck, which measures generosity. */
+  unstuckUids: string[];
+  createdAt: Timestamp;
+};
+
+/**
+ * "Marcus is stuck on what you solved."
+ *
+ * The most sensitive doc in the product — it names someone who is struggling. Readable
+ * only by helperUid, never the cohort and never the person it describes.
+ */
+export type Introduction = {
+  id: string;
+  stuckUid: string;
+  helperUid: string;
+  recipeId: string | null;
+  state: 'suggested' | 'sent' | 'dismissed';
+  createdAt: Timestamp;
 };
 
 export type Comment = {
@@ -72,6 +152,8 @@ export const PULSE_KINDS = [
   'task_started',
   'project_created',
   'member_joined',
+  'recipe_banked',
+  'intro_made',
 ] as const;
 export type PulseKind = (typeof PULSE_KINDS)[number];
 
@@ -88,4 +170,13 @@ export type PulseEvent = {
   createdAt: Timestamp;
   /** uids who gave kudos. Array so a member can only kudos once. */
   kudos: string[];
+  /**
+   * Model-written. Null for facts-only events — and null is the correct value for anyone
+   * who hasn't opted into narration. Every sentence here passed checkNarrative first.
+   */
+  narrative: string | null;
+  /** What the narrative was inferred from. Rendered with it, always. */
+  evidence: Evidence | null;
+  /** Set when the human rewords Pulse's sentence. The human is right. */
+  editedAt: Timestamp | null;
 };

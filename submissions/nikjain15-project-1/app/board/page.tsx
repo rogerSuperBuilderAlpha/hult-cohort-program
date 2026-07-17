@@ -1,0 +1,89 @@
+'use client';
+
+import { Suspense, useMemo, useState } from 'react';
+import { AppShell } from '@/components/AppShell';
+import { Board } from '@/components/Board';
+import { applyFilters, Filters, useFilters } from '@/components/Filters';
+import { TaskModal } from '@/components/TaskModal';
+import { useAuth } from '@/lib/auth-context';
+import { useCohort } from '@/lib/use-cohort';
+import type { Status, Task } from '@/lib/types';
+
+export default function BoardPage() {
+  return (
+    <AppShell>
+      {/* useSearchParams needs a Suspense boundary — the filters read the URL. */}
+      <Suspense fallback={<p className="text-sm text-zinc-500">Loading the board…</p>}>
+        <BoardView />
+      </Suspense>
+    </AppShell>
+  );
+}
+
+function BoardView() {
+  const { user } = useAuth();
+  const { tasks, projects, members, ready } = useCohort();
+  const filters = useFilters();
+
+  const [editing, setEditing] = useState<Task | null>(null);
+  const [creating, setCreating] = useState<Status | null>(null);
+
+  const actor = useMemo(
+    () => ({
+      uid: user!.uid,
+      name: user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+      photoURL: user!.photoURL,
+    }),
+    [user]
+  );
+
+  // Archived projects' tasks stay off the board — archiving is how you get work out of
+  // sight without deleting it, and nothing in Project 1 hard-deletes a project.
+  const liveProjects = useMemo(() => projects.filter((p) => !p.archived), [projects]);
+
+  const visible = useMemo(() => {
+    const liveIds = new Set(liveProjects.map((p) => p.id));
+    return applyFilters(tasks.filter((t) => liveIds.has(t.projectId)), filters);
+  }, [tasks, liveProjects, filters]);
+
+  return (
+    <>
+      <div className="mb-4">
+        <h1 className="text-sm font-medium text-zinc-100">Board</h1>
+        <p className="mt-1 text-xs text-zinc-500">
+          Every card says where it came from. Drag it, or use the status control.
+        </p>
+      </div>
+
+      <Filters members={members} projects={liveProjects} onNew={() => setCreating('todo')} />
+
+      {!ready ? (
+        <p className="text-sm text-zinc-500">Loading the board…</p>
+      ) : (
+        <Board
+          actor={actor}
+          tasks={visible}
+          projects={liveProjects}
+          members={members}
+          onOpenTask={setEditing}
+          onNewTask={setCreating}
+        />
+      )}
+
+      {(editing || creating) && (
+        <TaskModal
+          actor={actor}
+          task={editing}
+          projects={liveProjects}
+          members={members}
+          defaultProjectId={filters.project !== 'all' ? filters.project : undefined}
+          defaultStatus={creating ?? undefined}
+          onClose={() => {
+            setEditing(null);
+            setCreating(null);
+          }}
+        />
+      )}
+    </>
+  );
+}

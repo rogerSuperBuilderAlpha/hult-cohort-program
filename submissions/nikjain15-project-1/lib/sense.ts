@@ -6,7 +6,9 @@
  * without touching GitHub or spending a model call.
  */
 
-import type { Status } from './types';
+import type { Evidence, Status } from './types';
+
+export type { Evidence };
 
 /* ------------------------------------------------------------ branch → title */
 
@@ -122,14 +124,6 @@ export function inferStatus(signal: GitHubSignal): StatusInference {
 }
 
 /* ------------------------------------------------------------- evidence */
-
-export type Evidence = {
-  commits: number;
-  prNumbers: number[];
-  files: string[];
-  /** first → last commit: how long they fought it. */
-  spanHours: number | null;
-};
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 

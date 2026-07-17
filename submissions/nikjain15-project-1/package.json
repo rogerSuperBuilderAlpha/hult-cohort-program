@@ -12,7 +12,7 @@
     "test:rules": "firebase emulators:exec --only firestore --project demo-pulse \"vitest run --project rules\"",
     "test:e2e": "playwright test --project full",
     "test:e2e:smoke": "playwright test --project smoke",
-    "emulator": "firebase emulators:start --only firestore --project demo-pulse",
+    "emulator": "firebase emulators:start --only firestore,auth --project demo-pulse",
     "gate": "npm run typecheck && npm run lint && npm run test:unit && npm run test:rules && npm run test:e2e:smoke"
   },
   "dependencies": {

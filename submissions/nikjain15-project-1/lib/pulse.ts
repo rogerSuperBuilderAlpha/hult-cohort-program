@@ -12,7 +12,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { PulseEvent, PulseKind } from './types';
+import type { Evidence, PulseEvent, PulseKind } from './types';
 
 type NewPulse = {
   kind: PulseKind;
@@ -22,6 +22,15 @@ type NewPulse = {
   subject: string;
   projectId?: string | null;
   taskId?: string | null;
+  /**
+   * Model-written, and optional on purpose: omitting it publishes FACTS ONLY.
+   *
+   * That is the correct default and the safe failure mode. A member who hasn't opted into
+   * narration never gets one, and a narrative that fails checkNarrative is dropped here
+   * silently rather than published.
+   */
+  narrative?: string | null;
+  evidence?: Evidence | null;
 };
 
 /**
@@ -36,6 +45,9 @@ export async function logPulse(event: NewPulse): Promise<void> {
       ...event,
       projectId: event.projectId ?? null,
       taskId: event.taskId ?? null,
+      narrative: event.narrative ?? null,
+      evidence: event.evidence ?? null,
+      editedAt: null,
       kudos: [],
       createdAt: serverTimestamp(),
     });

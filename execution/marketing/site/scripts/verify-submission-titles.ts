@@ -50,14 +50,40 @@ assert(
 );
 assert(
   normalizeSubmissionTitle('[Project 1] Submission — alice') ===
-    '[Project 1] Submission — alice',
-  'canonical em dash preserved'
+    '[project 1] submission — alice',
+  'canonical em dash preserved (case-folded)'
+);
+assert(
+  normalizeSubmissionTitle('[Project 1] Submission — paramjeet-singh-neu') ===
+    '[project 1] submission — paramjeet-singh-neu',
+  'hyphens inside handles preserved'
 );
 
 // Handle extraction
 assert(resolveHandleFromSubmissionTitle('[Project 1] Submission - alice') === 'alice', 'handle from hyphen title');
+assert(
+  resolveHandleFromSubmissionTitle('[Project 1] Submission — paramjeet-singh-neu') ===
+    'paramjeet-singh-neu',
+  'hyphenated handle extracted'
+);
+assert(
+  resolveHandleFromSubmissionTitle('[Project 1] Submission — CodingWCal') === 'codingwcal',
+  'handle case folded'
+);
+assert(
+  resolveHandleFromSubmissionTitle('[Project 1] Submission update — joes9987 (EudaPM)') ===
+    'joes9987',
+  'handle with parenthetical note'
+);
 assert(resolveHandleFromSubmissionTitle('[Project 1] Submission') === null, 'no handle without dash');
 assert(resolveHandleFromSubmissionTitle('[Project 1] Submission — invalid handle!') === null, 'invalid handle rejected');
+assert(
+  submissionTitlesMatch(
+    '[Project 1] Submission — CodingWCal',
+    '[Project 1] Submission — codingwcal'
+  ),
+  'title match is case-insensitive'
+);
 
 // Full matcher
 const variants = [

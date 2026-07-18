@@ -62,7 +62,7 @@ export default async function ProfilePage({
             }}
           >
             <button className={buttonClass} type="submit">
-              Cast vote
+              Cast / update vote
             </button>
           </form>
         )}
@@ -75,7 +75,7 @@ export default async function ProfilePage({
       ) : null}
       {ok === "vote" ? (
         <p className="rounded-lg border border-[var(--success)]/40 bg-[var(--success)]/10 px-3 py-2 text-sm text-[var(--success)]">
-          Vote recorded.
+          Vote saved (one vote per person; re-casting updates it).
         </p>
       ) : null}
 

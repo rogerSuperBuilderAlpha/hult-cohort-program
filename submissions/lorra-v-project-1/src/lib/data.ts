@@ -3,6 +3,7 @@ import type {
   Contribution,
   MvpStatus,
   Profile,
+  Project,
   PullRequest,
   Task,
   Vote,
@@ -23,16 +24,25 @@ export async function getCurrentProfile(): Promise<Profile | null> {
 export async function loadCohortData() {
   const supabase = await createClient();
 
-  const [profiles, pullRequests, contributions, votes, mvp, weeklyActivity, tasks] =
-    await Promise.all([
-      supabase.from("profiles").select("*").order("display_name"),
-      supabase.from("pull_requests").select("*").order("created_at", { ascending: false }),
-      supabase.from("contributions").select("*").order("created_at", { ascending: false }),
-      supabase.from("votes").select("*"),
-      supabase.from("mvp_status").select("*").limit(1).maybeSingle(),
-      supabase.from("weekly_activity").select("*"),
-      supabase.from("tasks").select("*").order("due_date", { ascending: true, nullsFirst: false }),
-    ]);
+  const [
+    profiles,
+    pullRequests,
+    contributions,
+    votes,
+    mvp,
+    weeklyActivity,
+    tasks,
+    projects,
+  ] = await Promise.all([
+    supabase.from("profiles").select("*").order("display_name"),
+    supabase.from("pull_requests").select("*").order("created_at", { ascending: false }),
+    supabase.from("contributions").select("*").order("created_at", { ascending: false }),
+    supabase.from("votes").select("*"),
+    supabase.from("mvp_status").select("*").limit(1).maybeSingle(),
+    supabase.from("weekly_activity").select("*"),
+    supabase.from("tasks").select("*").order("due_date", { ascending: true, nullsFirst: false }),
+    supabase.from("projects").select("*").order("created_at", { ascending: false }),
+  ]);
 
   return {
     profiles: (profiles.data ?? []) as Profile[],
@@ -42,5 +52,6 @@ export async function loadCohortData() {
     mvp: (mvp.data as MvpStatus | null) ?? null,
     weeklyActivity: (weeklyActivity.data ?? []) as WeeklyActivity[],
     tasks: (tasks.data ?? []) as Task[],
+    projects: (projects.data ?? []) as Project[],
   };
 }

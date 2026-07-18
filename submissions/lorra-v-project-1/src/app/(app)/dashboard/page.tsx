@@ -85,7 +85,10 @@ export default async function DashboardPage() {
           <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold">
             My tasks due this week
           </h2>
-          <Link href="/tasks?filter=mine" className="text-sm text-[var(--accent)] hover:underline">
+          <Link
+            href={me ? `/tasks?project=all&assignee=${me.id}&status=all` : "/tasks"}
+            className="text-sm text-[var(--accent)] hover:underline"
+          >
             Open board →
           </Link>
         </div>

@@ -88,10 +88,15 @@ export async function castVote(recipientId: string) {
     redirect(`/profile/${recipientId}?error=` + encodeURIComponent("Cannot vote for yourself."));
   }
 
-  const { error } = await supabase.from("votes").insert({
-    voter_id: user.id,
-    recipient_id: recipientId,
-  });
+  // One vote per (voter, recipient); re-vote updates the same row
+  const { error } = await supabase.from("votes").upsert(
+    {
+      voter_id: user.id,
+      recipient_id: recipientId,
+      created_at: new Date().toISOString(),
+    },
+    { onConflict: "voter_id,recipient_id" },
+  );
 
   if (error) {
     redirect(`/profile/${recipientId}?error=${encodeURIComponent(error.message)}`);

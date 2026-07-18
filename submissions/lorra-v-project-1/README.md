@@ -1,11 +1,68 @@
-# Mission Control — Cohort Civilization Tracker (v1)
+# Mission Control — Cohort Civilization Tracker
 
-Next.js + Supabase app for Phase 1 Project 1: cohort civilization levels, energy, individual scores, and peer votes.
+Next.js + Supabase app for Phase 1 Project 1: projects, tasks, cohort civilization levels, energy, individual scores, and peer votes.
+
+**Live:** https://REPLACE-WITH-YOUR-VERCEL-URL.vercel.app
+
+> After deploying to Vercel, replace the URL above with your production hostname and keep it near the top of this README.
+
+**Code path in the cohort monorepo:** `submissions/lorra-v-project-1/`
+
+---
+
+## Architecture
+
+### Stack
+
+- **Next.js** (App Router) + TypeScript + Tailwind CSS
+- **Supabase** Auth (email/password) + Postgres with **Row Level Security**
+- Server Actions for writes (no separate REST API layer)
+- Deploy target: Vercel
+
+### Tables
+
+| Table | Purpose |
+|-------|---------|
+| `profiles` | Cohort members (auto-created on signup) |
+| `projects` | Named workstreams (`active` / `archived`); owned by creator |
+| `tasks` | Kanban tasks; optional `project_id` + `assignee_id` |
+| `pull_requests` | Submitted PRs for scoring |
+| `contributions` | Non-PR contributions |
+| `votes` | Peer votes — **one row per (voter, recipient)**; re-vote upserts |
+| `mvp_status` | Single-row MVP gate inputs |
+| `weekly_activity` | Weekly active check-ins |
+
+### Pages
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Public landing (redirects to dashboard when signed in) |
+| `/dashboard` | Level, energy, civilization index, my tasks due this week |
+| `/projects` | Create / edit / archive projects; task counts |
+| `/tasks` | Kanban board with project + assignee + status filters |
+| `/ascend` | Gate checklist |
+| `/leaderboard` | Individual scores |
+| `/profile/[id]` | Stats + cast/update peer vote |
+| `/submit` | PR + contribution + weekly active |
+| `/admin` | MVP status (write access: active project owners only) |
+| `/login`, `/signup` | Email/password auth |
+
+### RLS notes (v1.4)
+
+- **Votes:** unique `(voter_id, recipient_id)`; app upserts so members can change their mind without stacking votes.
+- **MVP status:** insert/update allowed only if the user owns at least one **active** `projects` row (simplification — no dedicated PM role).
+
+---
 
 ## Setup
 
+Run these steps from `submissions/lorra-v-project-1/` (this directory).
+
 1. Create a Supabase project.
-2. In the SQL editor, run `supabase/migrations/001_schema.sql`.
+2. In the SQL editor, run migrations in order:
+   - `supabase/migrations/001_schema.sql`
+   - `supabase/migrations/002_tasks.sql`
+   - `supabase/migrations/003_projects.sql`
 3. Copy env:
 
 ```bash
@@ -27,28 +84,13 @@ npm run dev
 
 6. Sign up ~10 test users via `/signup`, then optionally paste real profile UUIDs into `supabase/seed.sql` and run the commented inserts.
 
-## Pages
-
-| Route | Purpose |
-|-------|---------|
-| `/` | Dashboard: level, energy, civilization index, my tasks due this week |
-| `/ascend` | Gate checklist |
-| `/tasks` | Kanban task board (v1.1) |
-| `/leaderboard` | Individual scores |
-| `/profile/[id]` | Stats + vote |
-| `/submit` | PR + contribution + weekly active |
-| `/admin` | Manual MVP status |
-| `/login`, `/signup` | Email/password auth |
+---
 
 ## Scoring (implemented)
 
 - Individual: `(merged×50 + contributions×20 + issues_resolved×15) × (1 + min(0.5, votes×0.05))`
 - Level: gate table top-down (not the cosmetic index)
-- Energy: recomputed from current rows; **+10 per `done` task** (v1.1; gates unchanged)
-
-## v1.1 tasks
-
-Run `supabase/migrations/002_tasks.sql` after the base schema. Tasks do not affect gate metrics.
+- Energy: recomputed from current rows; **+10 per `done` task** (gates unchanged)
 
 ## Flags for later (not expanded in v1)
 

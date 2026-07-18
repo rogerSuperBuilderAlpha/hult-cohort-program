@@ -4,6 +4,7 @@ import { signOut } from "@/app/actions/auth";
 
 const links = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/projects", label: "Projects" },
   { href: "/tasks", label: "Tasks" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/submit", label: "Submit" },

@@ -57,11 +57,24 @@ export type WeeklyActivity = {
 
 export type TaskStatus = "todo" | "in_progress" | "blocked" | "done";
 
+export type ProjectStatus = "active" | "archived";
+
+export type Project = {
+  id: string;
+  owner_id: string;
+  name: string;
+  description: string | null;
+  status: ProjectStatus;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Task = {
   id: string;
   title: string;
   description: string | null;
   assignee_id: string | null;
+  project_id: string | null;
   due_date: string | null;
   status: TaskStatus;
   created_by: string;

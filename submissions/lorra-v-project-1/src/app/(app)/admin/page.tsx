@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { updateMvpStatus } from "@/app/actions/cohort";
-import { loadCohortData } from "@/lib/data";
+import { getCurrentProfile, loadCohortData } from "@/lib/data";
 import { Field, Panel, buttonClass, inputClass } from "@/components/ui";
 
 export default async function AdminPage({
@@ -8,7 +9,11 @@ export default async function AdminPage({
   searchParams: Promise<{ error?: string; ok?: string }>;
 }) {
   const { error, ok } = await searchParams;
-  const { mvp } = await loadCohortData();
+  const me = await getCurrentProfile();
+  const { mvp, projects } = await loadCohortData();
+  const canEdit =
+    !!me &&
+    projects.some((p) => p.owner_id === me.id && p.status === "active");
 
   return (
     <div className="space-y-6">
@@ -17,7 +22,8 @@ export default async function AdminPage({
           MVP status
         </h1>
         <p className="mt-2 text-[var(--muted)]">
-          Any authenticated member can edit this in v1 (no PM role). Feeds cohort level gates.
+          Writes restricted to members who own at least one active project (no
+          separate PM role). Feeds cohort level gates.
         </p>
       </div>
 
@@ -29,6 +35,15 @@ export default async function AdminPage({
       {ok ? (
         <p className="rounded-lg border border-[var(--success)]/40 bg-[var(--success)]/10 px-3 py-2 text-sm text-[var(--success)]">
           MVP status updated.
+        </p>
+      ) : null}
+      {!canEdit ? (
+        <p className="rounded-lg border border-[var(--line)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--muted)]">
+          Create an active project on{" "}
+          <Link href="/projects" className="text-[var(--accent)] hover:underline">
+            Projects
+          </Link>{" "}
+          before editing MVP status.
         </p>
       ) : null}
 
@@ -44,6 +59,7 @@ export default async function AdminPage({
               step={1}
               defaultValue={Number(mvp?.feature_completion_pct ?? 0)}
               required
+              disabled={!canEdit}
             />
           </Field>
           <Field label="Critical bugs open">
@@ -55,6 +71,7 @@ export default async function AdminPage({
               step={1}
               defaultValue={mvp?.critical_bugs_open ?? 0}
               required
+              disabled={!canEdit}
             />
           </Field>
           <label className="flex items-center gap-3 text-sm">
@@ -63,10 +80,11 @@ export default async function AdminPage({
               name="e2e_flow_implemented"
               defaultChecked={mvp?.e2e_flow_implemented ?? false}
               className="size-4 accent-[var(--accent)]"
+              disabled={!canEdit}
             />
             <span>End-to-end flow implemented (Level 1 gate)</span>
           </label>
-          <button className={buttonClass} type="submit">
+          <button className={buttonClass} type="submit" disabled={!canEdit}>
             Save MVP status
           </button>
         </form>

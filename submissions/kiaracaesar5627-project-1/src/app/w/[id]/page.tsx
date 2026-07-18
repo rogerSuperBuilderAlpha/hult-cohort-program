@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
+import { SubmitButton } from "@/components/SubmitButton";
+import { createProjectAction } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
 import {
   listActivity,
@@ -8,7 +10,8 @@ import {
   listStatuses,
   listTasksForWorkspace,
 } from "@/lib/db";
-import { readableText, urgency } from "@/lib/labels";
+import { projectProgress, readableText, urgency } from "@/lib/labels";
+import { canManageProjects } from "@/lib/roles";
 import { getShellData } from "@/lib/workspace-server";
 
 export default async function WorkspaceDashboard({
@@ -48,6 +51,8 @@ export default async function WorkspaceDashboard({
     count: tasks.filter((t) => t.status_id === s.id).length,
   }));
   const maxCount = Math.max(1, ...byStatus.map((b) => b.count));
+  const activeProjects = projects.filter((p) => !p.archived);
+  const canCreate = canManageProjects(role);
 
   return (
     <AppShell
@@ -67,15 +72,22 @@ export default async function WorkspaceDashboard({
               A live read on everything moving through this workspace.
             </p>
           </div>
-          <Link className="btn" href={`/w/${id}/projects`}>
-            Projects
-          </Link>
+          <div className="split">
+            <Link className="btn-secondary" href={`/w/${id}/projects`}>
+              All projects
+            </Link>
+            {canCreate ? (
+              <Link className="btn" href={`/w/${id}/projects`}>
+                New project
+              </Link>
+            ) : null}
+          </div>
         </div>
 
         <div className="grid-4">
           <div className="panel metric">
             <div className="label">Projects</div>
-            <div className="value">{projects.length}</div>
+            <div className="value">{activeProjects.length}</div>
             <div className="muted">Active in workspace</div>
           </div>
           <div className="panel metric">
@@ -89,11 +101,89 @@ export default async function WorkspaceDashboard({
             <div className="muted">Last 7 days</div>
           </div>
           <div className="panel metric">
-            <div className="label">Total tasks</div>
-            <div className="value">{tasks.length}</div>
-            <div className="muted">Across all projects</div>
+            <div className="label">Team focus</div>
+            <div className="value">{myOpen.length}</div>
+            <div className="muted">Assigned to you</div>
           </div>
         </div>
+
+        <section className="panel">
+          <div className="section-head" style={{ marginBottom: "0.75rem" }}>
+            <h1 style={{ fontSize: "1.25rem" }}>Projects</h1>
+            <Link href={`/w/${id}/projects`} className="muted">
+              View all →
+            </Link>
+          </div>
+          {activeProjects.length === 0 ? (
+            <div className="empty">
+              <p style={{ margin: "0 0 0.75rem" }}>
+                No projects yet. Create one to start tracking work.
+              </p>
+              {canCreate ? (
+                <form className="form" action={createProjectAction} style={{ maxWidth: 420, margin: "0 auto", textAlign: "left" }}>
+                  <input type="hidden" name="workspaceId" value={id} />
+                  <label>
+                    Project name
+                    <input name="name" required placeholder="e.g. Website Revamp" />
+                  </label>
+                  <label>
+                    Description
+                    <input name="description" placeholder="What is this project about?" />
+                  </label>
+                  <SubmitButton>Create first project</SubmitButton>
+                </form>
+              ) : (
+                <p className="muted">Ask an admin to create a project for you.</p>
+              )}
+            </div>
+          ) : (
+            <div className="project-list">
+              {activeProjects.map((p) => {
+                const projectTasks = p.tasks ?? [];
+                const progress = projectProgress(projectTasks, doneIds);
+                const open = projectTasks.filter(
+                  (t) => !t.status_id || !doneIds.has(t.status_id),
+                ).length;
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/w/${id}/projects/${p.id}`}
+                    className="project-card"
+                  >
+                    <div className="row-split">
+                      <strong style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span
+                          className="dot"
+                          style={{ background: p.color }}
+                          aria-hidden
+                        />
+                        {p.name}
+                      </strong>
+                      <span className="soon-tag">{progress}%</span>
+                    </div>
+                    {p.description ? (
+                      <div className="task-meta" style={{ marginTop: 6 }}>
+                        {p.description}
+                      </div>
+                    ) : null}
+                    <div className="progress-track" style={{ marginTop: 10 }}>
+                      <div
+                        className="progress-fill"
+                        style={{
+                          width: `${progress}%`,
+                          background: p.color,
+                        }}
+                      />
+                    </div>
+                    <div className="task-meta" style={{ marginTop: 8 }}>
+                      {projectTasks.length} tasks · {open} open
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         <div className="grid-2">
           <section className="panel">
@@ -138,7 +228,15 @@ export default async function WorkspaceDashboard({
               <h1 style={{ fontSize: "1.25rem" }}>My open tasks</h1>
             </div>
             {myOpen.length === 0 ? (
-              <p className="muted">Nothing assigned to you right now.</p>
+              <div className="empty" style={{ padding: "1.25rem" }}>
+                Nothing assigned to you right now.
+                {openTasks.length > 0 ? (
+                  <p className="muted" style={{ margin: "0.5rem 0 0" }}>
+                    {openTasks.length} open tasks in this workspace — open a
+                    project to pick one up.
+                  </p>
+                ) : null}
+              </div>
             ) : (
               <div className="task-list">
                 {myOpen.map((t) => {

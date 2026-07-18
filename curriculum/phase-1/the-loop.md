@@ -67,8 +67,8 @@ Unmerged PRs may still receive peer reviews but **cannot appear on the eligible 
 ### Mechanics
 
 1. **Thu 17:00:** Submission PRs due; review window opens. Platform lists all **merged submission PRs** (interim Discord weeks 1–2; cohort PM platform after week 2 cutover).
-2. Each student assigned **3 mandatory deep reviews** (different peers) via round-robin; must complete **all peers** by deadline.
-3. Reviews filed per [peer-review-system.md](../../assessment/peer-review-system.md).
+2. Each student must review **every eligible peer** (active roster + merged submission) by deadline. Primary deep reviews (≥300 words) may still use a staff round-robin of 3 for quality sampling; pass gate is all-peers coverage.
+3. Reviews filed as GitHub issues `Review by @{you}: @{peer}` on the peer’s app repo per [peer-review-system.md](../../assessment/peer-review-system.md) and [winner-selection.md](../../governance/winner-selection.md).
 4. **Fri 14:00:** All reviews due.
 
 ### Time budget
@@ -81,16 +81,16 @@ At cohort 30: 29 reviews × ~45 min = ~22 hrs. Agents reduce repo archaeology ti
 
 See [governance/winner-selection.md](../../governance/winner-selection.md).
 
-- **Method:** Private 👍/👎 per eligible peer **after** written GitHub review is saved on platform
+- **Method:** Optional public `Vote: up` in the written review issue body (or abstain — no downvotes)
 - **Self-votes:** Cannot review or vote on own submission
-- **Privacy:** Individual votes private; live tallies never shown during review week
-- **Platform:** `/program/{slug}` → review & vote panel; `POST /api/program/{slug}/ratings`
+- **Visibility:** Reviews and upvotes are public on GitHub; live tallies are never shown on the site
+- **Platform:** `/program/{slug}` → progress panel (personal status only); staff tally via CLI
 - **Closes:** Fri 16:00 ET (see `content/program.ts` schedule per project)
 - **Winner announced:** Following Mon 10:00 kickoff
 
 ### Tie-break
 
-Most thumbs up wins. If tied: higher median rubric score across written reviews. If still tied: program director selects based on production readiness.
+Most upvotes wins. If tied: earliest submission `mergedAt`, then handle sort. Persistent ties: rubric median / staff judgment per [winner-selection.md](../../governance/winner-selection.md).
 
 ---
 

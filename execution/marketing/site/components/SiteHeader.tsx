@@ -1,4 +1,5 @@
 import { HultLogo } from '@/components/HultLogo';
+import { LiveSessionBanner } from '@/components/LiveSessionBanner';
 import { SiteNav } from '@/components/SiteNav';
 import styles from '../app/page.module.css';
 
@@ -10,9 +11,12 @@ type Props = {
 
 export function SiteHeader({ links }: Props) {
   return (
-    <header className={styles.header}>
-      <HultLogo />
-      <SiteNav links={links} />
-    </header>
+    <div className={styles.headerStack}>
+      <LiveSessionBanner />
+      <header className={styles.header}>
+        <HultLogo />
+        <SiteNav links={links} />
+      </header>
+    </div>
   );
 }

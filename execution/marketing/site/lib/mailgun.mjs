@@ -20,15 +20,21 @@ export function getEmailConfig() {
 }
 
 /**
- * @param {{ to: string; subject: string; html: string; config: NonNullable<ReturnType<typeof getEmailConfig>> }} params
+ * @param {{ to: string; subject: string; html: string; headers?: Record<string,string>;
+ *           config: NonNullable<ReturnType<typeof getEmailConfig>> }} params
  */
-export async function sendMailgunEmail({ to, subject, html, config }) {
+export async function sendMailgunEmail({ to, subject, html, headers, config }) {
   const body = new URLSearchParams({
     from: `${config.fromName} <${config.fromEmail}>`,
     to,
     subject,
     html,
   });
+
+  // Mailgun sets arbitrary MIME headers via `h:<Name>` form fields.
+  for (const [name, value] of Object.entries(headers ?? {})) {
+    body.append(`h:${name}`, String(value));
+  }
 
   const res = await fetch(`${config.apiBase}/${config.domain}/messages`, {
     method: 'POST',
@@ -45,8 +51,4 @@ export async function sendMailgunEmail({ to, subject, html, config }) {
   }
 }
 
-export function siteUrl() {
-  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (fromEnv) return fromEnv.replace(/\/$/, '');
-  return 'https://site-nine-rouge-68.vercel.app';
-}
+export { siteUrl } from './site-url.mjs';

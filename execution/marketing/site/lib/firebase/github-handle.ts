@@ -1,3 +1,5 @@
+import { logApi } from '@/lib/api-log';
+
 const HANDLE_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
 
 export function parseGithubHandle(value: unknown): string | null {
@@ -34,10 +36,27 @@ async function lookupGithubLoginById(githubUserId: string): Promise<string | nul
       headers: githubHeaders(),
       next: { revalidate: 3600 },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      // Surface the failure — a 403/429 here almost always means the GitHub API
+      // rate limit was hit (60 req/hour when GITHUB_TOKEN is unset), which breaks
+      // sign-in for everyone. Logging the status + remaining quota makes that
+      // diagnosable instead of silently returning null.
+      logApi('auth', 'warn', 'GitHub user-by-id lookup failed', {
+        githubUserId,
+        status: res.status,
+        rateLimitRemaining: res.headers.get('x-ratelimit-remaining') ?? undefined,
+        rateLimitReset: res.headers.get('x-ratelimit-reset') ?? undefined,
+        authenticated: Boolean(process.env.GITHUB_TOKEN?.trim()),
+      });
+      return null;
+    }
     const data = (await res.json()) as { login?: string };
     return parseGithubHandle(data.login);
-  } catch {
+  } catch (err) {
+    logApi('auth', 'warn', 'GitHub user-by-id lookup threw', {
+      githubUserId,
+      error: err instanceof Error ? err.message : String(err),
+    });
     return null;
   }
 }

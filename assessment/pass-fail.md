@@ -15,7 +15,7 @@ Pass requires **all** of the following:
 | Project 1 reviews | `{peerCount}/{peerCount}` on eligible peers |
 | Project 2 reviews | `{peerCount}/{peerCount}` on eligible peers |
 | Project 3 reviews | `{peerCount}/{peerCount}` on eligible peers |
-| Private votes | `{peerCount}/{peerCount}` per contest project (after written review each) |
+| Review + optional upvote | Written GitHub review for every eligible peer; optional public `Vote: up` (abstain OK) per contest project |
 | Builds | ≥ **2/3** builds eligible at deadline |
 | Developer/user cycles | ≥ **2/3** Phase 1 platform cycles meet minimums ([metrics.md](metrics.md)) |
 

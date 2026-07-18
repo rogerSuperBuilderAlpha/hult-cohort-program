@@ -1,6 +1,6 @@
 import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
-import { rosterMembersRef } from '@/lib/firestore-paths';
+import { getActiveRosterHandles } from '@/lib/roster-handles-server';
 import type { CohortStats } from './cohort-stats-types';
 
 function emptyStats(id: string, available = false): CohortStats {
@@ -12,14 +12,18 @@ function emptyStats(id: string, available = false): CohortStats {
   };
 }
 
+/**
+ * Live roster-derived cohort size. Uses shared cached roster handles
+ * (60s) so marketing pages and APIs don't each scan the collection.
+ */
 export async function getCohortStats(id = cohortId()): Promise<CohortStats> {
   if (!isAdminConfigured()) {
     return emptyStats(id, false);
   }
 
-  const snap = await rosterMembersRef(id).get();
-
-  const enrolledCount = snap.docs.filter((doc) => doc.data().active !== false).length;
+  const handles = await getActiveRosterHandles(id);
+  // Empty list means a genuinely empty roster (load failures throw RosterUnavailableError).
+  const enrolledCount = handles.length;
 
   return {
     cohortId: id,

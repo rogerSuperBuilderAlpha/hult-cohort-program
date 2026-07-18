@@ -1,14 +1,29 @@
+import { revalidateTag } from 'next/cache';
 import { logApi, logApiError } from '@/lib/api-log';
+import { ingestTakeHomePullRequest } from '@/lib/admissions-ingest-server';
+import { cohortId } from '@/lib/cohort-config';
+import { clearGithubSubmissionCache } from '@/lib/github-cohort-server';
 import { checkRateLimit, clientIp } from '@/lib/rate-limit';
 import { ingestMergedPullRequest } from '@/lib/submission-write-server';
 import {
   parseGithubWebhookPayload,
   verifyGithubWebhookSignature,
 } from '@/lib/submission-ingest-server';
+import { programProjects } from '@/content/program';
 
 export const runtime = 'nodejs';
 
 const ROUTE = 'POST /api/github/webhook';
+
+function bustContestCaches() {
+  clearGithubSubmissionCache();
+  const id = cohortId();
+  for (const project of programProjects) {
+    if (!project.reviews) continue;
+    revalidateTag(`peers:${id}:${project.slug}`);
+    revalidateTag(`contest:${id}:${project.slug}`);
+  }
+}
 
 export async function POST(request: Request) {
   const ip = clientIp(request);
@@ -43,6 +58,14 @@ export async function POST(request: Request) {
       html_url?: string;
       title?: string;
       body?: string | null;
+      base?: { ref?: string };
+      head?: { ref?: string };
+      user?: { login?: string };
+    };
+    issue?: {
+      title?: string;
+      html_url?: string;
+      number?: number;
     };
     repository?: { full_name?: string };
   };
@@ -60,16 +83,62 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, ping: true });
   }
 
+  // Review issues / vote edits → bust shared contest cache
+  if (
+    eventName === 'issues' &&
+    (event.action === 'opened' ||
+      event.action === 'edited' ||
+      event.action === 'reopened' ||
+      event.action === 'closed')
+  ) {
+    const title = event.issue?.title ?? '';
+    if (/^review by @/i.test(title.trim())) {
+      bustContestCaches();
+      logApi(ROUTE, 'info', 'Contest cache busted after review issue event', {
+        action: event.action,
+        issue: event.issue?.number,
+      });
+      return Response.json({ ok: true, contestCacheBusted: true });
+    }
+    return Response.json({ ok: true, ignored: true, reason: 'not review issue' });
+  }
+
   if (eventName !== 'pull_request') {
     return Response.json({ ok: true, ignored: true, reason: 'not pull_request' });
+  }
+
+  const repoFullName = event.repository?.full_name;
+  const pr = event.pull_request;
+
+  if (
+    repoFullName &&
+    pr?.html_url &&
+    pr.number &&
+    (event.action === 'opened' || event.action === 'reopened')
+  ) {
+    try {
+      const takeHome = await ingestTakeHomePullRequest({
+        repoFullName,
+        authorLogin: pr.user?.login,
+        prNumber: pr.number,
+        prHtmlUrl: pr.html_url,
+      });
+      logApi(ROUTE, 'info', 'Take-home webhook processed', {
+        repo: repoFullName,
+        pr: pr.number,
+        ...takeHome,
+      });
+      return Response.json({ ok: true, takeHome });
+    } catch (err) {
+      logApiError(ROUTE, err, { repo: repoFullName, pr: pr.number, kind: 'take-home' });
+      return Response.json({ error: 'Take-home ingest failed.' }, { status: 500 });
+    }
   }
 
   if (event.action !== 'closed' || !event.pull_request?.merged) {
     return Response.json({ ok: true, ignored: true, reason: 'not merged close' });
   }
 
-  const repoFullName = event.repository?.full_name;
-  const pr = event.pull_request;
   if (!repoFullName || !pr?.html_url || !pr.title || !pr.number) {
     return Response.json({ error: 'Incomplete payload.' }, { status: 400 });
   }
@@ -84,6 +153,9 @@ export async function POST(request: Request) {
       merged: true,
       mergedAt: pr.merged_at ? new Date(pr.merged_at) : new Date(),
       source: 'webhook',
+      baseRef: pr.base?.ref,
+      headRef: pr.head?.ref,
+      authorLogin: pr.user?.login ?? null,
     });
 
     logApi(ROUTE, 'info', 'Webhook processed', {

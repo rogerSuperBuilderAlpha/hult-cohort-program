@@ -26,6 +26,8 @@ jobs:
           cache: npm
           cache-dependency-path: execution/marketing/site/package-lock.json
       - run: npm ci
+      - run: npm test
+      - run: npm run verify:submissions
       - run: npm run build
         env:
           # Build-time placeholders — real values only on Vercel

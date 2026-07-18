@@ -1,5 +1,7 @@
 data/
 .env*.local
+.env.vercel*
+*.tsbuildinfo
 .vercel
 secrets/
 **/secrets/*.json

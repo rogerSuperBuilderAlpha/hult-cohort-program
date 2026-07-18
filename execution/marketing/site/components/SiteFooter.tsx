@@ -23,6 +23,7 @@ export function SiteFooter() {
           <nav className={styles.footerLinks} aria-label="Site">
             <Link href="/program">Program</Link>
             <Link href={hub.href}>{hub.loading ? '…' : hub.enrolled ? 'Dashboard' : 'Apply'}</Link>
+            {hub.signedIn ? <Link href="/history">History</Link> : null}
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
             <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
@@ -69,8 +70,7 @@ export function SiteFooter() {
         </div>
 
         <p className={styles.legal}>
-          Platform source code is open under MIT. Enrollment requires the Program Agreement and
-          Expectations Acknowledgment.
+          Platform source code is open under MIT. Enrollment requires the Expectations Acknowledgment.
         </p>
       </div>
     </footer>

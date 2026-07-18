@@ -103,7 +103,7 @@ The guarantee ("complete successfully → job offer") is a **commercial enrollme
 
 The Summer Pilot 2026 runs **6 contiguous instructional weeks** plus an end-of-pilot showcase. See [operations/calendar.md](../operations/calendar.md) for the mapped schedule.
 
-**Cohort 1:** Start **Thursday, July 9, 2026**; end-of-pilot showcase **Wednesday, August 19, 2026**. This is a compressed summer pilot — six weeks, with Phase 2 deliverables combined in the final sprint — not a standard Fall or Spring semester.
+**Cohort 1:** Start **Monday, July 13, 2026**; end-of-pilot showcase **Sunday, August 23, 2026**. This is a compressed summer pilot — six weeks, with Phase 2 deliverables combined in the final sprint — not a standard Fall or Spring semester.
 
 | Concern | Handling |
 |---------|----------|

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { FieldValue } from 'firebase-admin/firestore';
 import { cohortId } from '@/lib/cohort-config';
 import { researchConsentRef, surveyResponseRef } from '@/lib/firestore-paths';
 import {
@@ -8,7 +9,6 @@ import {
   openWave,
   waveItemIds,
   waveStatus,
-  type SurveyWave,
   type SurveyWaveId,
   type WaveStatus,
 } from './survey-instrument';
@@ -20,7 +20,16 @@ import {
  * to a dictionary attack on the small, known handle space — set it in production.
  */
 export function participantId(githubHandle: string): string {
-  const salt = process.env.RESEARCH_HASH_SALT?.trim() || 'hult-cohort-research-salt';
+  const salt = process.env.RESEARCH_HASH_SALT?.trim();
+  if (!salt) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('RESEARCH_HASH_SALT is required in production.');
+    }
+    return createHash('sha256')
+      .update(`hult-cohort-research-dev:${githubHandle.toLowerCase()}`)
+      .digest('hex')
+      .slice(0, 32);
+  }
   return createHash('sha256').update(`${salt}:${githubHandle.toLowerCase()}`).digest('hex').slice(0, 32);
 }
 
@@ -43,9 +52,19 @@ export type SurveyState = {
   openWaveId: SurveyWaveId | null;
 };
 
-async function consentRecord(pid: string): Promise<{ exists: boolean; consented: boolean }> {
+async function consentRecord(
+  pid: string
+): Promise<{ exists: boolean; consented: boolean; completedWaves: string[] }> {
   const doc = await researchConsentRef(cohortId(), pid).get();
-  return { exists: doc.exists, consented: doc.exists && doc.data()?.consented === true };
+  const data = doc.data();
+  const completedWaves = Array.isArray(data?.completedWaves)
+    ? data.completedWaves.filter((w: unknown): w is string => typeof w === 'string')
+    : [];
+  return {
+    exists: doc.exists,
+    consented: doc.exists && data?.consented === true,
+    completedWaves,
+  };
 }
 
 export async function hasConsented(pid: string): Promise<boolean> {
@@ -67,7 +86,14 @@ export async function saveConsent(
   );
 }
 
-async function completedWaveIds(pid: string): Promise<Set<string>> {
+async function completedWaveIds(
+  pid: string,
+  fromConsent: string[]
+): Promise<Set<string>> {
+  if (fromConsent.length > 0) {
+    return new Set(fromConsent.filter((id): id is SurveyWaveId => Boolean(getWaveById(id as SurveyWaveId))));
+  }
+  // Legacy fallback: one doc per wave (then backfill onto consent).
   const id = cohortId();
   const checks = await Promise.all(
     SURVEY_WAVES.map(async (w) => {
@@ -75,12 +101,20 @@ async function completedWaveIds(pid: string): Promise<Set<string>> {
       return doc.exists ? w.id : null;
     })
   );
-  return new Set(checks.filter((x): x is SurveyWaveId => x !== null));
+  const completed = checks.filter((x): x is SurveyWaveId => x !== null);
+  if (completed.length > 0) {
+    await researchConsentRef(id, pid).set(
+      { completedWaves: completed, updatedAt: new Date() },
+      { merge: true }
+    );
+  }
+  return new Set(completed);
 }
 
 export async function getSurveyState(githubHandle: string, now = new Date()): Promise<SurveyState> {
   const pid = participantId(githubHandle);
-  const [consent, completed] = await Promise.all([consentRecord(pid), completedWaveIds(pid)]);
+  const consent = await consentRecord(pid);
+  const completed = await completedWaveIds(pid, consent.completedWaves);
 
   const waves: WaveSummary[] = SURVEY_WAVES.map((w) => ({
     id: w.id,
@@ -154,6 +188,14 @@ export async function saveSurveyResponse(
     consentVersion: CONSENT_VERSION,
     completedAt: now,
   });
+
+  await researchConsentRef(cohortId(), pid).set(
+    {
+      completedWaves: FieldValue.arrayUnion(wave.id),
+      updatedAt: now,
+    },
+    { merge: true }
+  );
 
   return { ok: true };
 }

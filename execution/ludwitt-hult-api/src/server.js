@@ -89,8 +89,13 @@ app.get('/v1/apps/:app_id/metrics', requireDevKey, (req, res) => {
 
 // Admin snapshot export
 app.get('/v1/admin/cohorts/:cohort_id/snapshots/:date', (req, res) => {
-  const adminKey = process.env.ADMIN_KEY || 'dev-admin-key';
-  if (req.headers.authorization !== `Bearer ${adminKey}`) {
+  const adminKey = process.env.ADMIN_KEY?.trim();
+  const isProd = process.env.NODE_ENV === 'production';
+  if (isProd && !adminKey) {
+    return res.status(503).json({ error: 'admin export not configured' });
+  }
+  const expected = adminKey || 'dev-admin-key';
+  if (req.headers.authorization !== `Bearer ${expected}`) {
     return res.status(401).json({ error: 'unauthorized' });
   }
   const rows = getMetrics.exportSnapshot?.() || [];

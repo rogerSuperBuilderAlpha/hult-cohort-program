@@ -1,7 +1,9 @@
 'use client';
 
 import type { ProgramProject } from '@/content/program';
-import { VOTE_PRIVACY_NOTE, WINNER_NOTE } from '@/lib/review-week-copy';
+import { VOTE_NOTE, WINNER_NOTE } from '@/lib/review-week-copy';
+import { personalizeProgramText } from '@/lib/personalize-program';
+import { reviewIssueTitle } from '@/lib/written-reviews-format';
 import styles from '../app/page.module.css';
 
 function StatusIcon({ done }: { done: boolean }) {
@@ -21,12 +23,8 @@ function whatsLeft(progress: import('@/lib/project-progress-types').ProjectProgr
 
   if (progress.reviews) {
     const writtenLeft = progress.reviews.required - progress.reviews.writtenCompleted;
-    const voteLeft = progress.reviews.required - progress.reviews.ratingsCompleted;
     if (writtenLeft > 0) {
-      items.push(`file ${writtenLeft} more written review${writtenLeft === 1 ? '' : 's'}`);
-    }
-    if (voteLeft > 0) {
-      items.push(`cast ${voteLeft} more private vote${voteLeft === 1 ? '' : 's'}`);
+      items.push(`file ${writtenLeft} more written review${writtenLeft === 1 ? '' : 's'} on GitHub`);
     }
   }
 
@@ -47,11 +45,11 @@ type Props = {
 
 export function ProjectProgressPanel({ project, progress, handle }: Props) {
   const reviews = progress.reviews;
+  const schedule = progress.schedule;
   const writtenDone =
     !reviews || reviews.required === 0 || reviews.writtenCompleted >= reviews.required;
-  const votesDone =
-    !reviews || reviews.required === 0 || reviews.ratingsCompleted >= reviews.required;
-  const allDone = progress.submission.merged && writtenDone && votesDone;
+  const allDone = progress.submission.merged && writtenDone;
+  const reviewTitleExample = reviewIssueTitle(handle, 'peer-handle');
 
   return (
     <section
@@ -63,7 +61,46 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
       <p className={styles.progressSummary}>{whatsLeft(progress)}</p>
 
       <ul className={styles.progressChecklist}>
-        <li className={progress.submission.merged ? styles.progressItemDone : styles.progressItemPending}>
+        {schedule && schedule.submissionWindowStatus !== 'none' ? (
+          <li
+            className={
+              schedule.submissionWindowStatus === 'open'
+                ? styles.progressItemPending
+                : styles.progressItemDone
+            }
+            aria-label={`Submission window: ${schedule.submissionWindowStatus}`}
+          >
+            <StatusIcon done={schedule.submissionWindowStatus === 'closed' && progress.submission.merged} />
+            <div>
+              <strong>
+                {schedule.submissionWindowStatus === 'not-yet'
+                  ? 'Submission window not yet open'
+                  : schedule.submissionWindowStatus === 'closed'
+                    ? 'Submission window closed'
+                    : 'Submission window open'}
+              </strong>
+              <p className={styles.progressDetail}>
+                {schedule.submissionWindowStatus === 'not-yet' && schedule.submissionOpensFormatted
+                  ? `Opens ${schedule.submissionOpensFormatted}.`
+                  : null}
+                {schedule.submissionWindowStatus === 'open' && schedule.submissionClosesFormatted
+                  ? `Merge by ${schedule.submissionClosesFormatted}. ${schedule.deadlineNote ?? ''}`
+                  : null}
+                {schedule.submissionWindowStatus === 'closed' && schedule.submissionClosesFormatted
+                  ? `Closed ${schedule.submissionClosesFormatted}. Unmerged pull requests are ineligible.`
+                  : null}
+              </p>
+            </div>
+          </li>
+        ) : null}
+        <li
+          className={progress.submission.merged ? styles.progressItemDone : styles.progressItemPending}
+          aria-label={
+            progress.submission.merged
+              ? 'Submission pull request merged: complete'
+              : 'Submission pull request merged: incomplete'
+          }
+        >
           <StatusIcon done={progress.submission.merged} />
           <div>
             <strong>Submission pull request merged</strong>
@@ -85,7 +122,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
             ) : (
               <p className={styles.progressDetail}>
                 Open a pull request titled{' '}
-                <code>{project.submission.prTitle.replace('{handle}', handle)}</code> in{' '}
+                <code>{personalizeProgramText(project.submission.prTitle, handle)}</code> in{' '}
                 <a href={progress.submission.repoUrl} target="_blank" rel="noopener noreferrer">
                   {progress.submission.repo}
                 </a>{' '}
@@ -98,18 +135,18 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
         {reviews ? (
           <>
             {reviews.reviewWindowStatus === 'not-yet' && reviews.reviewOpensFormatted ? (
-              <li className={styles.progressItemPending}>
+              <li className={styles.progressItemPending} aria-label="Review week: not yet open">
                 <StatusIcon done={false} />
                 <div>
                   <strong>Review week has not opened</strong>
                   <p className={styles.progressDetail}>
-                    Written reviews and private votes become available{' '}
+                    Written reviews become available{' '}
                     {reviews.reviewOpensFormatted}.
                   </p>
                 </div>
               </li>
             ) : reviews.reviewWindowStatus === 'closed' ? (
-              <li className={styles.progressItemPending}>
+              <li className={styles.progressItemPending} aria-label="Review week: closed">
                 <StatusIcon done={false} />
                 <div>
                   <strong>Review week closed</strong>
@@ -121,29 +158,23 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 </div>
               </li>
             ) : null}
-            <li className={writtenDone ? styles.progressItemDone : styles.progressItemPending}>
+            <li
+              className={writtenDone ? styles.progressItemDone : styles.progressItemPending}
+              aria-label={`Written reviews: ${reviews.writtenCompleted} of ${reviews.required} discovered from GitHub`}
+            >
               <StatusIcon done={writtenDone} />
               <div>
                 <strong>
                   Written reviews {reviews.writtenCompleted}/{reviews.required}
                 </strong>
                 <p className={styles.progressDetail}>
-                  Written review (GitHub issue) titled <code>Review by @{handle}</code> on each peer
-                  repository.
-                </p>
-              </div>
-            </li>
-            <li className={votesDone ? styles.progressItemDone : styles.progressItemPending}>
-              <StatusIcon done={votesDone} />
-              <div>
-                <strong>
-                  Private votes {reviews.ratingsCompleted}/{reviews.required}
-                </strong>
-                <p className={styles.progressDetail}>
-                  Cast your vote on this page after each written review. {VOTE_PRIVACY_NOTE}
+                  GitHub issue titled <code>{reviewTitleExample}</code> on the cohort repository for
+                  each peer. Optionally include <code>Vote: up</code> to upvote, or omit it to
+                  abstain. {VOTE_NOTE}
                 </p>
                 <p className={styles.progressDetail}>
-                  <a href="#peer-ratings">Go to review and vote list →</a>
+                  Upvotes so far (optional): {reviews.upvotesCompleted}/{reviews.required}.{' '}
+                  <a href="#peer-ratings">Go to review list →</a>
                 </p>
               </div>
             </li>

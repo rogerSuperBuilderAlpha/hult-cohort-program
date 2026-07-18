@@ -149,63 +149,6 @@ export default async function WorkspaceDashboard({
           </div>
         </div>
 
-        <section className="panel weekly-analytics">
-          <div className="section-head">
-            <div>
-              <p className="brand-sub">Analytics</p>
-              <h1 style={{ fontSize: "1.25rem" }}>Your weekly progress</h1>
-              <p className="muted" style={{ margin: "0.25rem 0 0" }}>
-                Completed tasks assigned to you, grouped by week.
-              </p>
-            </div>
-            <div className="weekly-summary" aria-label="Current weekly summary">
-              <div>
-                <strong>{currentWeekCompleted}</strong>
-                <span>Completed this week</span>
-              </div>
-              <div>
-                <strong>
-                  {weeklyDifference > 0 ? "+" : ""}
-                  {weeklyDifference}
-                </strong>
-                <span>Compared with last week</span>
-              </div>
-              <div>
-                <strong>{myOpenCount}</strong>
-                <span>Assigned tasks remaining</span>
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="weekly-chart"
-            role="img"
-            aria-label={`Weekly completed tasks: ${weeklyProgress
-              .map((week) => `${week.label}, ${week.count}`)
-              .join("; ")}`}
-          >
-            {weeklyProgress.map((week, index) => (
-              <div className="weekly-column" key={week.label}>
-                <span className="weekly-value">{week.count}</span>
-                <div className="weekly-track">
-                  <div
-                    className={`weekly-bar${
-                      index === weeklyProgress.length - 1 ? " current" : ""
-                    }`}
-                    style={{
-                      height:
-                        week.count === 0
-                          ? "4px"
-                          : `${Math.max(12, (week.count / weeklyMax) * 100)}%`,
-                    }}
-                  />
-                </div>
-                <span className="weekly-label">{week.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
         <section className="panel">
           <div className="section-head" style={{ marginBottom: "0.75rem" }}>
             <h1 style={{ fontSize: "1.25rem" }}>Projects</h1>
@@ -365,6 +308,63 @@ export default async function WorkspaceDashboard({
             )}
           </section>
         </div>
+
+        <section className="panel weekly-analytics">
+          <div className="section-head">
+            <div>
+              <p className="brand-sub">Analytics</p>
+              <h1 style={{ fontSize: "1.25rem" }}>Your weekly progress</h1>
+              <p className="muted" style={{ margin: "0.25rem 0 0" }}>
+                Completed tasks assigned to you, grouped by week.
+              </p>
+            </div>
+            <div className="weekly-summary" aria-label="Current weekly summary">
+              <div>
+                <strong>{currentWeekCompleted}</strong>
+                <span>Completed this week</span>
+              </div>
+              <div>
+                <strong>
+                  {weeklyDifference > 0 ? "+" : ""}
+                  {weeklyDifference}
+                </strong>
+                <span>Compared with last week</span>
+              </div>
+              <div>
+                <strong>{myOpenCount}</strong>
+                <span>Assigned tasks remaining</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="weekly-chart"
+            role="img"
+            aria-label={`Weekly completed tasks: ${weeklyProgress
+              .map((week) => `${week.label}, ${week.count}`)
+              .join("; ")}`}
+          >
+            {weeklyProgress.map((week, index) => (
+              <div className="weekly-column" key={week.label}>
+                <span className="weekly-value">{week.count}</span>
+                <div className="weekly-track">
+                  <div
+                    className={`weekly-bar${
+                      index === weeklyProgress.length - 1 ? " current" : ""
+                    }`}
+                    style={{
+                      height:
+                        week.count === 0
+                          ? "4px"
+                          : `${Math.max(12, (week.count / weeklyMax) * 100)}%`,
+                    }}
+                  />
+                </div>
+                <span className="weekly-label">{week.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {workspace.features.activity ? (
           <section className="panel">

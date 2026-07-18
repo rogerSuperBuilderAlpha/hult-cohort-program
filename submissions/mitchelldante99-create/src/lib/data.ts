@@ -28,15 +28,75 @@ export async function createProject(
   name: string,
   description: string,
   createdBy: string,
-  createdByName: string
+  createdByName: string,
+  memberUids: string[] = []
 ) {
-  const { error } = await supabase.from("projects").insert({
-    name,
-    description,
-    created_by: createdBy,
-    created_by_name: createdByName,
-  });
+  const { data, error } = await supabase
+    .from("projects")
+    .insert({
+      name,
+      description,
+      created_by: createdBy,
+      created_by_name: createdByName,
+    })
+    .select()
+    .single();
   if (error) throw error;
+
+  const allMemberIds = Array.from(new Set([createdBy, ...memberUids]));
+  const { error: memberError } = await supabase
+    .from("project_members")
+    .insert(allMemberIds.map((uid) => ({ project_id: data.id, user_id: uid })));
+  if (memberError) console.error("createProject member insert error:", memberError);
+
+  return data as Project;
+}
+
+export async function deleteProject(projectId: string) {
+  const { error } = await supabase.from("projects").delete().eq("id", projectId);
+  if (error) throw error;
+}
+
+// ---------- Project membership ----------
+
+export function subscribeProjectMembers(projectId: string, cb: (userIds: string[]) => void) {
+  async function load() {
+    const { data, error } = await supabase
+      .from("project_members")
+      .select("user_id")
+      .eq("project_id", projectId);
+    if (error) console.error("subscribeProjectMembers load error:", error);
+    cb((data || []).map((row) => row.user_id as string));
+  }
+  load();
+
+  const channel = supabase
+    .channel(`project-members-${projectId}`)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "project_members", filter: `project_id=eq.${projectId}` },
+      load
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
+export async function setProjectMembers(projectId: string, userIds: string[]) {
+  const { error: deleteError } = await supabase
+    .from("project_members")
+    .delete()
+    .eq("project_id", projectId);
+  if (deleteError) throw deleteError;
+
+  if (userIds.length === 0) return;
+
+  const { error: insertError } = await supabase
+    .from("project_members")
+    .insert(userIds.map((uid) => ({ project_id: projectId, user_id: uid })));
+  if (insertError) throw insertError;
 }
 
 export async function updateProject(

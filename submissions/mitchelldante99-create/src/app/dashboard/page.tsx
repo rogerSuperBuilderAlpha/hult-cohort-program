@@ -3,17 +3,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
-import { subscribeProjects, createProject } from "@/lib/data";
-import { Project } from "@/lib/types";
+import { subscribeProjects, createProject, subscribeAllUsers } from "@/lib/data";
+import { Project, UserProfile } from "@/lib/types";
 import ProjectCard from "@/components/ProjectCard";
+import ToggleSwitch from "@/components/ToggleSwitch";
+import { UserRound } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, profile, loading } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
 
   const [showArchived, setShowArchived] = useState(false);
@@ -28,14 +32,33 @@ export default function DashboardPage() {
     return () => unsub();
   }, [loading, user]);
 
+  useEffect(() => {
+    if (loading || !user) return;
+    const unsub = subscribeAllUsers(setUsers);
+    return () => unsub();
+  }, [loading, user]);
+
+  function toggleMember(uid: string) {
+    setSelectedMembers((prev) =>
+      prev.includes(uid) ? prev.filter((id) => id !== uid) : [...prev, uid]
+    );
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!user || !name.trim()) return;
     setBusy(true);
     try {
-      await createProject(name.trim(), description.trim(), user.id, profile?.display_name || user.email || "Someone");
+      await createProject(
+        name.trim(),
+        description.trim(),
+        user.id,
+        profile?.display_name || user.email || "Someone",
+        selectedMembers
+      );
       setName("");
       setDescription("");
+      setSelectedMembers([]);
       setShowForm(false);
     } finally {
       setBusy(false);
@@ -44,9 +67,11 @@ export default function DashboardPage() {
 
   if (loading || !user) return null;
 
+  const otherUsers = users.filter((u) => u.id !== user.id);
+
   return (
     <div className="max-w-3xl mx-auto px-5 py-10">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-2 gap-4">
         <div>
           <h1 className="text-2xl font-bold">Projects</h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
@@ -55,22 +80,16 @@ export default function DashboardPage() {
         </div>
         <button
           onClick={() => setShowForm((s) => !s)}
-          className="px-4 py-2 rounded-lg font-semibold text-sm"
+          className="px-4 py-2 rounded-lg font-semibold text-sm shrink-0"
           style={{ background: "var(--accent)", color: "#fff" }}
         >
           {showForm ? "Cancel" : "+ New project"}
         </button>
       </div>
 
-      <label className="flex items-center gap-2 text-xs mb-4" style={{ color: "var(--text-muted)" }}>
-        <input
-          type="checkbox"
-          checked={showArchived}
-          onChange={(e) => setShowArchived(e.target.checked)}
-          className="w-auto"
-        />
-        Show archived projects
-      </label>
+      <div className="flex justify-end mb-6">
+        <ToggleSwitch checked={showArchived} onChange={setShowArchived} label="Show archived projects" />
+      </div>
 
       {showForm && (
         <form
@@ -90,6 +109,61 @@ export default function DashboardPage() {
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
           />
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium flex items-center gap-1.5" style={{ color: "var(--text-muted)" }}>
+              <UserRound size={13} /> Add people to this project
+            </label>
+            {otherUsers.length === 0 ? (
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                No other cohort members have signed up yet.
+              </p>
+            ) : (
+              <div
+                className="flex flex-col gap-1 max-h-40 overflow-y-auto p-1.5 rounded-lg border"
+                style={{ borderColor: "var(--border)", background: "var(--bg)" }}
+              >
+                {otherUsers.map((u) => {
+                  const active = selectedMembers.includes(u.id);
+                  return (
+                    <button
+                      type="button"
+                      key={u.id}
+                      onClick={() => toggleMember(u.id)}
+                      className="flex items-center gap-3 px-2 py-2 rounded-lg text-left transition-colors"
+                      style={{ background: active ? "var(--surface-hover)" : "transparent" }}
+                    >
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+                        style={{
+                          background: active ? "var(--accent)" : "var(--surface)",
+                          color: active ? "#fff" : "var(--text-muted)",
+                        }}
+                      >
+                        {u.display_name
+                          .trim()
+                          .split(/\s+/)
+                          .slice(0, 2)
+                          .map((part) => part[0]?.toUpperCase() || "")
+                          .join("")}
+                      </div>
+                      <span className="flex-1 text-sm">{u.display_name}</span>
+                      <span
+                        className="text-[11px] font-semibold px-2 py-1 rounded-full shrink-0"
+                        style={{
+                          background: active ? "var(--success-muted)" : "var(--surface)",
+                          color: active ? "var(--success)" : "var(--text-muted)",
+                        }}
+                      >
+                        {active ? "Added" : "Add"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={busy}

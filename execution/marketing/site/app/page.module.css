@@ -1076,7 +1076,9 @@
   gap: 0;
   margin: 0 0 28px;
   border-bottom: 1px solid var(--border);
+  /* overflow-x:auto alone promotes overflow-y to auto too — kills the stray scrollbar */
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 }
 

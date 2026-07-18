@@ -159,20 +159,37 @@ export function ProjectPeerReviewSection({
   p,
   stats,
   variant,
+  lockNotice,
 }: {
   project: ProgramProject;
   p: (text: string) => string;
   stats: CohortStats | null;
   variant: 'enrolled' | 'public';
+  /** When set, section is visible but peer list / votes are not loaded yet. */
+  lockNotice?: string;
 }) {
   if (!project.reviews) return null;
 
   return (
-    <section className={styles.overviewBlock}>
-      <h2 className={variant === 'enrolled' ? styles.participantHeading : undefined}>Peer review</h2>
+    <section className={styles.overviewBlock} id="peer-ratings">
+      <h2 className={variant === 'enrolled' ? styles.participantHeading : undefined}>
+        Peer review and voting
+      </h2>
+      {lockNotice ? (
+        <div className={styles.callout}>
+          <p style={{ marginBottom: 0 }}>
+            <strong>Peer list not loaded yet.</strong> {lockNotice}
+          </p>
+        </div>
+      ) : null}
       <p>
         <strong>{peerReviewLabel(stats)}.</strong> Deliverable: {p(project.reviews.artifact)}. Due:{' '}
         {project.reviews.dueNote}.
+      </p>
+      <p className={styles.formNote} style={{ marginBottom: 0 }}>
+        For each peer: evaluate their deployment, read their submission pull request, file a written
+        GitHub review, then cast a private vote on this page. Votes unlock after the written review
+        is saved. Review week opens when the Sunday submission deadline closes.
       </p>
     </section>
   );

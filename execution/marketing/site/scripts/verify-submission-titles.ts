@@ -124,6 +124,21 @@ assert(
   extractDeployUrl('**Production URL**\nhttps://app.example.com') === 'https://app.example.com',
   'deploy url on next line'
 );
+assert(
+  extractDeployUrl('## Production URL\n\nhttps://pm.example.vercel.app') ===
+    'https://pm.example.vercel.app',
+  'deploy url under markdown heading'
+);
+assert(
+  extractDeployUrl('- Production URL: https://ship.example.vercel.app/') ===
+    'https://ship.example.vercel.app/',
+  'deploy url in list item'
+);
+assert(
+  extractDeployUrl('## Production URL\nhttps://momentum.example.vercel.app**') ===
+    'https://momentum.example.vercel.app',
+  'deploy url strips trailing markdown bold'
+);
 assert(extractDeployUrl('no url here') === null, 'no deploy url');
 
 const voteWeekFromProgram = programProjects.filter((p) => p.voteWeek).map((p) => p.slug);

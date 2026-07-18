@@ -99,12 +99,14 @@ function EnrolledView({
   const org = cohortOrg();
   const p = (text: string) => personalizeProgramText(text, handle, org, stats);
   const agentPrompt = buildProjectAgentPrompt(project, handle, org, stats);
-  const { progress, loading: progressLoading, error: progressError, refresh: refreshProgress } =
-    useProjectProgress(project.slug, getIdToken, true);
   const { survey, loading: surveyLoading } = useSurveyState(getIdToken, true);
   const gate = projectSurveyGate(project.slug, survey);
+  const surveyReady = !(surveyLoading && survey === null);
+  const progressEnabled = surveyReady && !gate.locked;
+  const { progress, loading: progressLoading, error: progressError, refresh: refreshProgress } =
+    useProjectProgress(project.slug, getIdToken, progressEnabled);
 
-  if (surveyLoading && survey === null) {
+  if (!surveyReady) {
     return (
       <>
         <ProgramDescription text={descriptionText} />
@@ -113,6 +115,34 @@ function EnrolledView({
     );
   }
 
+  const peerReviewShell = project.reviews ? (
+    progress && progressEnabled ? (
+      <PeerRatingBoard
+        projectSlug={project.slug}
+        progress={progress}
+        reviewerHandle={handle}
+        getIdToken={getIdToken}
+        onUpdated={() => void refreshProgress()}
+      />
+    ) : (
+      <ProjectPeerReviewSection
+        project={project}
+        p={p}
+        stats={stats}
+        variant="enrolled"
+        lockNotice={
+          gate.locked
+            ? 'Complete the research survey (or decline participation) to load your peer list and unlock voting.'
+            : progressLoading
+              ? 'Loading your peer list…'
+              : progressError
+                ? progressError
+                : 'Your peer list loads here once progress is available.'
+        }
+      />
+    )
+  ) : null;
+
   if (gate.locked) {
     return (
       <>
@@ -120,8 +150,8 @@ function EnrolledView({
         <SurveyGateNotice project={project} gate={gate} />
         <div className={styles.participantPanel}>
           <p className={styles.formNote} style={{ marginTop: 0 }}>
-            Requirements below are visible now. Submission tracking and peer review unlock after
-            you complete the survey (or decline participation).
+            Requirements and the peer review section are visible now. Submission tracking and the
+            peer list load after you complete the survey (or decline participation).
           </p>
           <ProjectRequirementsSections
             project={project}
@@ -129,9 +159,7 @@ function EnrolledView({
             stats={stats}
             variant="enrolled"
           />
-          {project.reviews ? (
-            <ProjectPeerReviewSection project={project} p={p} stats={stats} variant="enrolled" />
-          ) : null}
+          {peerReviewShell}
         </div>
       </>
     );
@@ -191,19 +219,7 @@ function EnrolledView({
 
       <AgentPromptHarness prompt={agentPrompt} personalized />
 
-      {progress ? (
-        <PeerRatingBoard
-          projectSlug={project.slug}
-          progress={progress}
-          reviewerHandle={handle}
-          getIdToken={getIdToken}
-          onUpdated={() => void refreshProgress()}
-        />
-      ) : null}
-
-      {project.reviews && !progress ? (
-        <ProjectPeerReviewSection project={project} p={p} stats={stats} variant="enrolled" />
-      ) : null}
+      {peerReviewShell}
 
       <div className={styles.participantActions}>
         <Link href="/dashboard" className={styles.secondaryBtn}>
@@ -292,7 +308,13 @@ function PublicView({
       <AgentPromptHarness prompt={agentPrompt} personalized={false} />
 
       {project.reviews && (
-        <ProjectPeerReviewSection project={project} p={p} stats={stats} variant="public" />
+        <ProjectPeerReviewSection
+          project={project}
+          p={p}
+          stats={stats}
+          variant="public"
+          lockNotice="Sign in as an enrolled participant to load your peer list and cast votes. Until then, this section explains the review flow only."
+        />
       )}
 
       {project.voteWeek && (

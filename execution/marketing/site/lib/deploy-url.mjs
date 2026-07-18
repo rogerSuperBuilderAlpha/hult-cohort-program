@@ -1,9 +1,10 @@
 /** Parse deploy URL from submission PR body (Production URL / Deploy URL label). */
 
 function extractFirstHttpsUrl(text) {
-  const match = text.match(/https:\/\/[^\s<>\]"')]+/i);
+  const match = text.match(/https:\/\/[^\s<>\]"'`)]+/i);
   if (!match) return null;
-  return match[0].replace(/[.,;]+$/, '');
+  // Strip trailing markdown / punctuation (e.g. vercel.app** or vercel.app).)
+  return match[0].replace(/(?:[.,;:!?)]|\*\*)+$/g, '').replace(/\*+$/g, '');
 }
 
 /** @param {string | null | undefined} prBody */
@@ -11,8 +12,13 @@ export function extractDeployUrl(prBody) {
   if (!prBody?.trim()) return null;
 
   const lines = prBody.split(/\r?\n/);
+  // Allow markdown headings / list markers before the label:
+  //   Production URL: https://…
+  //   **Production URL:** https://…
+  //   ## Production URL
+  //   - Production URL: https://…
   const labelPattern =
-    /^\s*(?:\*\*)?(?:production\s+url|deploy(?:ment)?\s+url)(?:\*\*)?\s*:?\s*(.*)$/i;
+    /^\s*(?:#{1,6}\s+|(?:[-*+]|\d+\.)\s+)?(?:\*\*)?(?:production\s+url|deploy(?:ment)?\s+url)(?:\*\*)?\s*:?\s*(.*)$/i;
 
   for (let i = 0; i < lines.length; i++) {
     const match = lines[i].match(labelPattern);
@@ -26,7 +32,7 @@ export function extractDeployUrl(prBody) {
       if (!line) continue;
       const url = extractFirstHttpsUrl(line);
       if (url) return url;
-      if (!line.match(/^[\s\-*]/)) break;
+      if (!line.match(/^[\s\-*#>]/)) break;
     }
   }
 

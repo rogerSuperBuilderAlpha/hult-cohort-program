@@ -29,8 +29,8 @@ export default function ResearchSurveyPage() {
         <h1 className={styles.sectionTitle}>Cohort research survey</h1>
         <p className={styles.overviewLead}>
           A voluntary research study, approved by the Bentley University Institutional Review Board, on how
-          people learn to coordinate through software systems. Three short surveys over the six-week pilot.
-          Taking part has no effect on your standing or assessment.
+          people learn to coordinate through software systems. Three short surveys — before week 1, after
+          week 3, and after week 6. Taking part has no effect on your standing or assessment.
         </p>
 
         {!configured ? (

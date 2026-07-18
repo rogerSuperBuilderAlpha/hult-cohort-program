@@ -14,7 +14,7 @@ export default async function HomePage() {
   if (user) redirect("/workspaces");
 
   return (
-    <section className="landing">
+    <main className="landing">
       <div className="landing-wrap">
         <div>
           <span className="eyebrow">Project management, your way</span>
@@ -45,6 +45,6 @@ export default async function HomePage() {
           ))}
         </div>
       </div>
-    </section>
+    </main>
   );
 }

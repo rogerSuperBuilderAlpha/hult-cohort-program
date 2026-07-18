@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [pending, startTransition] = useTransition();
 
   return (
-    <section className="hero-auth">
+    <main className="hero-auth">
       <div className="auth-card">
         <p className="brand-sub">Welcome back</p>
         <h1>Sign in to FlexiFlow</h1>
@@ -27,19 +27,35 @@ export default function LoginPage() {
         >
           <label>
             Email
-            <input name="email" type="email" required placeholder="you@school.edu" />
+            <input
+              name="email"
+              type="email"
+              required
+              placeholder="you@school.edu"
+              autoComplete="email"
+            />
           </label>
           <label>
             Password
-            <input name="password" type="password" required minLength={8} />
+            <input
+              name="password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="current-password"
+            />
           </label>
-          {error ? <p className="error">{error}</p> : null}
+          {error ? (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          ) : null}
           <SubmitButton>{pending ? "Signing in…" : "Sign in"}</SubmitButton>
         </form>
         <p className="muted" style={{ marginTop: "1rem" }}>
           New here? <Link href="/register">Create an account</Link>
         </p>
       </div>
-    </section>
+    </main>
   );
 }

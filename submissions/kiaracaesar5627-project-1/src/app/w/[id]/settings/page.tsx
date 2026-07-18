@@ -142,8 +142,9 @@ export default async function SettingsPage({
                       type="checkbox"
                       name={`feature_${feat.key}`}
                       defaultChecked={workspace.features[feat.key]}
+                      aria-label={`Enable ${feat.label}`}
                     />
-                    <span className="track" />
+                    <span className="track" aria-hidden />
                   </span>
                 </div>
               ))}
@@ -233,8 +234,9 @@ export default async function SettingsPage({
                         cursor: "pointer",
                       }}
                       title="Delete label"
+                      aria-label={`Delete label ${l.name}`}
                     >
-                      {l.name} ✕
+                      {l.name} <span aria-hidden>✕</span>
                     </button>
                   </form>
                 ))

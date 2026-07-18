@@ -14,6 +14,16 @@ import { projectProgress, readableText, urgency } from "@/lib/labels";
 import { canManageProjects } from "@/lib/roles";
 import { getShellData } from "@/lib/workspace-server";
 
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+function startOfWeek(date: Date): Date {
+  const start = new Date(date);
+  const daysSinceMonday = (start.getUTCDay() + 6) % 7;
+  start.setUTCDate(start.getUTCDate() - daysSinceMonday);
+  start.setUTCHours(0, 0, 0, 0);
+  return start;
+}
+
 export default async function WorkspaceDashboard({
   params,
 }: {
@@ -53,6 +63,38 @@ export default async function WorkspaceDashboard({
   const maxCount = Math.max(1, ...byStatus.map((b) => b.count));
   const activeProjects = projects.filter((p) => !p.archived);
   const canCreate = canManageProjects(role);
+  const myTasks = tasks.filter((task) => task.assignee_id === user.id);
+  const myDoneTasks = myTasks.filter(
+    (task) => task.status_id && doneIds.has(task.status_id),
+  );
+  const currentWeekStart = startOfWeek(new Date());
+  const weeklyProgress = Array.from({ length: 6 }, (_, index) => {
+    const start = new Date(
+      currentWeekStart.getTime() - (5 - index) * WEEK_MS,
+    );
+    const end = new Date(start.getTime() + WEEK_MS);
+    return {
+      label: start.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+      }),
+      count: myDoneTasks.filter((task) => {
+        const completedAt = new Date(task.updated_at).getTime();
+        return completedAt >= start.getTime() && completedAt < end.getTime();
+      }).length,
+    };
+  });
+  const currentWeekCompleted =
+    weeklyProgress[weeklyProgress.length - 1]?.count ?? 0;
+  const previousWeekCompleted =
+    weeklyProgress[weeklyProgress.length - 2]?.count ?? 0;
+  const weeklyDifference = currentWeekCompleted - previousWeekCompleted;
+  const weeklyMax = Math.max(
+    1,
+    ...weeklyProgress.map((week) => week.count),
+  );
+  const myOpenCount = myTasks.length - myDoneTasks.length;
 
   return (
     <AppShell
@@ -106,6 +148,63 @@ export default async function WorkspaceDashboard({
             <div className="muted">Assigned to you</div>
           </div>
         </div>
+
+        <section className="panel weekly-analytics">
+          <div className="section-head">
+            <div>
+              <p className="brand-sub">Analytics</p>
+              <h1 style={{ fontSize: "1.25rem" }}>Your weekly progress</h1>
+              <p className="muted" style={{ margin: "0.25rem 0 0" }}>
+                Completed tasks assigned to you, grouped by week.
+              </p>
+            </div>
+            <div className="weekly-summary" aria-label="Current weekly summary">
+              <div>
+                <strong>{currentWeekCompleted}</strong>
+                <span>Completed this week</span>
+              </div>
+              <div>
+                <strong>
+                  {weeklyDifference > 0 ? "+" : ""}
+                  {weeklyDifference}
+                </strong>
+                <span>Compared with last week</span>
+              </div>
+              <div>
+                <strong>{myOpenCount}</strong>
+                <span>Assigned tasks remaining</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="weekly-chart"
+            role="img"
+            aria-label={`Weekly completed tasks: ${weeklyProgress
+              .map((week) => `${week.label}, ${week.count}`)
+              .join("; ")}`}
+          >
+            {weeklyProgress.map((week, index) => (
+              <div className="weekly-column" key={week.label}>
+                <span className="weekly-value">{week.count}</span>
+                <div className="weekly-track">
+                  <div
+                    className={`weekly-bar${
+                      index === weeklyProgress.length - 1 ? " current" : ""
+                    }`}
+                    style={{
+                      height:
+                        week.count === 0
+                          ? "4px"
+                          : `${Math.max(12, (week.count / weeklyMax) * 100)}%`,
+                    }}
+                  />
+                </div>
+                <span className="weekly-label">{week.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="panel">
           <div className="section-head" style={{ marginBottom: "0.75rem" }}>

@@ -41,6 +41,7 @@ export function AppearanceForm({
           <button
             type="button"
             className={theme === "light" ? "active" : ""}
+            aria-pressed={theme === "light"}
             onClick={() => setTheme("light")}
             style={{ border: 0, background: "transparent", cursor: "pointer" }}
           >
@@ -49,6 +50,7 @@ export function AppearanceForm({
           <button
             type="button"
             className={theme === "dark" ? "active" : ""}
+            aria-pressed={theme === "dark"}
             onClick={() => setTheme("dark")}
             style={{ border: 0, background: "transparent", cursor: "pointer" }}
           >
@@ -69,6 +71,7 @@ export function AppearanceForm({
               className={`swatch${accent.toLowerCase() === p.value.toLowerCase() ? " selected" : ""}`}
               style={{ background: p.value }}
               aria-label={p.name}
+              aria-pressed={accent.toLowerCase() === p.value.toLowerCase()}
             />
           ))}
         </div>
@@ -116,6 +119,7 @@ export function AppearanceForm({
               key={preset.name}
               type="button"
               className={`wallpaper-option${wallpaper === preset.value ? " selected" : ""}`}
+              aria-pressed={wallpaper === preset.value}
               onClick={() => setWallpaper(preset.value)}
               style={{
                 backgroundColor: background,

@@ -35,34 +35,51 @@ export async function AppShell({
 
   return (
     <div className="shell">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <header className="topbar">
-        <Link href="/workspaces" className="brand-lockup">
+        <Link href="/workspaces" className="brand-lockup" aria-label="FlexiFlow home">
           <span className="brand-mark" aria-hidden />
           <span className="brand">FlexiFlow</span>
         </Link>
 
         {workspace ? (
-          <nav className="nav">
-            <Link className={active === "dashboard" ? "active" : ""} href={base}>
+          <nav className="nav" aria-label="Workspace">
+            <Link
+              className={active === "dashboard" ? "active" : ""}
+              aria-current={active === "dashboard" ? "page" : undefined}
+              href={base}
+            >
               Dashboard
             </Link>
-            <Link className={active === "projects" ? "active" : ""} href={`${base}/projects`}>
+            <Link
+              className={active === "projects" ? "active" : ""}
+              aria-current={active === "projects" ? "page" : undefined}
+              href={`${base}/projects`}
+            >
               Projects
             </Link>
             {f?.calendar ? (
               <Link
                 className={active === "calendar" ? "active" : ""}
+                aria-current={active === "calendar" ? "page" : undefined}
                 href={`${base}/calendar`}
               >
                 Calendar
               </Link>
             ) : null}
-            <Link className={active === "members" ? "active" : ""} href={`${base}/members`}>
+            <Link
+              className={active === "members" ? "active" : ""}
+              aria-current={active === "members" ? "page" : undefined}
+              href={`${base}/members`}
+            >
               Team
             </Link>
             {role && canManageWorkspace(role) ? (
               <Link
                 className={active === "settings" ? "active" : ""}
+                aria-current={active === "settings" ? "page" : undefined}
                 href={`${base}/settings`}
               >
                 Settings
@@ -120,17 +137,27 @@ export async function AppShell({
             <Link
               href="/notifications"
               className="icon-btn"
-              aria-label="Notifications"
+              aria-label={
+                unread > 0
+                  ? `Notifications, ${unread} unread`
+                  : "Notifications"
+              }
               title="Notifications"
             >
-              🔔
-              {unread > 0 ? <span className="badge-count">{unread}</span> : null}
+              <span aria-hidden>🔔</span>
+              {unread > 0 ? (
+                <span className="badge-count" aria-hidden>
+                  {unread}
+                </span>
+              ) : null}
             </Link>
           ) : null}
 
           <details className="ws-switch">
-            <summary aria-label="Account menu">
-              <span className="avatar">{user.name.slice(0, 1).toUpperCase()}</span>
+            <summary aria-label={`Account menu for ${user.name}`}>
+              <span className="avatar" aria-hidden>
+                {user.name.slice(0, 1).toUpperCase()}
+              </span>
             </summary>
             <div className="ws-menu">
               <div className="muted" style={{ padding: "0.3rem 0.6rem" }}>
@@ -154,7 +181,7 @@ export async function AppShell({
           </details>
         </div>
       </header>
-      <main className="main">{children}</main>
+      <main id="main-content" className="main">{children}</main>
     </div>
   );
 }

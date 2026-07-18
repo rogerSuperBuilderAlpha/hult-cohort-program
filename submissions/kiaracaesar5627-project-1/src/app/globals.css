@@ -569,6 +569,17 @@ button[type="submit"]:disabled {
 .card-row.linky:hover {
   border-color: var(--accent);
 }
+.project-card {
+  display: block;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.project-card:hover {
+  border-color: var(--accent);
+}
 .row-split {
   display: flex;
   justify-content: space-between;

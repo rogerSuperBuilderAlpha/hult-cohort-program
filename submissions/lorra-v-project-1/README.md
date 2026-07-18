@@ -1,100 +1,71 @@
 # Mission Control — Cohort Civilization Tracker
 
-Next.js + Supabase app for Phase 1 Project 1: projects, tasks, cohort civilization levels, energy, individual scores, and peer votes.
+**Live app:** https://mission-control-sandy-phi.vercel.app/
 
-**Live:** https://REPLACE-WITH-YOUR-VERCEL-URL.vercel.app
-
-> After deploying to Vercel, replace the URL above with your production hostname and keep it near the top of this README.
-
-**Code path in the cohort monorepo:** `submissions/lorra-v-project-1/`
-
----
+A project management platform for the Hult Cohort Developer Program, built to track work, deadlines, and motivation. Real project/task tracking is paired with a Kardashev-inspired progression system — the cohort collectively advances through civilization levels based on actual merged PRs, contributions, MVP progress, and adoption.
 
 ## Architecture
 
-### Stack
+**Stack:** Next.js (App Router, TypeScript) · Tailwind CSS · Supabase (Postgres, Auth, Row Level Security) · deployed on Vercel
 
-- **Next.js** (App Router) + TypeScript + Tailwind CSS
-- **Supabase** Auth (email/password) + Postgres with **Row Level Security**
-- Server Actions for writes (no separate REST API layer)
-- Deploy target: Vercel
+**Database tables:**
+- `profiles` — cohort member accounts (extends Supabase `auth.users`)
+- `projects` — projects created/owned by cohort members, with `active`/`archived` status
+- `tasks` — title, description, status (`todo` / `in_progress` / `blocked` / `done`), assignee, due date, optional `project_id`
+- `pull_requests` — self-linked GitHub PRs
+- `contributions` — non-PR contributions (docs, design, PM tasks)
+- `votes` — peer votes on profiles, one per voter/recipient pair
+- `mvp_status` — manually tracked feature completion % and open critical bugs
+- `weekly_activity` — per-member weekly activity for adoption metrics
 
-### Tables
+**Pages:**
+- `/` — public landing page (unauthenticated)
+- `/dashboard` — cohort level, civilization energy, index progress, "due this week" tasks
+- `/ascend` — full gate checklist showing what's needed for the next civilization level
+- `/projects` — project list, create/archive
+- `/tasks` — kanban task board, filterable by project, assignee, and status
+- `/leaderboard` — individual score ranking
+- `/profile/[id]` — individual profile, PRs/contributions, voting
+- `/submit` — log a PR or contribution
+- `/admin` — MVP status editing
 
-| Table | Purpose |
-|-------|---------|
-| `profiles` | Cohort members (auto-created on signup) |
-| `projects` | Named workstreams (`active` / `archived`); owned by creator |
-| `tasks` | Kanban tasks; optional `project_id` + `assignee_id` |
-| `pull_requests` | Submitted PRs for scoring |
-| `contributions` | Non-PR contributions |
-| `votes` | Peer votes — **one row per (voter, recipient)**; re-vote upserts |
-| `mvp_status` | Single-row MVP gate inputs |
-| `weekly_activity` | Weekly active check-ins |
-
-### Pages
-
-| Route | Purpose |
-|-------|---------|
-| `/` | Public landing (redirects to dashboard when signed in) |
-| `/dashboard` | Level, energy, civilization index, my tasks due this week |
-| `/projects` | Create / edit / archive projects; task counts |
-| `/tasks` | Kanban board with project + assignee + status filters |
-| `/ascend` | Gate checklist |
-| `/leaderboard` | Individual scores |
-| `/profile/[id]` | Stats + cast/update peer vote |
-| `/submit` | PR + contribution + weekly active |
-| `/admin` | MVP status (write access: active project owners only) |
-| `/login`, `/signup` | Email/password auth |
-
-### RLS notes (v1.4)
-
-- **Votes:** unique `(voter_id, recipient_id)`; app upserts so members can change their mind without stacking votes.
-- **MVP status:** insert/update allowed only if the user owns at least one **active** `projects` row (simplification — no dedicated PM role).
-
----
-
-## Setup
-
-Run these steps from `submissions/lorra-v-project-1/` (this directory).
+## Setup (fresh clone)
 
 1. Create a Supabase project.
-2. In the SQL editor, run migrations in order:
+2. In the Supabase SQL Editor, run the migrations in order:
    - `supabase/migrations/001_schema.sql`
    - `supabase/migrations/002_tasks.sql`
    - `supabase/migrations/003_projects.sql`
-3. Copy env:
+3. Copy the environment template and fill in your project's values:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the Publishable key, if your Supabase project uses the new API key format).
+4. Install and run:
+   ```bash
+   cd submissions/lorra-v-project-1
+   npm install
+   npm run dev
+   ```
+5. Visit `localhost:3000`, sign up, and you'll land on the Dashboard.
 
-```bash
-cp .env.example .env.local
-```
+## Motivation / engagement design
 
-Fill in:
+- **Civilization Level** (Pre-Level 1 → Builder → Stellar → Galactic) is determined by a fixed, transparent gate table — merged PRs, unique contributors, MVP completion, weekly/daily adoption — not a hidden score. The `/ascend` page shows exactly which gates are and aren't met.
+- **Civilization Energy** is an always-increasing counter that rewards merged PRs, reviews, contributions, adoption, and completed tasks — a running record of collective output that never resets.
+- **Civilization Index** is a cosmetic 0–100% progress bar toward the next level. It never overrides the gate table for actual level-ups — it's a momentum indicator only.
+- **Individual leaderboard score** is boosted by a capped peer-vote multiplier, so votes amplify real output rather than substituting for it.
+- **Task board** ties the motivation layer back to real work — tasks belong to projects, have due dates with overdue/near-due highlighting, and completing one contributes a small amount of energy.
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+## Known limitations
 
-4. Enable Email auth in Supabase (Authentication → Providers → Email). Disable “Confirm email” for local testing if you want instant login.
-5. Install and run:
+- PR and contribution data is self-reported; there's no GitHub API verification in v1.
+- The daily-active-% gate currently reuses the weekly-active-% figure (no separate daily tracking table yet), which can make the daily gate easier to clear than intended.
+- "Critical bug fixed" is not yet wired into the Civilization Energy total (no bug-event history table).
+- "Feature delivered" energy is proxied via a single end-to-end-flow checkbox rather than per-feature tracking.
+- No anti-gaming guardrails on peer voting beyond one vote per voter/recipient pair (no minimum-activity requirement to vote).
+- `mvp_status` write access is currently restricted to project owners rather than a dedicated admin role, since no separate roles system exists yet.
 
-```bash
-npm install
-npm run dev
-```
+## Agent usage
 
-6. Sign up ~10 test users via `/signup`, then optionally paste real profile UUIDs into `supabase/seed.sql` and run the commented inserts.
-
----
-
-## Scoring (implemented)
-
-- Individual: `(merged×50 + contributions×20 + issues_resolved×15) × (1 + min(0.5, votes×0.05))`
-- Level: gate table top-down (not the cosmetic index)
-- Energy: recomputed from current rows; **+10 per `done` task** (gates unchanged)
-
-## Flags for later (not expanded in v1)
-
-1. **Daily active %** — schema only has `weekly_activity`; v1 uses weekly active % as the daily stand-in for Level 2/3 gates.
-2. **Critical bug fixed (+100 energy)** — no event/history table; omitted from energy until logged.
-3. **Feature delivered (+75)** — proxied by `e2e_flow_implemented` once.
-4. **Anti-gaming / GitHub verification** — explicitly out of scope.
+Claude was used throughout as a design/architecture collaborator: reviewing the initial concept, resolving open scoring-model questions (data source, vote integration, individual vs. cohort scoring, gate table vs. formula), and producing scoped build prompts executed in Cursor for the base platform, the task/deadline layer, the Projects entity, and the public landing page. Claude was also used for git and Vercel deployment troubleshooting (environment variable key format, monorepo root directory misconfiguration, framework preset mismatch on the live deployment).

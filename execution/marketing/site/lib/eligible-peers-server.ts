@@ -16,40 +16,77 @@ export type EligiblePeerRow = {
   deployUrl: string | null;
 };
 
+function toActiveHandleSet(handles: string[]): Set<string> {
+  return new Set(handles.map((h) => h.toLowerCase()));
+}
+
+function preferRow(a: EligiblePeerRow | undefined, b: EligiblePeerRow): EligiblePeerRow {
+  if (!a) return b;
+  // Prefer the row that has a deploy URL; otherwise keep the newer-looking PR URL length tie-break as-is.
+  if (!a.deployUrl && b.deployUrl) return b;
+  if (a.deployUrl && !b.deployUrl) return a;
+  return a;
+}
+
+function mergeRowMaps(
+  ...lists: EligiblePeerRow[][]
+): EligiblePeerRow[] {
+  const byHandle = new Map<string, EligiblePeerRow>();
+  for (const list of lists) {
+    for (const row of list) {
+      const key = row.handle.toLowerCase();
+      byHandle.set(key, preferRow(byHandle.get(key), { ...row, handle: key }));
+    }
+  }
+  return [...byHandle.values()].sort((a, b) => a.handle.localeCompare(b.handle));
+}
+
 async function loadMergedRowsFromGithub(projectSlug: string): Promise<EligiblePeerRow[]> {
   const id = cohortId();
-  const activeHandles = new Set(await getActiveRosterHandles(id));
+  const activeHandles = toActiveHandleSet(await getActiveRosterHandles(id));
   const submissions = await listMergedProjectSubmissions(id, projectSlug);
   return submissions
-    .filter((row) => activeHandles.has(row.githubHandle))
+    .filter((row) => activeHandles.has(row.githubHandle.toLowerCase()))
     .map((row) => ({
-      handle: row.githubHandle,
+      handle: row.githubHandle.toLowerCase(),
       repo: row.repo,
       prUrl: row.prUrl,
       deployUrl: row.deployUrl,
-    }))
-    .sort((a, b) => a.handle.localeCompare(b.handle));
+    }));
 }
 
 async function loadMergedRowsFromFirestore(projectSlug: string): Promise<EligiblePeerRow[]> {
   const id = cohortId();
   const [activeHandles, entriesSnap] = await Promise.all([
-    getActiveRosterHandles(id).then((handles) => new Set(handles)),
+    getActiveRosterHandles(id).then(toActiveHandleSet),
     submissionEntriesRef(id, projectSlug).where('merged', '==', true).get(),
   ]);
 
   return entriesSnap.docs
-    .filter((doc) => activeHandles.has(doc.id))
+    .filter((doc) => activeHandles.has(doc.id.toLowerCase()))
     .map((doc) => {
       const data = doc.data();
       return {
-        handle: doc.id,
+        handle: doc.id.toLowerCase(),
         repo: (data.repo as string) || cohortSubmissionRepo(),
         prUrl: data.prUrl as string,
         deployUrl: (data.deployUrl as string | null) ?? null,
       };
-    })
-    .sort((a, b) => a.handle.localeCompare(b.handle));
+    });
+}
+
+async function loadMergedPeerRows(projectSlug: string): Promise<EligiblePeerRow[]> {
+  const mode = submissionsSource();
+  if (mode === 'firestore') return loadMergedRowsFromFirestore(projectSlug);
+  if (mode === 'github') return loadMergedRowsFromGithub(projectSlug);
+
+  // github-with-fallback: union both so a partial GitHub parse cannot hide
+  // valid Firestore-cached submissions (and vice versa).
+  const [fromGithub, fromFirestore] = await Promise.all([
+    loadMergedRowsFromGithub(projectSlug),
+    loadMergedRowsFromFirestore(projectSlug),
+  ]);
+  return mergeRowMaps(fromGithub, fromFirestore);
 }
 
 /** Shared peer list for a project (all voters share this; filter self after). */
@@ -57,13 +94,10 @@ const getMergedPeerRowsCached = cache(async (projectSlug: string): Promise<Eligi
   const cached = unstable_cache(
     async () => {
       if (!isAdminConfigured()) return [] as EligiblePeerRow[];
-      const mode = submissionsSource();
-      if (mode === 'firestore') return loadMergedRowsFromFirestore(projectSlug);
-      const fromGithub = await loadMergedRowsFromGithub(projectSlug);
-      if (fromGithub.length > 0 || mode === 'github') return fromGithub;
-      return loadMergedRowsFromFirestore(projectSlug);
+      return loadMergedPeerRows(projectSlug);
     },
-    ['merged-peer-rows', cohortId(), projectSlug],
+    // v3: union github+firestore; bust stale partial peer lists
+    ['merged-peer-rows-v3', cohortId(), projectSlug],
     { revalidate: 60, tags: [`peers:${cohortId()}:${projectSlug}`] }
   );
   return cached();
@@ -75,7 +109,8 @@ export async function getEligiblePeerRows(
 ): Promise<EligiblePeerRow[]> {
   if (!isAdminConfigured()) return [];
   const rows = await getMergedPeerRowsCached(projectSlug);
-  return rows.filter((row) => row.handle !== voterHandle);
+  const self = voterHandle.toLowerCase();
+  return rows.filter((row) => row.handle !== self);
 }
 
 export function mergePeerProgress(
@@ -107,16 +142,18 @@ export async function getEligiblePeerRow(
   revieweeHandle: string
 ): Promise<EligiblePeerRow | null> {
   if (!isAdminConfigured()) return null;
-  if (voterHandle === revieweeHandle) return null;
+  const voter = voterHandle.toLowerCase();
+  const reviewee = revieweeHandle.toLowerCase();
+  if (voter === reviewee) return null;
 
-  const active = await getActiveRosterHandles(cohortId());
-  if (!active.includes(revieweeHandle)) return null;
+  const active = toActiveHandleSet(await getActiveRosterHandles(cohortId()));
+  if (!active.has(reviewee)) return null;
 
-  const submission = await resolveParticipantSubmission(projectSlug, revieweeHandle);
+  const submission = await resolveParticipantSubmission(projectSlug, reviewee);
   if (!submission?.merged) return null;
 
   return {
-    handle: revieweeHandle,
+    handle: reviewee,
     repo: submission.repo || cohortSubmissionRepo(),
     prUrl: submission.prUrl || '',
     deployUrl: submission.deployUrl ?? null,

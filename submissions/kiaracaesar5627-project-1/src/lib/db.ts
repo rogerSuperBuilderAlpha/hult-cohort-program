@@ -695,6 +695,9 @@ export async function upsertUserPrefs(input: {
   user_id: string;
   theme: string;
   accent_color: string;
+  background_color?: string;
+  wallpaper_url?: string;
+  wallpaper_fit?: "cover" | "contain";
 }): Promise<void> {
   const { error } = await db()
     .from("user_prefs")

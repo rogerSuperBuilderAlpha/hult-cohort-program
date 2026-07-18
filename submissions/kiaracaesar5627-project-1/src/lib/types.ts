@@ -153,5 +153,8 @@ export type UserPrefs = {
   user_id: string;
   theme: Theme;
   accent_color: string;
+  background_color: string;
+  wallpaper_url: string;
+  wallpaper_fit: "cover" | "contain";
   updated_at: string;
 };

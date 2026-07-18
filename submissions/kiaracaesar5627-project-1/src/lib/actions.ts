@@ -49,10 +49,17 @@ import {
 } from "./db";
 import {
   ACCENT_COOKIE,
+  BACKGROUND_COOKIE,
   DEFAULT_ACCENT,
+  DEFAULT_BACKGROUND,
   isTheme,
   normalizeAccent,
+  normalizeBackground,
+  normalizeWallpaper,
+  normalizeWallpaperFit,
   THEME_COOKIE,
+  WALLPAPER_COOKIE,
+  WALLPAPER_FIT_COOKIE,
 } from "./theme";
 import type { CustomFieldType, WorkspaceRole } from "./types";
 import {
@@ -89,6 +96,18 @@ async function syncThemeCookies(userId: string) {
   const jar = await cookies();
   jar.set(THEME_COOKIE, prefs?.theme ?? "light", { path: "/", maxAge: 60 * 60 * 24 * 365 });
   jar.set(ACCENT_COOKIE, prefs?.accent_color ?? DEFAULT_ACCENT, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+  jar.set(BACKGROUND_COOKIE, prefs?.background_color ?? DEFAULT_BACKGROUND, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+  jar.set(WALLPAPER_COOKIE, prefs?.wallpaper_url ?? "", {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+  jar.set(WALLPAPER_FIT_COOKIE, prefs?.wallpaper_fit ?? "cover", {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });
@@ -163,11 +182,34 @@ export async function updateThemeAction(formData: FormData): Promise<void> {
   const themeRaw = String(formData.get("theme") ?? "light");
   const theme = isTheme(themeRaw) ? themeRaw : "light";
   const accent = normalizeAccent(String(formData.get("accent") ?? ""));
+  const hasBackgroundSettings = formData.has("background");
+  const background = normalizeBackground(String(formData.get("background") ?? ""));
+  const wallpaper = normalizeWallpaper(String(formData.get("wallpaper") ?? ""));
+  const wallpaperFit = normalizeWallpaperFit(String(formData.get("wallpaperFit") ?? ""));
 
-  await upsertUserPrefs({ user_id: user.id, theme, accent_color: accent });
+  await upsertUserPrefs({
+    user_id: user.id,
+    theme,
+    accent_color: accent,
+    ...(hasBackgroundSettings
+      ? {
+          background_color: background,
+          wallpaper_url: wallpaper,
+          wallpaper_fit: wallpaperFit,
+        }
+      : {}),
+  });
   const jar = await cookies();
   jar.set(THEME_COOKIE, theme, { path: "/", maxAge: 60 * 60 * 24 * 365 });
   jar.set(ACCENT_COOKIE, accent, { path: "/", maxAge: 60 * 60 * 24 * 365 });
+  if (hasBackgroundSettings) {
+    jar.set(BACKGROUND_COOKIE, background, { path: "/", maxAge: 60 * 60 * 24 * 365 });
+    jar.set(WALLPAPER_COOKIE, wallpaper, { path: "/", maxAge: 60 * 60 * 24 * 365 });
+    jar.set(WALLPAPER_FIT_COOKIE, wallpaperFit, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
 
   const redirectTo = String(formData.get("redirectTo") ?? "/account");
   revalidatePath(redirectTo);

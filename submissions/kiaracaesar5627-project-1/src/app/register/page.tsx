@@ -12,11 +12,11 @@ export default function RegisterPage() {
   return (
     <section className="hero-auth">
       <div className="auth-card">
-        <p className="brand-sub">Open registration</p>
-        <h1>Join Pilot</h1>
+        <p className="brand-sub">Get started</p>
+        <h1>Join FlexiFlow</h1>
         <p className="lead">
-          Supports the full cohort. Sign up with email + password — no invite
-          code required.
+          Create an account with email + password, then spin up your first
+          customizable workspace.
         </p>
         <form
           className="form"

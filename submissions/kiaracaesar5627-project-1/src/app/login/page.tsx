@@ -13,8 +13,8 @@ export default function LoginPage() {
     <section className="hero-auth">
       <div className="auth-card">
         <p className="brand-sub">Welcome back</p>
-        <h1>Sign in to Pilot</h1>
-        <p className="lead">Track projects, assignments, and what to ship next.</p>
+        <h1>Sign in to FlexiFlow</h1>
+        <p className="lead">Jump back into your workspaces, projects, and boards.</p>
         <form
           className="form"
           action={(fd) => {

@@ -1,32 +1,26 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
-
-const display = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-});
-
-const body = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-});
+import { ACCENT_COOKIE, normalizeAccent, THEME_COOKIE } from "@/lib/theme";
+import { readableText } from "@/lib/labels";
 
 export const metadata: Metadata = {
-  title: "Pilot — Hult Cohort PM",
+  title: "FlexiFlow — Project management, your way",
   description:
-    "Project management for the Hult Cohort Developer Program: projects, tasks, assignments, and ship momentum.",
+    "FlexiFlow is a fully customizable project management platform: build workspaces, define your own statuses, fields, labels, views, and automations to match how your team actually works.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  const jar = await cookies();
+  const theme = jar.get(THEME_COOKIE)?.value === "dark" ? "dark" : "light";
+  const accent = normalizeAccent(jar.get(ACCENT_COOKIE)?.value);
+
   return (
-    <html lang="en">
-      <body className={`${display.variable} ${body.variable} antialiased`}>
-        <style>{`:root{--font-display:var(--font-fraunces);--font-body:var(--font-manrope);}`}</style>
+    <html lang="en" data-theme={theme}>
+      <body className="antialiased">
+        <style>{`:root{--accent:${accent};--accent-ink:${readableText(accent)};}`}</style>
         {children}
       </body>
     </html>

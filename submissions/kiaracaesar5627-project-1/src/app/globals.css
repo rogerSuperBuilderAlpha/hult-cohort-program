@@ -79,6 +79,24 @@ h3 {
   min-height: 100vh;
 }
 
+/* Wallpaper readability: a theme-colored scrim sits between the wallpaper
+   and the content so text keeps contrast on any image. */
+[data-wallpaper] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+[data-wallpaper] .shell {
+  position: relative;
+  z-index: 1;
+}
+[data-wallpaper] .empty {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
 .topbar {
   display: flex;
   align-items: center;
@@ -880,6 +898,27 @@ table.grid tr:last-child td {
   background-position: center;
   background-repeat: no-repeat;
   box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.wallpaper-preview.has-image::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+}
+.wallpaper-preview .preview-copy {
+  position: relative;
+  padding: 0.9rem 1rem;
+  display: block;
+}
+.wallpaper-preview .preview-copy strong {
+  color: var(--text);
+}
+.wallpaper-preview .preview-copy span {
+  display: block;
+  color: var(--text-soft);
+  font-size: 0.85rem;
 }
 
 .wallpaper-grid {

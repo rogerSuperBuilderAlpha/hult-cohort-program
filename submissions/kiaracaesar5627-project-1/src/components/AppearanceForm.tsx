@@ -85,14 +85,19 @@ export function AppearanceForm({
       <div>
         <div style={{ fontWeight: 600, marginBottom: "0.4rem" }}>Background</div>
         <div
-          className="wallpaper-preview"
+          className={`wallpaper-preview${wallpaper ? " has-image" : ""}`}
           style={{
             backgroundColor: background,
             backgroundImage: wallpaper ? `url(${JSON.stringify(wallpaper)})` : "none",
             backgroundSize: wallpaperFit,
           }}
           aria-label="Background preview"
-        />
+        >
+          <span className="preview-copy">
+            <strong>Preview</strong>
+            <span>Text stays readable over your background.</span>
+          </span>
+        </div>
         <label style={{ marginTop: "0.6rem" }}>
           Background color
           <input

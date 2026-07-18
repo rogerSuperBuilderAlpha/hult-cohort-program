@@ -32,7 +32,7 @@ export default async function RootLayout({
   const wallpaperFit = normalizeWallpaperFit(jar.get(WALLPAPER_FIT_COOKIE)?.value);
 
   return (
-    <html lang="en" data-theme={theme}>
+    <html lang="en" data-theme={theme} data-wallpaper={wallpaper ? "true" : undefined}>
       <body
         className="antialiased"
         style={{

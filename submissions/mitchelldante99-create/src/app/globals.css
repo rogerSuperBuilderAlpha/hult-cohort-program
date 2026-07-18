@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-hover: #222633;
+  --border: #2a2f3d;
+  --text: #e8eaed;
+  --text-muted: #8b92a5;
+  --accent: #6366f1;
+  --accent-hover: #818cf8;
+  --success: #22c55e;
+  --success-muted: rgba(34, 197, 94, 0.15);
+  --danger: #ef4444;
+  --danger-muted: rgba(239, 68, 68, 0.15);
+  --warning: #fbbf24;
+  --priority-high: #f87171;
+  --priority-medium: #fbbf24;
+  --priority-low: #60a5fa;
+  --radius: 12px;
+}
+
+[data-theme="light"] {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-hover: #f0f1f4;
+  --border: #e2e5eb;
+  --text: #1a1d27;
+  --text-muted: #6b7280;
+  --accent: #6366f1;
+  --accent-hover: #4f52d6;
+  --success: #16a34a;
+  --success-muted: rgba(22, 163, 74, 0.12);
+  --danger: #dc2626;
+  --danger-muted: rgba(220, 38, 38, 0.1);
+  --warning: #d97706;
+  --priority-high: #dc2626;
+  --priority-medium: #d97706;
+  --priority-low: #2563eb;
+}
+
+body {
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+input,
+select,
+textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 0.6rem 0.8rem;
+  outline: none;
+  width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s ease;
+}

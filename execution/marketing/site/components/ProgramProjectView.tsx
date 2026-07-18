@@ -35,6 +35,16 @@ type Props = {
   initialStats?: CohortStats | null;
 };
 
+function ProjectViewLoading() {
+  return (
+    <div className={styles.projectViewLoading} aria-busy="true" aria-live="polite">
+      <p className={styles.formNote} style={{ margin: 0 }}>
+        Loading project…
+      </p>
+    </div>
+  );
+}
+
 function ProjectNavActions({
   prevSlug,
   nextSlug,
@@ -118,17 +128,17 @@ function EnrolledView({
   const agentPrompt = buildProjectAgentPrompt(project, handle, org, stats);
   const { survey, loading: surveyLoading } = useSurveyState(getIdToken, true);
   const gate = projectSurveyGate(project.slug, survey);
-  const surveyReady = !(surveyLoading && survey === null);
+  const surveyReady = !surveyLoading;
   const progressEnabled = surveyReady && !gate.locked;
   const { progress, loading: progressLoading, error: progressError, refresh: refreshProgress } =
     useProjectProgress(project.slug, getIdToken, progressEnabled);
 
-  if (!surveyReady) {
-    return (
-      <>
-        <p className={styles.formNote}>Loading your participant view…</p>
-      </>
-    );
+  // Hold a single loading shell until survey + (when unlocked) first progress fetch settle.
+  // Covers the frame between progressEnabled flipping true and useAuthedFetch setting loading.
+  const progressReady =
+    !progressEnabled || progress !== null || Boolean(progressError);
+  if (!surveyReady || !progressReady) {
+    return <ProjectViewLoading />;
   }
 
   const peerReviewShell = project.reviews ? (
@@ -148,11 +158,9 @@ function EnrolledView({
         lockNotice={
           gate.locked
             ? 'Complete the research survey (or decline participation) to load your peer list and unlock voting.'
-            : progressLoading
-              ? 'Loading your peer list…'
-              : progressError
-                ? progressError
-                : 'Your peer list loads here once progress is available.'
+            : progressError
+              ? progressError
+              : 'Your peer list loads here once progress is available.'
         }
       />
     )
@@ -183,9 +191,7 @@ function EnrolledView({
               {progress?.outcome ? (
                 <ProjectOutcomeBanner outcome={progress.outcome} viewerHandle={handle} />
               ) : null}
-              {progressLoading ? (
-                <p className={styles.formNote}>Loading your progress…</p>
-              ) : progressError ? (
+              {progressError ? (
                 <p className={styles.formError}>{progressError}</p>
               ) : progress ? (
                 <ProjectProgressPanel project={project} progress={progress} handle={handle} />
@@ -376,12 +382,7 @@ export function ProgramProjectView({ project, prevSlug, nextSlug, initialStats =
   );
 
   if (loading) {
-    return (
-      <>
-        <ProgramDescription text={descriptionText} />
-        <p className={styles.formNote}>Loading your participant view…</p>
-      </>
-    );
+    return <ProjectViewLoading />;
   }
 
   if (pendingRoster) {

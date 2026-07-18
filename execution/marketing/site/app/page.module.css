@@ -1043,6 +1043,15 @@
   max-width: 640px;
 }
 
+.projectViewLoading {
+  max-width: 640px;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 48px 0;
+}
+
 .participantHeading {
   font-family: var(--serif);
   font-size: 1.35rem;

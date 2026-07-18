@@ -135,15 +135,18 @@ export function ProjectTabs({ tabs, defaultTab }: Props) {
 
       {tabs.map((tab) => {
         const selected = tab.id === activeId;
+        const panelId = `${baseId}-panel-${tab.id}`;
         return (
           <div
             key={tab.id}
             role="tabpanel"
-            id={tab.id === 'peer-ratings' ? 'peer-ratings' : `${baseId}-panel-${tab.id}`}
+            id={panelId}
             aria-labelledby={`${baseId}-tab-${tab.id}`}
             hidden={!selected}
             className={styles.projectTabPanel}
           >
+            {/* Stable hash target for deep links (e.g. #peer-ratings) */}
+            {tab.id === 'peer-ratings' ? <span id="peer-ratings" /> : null}
             {selected ? tab.panel : null}
           </div>
         );

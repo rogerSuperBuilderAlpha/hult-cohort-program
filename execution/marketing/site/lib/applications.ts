@@ -94,6 +94,11 @@ export function validateApplication(
   };
 }
 
+/** Deterministic Firestore doc id — prevents duplicate applications under concurrent posts. */
+export function applicationDocId(cohort: string, githubHandle: string): string {
+  return `${cohort}_${githubHandle.toLowerCase()}`;
+}
+
 export function buildApplicationRecord(input: ApplicationInput, id: string): ApplicationRecord {
   const handle = parseGithubUrlHandle(input.githubUrl);
   if (!handle) throw new Error('Invalid GitHub URL');

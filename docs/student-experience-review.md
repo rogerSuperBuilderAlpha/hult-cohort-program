@@ -1,5 +1,7 @@
 # Student-Experience Review — Application → Cohort Completion
 
+> **Historical review (pre GitHub-native votes).** Voting is now public optional `Vote: up` on GitHub review issues — see [governance/winner-selection.md](../governance/winner-selection.md). Do not treat private 👍/👎 or `written-reviews-server.ts` paths in this doc as current.
+
 **Date:** 2026-07-06 · **Cohort:** `summer26` (starts 2026-07-13) · **Reviewer:** platform audit pass
 **Method:** live walkthrough of the deployed site (`site-nine-rouge-68.vercel.app`) as an anonymous
 visitor + code review of the handling path behind every stage. Contest flows (submission ingest,

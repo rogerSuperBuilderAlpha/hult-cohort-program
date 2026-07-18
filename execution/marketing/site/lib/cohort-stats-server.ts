@@ -22,8 +22,7 @@ export async function getCohortStats(id = cohortId()): Promise<CohortStats> {
   }
 
   const handles = await getActiveRosterHandles(id);
-  // Empty list after a quota failure is indistinguishable from an empty roster;
-  // treat "admin configured + empty" as available so UI still renders.
+  // Empty list means a genuinely empty roster (load failures throw RosterUnavailableError).
   const enrolledCount = handles.length;
 
   return {

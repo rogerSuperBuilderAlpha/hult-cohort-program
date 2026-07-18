@@ -1,5 +1,6 @@
 import { cohortId } from '@/lib/cohort-config';
 import { buildContestState } from '@/lib/contest-state-server';
+import { compareTallyRows } from '@/lib/tally-compare';
 
 export type TallyRow = {
   handle: string;
@@ -13,21 +14,17 @@ export type TallyResult = {
   cohortId: string;
   rows: TallyRow[];
   winner: string | null;
+  /** True when GitHub Search partially failed — do not publish outcomes. */
+  reviewsFetchDegraded: boolean;
 };
 
-function compareRows(a: TallyRow, b: TallyRow): number {
-  if (b.up !== a.up) return b.up - a.up;
-  const aTime = a.mergedAt?.getTime() ?? Number.MAX_SAFE_INTEGER;
-  const bTime = b.mergedAt?.getTime() ?? Number.MAX_SAFE_INTEGER;
-  if (aTime !== bTime) return aTime - bTime;
-  return a.handle.localeCompare(b.handle);
-}
+export { compareTallyRows } from '@/lib/tally-compare';
 
 /**
  * Staff-only upvote tally from GitHub contest state.
  * Winner = most Vote: up; tie-break = earliest mergedAt. Not exposed on the site UI.
  */
-export async function tallyThumbsUp(projectSlug: string): Promise<TallyResult | null> {
+export async function tallyThumbsUp(projectSlug: string): Promise<TallyResult> {
   const id = cohortId();
   const state = await buildContestState(projectSlug);
 
@@ -46,9 +43,8 @@ export async function tallyThumbsUp(projectSlug: string): Promise<TallyResult | 
       down: 0,
       mergedAt: sub.mergedAt ? new Date(sub.mergedAt) : null,
     }))
-    .sort(compareRows);
+    .sort(compareTallyRows);
 
-  // rows already sorted: most upvotes → earliest mergedAt → handle
   const winner = rows[0]?.handle ?? null;
 
   return {
@@ -56,5 +52,6 @@ export async function tallyThumbsUp(projectSlug: string): Promise<TallyResult | 
     cohortId: id,
     rows,
     winner,
+    reviewsFetchDegraded: state.reviewsFetchDegraded,
   };
 }

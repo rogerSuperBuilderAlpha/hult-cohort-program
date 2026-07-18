@@ -8,7 +8,7 @@ import { unstable_cache } from 'next/cache';
 import { cohortId, cohortSubmissionRepo } from '@/lib/cohort-config';
 import { listMergedProjectSubmissions } from '@/lib/github-cohort-server';
 import { loadActiveRosterHandles } from '@/lib/roster-handles-server';
-import { parseGithubHandle } from '@/lib/firebase/github-handle';
+import { reviewAuthorMatchesVoter } from '@/lib/contest-review-accept';
 import { issueHasUpvote, parseReviewIssueTitle } from '@/lib/contest-state-format';
 
 export type ContestSubmission = {
@@ -33,6 +33,8 @@ export type ContestState = {
   submissions: ContestSubmission[];
   /** voter → reviewee → review */
   reviews: Record<string, Record<string, ContestReview>>;
+  /** True when one or more GitHub Search calls failed (partial/empty reviews possible). */
+  reviewsFetchDegraded: boolean;
 };
 
 export { issueHasUpvote, parseReviewIssueTitle } from '@/lib/contest-state-format';
@@ -45,6 +47,14 @@ type GithubSearchIssue = {
   pull_request?: unknown;
 };
 
+type RepoSearchResult = {
+  issues: GithubSearchIssue[];
+  ok: boolean;
+};
+
+/** Keep Search API under ~30 req/min authenticated ceiling across peer repos. */
+const SEARCH_CONCURRENCY = 3;
+
 function githubHeaders(): HeadersInit {
   const token = process.env.GITHUB_TOKEN?.trim();
   return {
@@ -54,7 +64,32 @@ function githubHeaders(): HeadersInit {
   };
 }
 
-async function searchReviewIssuesInRepo(repo: string): Promise<GithubSearchIssue[]> {
+async function mapPool<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  if (items.length === 0) return [];
+  const results: R[] = new Array(items.length);
+  let next = 0;
+
+  async function worker() {
+    while (next < items.length) {
+      const index = next;
+      next += 1;
+      results[index] = await fn(items[index]!);
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    () => worker()
+  );
+  await Promise.all(workers);
+  return results;
+}
+
+async function searchReviewIssuesInRepo(repo: string): Promise<RepoSearchResult> {
   const out: GithubSearchIssue[] = [];
   const q = `repo:${repo} is:issue in:title "Review by @"`;
 
@@ -64,13 +99,22 @@ async function searchReviewIssuesInRepo(repo: string): Promise<GithubSearchIssue
     url.searchParams.set('per_page', '100');
     url.searchParams.set('page', String(page));
 
-    const res = await fetch(url.toString(), {
-      headers: githubHeaders(),
-      next: { revalidate: 60 },
-    });
+    let res: Response;
+    try {
+      res = await fetch(url.toString(), {
+        headers: githubHeaders(),
+        next: { revalidate: 60 },
+      });
+    } catch (err) {
+      console.warn(
+        `[contest-state] issue search network error repo=${repo}`,
+        err instanceof Error ? err.message : err
+      );
+      return { issues: out, ok: false };
+    }
     if (!res.ok) {
       console.warn(`[contest-state] issue search failed ${res.status} repo=${repo}`);
-      break;
+      return { issues: out, ok: false };
     }
 
     const json = (await res.json()) as { items?: GithubSearchIssue[] };
@@ -79,14 +123,19 @@ async function searchReviewIssuesInRepo(repo: string): Promise<GithubSearchIssue
     if (items.length < 100) break;
   }
 
-  return out;
+  return { issues: out, ok: true };
 }
 
 /** Discover review issues on each peer app repo (+ cohort monorepo for any legacy filings). */
-async function searchReviewIssues(peerRepos: string[]): Promise<GithubSearchIssue[]> {
+async function searchReviewIssues(
+  peerRepos: string[]
+): Promise<{ issues: GithubSearchIssue[]; degraded: boolean }> {
   const repos = [...new Set([...peerRepos, cohortSubmissionRepo()].filter(Boolean))];
-  const batches = await Promise.all(repos.map((repo) => searchReviewIssuesInRepo(repo)));
-  return batches.flat();
+  const batches = await mapPool(repos, SEARCH_CONCURRENCY, searchReviewIssuesInRepo);
+  return {
+    issues: batches.flatMap((b) => b.issues),
+    degraded: batches.some((b) => !b.ok),
+  };
 }
 
 /** Uncached builder — use from staff scripts; request path should call fetchContestState. */
@@ -111,7 +160,7 @@ export async function buildContestState(projectSlug: string): Promise<ContestSta
   const submissionHandles = new Set(submissions.map((s) => s.handle));
   const reviews: ContestState['reviews'] = {};
 
-  const issues = await searchReviewIssues(submissions.map((s) => s.repo));
+  const { issues, degraded } = await searchReviewIssues(submissions.map((s) => s.repo));
   for (const issue of issues) {
     if (!issue.html_url || !issue.title) continue;
     const parsed = parseReviewIssueTitle(issue.title);
@@ -119,8 +168,7 @@ export async function buildContestState(projectSlug: string): Promise<ContestSta
     if (!active.has(parsed.voter) || !submissionHandles.has(parsed.reviewee)) continue;
     if (parsed.voter === parsed.reviewee) continue;
 
-    const author = parseGithubHandle(issue.user?.login ?? '');
-    if (author && author !== parsed.voter) continue;
+    if (!reviewAuthorMatchesVoter(issue.user?.login, parsed.voter)) continue;
 
     if (!reviews[parsed.voter]) reviews[parsed.voter] = {};
     // Prefer issue that has an upvote if duplicates exist
@@ -133,13 +181,20 @@ export async function buildContestState(projectSlug: string): Promise<ContestSta
     };
   }
 
-  return { cohortId: id, projectSlug, repo, submissions, reviews };
+  return {
+    cohortId: id,
+    projectSlug,
+    repo,
+    submissions,
+    reviews,
+    reviewsFetchDegraded: degraded,
+  };
 }
 
 const getContestStateCached = cache(async (projectSlug: string): Promise<ContestState> => {
   const cached = unstable_cache(
     () => buildContestState(projectSlug),
-    ['contest-state-v2', cohortId(), projectSlug],
+    ['contest-state-v3', cohortId(), projectSlug],
     { revalidate: 60, tags: [`contest:${cohortId()}:${projectSlug}`] }
   );
   return cached();

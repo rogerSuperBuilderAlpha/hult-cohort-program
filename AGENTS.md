@@ -28,6 +28,7 @@ One web surface where applicants apply, admitted participants see every project 
 | **Apply / progress via MCP** | [execution/hult-cohort-mcp/](execution/hult-cohort-mcp/) (review/vote write tools retired — GitHub-native) |
 | Phase 2 user metrics API | [execution/ludwitt-hult-api/AGENTS.md](execution/ludwitt-hult-api/AGENTS.md) |
 | Launch / production gaps | [DEVPLAN.md](DEVPLAN.md) |
+| Hult incorporation handoff | [execution/checklists/hult-incorporation-handoff.md](execution/checklists/hult-incorporation-handoff.md) |
 | Governance & pass gates | [governance/](governance/), [assessment/pass-fail.md](assessment/pass-fail.md) |
 | Staff scripts (tally, roster) | [execution/cohort-scripts/README.md](execution/cohort-scripts/README.md) |
 

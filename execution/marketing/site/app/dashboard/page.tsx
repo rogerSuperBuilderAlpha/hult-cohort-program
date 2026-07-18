@@ -226,7 +226,11 @@ function ParticipantDashboard({
           if (!meta) return null;
           const done = isTrackedComplete(project);
           return (
-            <li key={project.slug} className={styles.dashboardProjectItem}>
+            <li
+              key={project.slug}
+              className={styles.dashboardProjectItem}
+              aria-label={`${meta.title}: ${done ? 'complete' : 'incomplete'}`}
+            >
               <span aria-hidden>{done ? '✓' : '○'}</span>{' '}
               <Link href={`/program/${project.slug}`} className={styles.dashboardProjectLink}>
                 {meta.title}

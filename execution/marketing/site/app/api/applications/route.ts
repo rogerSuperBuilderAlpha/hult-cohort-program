@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { after } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import {
+  applicationDocId,
   buildApplicationRecord,
   takeHomeRepoUrl,
   validateApplication,
@@ -77,15 +78,13 @@ async function handlePost(request: Request) {
     const input = validateApplication(body, { githubUrl: githubSession.githubUrl });
     const db = getAdminDb();
     const id = cohortId();
+    const handle = githubSession.githubHandle.toLowerCase();
 
-    const [byEmail, byHandle] = await Promise.all([
-      db.collection('applications').where('email', '==', input.email).limit(5).get(),
-      db
-        .collection('applications')
-        .where('githubHandle', '==', githubSession.githubHandle)
-        .limit(5)
-        .get(),
-    ]);
+    const byEmail = await db
+      .collection('applications')
+      .where('email', '==', input.email)
+      .limit(5)
+      .get();
 
     if (byEmail.docs.some((d) => d.data().cohort === id)) {
       return Response.json(
@@ -97,17 +96,7 @@ async function handlePost(request: Request) {
       );
     }
 
-    if (byHandle.docs.some((d) => d.data().cohort === id)) {
-      return Response.json(
-        {
-          error:
-            'We already have an application for this GitHub account. If you need to update it, email cohort@hult.edu.',
-        },
-        { status: 409 }
-      );
-    }
-
-    const applicationId = randomUUID();
+    const applicationId = applicationDocId(id, handle);
     const record = buildApplicationRecord(input, applicationId);
 
     const doc: Record<string, unknown> = {
@@ -120,7 +109,26 @@ async function handlePost(request: Request) {
     };
     if (!doc.hultStudentId) delete doc.hultStudentId;
 
-    await db.collection('applications').doc(applicationId).set(doc);
+    try {
+      // create() fails if the doc exists — closes the concurrent double-submit race
+      await db.collection('applications').doc(applicationId).create(doc);
+    } catch (err) {
+      const code =
+        err && typeof err === 'object' && 'code' in err
+          ? Number((err as { code: number }).code)
+          : 0;
+      // Firestore ALREADY_EXISTS
+      if (code === 6 || (err instanceof Error && /already exists/i.test(err.message))) {
+        return Response.json(
+          {
+            error:
+              'We already have an application for this GitHub account. If you need to update it, email cohort@hult.edu.',
+          },
+          { status: 409 }
+        );
+      }
+      throw err;
+    }
 
     // Send emails via after() so they run once the response is flushed AND the
     // serverless function stays alive until they finish. A bare `void send()`

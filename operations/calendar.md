@@ -54,7 +54,7 @@ All times in **Eastern Time** for the Summer Pilot. Online students join the Bos
 | Wed Jul 22, 17:00 | Submission PRs due; review window opens |
 | Wed Jul 22 | Deploy URLs published on platform |
 | Thu Jul 23, 14:00 | All peer written reviews submitted |
-| Thu Jul 23, 16:00 | Private votes submitted |
+| Thu Jul 23, 16:00 | Optional `Vote: up` finalized in review issues |
 | Fri Jul 24, 10:00 | Winner announced; cutover begins |
 
 ---
@@ -76,7 +76,7 @@ The Summer Pilot runs contiguously — no Thanksgiving or winter-break pauses. I
 | Item | Hard (no extension) | Soft (program director may grant +48 hrs) |
 |------|---------------------|---------------------------------------------|
 | Review submissions | ✅ | — |
-| Private votes | ✅ | — |
+| Optional upvotes (`Vote: up`) | ✅ | — |
 | Build deploy URL for review | ✅ | — |
 | Winner cutover complete | ✅ | — |
 | Ecosystem unification demo | ✅ | — |

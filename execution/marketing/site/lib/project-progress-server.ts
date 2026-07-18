@@ -72,6 +72,7 @@ export async function getProjectProgress(
       reviewClosesFormatted: schedule.reviewCloses
         ? formatScheduleDate(schedule.reviewCloses)
         : undefined,
+      dataDegraded: contest.reviewsFetchDegraded === true,
     };
   }
 

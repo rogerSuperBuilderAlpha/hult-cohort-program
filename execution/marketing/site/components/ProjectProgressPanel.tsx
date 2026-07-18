@@ -160,7 +160,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
             ) : null}
             <li
               className={writtenDone ? styles.progressItemDone : styles.progressItemPending}
-              aria-label={`Written reviews: ${reviews.writtenCompleted} of ${reviews.required} linked (verified when saved and re-checked at vote time)`}
+              aria-label={`Written reviews: ${reviews.writtenCompleted} of ${reviews.required} discovered from GitHub`}
             >
               <StatusIcon done={writtenDone} />
               <div>

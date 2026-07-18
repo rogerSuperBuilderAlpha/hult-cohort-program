@@ -1,6 +1,9 @@
 /**
  * GitHub-first submission discovery — canonical source for merged PRs.
  * Server-only; never import from client components.
+ *
+ * Caching: Next.js fetch cache with contest tags (shared across instances).
+ * No per-process Map — webhook revalidateTag must reach all instances.
  */
 
 import { programProjects } from '@/content/program';
@@ -56,9 +59,6 @@ const EMPTY_STATS: CohortStats = {
   available: true,
 };
 
-const CACHE_TTL_MS = 60_000;
-const cache = new Map<string, { expires: number; data: GithubSubmissionRecord[] }>();
-
 function githubHeaders(): HeadersInit {
   const token = process.env.GITHUB_TOKEN?.trim();
   return {
@@ -72,10 +72,6 @@ function parseRepo(fullName: string): { owner: string; repo: string } | null {
   const slash = fullName.indexOf('/');
   if (slash <= 0) return null;
   return { owner: fullName.slice(0, slash), repo: fullName.slice(slash + 1) };
-}
-
-function cacheKey(cohort: string, projectSlug: string, baseRef: string): string {
-  return `${cohortSubmissionRepo()}:${cohort}:${projectSlug}:${baseRef}:app-repo-v1`;
 }
 
 function titleMatchesProject(
@@ -98,7 +94,6 @@ function resolvePeerAppRepo(pull: GithubPull, cohortRepo: string): string {
   if (headRepo && headRepo.toLowerCase() !== cohortRepo.toLowerCase()) {
     return headRepo;
   }
-  // Last resort — cohort monorepo (review issues should prefer the peer app repo)
   return cohortRepo;
 }
 
@@ -128,7 +123,8 @@ function pullToRecord(
 
 async function fetchClosedPullsForBase(
   repoFullName: string,
-  baseRef: string
+  baseRef: string,
+  cacheTags: string[]
 ): Promise<GithubPull[]> {
   const parsed = parseRepo(repoFullName);
   if (!parsed) return [];
@@ -145,7 +141,19 @@ async function fetchClosedPullsForBase(
     url.searchParams.set('per_page', '100');
     url.searchParams.set('page', String(page));
 
-    const res = await fetch(url.toString(), { headers: githubHeaders(), next: { revalidate: 60 } });
+    let res: Response;
+    try {
+      res = await fetch(url.toString(), {
+        headers: githubHeaders(),
+        next: { revalidate: 60, tags: cacheTags },
+      });
+    } catch (err) {
+      console.warn(
+        `[github-cohort] pulls fetch network error base=${baseRef}`,
+        err instanceof Error ? err.message : err
+      );
+      break;
+    }
     if (!res.ok) {
       console.warn(`[github-cohort] pulls fetch failed ${res.status} base=${baseRef}`);
       break;
@@ -176,6 +184,7 @@ export async function listMergedProjectSubmissions(
   const repo = cohortSubmissionRepo();
   const { org } = getCohortContext();
   const stats: CohortStats = { ...EMPTY_STATS, cohortId: cohort };
+  const cacheTags = [`contest:${cohort}:${projectSlug}`, `peers:${cohort}:${projectSlug}`];
 
   const seen = new Map<string, GithubSubmissionRecord>();
 
@@ -190,18 +199,7 @@ export async function listMergedProjectSubmissions(
   }
 
   for (const baseRef of baseRefsForProject(cohort, projectSlug)) {
-    const key = cacheKey(cohort, projectSlug, baseRef);
-    const cached = cache.get(key);
-    if (cached && cached.expires > Date.now()) {
-      for (const row of cached.data) {
-        const handle = row.githubHandle.toLowerCase();
-        seen.set(handle, preferRecord(seen.get(handle), { ...row, githubHandle: handle }));
-      }
-      continue;
-    }
-
-    const pulls = await fetchClosedPullsForBase(repo, baseRef);
-    const rows: GithubSubmissionRecord[] = [];
+    const pulls = await fetchClosedPullsForBase(repo, baseRef, cacheTags);
 
     for (const pull of pulls) {
       const handle = resolveHandleFromSubmissionTitle(pull.title);
@@ -220,13 +218,9 @@ export async function listMergedProjectSubmissions(
       });
       if (!matched || matched.projectSlug !== projectSlug) continue;
 
-      rows.push(pullToRecord(pull, cohort, projectSlug, handle, repo));
-    }
-
-    cache.set(key, { expires: Date.now() + CACHE_TTL_MS, data: rows });
-    for (const row of rows) {
-      const handle = row.githubHandle.toLowerCase();
-      seen.set(handle, preferRecord(seen.get(handle), { ...row, githubHandle: handle }));
+      const row = pullToRecord(pull, cohort, projectSlug, handle, repo);
+      const key = row.githubHandle.toLowerCase();
+      seen.set(key, preferRecord(seen.get(key), { ...row, githubHandle: key }));
     }
   }
 
@@ -254,19 +248,21 @@ export async function listUserSubmissionHistory(
   cohorts: string[] = knownCohortIds()
 ): Promise<UserSubmissionHistoryEntry[]> {
   const normalized = handle.toLowerCase();
-  const out: UserSubmissionHistoryEntry[] = [];
-
-  for (const cohort of cohorts) {
-    for (const project of programProjects) {
+  const jobs = cohorts.flatMap((cohort) =>
+    programProjects.map(async (project) => {
       const row = await getMergedSubmissionForHandle(cohort, project.slug, normalized);
-      if (!row) continue;
-      out.push({
+      if (!row) return null;
+      return {
         ...row,
         phaseLabel: project.phaseLabel,
         projectTitle: project.title,
-      });
-    }
-  }
+      } satisfies UserSubmissionHistoryEntry;
+    })
+  );
+
+  const out = (await Promise.all(jobs)).filter(
+    (row): row is UserSubmissionHistoryEntry => row !== null
+  );
 
   return out.sort((a, b) => {
     const cohortCmp = a.cohortId.localeCompare(b.cohortId);
@@ -277,7 +273,10 @@ export async function listUserSubmissionHistory(
   });
 }
 
-/** Invalidate in-memory cache (tests / staff scripts). */
+/**
+ * Legacy no-op — submission lists use tagged Next fetch cache.
+ * Webhooks still call this; invalidation is via revalidateTag('contest:…').
+ */
 export function clearGithubSubmissionCache(): void {
-  cache.clear();
+  // intentionally empty
 }

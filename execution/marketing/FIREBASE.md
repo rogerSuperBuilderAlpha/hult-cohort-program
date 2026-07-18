@@ -30,14 +30,18 @@ Set in Vercel project settings and local `.env.local` (see [site/.env.example](s
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Client + server | Project ID |
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Client + server | Optional (avatars later) |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Client + server | FCM (optional) |
+| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | Client | Analytics (optional) |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Client + server | App ID |
 | `FIREBASE_SERVICE_ACCOUNT_JSON` | **Server only (Vercel)** | Admin SDK — full JSON string |
 | `FIREBASE_SERVICE_ACCOUNT_PATH` | **Server only (local)** | Path to gitignored key file, e.g. `secrets/firebase-service-account.json` |
-| `NEXT_PUBLIC_APPLY_URL` | Client | Default `/apply` (on-site form) |
 | `NEXT_PUBLIC_TAKE_HOME_REPO_URL` | Server | GitHub repo for admissions task |
-| `GITHUB_WEBHOOK_SECRET` | Server | Verify org webhooks (ballot feed) |
+| `GITHUB_TOKEN` | **Server only** | Contest state (PR list + issue Search) |
+| `GITHUB_WEBHOOK_SECRET` | **Server only** | Verify org webhooks (HMAC) |
+| `CRON_SECRET` | **Server only** | Bearer for `/api/cron/warm-contest` (required in prod) |
+| `UNSUBSCRIBE_SECRET` | **Server only** | HMAC for blast unsubscribe links |
+| `RESEARCH_HASH_SALT` | **Server only** | One-way participant ids for research surveys |
 
-⚠️ `FIREBASE_SERVICE_ACCOUNT_JSON` must **never** use the `NEXT_PUBLIC_` prefix.
+Full template: [site/.env.example](site/.env.example). ⚠️ `FIREBASE_SERVICE_ACCOUNT_JSON` must **never** use the `NEXT_PUBLIC_` prefix.
 
 ---
 
@@ -142,15 +146,19 @@ Retired. Reviews and optional upvotes live on GitHub issues (`Review by @{voter}
 
 ## Security rules (summary)
 
-| Collection | Read | Write |
-|------------|------|-------|
-| `applications` | Deny all client | Admin SDK only |
-| `roster` | Deny all client | Admin SDK only |
-| `submissions` (legacy) | Deny all client | Do not write |
-| `peerWrittenReviews` (legacy) | Deny all client | Do not write |
-| `peerRatings` (legacy) | Deny all client | Do not write |
+All listed collections are **deny-all for clients**; every read/write goes through the Admin SDK in Next.js API routes / staff scripts.
 
-Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when credentials wired)*.
+| Collection | Client access |
+|------------|---------------|
+| `applications` | Deny all |
+| `roster` (+ members) | Deny all |
+| `acknowledgments` | Deny all |
+| `projectOutcomes` | Deny all |
+| `submissions` (legacy) | Deny all — do not write |
+| `peerWrittenReviews` (legacy) | Deny all — do not write |
+| `peerRatings` (legacy) | Deny all — do not write |
+
+Full rules file: [firebase/firestore.rules](firebase/firestore.rules).
 
 ---
 

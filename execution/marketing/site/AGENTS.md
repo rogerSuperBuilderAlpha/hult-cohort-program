@@ -83,12 +83,13 @@ Schema details: [../FIREBASE.md](../FIREBASE.md)
 ## Tests & seeds
 
 ```bash
+npm test                                      # vitest (title match, Vote: up parse, webhook HMAC, tally sort)
+npm run verify:submissions                    # PR title matcher checks
+npm run check:env                             # production env var names
 node scripts/admissions.mjs list              # staff — requires FIREBASE_SERVICE_ACCOUNT_PATH
 node scripts/seed-demo-cohort.mjs             # demo roster (submissions from GitHub)
 node scripts/reconcile-submissions.mjs           # report-only GitHub vs legacy cache
 npx tsx scripts/tally-votes.ts --all             # staff upvote tally (GitHub)
-npm run verify:submissions                    # PR title matcher checks
-npm run check:env                             # production env var names
 ```
 
 Deploy: `vercel deploy --prod` from this directory (project `hult-cohort`).

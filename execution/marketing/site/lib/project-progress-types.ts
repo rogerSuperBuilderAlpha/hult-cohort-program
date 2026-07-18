@@ -51,5 +51,7 @@ export type ProjectProgress = {
     reviewWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
     reviewOpensFormatted?: string;
     reviewClosesFormatted?: string;
+    /** GitHub Search partially failed — review list may be incomplete */
+    dataDegraded?: boolean;
   } | null;
 };

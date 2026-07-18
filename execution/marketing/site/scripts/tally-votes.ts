@@ -13,10 +13,14 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getAdminDb } from '../lib/firebase/admin';
+import { ensureStaffFirebaseEnv } from '../lib/script-env';
+
+ensureStaffFirebaseEnv(import.meta.url);
+
+import { isAdminConfigured, getAdminDb } from '../lib/firebase/admin';
 import { cohortId } from '../lib/cohort-config';
 import { publishProjectOutcome } from '../lib/project-outcomes-server';
-import { tallyThumbsUp } from '../lib/tally-server';
+import { tallyThumbsUp, type TallyResult } from '../lib/tally-server';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VOTE_WEEK_PROJECTS = JSON.parse(
@@ -55,12 +59,11 @@ function parseArgs() {
   return { projects, json, publish };
 }
 
-function printTable(result: Awaited<ReturnType<typeof tallyThumbsUp>>) {
-  if (!result) {
-    console.log('No result (Firebase Admin may be unset).');
-    return;
-  }
+function printTable(result: TallyResult) {
   console.log(`\n${result.projectSlug} (cohort ${result.cohortId})`);
+  if (result.reviewsFetchDegraded) {
+    console.log('⚠ GitHub Search was degraded — review/upvote counts may be incomplete.');
+  }
   console.log('─'.repeat(48));
   console.log(`${'Handle'.padEnd(32)} ${'Up'.padStart(6)}`);
   console.log('─'.repeat(48));
@@ -84,24 +87,39 @@ function printTable(result: Awaited<ReturnType<typeof tallyThumbsUp>>) {
 }
 
 async function main() {
+  if (!isAdminConfigured()) {
+    console.error(
+      'Firebase Admin is not configured. Set FIREBASE_SERVICE_ACCOUNT_PATH or FIREBASE_SERVICE_ACCOUNT_JSON\n' +
+        '(default path: secrets/firebase-service-account.json).'
+    );
+    process.exit(1);
+  }
+
   const { projects, json, publish } = parseArgs();
   const id = cohortId();
-  const results = [];
+  const results: Array<TallyResult & { tiedHandles: string[] }> = [];
 
   for (const slug of projects) {
     const result = await tallyThumbsUp(slug);
-    if (!result) {
-      console.error(`tallyThumbsUp returned null for ${slug}`);
-      process.exit(1);
-    }
     const top = result.rows[0];
     const sameUp =
       top && result.rows.filter((r) => r.up === top.up).map((r) => r.handle);
     results.push({
       ...result,
-      // Informational only — CLI already applied mergedAt/handle tie-break for winner
       tiedHandles: sameUp && sameUp.length > 1 ? sameUp : [],
     });
+  }
+
+  const degraded = results.filter((r) => r.reviewsFetchDegraded);
+  if (degraded.length > 0) {
+    console.error(
+      `\nERROR: GitHub Search was degraded for: ${degraded.map((r) => r.projectSlug).join(', ')}`
+    );
+    console.error('Review/upvote counts may be incomplete. Re-run after GitHub recovers.');
+    if (publish) {
+      console.error('Refusing --publish on degraded tally data.');
+      process.exit(1);
+    }
   }
 
   if (publish) {
@@ -138,6 +156,10 @@ async function main() {
 
   for (const result of results) {
     printTable(result);
+  }
+
+  if (degraded.length > 0) {
+    process.exit(1);
   }
 }
 

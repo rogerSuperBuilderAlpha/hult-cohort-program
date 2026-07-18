@@ -137,6 +137,7 @@ function EnrolledView({
         progress={progress}
         reviewerHandle={handle}
         onUpdated={() => void refreshProgress()}
+        refreshing={progressLoading}
       />
     ) : (
       <ProjectPeerReviewSection

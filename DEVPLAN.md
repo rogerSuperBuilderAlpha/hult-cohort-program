@@ -81,9 +81,9 @@ Run locally after pulling env: `npm run check:env`
 ## P2 — Participant platform (complete)
 
 - [x] GitHub sign-in (Firebase Auth) + roster gate
-- [x] Private 👍/👎 after written GitHub reviews (not ranked-choice)
-- [x] GitHub webhook → `submissions` on merged PRs
-- [x] Peer review accordion UI + progress dashboard
+- [x] Public optional `Vote: up` after written GitHub reviews (not ranked-choice / not private Firestore ballots)
+- [x] GitHub webhook → contest cache bust on merged PRs + review issues
+- [x] Peer review accordion UI + progress dashboard (personal status only)
 - [x] Account deletion + data export (GDPR)
 - [x] Resilient PR title matching + review-window UX
 
@@ -100,7 +100,7 @@ Run locally after pulling env: `npm run check:env`
 - [x] Deadline prose aligned to ISO schedule; submission/review windows in progress UI
 - [x] WORKPLAN + rubric ranked-choice drift fixed
 - [x] Expectations Acknowledgment flow (`/api/me/acknowledgment`, dashboard gate)
-- [x] Contest outcome publish (`tally-votes.mjs --publish --confirm` → `projectOutcomes/`)
+- [x] Contest outcome publish (`npx tsx scripts/tally-votes.ts --publish --confirm` → `projectOutcomes/`)
 - [x] Winner handoff UI on dashboard + project pages; unification winners panel
 - [x] Staff SOPs: tally/tie-break, Phase 2 metrics fallback, review sampling
 - [ ] Distributed rate limiting (deferred)

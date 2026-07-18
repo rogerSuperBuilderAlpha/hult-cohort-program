@@ -11,6 +11,7 @@ function PeerReviewSection({
   peers,
   reviewerHandle,
   onUpdated,
+  refreshing,
   reviewWindowOpen,
   reviewWindowStatus,
   reviewOpensFormatted,
@@ -22,6 +23,7 @@ function PeerReviewSection({
   peers: PeerRatingTarget[];
   reviewerHandle: string;
   onUpdated: () => void;
+  refreshing: boolean;
   reviewWindowOpen: boolean;
   reviewWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
   reviewOpensFormatted?: string;
@@ -47,6 +49,7 @@ function PeerReviewSection({
             expanded={expandedHandle === peer.handle}
             onToggle={() => onExpand(expandedHandle === peer.handle ? null : peer.handle)}
             onRefresh={onUpdated}
+            refreshing={refreshing}
           />
         ))}
       </div>
@@ -58,12 +61,14 @@ type RatingBoardProps = {
   progress: ProjectProgress;
   reviewerHandle: string;
   onUpdated: () => void;
+  refreshing?: boolean;
 };
 
 export function PeerRatingBoard({
   progress,
   reviewerHandle,
   onUpdated,
+  refreshing = false,
 }: RatingBoardProps) {
   const [expandedHandle, setExpandedHandle] = useState<string | null>(null);
 
@@ -89,31 +94,61 @@ export function PeerRatingBoard({
     return (
       <section className={styles.overviewBlock}>
         <h2 className={styles.participantHeading}>Peer review and voting</h2>
-        <div className={styles.callout}>
-          <p>
-            <strong>No eligible peers yet.</strong>{' '}
-            {reviews.awaitingMerge > 0
-              ? `${reviews.awaitingMerge} enrolled peer(s) have not merged a submission pull request. Pass criteria count only peers with merged submissions — check back as pull requests are merged.`
-              : 'Review week will begin once peers merge their submission pull requests.'}
-          </p>
-          <p className={styles.formNote} style={{ marginBottom: 0 }}>
-            <a href={orgReposUrl} target="_blank" rel="noopener noreferrer">
-              Browse cohort repos →
-            </a>
-          </p>
-        </div>
+        {reviews.dataDegraded ? (
+          <div className={styles.callout}>
+            <p>
+              <strong>Could not load peer review status from GitHub.</strong> Try refreshing shortly.
+              If this persists, contact cohort staff.
+            </p>
+          </div>
+        ) : (
+          <div className={styles.callout}>
+            <p>
+              <strong>No eligible peers yet.</strong>{' '}
+              {reviews.awaitingMerge > 0
+                ? `${reviews.awaitingMerge} enrolled peer(s) have not merged a submission pull request. Pass criteria count only peers with merged submissions — check back as pull requests are merged.`
+                : 'Review week will begin once peers merge their submission pull requests.'}
+            </p>
+            <p className={styles.formNote} style={{ marginBottom: 0 }}>
+              <a href={orgReposUrl} target="_blank" rel="noopener noreferrer">
+                Browse cohort repos →
+              </a>
+            </p>
+          </div>
+        )}
       </section>
     );
   }
 
   const needsReview = peers.filter((p) => !p.reviewFiled);
-  const reviewed = peers.filter((p) => p.reviewFiled && !p.upvoted);
+  const abstained = peers.filter((p) => p.reviewFiled && !p.upvoted);
   const upvoted = peers.filter((p) => p.upvoted);
-  const inProgress = [...needsReview, ...reviewed];
+
+  const sectionProps = {
+    reviewerHandle,
+    onUpdated,
+    refreshing,
+    reviewWindowOpen,
+    reviewWindowStatus,
+    reviewOpensFormatted,
+    reviewClosesFormatted,
+    expandedHandle,
+    onExpand: setExpandedHandle,
+  };
 
   return (
     <section className={styles.overviewBlock}>
       <h2 className={styles.participantHeading}>Peer review and voting</h2>
+
+      {reviews.dataDegraded ? (
+        <div className={styles.callout}>
+          <p>
+            <strong>Review status may be incomplete.</strong> GitHub temporarily failed to return
+            some review issues. Refresh in a minute — or open your peer repos on GitHub to confirm
+            reviews you already filed.
+          </p>
+        </div>
+      ) : null}
 
       {reviewWindowStatus === 'not-yet' && reviewOpensFormatted ? (
         <div className={styles.callout}>
@@ -155,16 +190,15 @@ export function PeerRatingBoard({
       </div>
 
       <PeerReviewSection
-        title={`Pending (${inProgress.length})`}
-        peers={inProgress}
-        reviewerHandle={reviewerHandle}
-        onUpdated={onUpdated}
-        reviewWindowOpen={reviewWindowOpen}
-        reviewWindowStatus={reviewWindowStatus}
-        reviewOpensFormatted={reviewOpensFormatted}
-        reviewClosesFormatted={reviewClosesFormatted}
-        expandedHandle={expandedHandle}
-        onExpand={setExpandedHandle}
+        title={`Needs review (${needsReview.length})`}
+        peers={needsReview}
+        {...sectionProps}
+      />
+
+      <PeerReviewSection
+        title={`Reviewed — abstained (${abstained.length})`}
+        peers={abstained}
+        {...sectionProps}
       />
 
       {upvoted.length > 0 ? (
@@ -187,6 +221,7 @@ export function PeerRatingBoard({
                   setExpandedHandle(expandedHandle === peer.handle ? null : peer.handle)
                 }
                 onRefresh={onUpdated}
+                refreshing={refreshing}
               />
             ))}
           </div>

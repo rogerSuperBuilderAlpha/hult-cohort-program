@@ -24,11 +24,13 @@ Supabase project: `pm-joes9987` (`vidprovlxevofniwyhgs`) — schema applied, Ver
 
 ## Architecture summary
 
-- **Product:** EudaPM — public marketing home, auth (signup / sign-in / forgot password), tasks, deadlines, comments, search, soft-delete, points/leaderboard
+- **Product:** EudaPM — public marketing home, auth (signup / sign-in / forgot password), tasks, deadlines, comments, search, soft-delete, points/leaderboard, GitHub repo tracking
+- **Brand:** Eudaimonia-inspired identity — laurel-sprig SVG logo (headers + favicon), hero illustration, themed empty-state artwork; all theme-aware via CSS variables (light/dark)
 - **Frontend:** Next.js 16 App Router + Tailwind CSS (Syne + IBM Plex, Studio Neon Soft theme)
 - **Auth:** Supabase Auth (email/password, cookie sessions via `@supabase/ssr`); password reset via `/forgot-password` → email link → `/auth/confirm` → `/reset-password`
 - **Database:** Supabase Postgres with RLS on profiles, projects, tasks, task_comments, notifications, point_events
 - **Realtime:** Live TaskBoard, notifications, comments, leaderboard (unique channel per subscription)
+- **GitHub integration:** Projects can link a public repo (`owner/repo` or URL, normalized on save); server route `/api/github/activity` fetches commits + PRs/issues from the GitHub REST API with a 5-minute cache (optional `GITHUB_TOKEN` env raises the rate limit); feed renders on Projects rows and a Dashboard card
 - **Hosting:** Vercel (`pm-joes9987.vercel.app`)
 - **Email:** Edge Functions `send-deadline-reminders` + `send-leaderboard-kudos` via Brevo (sender name **EudaPM**)
 
@@ -42,6 +44,8 @@ Supabase project: `pm-joes9987` (`vidprovlxevofniwyhgs`) — schema applied, Ver
 - **Collaboration depth:** Global search, task comments, soft-delete/restore, profile display names
 - **Live sync:** Status/assignment changes appear for other users without refresh
 - **Account recovery:** Forgot-password email flow for cohort self-service
+- **Repo visibility:** Linked GitHub repos surface commits/PRs/issues in-app so the whole group sees build momentum alongside tasks
+- **Visual identity:** Laurel-sprig logo and flourishing illustrations (eudaimonia concept) make the workspace feel alive, including friendly empty states
 
 ## Demo script
 
@@ -53,18 +57,19 @@ Supabase project: `pm-joes9987` (`vidprovlxevofniwyhgs`) — schema applied, Ver
 6. Soft-delete a task → toggle **Show deleted** → Restore
 7. Open **Settings** → change display name → header updates
 8. Mark task done → points update on **Progress** leaderboard
-9. Sign out → **Forgot password?** on login → reset email → set new password
-10. *(Optional)* Two browsers: change status in A → appears live in B
+9. On **Projects** → Edit → link a GitHub repo (e.g. `joes9987/pm-joes9987`) → **Activity** expands live commit/PR feed; Dashboard gains a **Repo activity** card
+10. Sign out → **Forgot password?** on login → reset email → set new password
+11. *(Optional)* Two browsers: change status in A → appears live in B
 
 ## Known limitations
 
 - Email digests require Brevo + Edge Function secrets (reviewers can skip)
-- No GitHub issue linking, review/vote module, invite-only signup, or Kanban yet
+- GitHub tracking is read-only for public repos (polling with 5-min cache; no webhooks or issue-to-task linking); no review/vote module, invite-only signup, or Kanban yet
 - Email confirmation should remain disabled for frictionless reviewer signup
 - AdGuard or similar browser extensions may log harmless CSS parse noise on the landing page
 
 ## Agent usage summary
 
 - **Research:** Phase 1 requirements, submission format, cohort template conventions
-- **Development:** Cursor Agent scaffolded Next.js app, Supabase schema + RLS, auth (including password reset), project/task UI, motivation features, Brevo digests, gamification, EudaPM product pass (rebrand, theme, search, comments, soft-delete, settings, live sync), and public marketing home page
-- **QA:** Production smoke tests, Supabase linked, auth and digest sends verified, Realtime subscription stability fix deployed
+- **Development:** Cursor Agent scaffolded Next.js app, Supabase schema + RLS, auth (including password reset), project/task UI, motivation features, Brevo digests, gamification, EudaPM product pass (rebrand, theme, search, comments, soft-delete, settings, live sync), public marketing home page, eudaimonia brand identity (SVG logo + illustrations), and GitHub repo tracking
+- **QA:** Production smoke tests, Supabase linked, auth and digest sends verified, Realtime subscription stability fix deployed, GitHub feed verified end-to-end on production

@@ -102,6 +102,20 @@ export async function AppShell({
             </details>
           ) : null}
 
+          <form action={updateThemeAction}>
+            <input type="hidden" name="theme" value={nextTheme} />
+            <input type="hidden" name="accent" value={accent} />
+            <input type="hidden" name="redirectTo" value={workspace ? base : "/workspaces"} />
+            <button
+              type="submit"
+              className="icon-btn"
+              aria-label={`Switch to ${nextTheme} mode`}
+              title={`Switch to ${nextTheme} mode`}
+            >
+              {theme === "dark" ? "☀" : "☾"}
+            </button>
+          </form>
+
           {(!workspace || f?.notifications) ? (
             <Link
               href="/notifications"

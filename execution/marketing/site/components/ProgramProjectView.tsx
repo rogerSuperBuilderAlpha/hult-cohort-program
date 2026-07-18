@@ -7,6 +7,7 @@ import { AgentPromptHarness } from '@/components/AgentPromptHarness';
 import { PeerRatingBoard } from '@/components/PeerRatingBoard';
 import { ProjectOutcomeBanner } from '@/components/ProjectOutcomeBanner';
 import { ProjectProgressPanel } from '@/components/ProjectProgressPanel';
+import { ProjectTabs, type ProjectTab } from '@/components/ProjectTabs';
 import {
   ProjectPeerReviewSection,
   ProjectRequirementsSections,
@@ -34,6 +35,32 @@ type Props = {
   initialStats?: CohortStats | null;
 };
 
+function ProjectNavActions({
+  prevSlug,
+  nextSlug,
+}: {
+  prevSlug?: string;
+  nextSlug?: string;
+}) {
+  return (
+    <div className={styles.participantActions}>
+      <Link href="/dashboard" className={styles.secondaryBtn}>
+        Dashboard
+      </Link>
+      {prevSlug && (
+        <Link href={`/program/${prevSlug}`} className={styles.secondaryBtn}>
+          ← Previous
+        </Link>
+      )}
+      {nextSlug && (
+        <Link href={`/program/${nextSlug}`} className={styles.primaryBtn}>
+          Next project →
+        </Link>
+      )}
+    </div>
+  );
+}
+
 function SurveyGateNotice({ project, gate }: { project: ProgramProject; gate: ProjectGate }) {
   const waveOpen = gate.wave?.status === 'open';
   const opensAt = gate.wave?.opensAt
@@ -46,35 +73,25 @@ function SurveyGateNotice({ project, gate }: { project: ProgramProject; gate: Pr
     : null;
 
   return (
-    <div className={styles.participantPanel}>
-      <div className={styles.callout}>
-        <p style={{ marginTop: 0 }}>
-          <strong>One step first.</strong> {project.title} unlocks after you complete the{' '}
-          {gate.wave ? gate.wave.shortLabel.toLowerCase() : 'research'} survey.
-        </p>
-        <p className={styles.formNote}>
-          The survey is part of an IRB-approved research study and takes about 12 minutes. Participation
-          is voluntary — if you choose <em>not</em> to take part, that choice also unlocks the project and
-          has no effect on your standing, assessment, or place in the cohort.
-        </p>
-        {waveOpen ? (
-          <Link href="/research/survey" className={styles.primaryBtn}>
-            Go to the survey →
-          </Link>
-        ) : (
-          <p className={styles.formNote} style={{ marginBottom: 0 }}>
-            The survey opens {opensAt ?? 'soon'}. This project will unlock once you have responded.
-          </p>
-        )}
-      </div>
-      <div className={styles.participantActions}>
-        <Link href="/dashboard" className={styles.secondaryBtn}>
-          Dashboard
+    <div className={styles.callout}>
+      <p style={{ marginTop: 0 }}>
+        <strong>One step first.</strong> {project.title} unlocks after you complete the{' '}
+        {gate.wave ? gate.wave.shortLabel.toLowerCase() : 'research'} survey.
+      </p>
+      <p className={styles.formNote}>
+        The survey is part of an IRB-approved research study and takes about 12 minutes. Participation
+        is voluntary — if you choose <em>not</em> to take part, that choice also unlocks the project and
+        has no effect on your standing, assessment, or place in the cohort.
+      </p>
+      {waveOpen ? (
+        <Link href="/research/survey" className={styles.primaryBtn}>
+          Go to the survey →
         </Link>
-        <Link href="/program" className={styles.secondaryBtn}>
-          All projects
-        </Link>
-      </div>
+      ) : (
+        <p className={styles.formNote} style={{ marginBottom: 0 }}>
+          The survey opens {opensAt ?? 'soon'}. This project will unlock once you have responded.
+        </p>
+      )}
     </div>
   );
 }
@@ -109,7 +126,6 @@ function EnrolledView({
   if (!surveyReady) {
     return (
       <>
-        <ProgramDescription text={descriptionText} />
         <p className={styles.formNote}>Loading your participant view…</p>
       </>
     );
@@ -118,10 +134,8 @@ function EnrolledView({
   const peerReviewShell = project.reviews ? (
     progress && progressEnabled ? (
       <PeerRatingBoard
-        projectSlug={project.slug}
         progress={progress}
         reviewerHandle={handle}
-        getIdToken={getIdToken}
         onUpdated={() => void refreshProgress()}
       />
     ) : (
@@ -143,31 +157,70 @@ function EnrolledView({
     )
   ) : null;
 
-  if (gate.locked) {
-    return (
-      <>
-        <ProgramDescription text={descriptionText} />
-        <SurveyGateNotice project={project} gate={gate} />
-        <div className={styles.participantPanel}>
-          <p className={styles.formNote} style={{ marginTop: 0 }}>
-            Requirements and the peer review section are visible now. Submission tracking and the
-            peer list load after you complete the survey (or decline participation).
-          </p>
+  const tabs: ProjectTab[] = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      panel: (
+        <>
+          <ProgramDescription text={descriptionText} />
+          {gate.locked ? (
+            <>
+              <SurveyGateNotice project={project} gate={gate} />
+              <p className={styles.formNote}>
+                Requirements and the peer review tab are visible now. Submission tracking and the peer
+                list load after you complete the survey (or decline participation).
+              </p>
+            </>
+          ) : (
+            <>
+              {project.voteWeek && (
+                <div className={styles.callout}>
+                  <strong>Review week.</strong> {REVIEW_WEEK_CALLOUT_ENROLLED}
+                </div>
+              )}
+              {progress?.outcome ? (
+                <ProjectOutcomeBanner outcome={progress.outcome} viewerHandle={handle} />
+              ) : null}
+              {progressLoading ? (
+                <p className={styles.formNote}>Loading your progress…</p>
+              ) : progressError ? (
+                <p className={styles.formError}>{progressError}</p>
+              ) : progress ? (
+                <ProjectProgressPanel project={project} progress={progress} handle={handle} />
+              ) : null}
+            </>
+          )}
+        </>
+      ),
+    },
+    {
+      id: 'build',
+      label: 'Build',
+      panel: (
+        <>
           <ProjectRequirementsSections
             project={project}
             p={p}
             stats={stats}
             variant="enrolled"
+            progress={gate.locked ? null : progress}
           />
-          {peerReviewShell}
-        </div>
-      </>
-    );
+          {!gate.locked ? <AgentPromptHarness prompt={agentPrompt} personalized /> : null}
+        </>
+      ),
+    },
+  ];
+
+  if (peerReviewShell) {
+    tabs.push({
+      id: 'peer-ratings',
+      label: 'Peer review',
+      panel: peerReviewShell,
+    });
   }
 
   return (
-    <>
-    <ProgramDescription text={descriptionText} />
     <div className={styles.participantPanel}>
       <div className={styles.participantBanner}>
         <p className={styles.participantBannerEyebrow}>
@@ -191,53 +244,9 @@ function EnrolledView({
         </p>
       </div>
 
-      {project.voteWeek && (
-        <div className={styles.callout}>
-          <strong>Review week.</strong> {REVIEW_WEEK_CALLOUT_ENROLLED}
-        </div>
-      )}
-
-      {progress?.outcome ? (
-        <ProjectOutcomeBanner outcome={progress.outcome} viewerHandle={handle} />
-      ) : null}
-
-      {progressLoading ? (
-        <p className={styles.formNote}>Loading your progress…</p>
-      ) : progressError ? (
-        <p className={styles.formError}>{progressError}</p>
-      ) : progress ? (
-        <ProjectProgressPanel project={project} progress={progress} handle={handle} />
-      ) : null}
-
-      <ProjectRequirementsSections
-        project={project}
-        p={p}
-        stats={stats}
-        variant="enrolled"
-        progress={progress}
-      />
-
-      <AgentPromptHarness prompt={agentPrompt} personalized />
-
-      {peerReviewShell}
-
-      <div className={styles.participantActions}>
-        <Link href="/dashboard" className={styles.secondaryBtn}>
-          Dashboard
-        </Link>
-        {prevSlug && (
-          <Link href={`/program/${prevSlug}`} className={styles.secondaryBtn}>
-            ← Previous
-          </Link>
-        )}
-        {nextSlug && (
-          <Link href={`/program/${nextSlug}`} className={styles.primaryBtn}>
-            Next project →
-          </Link>
-        )}
-      </div>
+      <ProjectTabs tabs={tabs} defaultTab="overview" />
+      <ProjectNavActions prevSlug={prevSlug} nextSlug={nextSlug} />
     </div>
-    </>
   );
 }
 
@@ -256,58 +265,84 @@ function PublicView({
   project,
   stats,
   applicantInFlight,
+  descriptionText,
 }: {
   project: ProgramProject;
   stats: CohortStats | null;
   applicantInFlight?: boolean;
+  descriptionText: string;
 }) {
   const p = (text: string) =>
     personalizeProgramText(text, '{handle}', '{org}', stats ?? undefined);
   const agentPrompt = buildPublicAgentPrompt(project, stats);
 
-  return (
-    <>
-      <p className={styles.formNote} style={{ marginTop: 0 }}>
-        Template placeholders <code>{'{repo}'}</code>, <code>{'{org}'}</code>, and{' '}
-        <code>{'{handle}'}</code> are replaced after enrollment.
-        {stats && stats.enrolledCount > 0 ? (
-          <>
-            {' '}
-            Current cohort: <strong>{stats.enrolledCount}</strong> enrolled (
-            {stats.peerReviewCount} peer reviews per Phase 1 project).
-          </>
-        ) : (
-          <> Peer review counts update as the cohort roster is finalized.</>
-        )}
-        {applicantInFlight ? (
-          <>
-            {' '}
-            <Link href="/dashboard">Back to dashboard</Link>.
-          </>
-        ) : (
-          <>
-            {' '}
-            <Link href="/apply">Sign in to apply</Link>.
-          </>
-        )}
-      </p>
+  const tabs: ProjectTab[] = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      panel: (
+        <>
+          <ProgramDescription text={descriptionText} />
+          <p className={styles.formNote} style={{ marginTop: 0 }}>
+            Template placeholders <code>{'{repo}'}</code>, <code>{'{org}'}</code>, and{' '}
+            <code>{'{handle}'}</code> are replaced after enrollment.
+            {stats && stats.enrolledCount > 0 ? (
+              <>
+                {' '}
+                Current cohort: <strong>{stats.enrolledCount}</strong> enrolled (
+                {stats.peerReviewCount} peer reviews per Phase 1 project).
+              </>
+            ) : (
+              <> Peer review counts update as the cohort roster is finalized.</>
+            )}
+            {applicantInFlight ? (
+              <>
+                {' '}
+                <Link href="/dashboard">Back to dashboard</Link>.
+              </>
+            ) : (
+              <>
+                {' '}
+                <Link href="/apply">Sign in to apply</Link>.
+              </>
+            )}
+          </p>
+          {project.voteWeek && (
+            <div className={styles.callout}>
+              <strong>Review week.</strong> {REVIEW_WEEK_CALLOUT_PUBLIC}
+            </div>
+          )}
+          {project.voteWeek && (
+            <section className={styles.overviewBlock}>
+              <h2>Selection criteria</h2>
+              <p>{WINNER_SELECTION_PUBLIC}</p>
+            </section>
+          )}
+        </>
+      ),
+    },
+    {
+      id: 'build',
+      label: 'Build',
+      panel: (
+        <>
+          <ProjectRequirementsSections
+            project={project}
+            p={p}
+            stats={stats}
+            variant="public"
+          />
+          <AgentPromptHarness prompt={agentPrompt} personalized={false} />
+        </>
+      ),
+    },
+  ];
 
-      {project.voteWeek && (
-        <div className={styles.callout}>
-          <strong>Review week.</strong> {REVIEW_WEEK_CALLOUT_PUBLIC}
-        </div>
-      )}
-
-      <ProjectRequirementsSections
-        project={project}
-        p={p}
-        stats={stats}
-        variant="public"
-      />
-
-      <AgentPromptHarness prompt={agentPrompt} personalized={false} />
-
-      {project.reviews && (
+  if (project.reviews) {
+    tabs.push({
+      id: 'peer-ratings',
+      label: 'Peer review',
+      panel: (
         <ProjectPeerReviewSection
           project={project}
           p={p}
@@ -315,16 +350,11 @@ function PublicView({
           variant="public"
           lockNotice="Sign in as an enrolled participant to load your peer list and cast votes. Until then, this section explains the review flow only."
         />
-      )}
+      ),
+    });
+  }
 
-      {project.voteWeek && (
-        <section className={styles.overviewBlock}>
-          <h2>Selection criteria</h2>
-          <p>{WINNER_SELECTION_PUBLIC}</p>
-        </section>
-      )}
-    </>
-  );
+  return <ProjectTabs tabs={tabs} defaultTab="overview" />;
 }
 
 export function ProgramProjectView({ project, prevSlug, nextSlug, initialStats = null }: Props) {
@@ -387,9 +417,13 @@ export function ProgramProjectView({ project, prevSlug, nextSlug, initialStats =
 
   return (
     <>
-      <ProgramDescription text={descriptionText} />
       {inFlight ? <ApplicantInFlightBanner /> : null}
-      <PublicView project={project} stats={stats} applicantInFlight={inFlight} />
+      <PublicView
+        project={project}
+        stats={stats}
+        applicantInFlight={inFlight}
+        descriptionText={descriptionText}
+      />
     </>
   );
 }

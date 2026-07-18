@@ -173,14 +173,14 @@ export function buildProjectAgentPrompt(
   if (project.reviews) {
     const reviewCount =
       stats && stats.enrolledCount > 0
-        ? `${stats.peerReviewCount} written GitHub reviews + ${stats.peerReviewCount} private votes`
-        : 'Review every peer on GitHub, then cast a private vote on the platform';
+        ? `${stats.peerReviewCount} written GitHub reviews (optional Vote: up each, or abstain)`
+        : 'Review every peer on GitHub; optionally upvote with Vote: up or abstain';
     lines.push(
       ``,
       `## Peer review and voting (review week)`,
       `- ${reviewCount}`,
-      `- Order: evaluate deployment → read pull request → file GitHub issue "${reviewIssueTitle(handle, 'peer-handle')}" → cast private vote here`,
-      `- Votes are private; the submission with the most votes is selected`,
+      `- Order: evaluate deployment → read pull request → file GitHub issue "${reviewIssueTitle(handle, 'peer-handle')}" (optional Vote: up in body)`,
+      `- Upvotes are public on GitHub; the site shows personal status only (no cohort tallies)`,
       `- Due: ${project.reviews.dueNote}`
     );
   }
@@ -189,9 +189,9 @@ export function buildProjectAgentPrompt(
     lines.push(
       ``,
       `## Selection criteria`,
-      `- The submission with the most votes after review closes is selected.`,
-      `- Written reviews are public on GitHub; private votes remain confidential until results are announced.`,
-      `- I cannot vote on my own submission.`
+      `- Staff select the submission with the most GitHub upvotes after review closes.`,
+      `- Written reviews and optional Vote: up lines are public on GitHub.`,
+      `- I cannot review or upvote my own submission.`
     );
   }
 

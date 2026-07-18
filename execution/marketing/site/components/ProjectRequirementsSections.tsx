@@ -111,21 +111,21 @@ export function ProjectRequirementsSections({
                 </li>
                 <li
                   className={
-                    progress.reviews.ratingsCompleted >= progress.reviews.required
+                    progress.reviews.upvotesCompleted > 0
                       ? styles.progressItemDone
                       : styles.progressItemPending
                   }
                 >
                   <span
                     className={
-                      progress.reviews.ratingsCompleted >= progress.reviews.required
+                      progress.reviews.upvotesCompleted > 0
                         ? styles.progressIconDone
                         : styles.progressIconPending
                     }
                   >
-                    {progress.reviews.ratingsCompleted >= progress.reviews.required ? '✓' : '○'}
+                    {progress.reviews.upvotesCompleted > 0 ? '✓' : '○'}
                   </span>
-                  {progress.reviews.ratingsCompleted}/{progress.reviews.required} private votes
+                  {progress.reviews.upvotesCompleted}/{progress.reviews.required} optional upvotes
                 </li>
               </>
             ) : null}
@@ -171,7 +171,7 @@ export function ProjectPeerReviewSection({
   if (!project.reviews) return null;
 
   return (
-    <section className={styles.overviewBlock} id="peer-ratings">
+    <section className={styles.overviewBlock}>
       <h2 className={variant === 'enrolled' ? styles.participantHeading : undefined}>
         Peer review and voting
       </h2>
@@ -187,9 +187,10 @@ export function ProjectPeerReviewSection({
         {project.reviews.dueNote}.
       </p>
       <p className={styles.formNote} style={{ marginBottom: 0 }}>
-        For each peer: evaluate their deployment, read their submission pull request, file a written
-        GitHub review, then cast a private vote on this page. Votes unlock after the written review
-        is saved. Review week opens when the Sunday submission deadline closes.
+        For each peer: evaluate their deployment, read their submission pull request, then file a
+        written GitHub review. Optionally keep <code>Vote: up</code> in the issue to upvote, or
+        delete that section to abstain. This site shows your personal status only — not cohort
+        tallies. Review week opens when the Sunday submission deadline closes.
       </p>
     </section>
   );

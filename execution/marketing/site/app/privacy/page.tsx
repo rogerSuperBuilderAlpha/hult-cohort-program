@@ -49,7 +49,7 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong>Program activity</strong> — After enrollment: submission pull request links,
-              deployment URLs, written peer review issue URLs, and private votes tied to your
+              deployment URLs and progress status. Written peer reviews and optional upvotes live on GitHub tied to your
               GitHub handle.
             </li>
             <li>

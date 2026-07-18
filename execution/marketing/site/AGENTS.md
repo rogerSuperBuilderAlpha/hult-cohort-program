@@ -13,15 +13,15 @@ Parent guide: [../../../AGENTS.md](../../../AGENTS.md)
 | Area | Path |
 |------|------|
 | Routes | `app/` — `/`, `/apply`, `/dashboard`, `/history`, `/overview`, `/program`, `/program/[slug]` |
-| Core libs | `lib/cohort-config.ts`, `lib/github-cohort-server.ts`, `lib/submissions-resolve-server.ts`, `lib/enrollment-server.ts`, `lib/eligible-peers-server.ts`, `lib/program-schedule.ts` |
+| Core libs | `lib/cohort-config.ts`, `lib/github-cohort-server.ts`, `lib/contest-state-server.ts`, `lib/submissions-resolve-server.ts`, `lib/enrollment-server.ts`, `lib/eligible-peers-server.ts`, `lib/program-schedule.ts` |
 | Program content | `content/program.ts` — titles, descriptions, pass gates |
 | Participant UI | `components/ProgramProjectView.tsx`, `ProjectProgressPanel.tsx`, `PeerReviewCard.tsx` |
 | Auth hook | `lib/firebase/use-github-auth.ts` |
 | Roster gate | `lib/enrollment-server.ts`, `lib/require-enrolled.ts`, `GET /api/me` |
-| Progress API | `lib/project-progress-server.ts` |
-| Written reviews | `lib/written-reviews-server.ts`, `lib/written-reviews-format.ts` |
-| Private votes | `lib/ratings-server.ts` |
-| Winner tally | `lib/tally-server.ts` (`tallyThumbsUp`) · publish: `scripts/tally-votes.mjs --publish --confirm` |
+| Progress API | `lib/project-progress-server.ts` (slices cached contest state) |
+| Contest state | `lib/contest-state-server.ts` — GitHub PRs + review issues (`Vote: up`) |
+| Issue template | `lib/written-reviews-format.ts` |
+| Winner tally (staff CLI) | `lib/tally-server.ts` · `npx tsx scripts/tally-votes.ts --publish --confirm` |
 | Contest outcomes | `lib/project-outcomes-server.ts` · Firestore `projectOutcomes/{cohort}/projects/{slug}` |
 | Expectations ack | `lib/expectations-ack-server.ts` · `POST /api/me/acknowledgment` |
 | Cohort stats | `lib/cohort-stats-server.ts` (server) · `lib/cohort-stats-types.ts` (client-safe) |
@@ -52,18 +52,18 @@ All authenticated routes expect `Authorization: Bearer <Firebase ID token>`.
 - `GET /api/dashboard` — enrolled cross-project progress (requires roster)
 - `GET /api/program/projects` — public program index (MCP + agents)
 - `GET /api/cohort/stats` — public enrolled count
-- `POST /api/github/webhook` — merged PR → submissions + `deployUrl` from PR body (HMAC)
-- `GET /api/program/[slug]/progress` — submission + peer review state
-- `POST /api/program/[slug]/written-reviews` — `{ revieweeHandle, issueUrl }`
-- `POST /api/program/[slug]/ratings` — `{ revieweeHandle, rating: 'up'|'down' }` (403 without written review)
+- `POST /api/github/webhook` — merged PR / review issue → bust contest caches (HMAC)
+- `GET /api/program/[slug]/progress` — submission + personal peer-review status (GitHub)
+- `GET /api/cron/warm-contest` — warm contest cache for open review windows (`CRON_SECRET`)
+- `POST /api/program/[slug]/written-reviews` — **410** (retired; GitHub discovery)
+- `POST /api/program/[slug]/ratings` — **410** (retired; `Vote: up` on GitHub)
 
-`GITHUB_TOKEN` required in production for review issue verification. Dev bypass: set `ALLOW_UNVERIFIED_REVIEWS=true` in `.env.local` only when testing without GitHub API access.
+`GITHUB_TOKEN` required in production for contest state (PRs + issue search).
 
 ## Firestore (this app writes)
 
-- `applications`, `roster/{cohortId}/members`, `submissions/.../entries` *(cache / migration fallback — GitHub is canonical)*
-- `peerWrittenReviews/{cohortId}/projects/{slug}/voters/{voter}/entries/{reviewee}`
-- `peerRatings/{cohortId}/projects/{slug}/voters/{voter}`
+- `applications`, `roster/{cohortId}/members`, expectations ack, research survey, `projectOutcomes`
+- Contest data (**not** stored): submissions, peer reviews, upvotes — GitHub only via `fetchContestState`
 
 Schema details: [../FIREBASE.md](../FIREBASE.md)
 
@@ -85,11 +85,8 @@ Schema details: [../FIREBASE.md](../FIREBASE.md)
 ```bash
 node scripts/admissions.mjs list              # staff — requires FIREBASE_SERVICE_ACCOUNT_PATH
 node scripts/seed-demo-cohort.mjs             # demo roster (submissions from GitHub)
-node scripts/reconcile-submissions.mjs           # diff GitHub vs Firestore cache
-node scripts/reconcile-submissions.mjs --write-cache
-node scripts/seed-peer-reviews.mjs            # demo written reviews + votes
-node scripts/tally-votes.mjs --all            # staff thumbs-up tally
-node scripts/backfill-deploy-urls.mjs --from-github
+node scripts/reconcile-submissions.mjs           # report-only GitHub vs legacy cache
+npx tsx scripts/tally-votes.ts --all             # staff upvote tally (GitHub)
 npm run verify:submissions                    # PR title matcher checks
 npm run check:env                             # production env var names
 ```

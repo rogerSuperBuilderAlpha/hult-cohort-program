@@ -40,7 +40,7 @@ export async function getDashboardSummary(githubHandle: string): Promise<Dashboa
           submissionMerged: progress?.submission.merged ?? false,
           reviewsRequired: progress?.reviews?.required ?? null,
           reviewsWritten: progress?.reviews?.writtenCompleted ?? null,
-          votesCast: progress?.reviews?.ratingsCompleted ?? null,
+          votesCast: progress?.reviews?.upvotesCompleted ?? null,
           awaitingMerge: progress?.reviews?.awaitingMerge ?? null,
           outcome: progress?.outcome ?? null,
         };

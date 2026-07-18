@@ -10,10 +10,10 @@ Credentials are supplied by the founder and stored only in environment variables
 
 | Firebase product | Purpose |
 |------------------|---------|
-| **Firestore** | Applications, roster, submissions, peerWrittenReviews, peerRatings |
-| **Authentication** | GitHub sign-in for enrolled participants (voting, gated pages) |
+| **Firestore** | Applications, roster, survey/ack, published `projectOutcomes` (identity + announcements) |
+| **Authentication** | GitHub sign-in for enrolled participants (gated pages) |
 | **Admin SDK** | Next.js API routes write applications server-side (bypass client rules) |
-| **Cloud Functions** *(optional, later)* | Auto-reply email on apply, GitHub webhook → ballot feed |
+| **Cloud Functions** *(optional, later)* | Auto-reply email on apply |
 
 Hosting stays on **Vercel** (Next.js). Firebase is data + auth only.
 
@@ -112,26 +112,9 @@ Enrolled participants after week 1 roster lock.
 
 Used to gate participant APIs (`/api/program/*`, `/api/dashboard`).
 
-### `submissions/{cohortId}/projects/{projectSlug}/entries/{githubHandle}`
+### `submissions/...` (legacy — do not read or write)
 
-**Cache / migration fallback** — GitHub merged PRs are canonical. Firestore entries may be written by webhook or `scripts/reconcile-submissions.mjs --write-cache` for faster reads during migration.
-
-```typescript
-{
-  githubHandle: string;
-  repo: string;
-  prNumber: number;
-  prUrl: string;
-  prTitle: string;
-  merged: boolean;
-  mergedAt?: Timestamp;
-  deployUrl?: string | null;
-  baseRef?: string;
-  source?: 'webhook' | 'reconcile';
-}
-```
-
-Discovery: `lib/github-cohort-server.ts` reads merged PRs from project branches (`projects/{cohortId}/{slug}`). Webhook: `POST /api/github/webhook` validates base branch + title. Backstop: `node scripts/reconcile-submissions.mjs --write-cache`.
+Retired from the request path. Merged submissions are discovered from GitHub only (`lib/github-cohort-server.ts` / `lib/contest-state-server.ts`). Old entry docs may still exist; webhook no longer upserts them.
 
 ### `roster/{cohortId}` (meta doc)
 
@@ -147,35 +130,13 @@ Denormalized enrolled count + active handles for cheap stats (refreshed by `admi
 
 Members still live at `roster/{cohortId}/members/{githubHandle}`.
 
-### `peerWrittenReviews/{cohortId}/projects/{projectSlug}/voters/{voterHandle}`
+### `peerWrittenReviews/...` and `peerRatings/...` (legacy — do not read or write)
 
-Flat map (preferred) — one doc per voter, not a subcollection scan:
-
-```typescript
-{
-  reviews: Record<string, string>;  // revieweeHandle → issueUrl
-  updatedAt: Timestamp;
-}
-```
-
-Legacy entry docs may still exist at `.../voters/{voter}/entries/{reviewee}` and are backfilled into the map on read.
-
-### `peerRatings/{cohortId}/projects/{projectSlug}/voters/{voterHandle}`
-
-Private 👍/👎 votes (one doc per voter).
-
-```typescript
-{
-  ratings: Record<string, 'up' | 'down'>;  // revieweeHandle → rating
-  updatedAt: Timestamp;
-}
-```
-
-Vote requires prior written review for that peer. Staff tally: `tallyThumbsUp(projectSlug)` in [site/lib/tally-server.ts](site/lib/tally-server.ts) or `node scripts/tally-votes.mjs --project=<slug>`.
+Retired. Reviews and optional upvotes live on GitHub issues (`Review by @{voter}: @{reviewee}` with optional `Vote: up`). Discovery: `lib/contest-state-server.ts`. Staff tally: `npx tsx scripts/tally-votes.ts --project=<slug>`.
 
 ### Legacy (retired — do not write)
 
-`ballots/` and `votes/` collections were designed for ranked-choice voting and are **not used** by the platform. Firestore rules deny all client access.
+`ballots/`, `votes/`, `submissions/`, `peerWrittenReviews/`, `peerRatings/` are **not used** by the live request path. Firestore rules deny all client access.
 
 ---
 
@@ -185,9 +146,9 @@ Vote requires prior written review for that peer. Staff tally: `tallyThumbsUp(pr
 |------------|------|-------|
 | `applications` | Deny all client | Admin SDK only |
 | `roster` | Deny all client | Admin SDK only |
-| `submissions` | Deny all client | Admin SDK / webhook |
-| `peerWrittenReviews` | Deny all client | Admin SDK only |
-| `peerRatings` | Deny all client | Admin SDK only |
+| `submissions` (legacy) | Deny all client | Do not write |
+| `peerWrittenReviews` (legacy) | Deny all client | Do not write |
+| `peerRatings` (legacy) | Deny all client | Do not write |
 
 Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when credentials wired)*.
 
@@ -206,7 +167,7 @@ Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when
 
 1. Sign in with **GitHub** via Firebase Auth.
 2. API verifies `githubHandle` exists in `roster/{cohortId}/members` with `active: true`.
-3. Access `/dashboard` and `/program/[slug]` for progress, written reviews, and private 👍/👎 during review weeks.
+3. Access `/dashboard` and `/program/[slug]` for progress and personal peer-review status (GitHub discovery) during review weeks.
 
 ---
 

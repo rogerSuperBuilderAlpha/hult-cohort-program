@@ -12,8 +12,6 @@ export type CohortContext = {
   repoUrl: string;
 };
 
-export type SubmissionsSource = 'github' | 'firestore' | 'github-with-fallback';
-
 const DEFAULT_COHORT_REPO = 'rogerSuperBuilderAlpha/hult-cohort-program';
 
 /** Active cohort document id in Firestore (Summer 2026 · starts July 13). */
@@ -47,15 +45,6 @@ export function knownCohortIds(): string[] {
     return fromEnv.split(',').map((id) => id.trim()).filter(Boolean);
   }
   return [cohortId()];
-}
-
-/** Where submission progress reads come from during migration. */
-export function submissionsSource(): SubmissionsSource {
-  const raw = process.env.SUBMISSIONS_SOURCE?.trim().toLowerCase();
-  if (raw === 'github' || raw === 'firestore' || raw === 'github-with-fallback') {
-    return raw;
-  }
-  return 'github-with-fallback';
 }
 
 /** Integration branch for a cohort (not used as PR base — avoids ref prefix conflicts). */

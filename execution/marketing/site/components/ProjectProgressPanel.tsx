@@ -1,7 +1,7 @@
 'use client';
 
 import type { ProgramProject } from '@/content/program';
-import { VOTE_PRIVACY_NOTE, WINNER_NOTE } from '@/lib/review-week-copy';
+import { VOTE_NOTE, WINNER_NOTE } from '@/lib/review-week-copy';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import { reviewIssueTitle } from '@/lib/written-reviews-format';
 import styles from '../app/page.module.css';
@@ -23,12 +23,8 @@ function whatsLeft(progress: import('@/lib/project-progress-types').ProjectProgr
 
   if (progress.reviews) {
     const writtenLeft = progress.reviews.required - progress.reviews.writtenCompleted;
-    const voteLeft = progress.reviews.required - progress.reviews.ratingsCompleted;
     if (writtenLeft > 0) {
-      items.push(`file ${writtenLeft} more written review${writtenLeft === 1 ? '' : 's'}`);
-    }
-    if (voteLeft > 0) {
-      items.push(`cast ${voteLeft} more private vote${voteLeft === 1 ? '' : 's'}`);
+      items.push(`file ${writtenLeft} more written review${writtenLeft === 1 ? '' : 's'} on GitHub`);
     }
   }
 
@@ -52,9 +48,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
   const schedule = progress.schedule;
   const writtenDone =
     !reviews || reviews.required === 0 || reviews.writtenCompleted >= reviews.required;
-  const votesDone =
-    !reviews || reviews.required === 0 || reviews.ratingsCompleted >= reviews.required;
-  const allDone = progress.submission.merged && writtenDone && votesDone;
+  const allDone = progress.submission.merged && writtenDone;
   const reviewTitleExample = reviewIssueTitle(handle, 'peer-handle');
 
   return (
@@ -146,7 +140,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 <div>
                   <strong>Review week has not opened</strong>
                   <p className={styles.progressDetail}>
-                    Written reviews and private votes become available{' '}
+                    Written reviews become available{' '}
                     {reviews.reviewOpensFormatted}.
                   </p>
                 </div>
@@ -175,25 +169,12 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 </strong>
                 <p className={styles.progressDetail}>
                   GitHub issue titled <code>{reviewTitleExample}</code> on the cohort repository for
-                  each peer. Links are verified when saved and re-checked when you cast a vote, so
-                  keep the issue intact until review week closes.
-                </p>
-              </div>
-            </li>
-            <li
-              className={votesDone ? styles.progressItemDone : styles.progressItemPending}
-              aria-label={`Private votes: ${reviews.ratingsCompleted} of ${reviews.required} complete`}
-            >
-              <StatusIcon done={votesDone} />
-              <div>
-                <strong>
-                  Private votes {reviews.ratingsCompleted}/{reviews.required}
-                </strong>
-                <p className={styles.progressDetail}>
-                  Cast your vote on this page after each written review. {VOTE_PRIVACY_NOTE}
+                  each peer. Optionally include <code>Vote: up</code> to upvote, or omit it to
+                  abstain. {VOTE_NOTE}
                 </p>
                 <p className={styles.progressDetail}>
-                  <a href="#peer-ratings">Go to review and vote list →</a>
+                  Upvotes so far (optional): {reviews.upvotesCompleted}/{reviews.required}.{' '}
+                  <a href="#peer-ratings">Go to review list →</a>
                 </p>
               </div>
             </li>

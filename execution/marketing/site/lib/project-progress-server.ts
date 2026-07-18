@@ -3,14 +3,13 @@ import { getProjectOutcome } from '@/lib/project-outcomes-server';
 import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId, cohortSubmissionRepo, projectBranch } from '@/lib/cohort-config';
 import type { CohortStats } from '@/lib/cohort-stats-types';
-import { getEligiblePeerRows, mergePeerProgress } from '@/lib/eligible-peers-server';
+import { fetchContestState, reviewsForVoter } from '@/lib/contest-state-server';
+import { mergePeerProgress, type EligiblePeerRow } from '@/lib/eligible-peers-server';
 import { formatScheduleDate, reviewWindowStatus, submissionWindowStatus } from '@/lib/program-schedule';
 import type { ProjectProgress } from './project-progress-types';
 import { cohortSubmissionBrowseUrl } from './project-progress-format';
 import { githubRepoUrl } from '@/lib/github-urls';
-import { getVoterRatingsMap } from './ratings-server';
 import { resolveParticipantSubmission } from '@/lib/submissions-resolve-server';
-import { getWrittenReviewsMap } from './written-reviews-server';
 
 export async function getProjectProgress(
   githubHandle: string,
@@ -25,18 +24,26 @@ export async function getProjectProgress(
   const id = cohortId();
   const repo = cohortSubmissionRepo();
   const repoUrl = githubRepoUrl(repo);
+  const self = githubHandle.toLowerCase();
 
-  const submissionData = await resolveParticipantSubmission(projectSlug, githubHandle, id);
+  const [submissionData, contest] = await Promise.all([
+    resolveParticipantSubmission(projectSlug, githubHandle, id),
+    project.reviews ? fetchContestState(projectSlug) : Promise.resolve(null),
+  ]);
 
   let reviews: ProjectProgress['reviews'] = null;
-  if (project.reviews) {
-    const [myRatings, writtenReviews, peerRows] = await Promise.all([
-      getVoterRatingsMap(projectSlug, githubHandle),
-      getWrittenReviewsMap(projectSlug, githubHandle),
-      getEligiblePeerRows(projectSlug, githubHandle),
-    ]);
+  if (project.reviews && contest) {
+    const peerRows: EligiblePeerRow[] = contest.submissions
+      .filter((s) => s.handle !== self)
+      .map((s) => ({
+        handle: s.handle,
+        repo: s.repo,
+        prUrl: s.prUrl,
+        deployUrl: s.deployUrl,
+      }));
 
-    const peers = mergePeerProgress(peerRows, writtenReviews, myRatings);
+    const myReviews = reviewsForVoter(contest, self);
+    const peers = mergePeerProgress(peerRows, myReviews);
     const required = peers.length;
     const rosterPeerCount = Math.max(0, cohortStats.peerReviewCount);
     const awaitingMerge = Math.max(0, rosterPeerCount - required);
@@ -49,7 +56,7 @@ export async function getProjectProgress(
       rosterPeerCount,
       awaitingMerge,
       writtenCompleted: peers.filter((p) => p.reviewFiled).length,
-      ratingsCompleted: peers.filter((p) => p.reviewFiled && p.rated).length,
+      upvotesCompleted: peers.filter((p) => p.upvoted).length,
       dueNote: project.reviews.dueNote,
       dueAt: project.schedule.reviewCloses ?? project.schedule.submissionCloses,
       dueAtFormatted: formatScheduleDate(
@@ -58,7 +65,6 @@ export async function getProjectProgress(
       peers,
       orgReposUrl: cohortSubmissionBrowseUrl(repo, projectSlug, id),
       voteWeek: project.voteWeek,
-      githubVerification: Boolean(process.env.GITHUB_TOKEN?.trim()),
       reviewWindowStatus: windowStatus,
       reviewOpensFormatted: schedule.reviewOpens
         ? formatScheduleDate(schedule.reviewOpens)

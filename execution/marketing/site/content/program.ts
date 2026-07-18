@@ -1,7 +1,7 @@
 /**
  * Messaging standards (canonical vocabulary for participant-facing copy):
  * - "Review week" (not "vote week") for Phase 1 assessment mechanics
- * - Always pair "review → vote": file a written GitHub review, then cast a private vote
+ * - Review on GitHub; optional public Vote: up in the same issue (or abstain)
  * - "Peer" (not "classmate"); "required" (not "mandatory")
  * - Post-admission state: "Enrolled" (admission moment only on /apply)
  * - Money: ~$400/mo tooling; ~$800 (~2 months) combined for the Summer Pilot
@@ -73,7 +73,7 @@ export const programProjects: ProgramProject[] = [
       'Build individually; deploy to production over HTTPS before the deadline',
       'Design for motivation — progress visibility, clear next actions, and signals that make people want to ship',
       'Support all enrolled accounts, projects, tasks, assignments, and status workflows',
-      'File a written technical review on each peer submission, then cast a private vote',
+      'File a written technical review on each peer submission (optional Vote: up in the issue, or abstain)',
       'The submission with the most votes after review closes operates the cohort PM stack',
       'Non-winners contribute fixes and improvements to the winning platform',
     ],
@@ -95,13 +95,13 @@ export const programProjects: ProgramProject[] = [
     },
     reviews: {
       artifact:
-        'Written technical review on each peer submission, then a private vote on this platform',
+        'Written technical review on each peer submission (GitHub issue); optional Vote: up or abstain',
       dueNote: 'Monday week 2, 14:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Submission pull request merged or eligible miss documented',
       '{peerCount}/{peerCount} written reviews',
-      '{peerCount}/{peerCount} private votes',
+      'Optional upvotes via Vote: up in each review issue (abstain allowed)',
     ],
   },
   {
@@ -124,7 +124,7 @@ export const programProjects: ProgramProject[] = [
     expectations: [
       'Build and deploy a communications platform; integrate with the winning PM platform where appropriate',
       'Support real-time or asynchronous communication for all enrolled participants',
-      'File a written technical review on each peer submission, then cast a private vote',
+      'File a written technical review on each peer submission (optional Vote: up in the issue, or abstain)',
       'Non-winners contribute to the winning communications platform',
     ],
     submission: {
@@ -136,13 +136,14 @@ export const programProjects: ProgramProject[] = [
       deadlineNote: 'Pull request merged by Sunday week 2, 17:00 Eastern Time',
     },
     reviews: {
-      artifact: 'Written technical review per peer, then a private vote',
+      artifact:
+        'Written technical review per peer (GitHub issue); optional Vote: up or abstain',
       dueNote: 'Monday week 3, 14:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Merged submission pull request',
       '{peerCount}/{peerCount} written reviews',
-      '{peerCount}/{peerCount} private votes',
+      'Optional upvotes via Vote: up in each review issue (abstain allowed)',
     ],
   },
   {
@@ -166,7 +167,7 @@ export const programProjects: ProgramProject[] = [
       'Ship a production marketing site with strong visual and narrative vibe',
       'Profiles and project evidence for every enrolled participant',
       'Partner-facing documentation and clear calls to engage',
-      'Written technical review and private vote for each peer submission',
+      'Written technical review on each peer submission (optional Vote: up, or abstain)',
     ],
     submission: {
       repoPattern: '{repo}',
@@ -182,13 +183,14 @@ export const programProjects: ProgramProject[] = [
       deadlineNote: 'Pull request merged by Sunday week 3, 17:00 Eastern Time',
     },
     reviews: {
-      artifact: 'Written technical review per peer, then a private vote',
+      artifact:
+        'Written technical review per peer (GitHub issue); optional Vote: up or abstain',
       dueNote: 'Monday week 4, 14:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Merged submission pull request',
       '{peerCount}/{peerCount} written reviews',
-      '{peerCount}/{peerCount} private votes',
+      'Optional upvotes via Vote: up in each review issue (abstain allowed)',
     ],
   },
   {

@@ -53,7 +53,7 @@ export default function TermsPage() {
           <p>You agree not to:</p>
           <ul>
             <li>Submit false information on applications or progress records</li>
-            <li>Attempt to access other participants&apos; private votes or unauthorized data</li>
+            <li>Attempt to access unauthorized private data or disrupt cohort systems</li>
             <li>Disrupt the platform, scrape enrolled-only APIs, or bypass authentication</li>
             <li>Use the platform for harassment, spam, or illegal activity</li>
             <li>Automate votes or reviews in violation of program rules</li>
@@ -67,7 +67,7 @@ export default function TermsPage() {
             <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
               open-source repository
             </a>
-            . The platform tracks submissions, written peer reviews, and private votes per those
+            . The platform tracks enrollment and progress; submissions, written peer reviews, and optional upvotes live on GitHub per those
             criteria. Summer Pilot 2026 is an open-access community cohort—formal academic credit
             and certificates are not issued through this platform.
           </p>

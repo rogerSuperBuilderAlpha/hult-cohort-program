@@ -56,7 +56,8 @@ export default async function OverviewPage() {
               Written technical review on every peer submission ({peerReviewLine}).
             </li>
             <li>
-              Private votes after each review determine which system operates for the cohort.
+              Optional public upvotes on GitHub (or abstain) determine which system operates for the
+              cohort — tallies are not shown on this site.
             </li>
             <li>Non-winners contribute to the selected platform through review, QA, and follow-on changes.</li>
           </ol>

@@ -52,15 +52,12 @@ function ParticipantDashboard({
   const activeSlugs = new Set(activeProjects.map((p) => p.slug));
   const submittedCount = summary.projects.filter((p) => p.submissionMerged).length;
 
-  // Platform-tracked pass-gate requirements: merged submission plus, on vote-week projects,
-  // full written reviews and votes. Staff-verified gates (Phase 2 outcome metrics) are called
-  // out separately below.
+  // Platform-tracked pass-gate: merged submission + written reviews (upvotes optional).
   const isTrackedComplete = (p: DashboardSummary['projects'][number]) =>
     p.submissionMerged &&
     (p.reviewsRequired == null ||
       p.reviewsRequired === 0 ||
-      ((p.reviewsWritten ?? 0) >= p.reviewsRequired &&
-        (p.votesCast ?? 0) >= p.reviewsRequired));
+      (p.reviewsWritten ?? 0) >= p.reviewsRequired);
   const trackedCompleteCount = summary.projects.filter(isTrackedComplete).length;
 
   async function downloadMyData() {
@@ -200,7 +197,7 @@ function ParticipantDashboard({
                 <>
                   {' '}
                   · reviews {project.reviewsWritten}/{project.reviewsRequired}
-                  · votes {project.votesCast}/{project.reviewsRequired}
+                  · upvotes {project.votesCast}/{project.reviewsRequired} (optional)
                   {project.awaitingMerge && project.awaitingMerge > 0
                     ? ` · ${project.awaitingMerge} peer submission(s) pending merge`
                     : ''}

@@ -12,6 +12,7 @@ import {
 } from '@/lib/cohort-config';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import {
+  extractAppRepo,
   extractDeployUrl,
   matchMergedPullRequest,
 } from '@/lib/submission-ingest-server';
@@ -44,7 +45,7 @@ type GithubPull = {
   body: string | null;
   merged_at: string | null;
   base: { ref: string };
-  head: { ref: string };
+  head: { ref: string; repo: { full_name: string } | null };
   user: { login: string } | null;
 };
 
@@ -74,7 +75,7 @@ function parseRepo(fullName: string): { owner: string; repo: string } | null {
 }
 
 function cacheKey(cohort: string, projectSlug: string, baseRef: string): string {
-  return `${cohortSubmissionRepo()}:${cohort}:${projectSlug}:${baseRef}`;
+  return `${cohortSubmissionRepo()}:${cohort}:${projectSlug}:${baseRef}:app-repo-v1`;
 }
 
 function titleMatchesProject(
@@ -90,18 +91,29 @@ function titleMatchesProject(
   return submissionTitlesMatch(prTitle, expected);
 }
 
+function resolvePeerAppRepo(pull: GithubPull, cohortRepo: string): string {
+  const fromBody = extractAppRepo(pull.body, cohortRepo);
+  if (fromBody) return fromBody;
+  const headRepo = pull.head.repo?.full_name?.trim();
+  if (headRepo && headRepo.toLowerCase() !== cohortRepo.toLowerCase()) {
+    return headRepo;
+  }
+  // Last resort — cohort monorepo (review issues should prefer the peer app repo)
+  return cohortRepo;
+}
+
 function pullToRecord(
   pull: GithubPull,
   cohort: string,
   projectSlug: string,
   handle: string,
-  repo: string
+  cohortRepo: string
 ): GithubSubmissionRecord {
   return {
     cohortId: cohort,
     projectSlug,
     githubHandle: handle,
-    repo,
+    repo: resolvePeerAppRepo(pull, cohortRepo),
     prNumber: pull.number,
     prUrl: pull.html_url,
     prTitle: pull.title,
@@ -167,11 +179,24 @@ export async function listMergedProjectSubmissions(
 
   const seen = new Map<string, GithubSubmissionRecord>();
 
+  function preferRecord(
+    prev: GithubSubmissionRecord | undefined,
+    next: GithubSubmissionRecord
+  ): GithubSubmissionRecord {
+    if (!prev) return next;
+    if (!prev.deployUrl && next.deployUrl) return next;
+    if (prev.deployUrl && !next.deployUrl) return prev;
+    return next.prNumber >= prev.prNumber ? next : prev;
+  }
+
   for (const baseRef of baseRefsForProject(cohort, projectSlug)) {
     const key = cacheKey(cohort, projectSlug, baseRef);
     const cached = cache.get(key);
     if (cached && cached.expires > Date.now()) {
-      for (const row of cached.data) seen.set(row.githubHandle, row);
+      for (const row of cached.data) {
+        const handle = row.githubHandle.toLowerCase();
+        seen.set(handle, preferRecord(seen.get(handle), { ...row, githubHandle: handle }));
+      }
       continue;
     }
 
@@ -199,7 +224,10 @@ export async function listMergedProjectSubmissions(
     }
 
     cache.set(key, { expires: Date.now() + CACHE_TTL_MS, data: rows });
-    for (const row of rows) seen.set(row.githubHandle, row);
+    for (const row of rows) {
+      const handle = row.githubHandle.toLowerCase();
+      seen.set(handle, preferRecord(seen.get(handle), { ...row, githubHandle: handle }));
+    }
   }
 
   return [...seen.values()].sort((a, b) => a.githubHandle.localeCompare(b.githubHandle));

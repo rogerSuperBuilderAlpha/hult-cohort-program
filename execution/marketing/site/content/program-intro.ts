@@ -76,12 +76,12 @@ export const phase1Loop: LoopStep[] = [
   {
     step: 2,
     title: 'Review every peer',
-    body: 'File a structured technical review for each peer system; record it on the platform.',
+    body: 'File a structured technical review for each peer system as a GitHub issue.',
   },
   {
     step: 3,
-    title: 'Private vote',
-    body: 'After your written review, cast 👍 or 👎 (not public).',
+    title: 'Optional upvote',
+    body: 'Keep Vote: up in the issue to upvote, or omit it to abstain. No downvotes. Tallies are not shown on the site.',
   },
   {
     step: 4,

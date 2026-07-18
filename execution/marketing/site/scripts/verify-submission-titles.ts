@@ -6,13 +6,18 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { extractDeployUrl, matchMergedPullRequest } from '../lib/submission-ingest-server';
+import {
+  extractAppRepo,
+  extractDeployUrl,
+  matchMergedPullRequest,
+} from '../lib/submission-ingest-server';
 import { programProjects } from '../content/program';
 import {
   normalizeSubmissionTitle,
   resolveHandleFromSubmissionTitle,
   submissionTitlesMatch,
 } from '../lib/submission-title-match';
+import { issueHasUpvote, parseReviewIssueTitle } from '../lib/contest-state-format';
 
 process.env.COHORT_ID = process.env.COHORT_ID || 'summer26';
 process.env.NEXT_PUBLIC_COHORT_REPO =
@@ -166,6 +171,51 @@ assert(
   'deploy url strips trailing markdown bold'
 );
 assert(extractDeployUrl('no url here') === null, 'no deploy url');
+
+assert(
+  extractAppRepo(
+    'App repo: https://github.com/RAVEN-dubgub/pm-RAVEN-dubgub\n',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === 'RAVEN-dubgub/pm-RAVEN-dubgub',
+  'app repo label'
+);
+assert(
+  extractAppRepo(
+    'Build repo: https://github.com/joes9987/pm-joes9987\n',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === 'joes9987/pm-joes9987',
+  'build repo label'
+);
+assert(
+  extractAppRepo(
+    'git clone https://github.com/frankgomezdev/pm-frankgomezdev.git\n',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === 'frankgomezdev/pm-frankgomezdev',
+  'clone url app repo'
+);
+assert(
+  extractAppRepo(
+    '`git clone https://github.com/frankgomezdev/pm-frankgomezdev && cd pm-frankgomezdev`',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === 'frankgomezdev/pm-frankgomezdev',
+  'clone url before &&'
+);
+assert(
+  extractAppRepo(
+    'See https://github.com/rogerSuperBuilderAlpha/hult-cohort-program\n',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === null,
+  'cohort monorepo excluded'
+);
+
+assert(
+  parseReviewIssueTitle('Review by @alice: @bob')?.voter === 'alice' &&
+    parseReviewIssueTitle('Review by @alice: @bob')?.reviewee === 'bob',
+  'review title parse'
+);
+assert(issueHasUpvote('## Vote\n\nVote: up\n') === true, 'vote up detected');
+assert(issueHasUpvote('## Vote\n\nVote: down\n') === false, 'down not counted');
+assert(issueHasUpvote('no vote here') === false, 'abstain has no upvote');
 
 const voteWeekFromProgram = programProjects.filter((p) => p.voteWeek).map((p) => p.slug);
 const voteWeekFromJson = JSON.parse(

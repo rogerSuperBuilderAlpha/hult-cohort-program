@@ -29,29 +29,29 @@ export async function refreshRosterMeta(cohortId: string): Promise<string[]> {
   return handles;
 }
 
+/** Uncached roster handles — staff scripts / contest builder outside Next request context. */
+export async function loadActiveRosterHandles(cohortId: string): Promise<string[]> {
+  if (!isAdminConfigured()) return [];
+  try {
+    const meta = await rosterMetaRef(cohortId).get();
+    const handles = meta.data()?.activeHandles;
+    if (Array.isArray(handles) && handles.every((h) => typeof h === 'string')) {
+      return handles as string[];
+    }
+    return await refreshRosterMeta(cohortId);
+  } catch (err) {
+    console.error('[loadActiveRosterHandles]', err instanceof Error ? err.message : err);
+    return [];
+  }
+}
+
 /**
  * Active roster GitHub handles. Prefers roster/{cohortId} meta doc (1 read);
  * falls back to members scan + backfill. Request-deduped + 60s cross-request cache.
  */
 export const getActiveRosterHandles = cache(async (cohortId: string): Promise<string[]> => {
   const cached = unstable_cache(
-    async () => {
-      if (!isAdminConfigured()) return [] as string[];
-      try {
-        const meta = await rosterMetaRef(cohortId).get();
-        const handles = meta.data()?.activeHandles;
-        if (Array.isArray(handles) && handles.every((h) => typeof h === 'string')) {
-          return handles as string[];
-        }
-        return await refreshRosterMeta(cohortId);
-      } catch (err) {
-        console.error(
-          '[getActiveRosterHandles]',
-          err instanceof Error ? err.message : err
-        );
-        return [] as string[];
-      }
-    },
+    () => loadActiveRosterHandles(cohortId),
     ['active-roster-handles-v2', cohortId],
     { revalidate: 60, tags: [`roster-handles:${cohortId}`] }
   );

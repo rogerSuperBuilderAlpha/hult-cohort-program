@@ -1,68 +1,12 @@
-import { getEligiblePeerRow } from '@/lib/eligible-peers-server';
-import { parseGithubHandle } from '@/lib/firebase/github-handle';
-import type { PeerRating } from '@/lib/project-progress-types';
-import { requireReviewRouteAccess } from '@/lib/review-window-guard';
-import { setPeerRating } from '@/lib/ratings-server';
-import { hasWrittenReview } from '@/lib/written-reviews-server';
-import { reviewIssueTitle } from '@/lib/written-reviews-format';
-import { logApiError } from '@/lib/api-log';
-
 export const runtime = 'nodejs';
 
-export async function POST(
-  request: Request,
-  context: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await context.params;
-  const guard = await requireReviewRouteAccess(request, slug, 'ratings');
-  if (!guard.ok) return guard.response;
-
-  let body: { revieweeHandle?: string; rating?: PeerRating };
-  try {
-    body = (await request.json()) as typeof body;
-  } catch {
-    return Response.json({ error: 'Invalid JSON body.' }, { status: 400 });
-  }
-
-  const revieweeHandle = parseGithubHandle(body.revieweeHandle);
-  const rating = body.rating;
-  const githubHandle = guard.githubHandle;
-
-  if (!revieweeHandle || (rating !== 'up' && rating !== 'down')) {
-    return Response.json(
-      { error: 'Provide revieweeHandle and rating ("up" or "down").' },
-      { status: 400 }
-    );
-  }
-
-  if (revieweeHandle === githubHandle) {
-    return Response.json({ error: 'You cannot rate your own submission.' }, { status: 400 });
-  }
-
-  const peer = await getEligiblePeerRow(slug, githubHandle, revieweeHandle);
-  if (!peer) {
-    return Response.json({ error: 'That peer has no eligible merged submission.' }, { status: 400 });
-  }
-
-  const reviewOnFile = await hasWrittenReview(slug, githubHandle, revieweeHandle, peer.repo);
-  if (!reviewOnFile) {
-    return Response.json(
-      {
-        error: `File your GitHub review first (issue titled "${reviewIssueTitle(githubHandle, 'peer-handle')}" on the cohort repo), then vote.`,
-      },
-      { status: 403 }
-    );
-  }
-
-  try {
-    const ratings = await setPeerRating(slug, githubHandle, revieweeHandle, rating);
-    return Response.json({
-      revieweeHandle,
-      rating,
-      completed: Object.keys(ratings).length,
-    });
-  } catch (err) {
-    logApiError(`POST /api/program/${slug}/ratings`, err);
-    return Response.json({ error: 'Could not save rating.' }, { status: 500 });
-  }
+/** Platform votes removed — upvotes live in GitHub review issues (`Vote: up`). */
+export async function POST() {
+  return Response.json(
+    {
+      error:
+        'Platform votes are retired. File a GitHub review issue and optionally include Vote: up, then refresh your progress on the project page.',
+    },
+    { status: 410 }
+  );
 }

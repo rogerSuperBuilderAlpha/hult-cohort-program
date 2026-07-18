@@ -16,12 +16,12 @@ export function ProjectOutcomeBanner({ outcome, viewerHandle }: Props) {
         <strong>Contest outcome published.</strong>{' '}
         {isTie ? (
           <>
-            Tie at {outcome.up} thumbs up — staff resolving via rubric median. Candidates:{' '}
+            Tie at {outcome.up} upvotes — staff resolving. Candidates:{' '}
             {outcome.tiedHandles.map((h) => `@${h}`).join(', ')}.
           </>
         ) : outcome.winnerHandle ? (
           <>
-            @{outcome.winnerHandle} operates this platform ({outcome.up} up, {outcome.down} down).
+            @{outcome.winnerHandle} operates this platform ({outcome.up} upvotes).
             {isWinner
               ? ' You won — keep the deployment stable for the cohort.'
               : ' Contribute fixes and improvements to the winning build.'}

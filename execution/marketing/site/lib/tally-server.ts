@@ -1,7 +1,5 @@
-import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
-import { peerRatingsVotersRef, submissionEntriesRef } from '@/lib/firestore-paths';
-import { getActiveRosterHandles } from '@/lib/roster-handles-server';
+import { buildContestState } from '@/lib/contest-state-server';
 
 export type TallyRow = {
   handle: string;
@@ -17,18 +15,8 @@ export type TallyResult = {
   winner: string | null;
 };
 
-function toDate(value: unknown): Date | null {
-  if (!value) return null;
-  if (value instanceof Date) return value;
-  if (typeof value === 'object' && value !== null && 'toDate' in value) {
-    return (value as { toDate: () => Date }).toDate();
-  }
-  return null;
-}
-
 function compareRows(a: TallyRow, b: TallyRow): number {
   if (b.up !== a.up) return b.up - a.up;
-  if (a.down !== b.down) return a.down - b.down;
   const aTime = a.mergedAt?.getTime() ?? Number.MAX_SAFE_INTEGER;
   const bTime = b.mergedAt?.getTime() ?? Number.MAX_SAFE_INTEGER;
   if (aTime !== bTime) return aTime - bTime;
@@ -36,57 +24,37 @@ function compareRows(a: TallyRow, b: TallyRow): number {
 }
 
 /**
- * Staff-only thumbs-up tally for a Phase 1 review-week project.
- * Winner = most 👍; tie-break = fewest 👎, then earliest mergedAt.
+ * Staff-only upvote tally from GitHub contest state.
+ * Winner = most Vote: up; tie-break = earliest mergedAt. Not exposed on the site UI.
  */
 export async function tallyThumbsUp(projectSlug: string): Promise<TallyResult | null> {
-  if (!isAdminConfigured()) return null;
-
   const id = cohortId();
-
-  const [activeHandlesList, entriesSnap, votersSnap] = await Promise.all([
-    getActiveRosterHandles(id),
-    submissionEntriesRef(id, projectSlug).where('merged', '==', true).get(),
-    peerRatingsVotersRef(id, projectSlug).get(),
-  ]);
-
-  const activeHandles = new Set(activeHandlesList);
-
-  const mergedAtByHandle = new Map<string, Date | null>();
-  for (const doc of entriesSnap.docs) {
-    if (!activeHandles.has(doc.id)) continue;
-    mergedAtByHandle.set(doc.id, toDate(doc.data().mergedAt));
-  }
+  const state = await buildContestState(projectSlug);
 
   const upCounts = new Map<string, number>();
-  const downCounts = new Map<string, number>();
-
-  for (const voterDoc of votersSnap.docs) {
-    if (!activeHandles.has(voterDoc.id)) continue;
-    const ratings = voterDoc.data()?.ratings ?? {};
-    for (const [revieweeHandle, value] of Object.entries(ratings)) {
-      if (!mergedAtByHandle.has(revieweeHandle)) continue;
-      if (value === 'up') {
-        upCounts.set(revieweeHandle, (upCounts.get(revieweeHandle) ?? 0) + 1);
-      } else if (value === 'down') {
-        downCounts.set(revieweeHandle, (downCounts.get(revieweeHandle) ?? 0) + 1);
-      }
+  for (const byReviewee of Object.values(state.reviews)) {
+    for (const [reviewee, review] of Object.entries(byReviewee)) {
+      if (!review.upvoted) continue;
+      upCounts.set(reviewee, (upCounts.get(reviewee) ?? 0) + 1);
     }
   }
 
-  const rows: TallyRow[] = [...mergedAtByHandle.keys()]
-    .map((handle) => ({
-      handle,
-      up: upCounts.get(handle) ?? 0,
-      down: downCounts.get(handle) ?? 0,
-      mergedAt: mergedAtByHandle.get(handle) ?? null,
+  const rows: TallyRow[] = state.submissions
+    .map((sub) => ({
+      handle: sub.handle,
+      up: upCounts.get(sub.handle) ?? 0,
+      down: 0,
+      mergedAt: sub.mergedAt ? new Date(sub.mergedAt) : null,
     }))
     .sort(compareRows);
+
+  // rows already sorted: most upvotes → earliest mergedAt → handle
+  const winner = rows[0]?.handle ?? null;
 
   return {
     projectSlug,
     cohortId: id,
     rows,
-    winner: rows[0]?.handle ?? null,
+    winner,
   };
 }

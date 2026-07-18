@@ -21,7 +21,7 @@ export default function ProgramIndexPage() {
         <p className={styles.eyebrow}>Participant journey</p>
         <h1 className={styles.sectionTitle}>Six weeks · projects, requirements, assessment</h1>
         <p className={styles.overviewLead}>
-          Weeks 1–3 are review-week contests: build, review every peer, then cast a private vote.
+          Weeks 1–3 are review-week contests: build, review every peer on GitHub, optionally upvote.
           The selected system operates for the cohort. Weeks 4–6 are external sprints — Ludwitt
           learning, startup, and open-source swarm — one week each.
         </p>

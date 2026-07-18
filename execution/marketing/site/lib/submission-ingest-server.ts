@@ -60,8 +60,9 @@ export function parseGithubWebhookPayload(rawBody: string): unknown {
 }
 
 import { extractDeployUrl } from './deploy-url.mjs';
+import { extractAppRepo, parseGithubRepoFullName } from './app-repo.mjs';
 
-export { extractDeployUrl };
+export { extractDeployUrl, extractAppRepo, parseGithubRepoFullName };
 
 const EMPTY_STATS: CohortStats = {
   cohortId: 'summer26',

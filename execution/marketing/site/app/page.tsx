@@ -53,7 +53,7 @@ export default async function Home() {
         </h2>
         <p className={styles.sectionBody}>
           Weeks 1–3 are contests: project management, internal communications, then vibe marketing.
-          Everyone reviews every submission, and a private vote decides which build the cohort adopts
+          Everyone reviews every submission on GitHub; optional public upvotes decide which build the cohort adopts
           and operates.
         </p>
         <p className={styles.sectionBody}>

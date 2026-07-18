@@ -20,6 +20,7 @@ export const ACCENT_COOKIE = "flexiflow_accent";
 export const BACKGROUND_COOKIE = "flexiflow_background";
 export const WALLPAPER_COOKIE = "flexiflow_wallpaper";
 export const WALLPAPER_FIT_COOKIE = "flexiflow_wallpaper_fit";
+export const LAST_WORKSPACE_COOKIE = "flexiflow_last_workspace";
 
 export const WALLPAPER_PRESETS = [
   { name: "None", value: "" },

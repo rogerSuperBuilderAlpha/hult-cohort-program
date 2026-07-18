@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { AppearanceForm } from "@/components/AppearanceForm";
 import { AppShell } from "@/components/AppShell";
 import { getSessionUser } from "@/lib/auth";
-import { countUnreadNotifications, getUserPrefs } from "@/lib/db";
+import { getUserPrefs } from "@/lib/db";
 import {
   ACCENT_COOKIE,
   BACKGROUND_COOKIE,
@@ -16,15 +16,16 @@ import {
   WALLPAPER_FIT_COOKIE,
 } from "@/lib/theme";
 import type { Theme } from "@/lib/types";
+import { getGlobalShellData } from "@/lib/workspace-server";
 
 export default async function AccountPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [prefs, unread, jar] = await Promise.all([
+  const [prefs, jar, shell] = await Promise.all([
     getUserPrefs(user.id),
-    countUnreadNotifications(user.id),
     cookies(),
+    getGlobalShellData(user),
   ]);
 
   const theme: Theme =
@@ -45,7 +46,13 @@ export default async function AccountPage() {
   );
 
   return (
-    <AppShell user={user} unread={unread}>
+    <AppShell
+      user={shell.user}
+      workspace={shell.workspace}
+      role={shell.role}
+      workspaces={shell.workspaces}
+      unread={shell.unread}
+    >
       <div className="grid-2">
         <section className="panel">
           <p className="brand-sub">Account</p>

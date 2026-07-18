@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { getSessionUser, requireUser, type SessionUser } from "./auth";
 import {
   addMember,
@@ -12,6 +13,7 @@ import {
   listWorkspacesForUser,
 } from "./db";
 import { atLeast } from "./roles";
+import { LAST_WORKSPACE_COOKIE } from "./theme";
 import type { Status, Task, Workspace, WorkspaceRole } from "./types";
 
 export type WorkspaceContext = {
@@ -25,6 +27,14 @@ export type ShellData = WorkspaceContext & {
   unread: number;
 };
 
+export type GlobalShellData = {
+  user: SessionUser;
+  workspaces: Workspace[];
+  unread: number;
+  workspace?: Workspace;
+  role?: WorkspaceRole;
+};
+
 /** Loads everything the AppShell needs for a workspace page. */
 export async function getShellData(workspaceId: string): Promise<ShellData | null> {
   const ctx = await getWorkspaceContext(workspaceId);
@@ -34,6 +44,36 @@ export async function getShellData(workspaceId: string): Promise<ShellData | nul
     countUnreadNotifications(ctx.user.id),
   ]);
   return { ...ctx, workspaces, unread };
+}
+
+/**
+ * Shell data for global pages (Profile, Notifications, Workspaces list).
+ * Restores the last-used workspace so the top nav stays available.
+ */
+export async function getGlobalShellData(
+  user: SessionUser,
+): Promise<GlobalShellData> {
+  const [workspaces, unread, jar] = await Promise.all([
+    listWorkspacesForUser(user.id),
+    countUnreadNotifications(user.id),
+    cookies(),
+  ]);
+
+  if (workspaces.length === 0) {
+    return { user, workspaces, unread };
+  }
+
+  const remembered = jar.get(LAST_WORKSPACE_COOKIE)?.value;
+  const workspace =
+    workspaces.find((w) => w.id === remembered) ?? workspaces[0];
+  const membership = await getMembership(workspace.id, user.id);
+  return {
+    user,
+    workspaces,
+    unread,
+    workspace,
+    role: membership?.role,
+  };
 }
 
 /** Returns membership context, or null if unauthenticated or not a member. */

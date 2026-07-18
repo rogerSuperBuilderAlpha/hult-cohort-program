@@ -4,25 +4,30 @@ import { AppShell } from "@/components/AppShell";
 import { SubmitButton } from "@/components/SubmitButton";
 import { createWorkspaceAction } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
-import { countUnreadNotifications, getMembership, listWorkspacesForUser } from "@/lib/db";
+import { getMembership } from "@/lib/db";
 import { ROLE_LABELS } from "@/lib/roles";
 import { ACCENT_PRESETS } from "@/lib/theme";
+import { getGlobalShellData } from "@/lib/workspace-server";
 
 export default async function WorkspacesPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [workspaces, unread] = await Promise.all([
-    listWorkspacesForUser(user.id),
-    countUnreadNotifications(user.id),
-  ]);
+  const shell = await getGlobalShellData(user);
+  const { workspaces } = shell;
 
   const roles = await Promise.all(
     workspaces.map((w) => getMembership(w.id, user.id)),
   );
 
   return (
-    <AppShell user={user} unread={unread}>
+    <AppShell
+      user={shell.user}
+      workspace={shell.workspace}
+      role={shell.role}
+      workspaces={shell.workspaces}
+      unread={shell.unread}
+    >
       <div className="stack">
         <div className="section-head">
           <div>
@@ -38,54 +43,45 @@ export default async function WorkspacesPage() {
         <div className="grid-2">
           <div className="project-list">
             {workspaces.length === 0 ? (
-              <div className="empty">
-                No workspaces yet. Create one to get started →
-              </div>
+              <div className="empty">Create your first workspace to begin.</div>
             ) : (
               workspaces.map((w, i) => (
-                <Link key={w.id} href={`/w/${w.id}`} className="card-row linky">
+                <Link key={w.id} href={`/w/${w.id}`} className="project-card">
                   <div className="row-split">
-                    <div className="split">
+                    <strong style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span
                         className="dot"
-                        style={{ background: w.accent_color, width: 12, height: 12 }}
+                        style={{ background: w.accent_color }}
                         aria-hidden
                       />
-                      <strong>{w.name}</strong>
-                    </div>
-                    <span className="role-pill">
-                      {roles[i] ? ROLE_LABELS[roles[i]!.role] : "Member"}
+                      {w.name}
+                    </strong>
+                    <span className="soon-tag">
+                      {ROLE_LABELS[roles[i]?.role ?? "MEMBER"]}
                     </span>
                   </div>
-                  <div className="muted">Open workspace →</div>
                 </Link>
               ))
             )}
           </div>
 
           <section className="panel">
-            <h1 style={{ fontSize: "1.3rem" }}>New workspace</h1>
-            <p className="lead">Give it a name and a brand color.</p>
+            <h1 style={{ fontSize: "1.2rem" }}>New workspace</h1>
             <form className="form" action={createWorkspaceAction}>
               <label>
                 Name
-                <input name="name" required placeholder="Product Team" maxLength={60} />
+                <input name="name" required placeholder="Product squad" />
               </label>
               <label>
-                Accent color
-                <input type="color" name="accent" defaultValue="#2563eb" />
+                Accent
+                <select name="accent" defaultValue={ACCENT_PRESETS[0].value}>
+                  {ACCENT_PRESETS.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
               </label>
-              <div className="swatch-row">
-                {ACCENT_PRESETS.map((p) => (
-                  <span
-                    key={p.value}
-                    className="swatch"
-                    title={p.name}
-                    style={{ background: p.value }}
-                    aria-hidden
-                  />
-                ))}
-              </div>
               <SubmitButton>Create workspace</SubmitButton>
             </form>
           </section>

@@ -4,26 +4,33 @@ import { AppShell } from "@/components/AppShell";
 import { SubmitButton } from "@/components/SubmitButton";
 import { markNotificationsReadAction } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
-import { countUnreadNotifications, listNotifications } from "@/lib/db";
+import { listNotifications } from "@/lib/db";
+import { getGlobalShellData } from "@/lib/workspace-server";
 
 export default async function NotificationsPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [notifications, unread] = await Promise.all([
+  const [notifications, shell] = await Promise.all([
     listNotifications(user.id),
-    countUnreadNotifications(user.id),
+    getGlobalShellData(user),
   ]);
 
   return (
-    <AppShell user={user} unread={unread}>
+    <AppShell
+      user={shell.user}
+      workspace={shell.workspace}
+      role={shell.role}
+      workspaces={shell.workspaces}
+      unread={shell.unread}
+    >
       <div className="stack">
         <div className="section-head">
           <div>
             <p className="brand-sub">Inbox</p>
             <h1>Notifications</h1>
           </div>
-          {unread > 0 ? (
+          {shell.unread > 0 ? (
             <form action={markNotificationsReadAction}>
               <SubmitButton className="ghost-btn">Mark all read</SubmitButton>
             </form>

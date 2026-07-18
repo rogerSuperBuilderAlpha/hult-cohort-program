@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles for INITIARA */
+
+@layer components {
+  .section-heading {
+    @apply font-display text-xl font-extrabold uppercase tracking-tight text-slate-900 dark:text-surface-primary sm:text-2xl;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-slate-100 text-slate-900 antialiased dark:bg-surface-bg dark:text-surface-primary;
+  }
+}

@@ -61,6 +61,7 @@ import {
   WALLPAPER_COOKIE,
   WALLPAPER_FIT_COOKIE,
 } from "./theme";
+import { getSupabaseAdmin } from "./supabase";
 import type { CustomFieldType, WorkspaceRole } from "./types";
 import {
   requireWorkspaceRole,
@@ -214,6 +215,40 @@ export async function updateThemeAction(formData: FormData): Promise<void> {
   const redirectTo = String(formData.get("redirectTo") ?? "/account");
   revalidatePath(redirectTo);
   redirect(redirectTo);
+}
+
+const MAX_WALLPAPER_BYTES = 5 * 1024 * 1024;
+
+export async function uploadWallpaperAction(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return;
+  if (!file.type.startsWith("image/") || file.size > MAX_WALLPAPER_BYTES) return;
+
+  const ext =
+    file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "img";
+  const path = `${user.id}/${Date.now()}.${ext}`;
+  const storage = getSupabaseAdmin().storage.from("wallpapers");
+  const { error } = await storage.upload(path, Buffer.from(await file.arrayBuffer()), {
+    contentType: file.type,
+    upsert: true,
+  });
+  if (error) throw new Error(`Wallpaper upload failed: ${error.message}`);
+  const { data } = storage.getPublicUrl(path);
+
+  const prefs = await getUserPrefs(user.id);
+  await upsertUserPrefs({
+    user_id: user.id,
+    theme: prefs?.theme ?? "light",
+    accent_color: prefs?.accent_color ?? DEFAULT_ACCENT,
+    background_color: prefs?.background_color ?? "",
+    wallpaper_url: data.publicUrl,
+    wallpaper_fit: prefs?.wallpaper_fit ?? "cover",
+  });
+  const jar = await cookies();
+  jar.set(WALLPAPER_COOKIE, data.publicUrl, { path: "/", maxAge: 60 * 60 * 24 * 365 });
+  revalidatePath("/account");
+  redirect("/account");
 }
 
 // ---------------------------------------------------------------------------

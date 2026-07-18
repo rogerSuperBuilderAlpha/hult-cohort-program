@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateThemeAction } from "@/lib/actions";
+import { updateThemeAction, uploadWallpaperAction } from "@/lib/actions";
 import { ACCENT_PRESETS, WALLPAPER_PRESETS } from "@/lib/theme";
 import type { Theme } from "@/lib/types";
 import { SubmitButton } from "./SubmitButton";
@@ -26,6 +26,7 @@ export function AppearanceForm({
   const [wallpaperFit, setWallpaperFit] = useState(initialWallpaperFit);
 
   return (
+    <>
     <form className="form" action={updateThemeAction}>
       <input type="hidden" name="redirectTo" value="/account" />
       <input type="hidden" name="theme" value={theme} />
@@ -154,5 +155,23 @@ export function AppearanceForm({
 
       <SubmitButton>Save appearance</SubmitButton>
     </form>
+
+    <form className="form" action={uploadWallpaperAction} style={{ marginTop: "1.1rem" }}>
+      <div>
+        <div style={{ fontWeight: 600, marginBottom: "0.4rem" }}>
+          Upload your own background
+        </div>
+        <label>
+          Image file
+          <input type="file" name="file" accept="image/*" required />
+        </label>
+        <p className="muted" style={{ marginBottom: 0 }}>
+          PNG, JPG, WebP or GIF up to 5 MB. Uploading sets it as your wallpaper
+          right away.
+        </p>
+      </div>
+      <SubmitButton>Upload &amp; use image</SubmitButton>
+    </form>
+    </>
   );
 }

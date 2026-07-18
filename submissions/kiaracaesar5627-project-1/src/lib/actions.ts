@@ -247,8 +247,8 @@ export async function uploadWallpaperAction(formData: FormData): Promise<void> {
   });
   const jar = await cookies();
   jar.set(WALLPAPER_COOKIE, data.publicUrl, { path: "/", maxAge: 60 * 60 * 24 * 365 });
-  revalidatePath("/account");
-  redirect("/account");
+  revalidatePath("/settings");
+  redirect("/settings");
 }
 
 // ---------------------------------------------------------------------------

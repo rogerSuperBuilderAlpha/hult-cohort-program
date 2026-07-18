@@ -28,7 +28,7 @@ export function AppearanceForm({
   return (
     <>
     <form className="form" action={updateThemeAction}>
-      <input type="hidden" name="redirectTo" value="/account" />
+      <input type="hidden" name="redirectTo" value="/settings" />
       <input type="hidden" name="theme" value={theme} />
       <input type="hidden" name="accent" value={accent} />
       <input type="hidden" name="background" value={background} />

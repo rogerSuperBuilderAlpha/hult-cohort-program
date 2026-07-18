@@ -137,7 +137,8 @@ export async function AppShell({
                 @{user.username}
               </div>
               <hr />
-              <Link href="/account">Appearance & account</Link>
+              <Link href="/account">Profile</Link>
+              <Link href="/settings">Settings</Link>
               <form action={updateThemeAction}>
                 <input type="hidden" name="theme" value={nextTheme} />
                 <input type="hidden" name="accent" value={accent} />

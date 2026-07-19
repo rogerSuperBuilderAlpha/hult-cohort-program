@@ -1,0 +1,51 @@
+{
+  "name": "nikjain15-project-2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --project unit",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-rally \"vitest run --project rules\"",
+    "test:integration": "firebase emulators:exec --only firestore,auth --project demo-rally \"vitest run --project integration\"",
+    "test:e2e": "firebase emulators:exec --only firestore,auth --project demo-rally \"BASE_URL=http://localhost:3000 playwright test --project full\"",
+    "test:e2e:smoke": "PLAYWRIGHT_SMOKE=1 playwright test --project smoke",
+    "emulator": "firebase emulators:start --only firestore,auth --project demo-rally",
+    "gate": "npm run typecheck && npm run lint && npm run test:unit && npm run test:rules && npm run test:integration && npm run test:e2e:smoke",
+    "dev:emulator": "NEXT_PUBLIC_USE_EMULATOR=1 NEXT_PUBLIC_EMULATOR_PROJECT=demo-rally next dev",
+    "explore": "bash scripts/explore.sh",
+    "sync:core": "npm --prefix ../cohort-common run build && rm -rf vendor/cohort-core/dist vendor/cohort-core/src && cp -R ../cohort-common/dist vendor/cohort-core/dist && cp -R ../cohort-common/src vendor/cohort-core/src && cp ../cohort-common/package.json vendor/cohort-core/package.json"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.1",
+    "@cohort/core": "file:./vendor/cohort-core",
+    "@vercel/analytics": "^2.0.1",
+    "firebase": "^12.16.0",
+    "firebase-admin": "^14.2.0",
+    "next": "16.2.10",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "@playwright/test": "^1.61.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "firebase-tools": "^15.24.0",
+    "msw": "^2.15.0",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "jose": "^4.15.9"
+  }
+}

@@ -1,0 +1,295 @@
+rules_version = '2';
+
+// Rally — Firestore security rules.
+//
+// Model: the cohort is a trusted-but-accountable group. Membership gates reading a channel;
+// authorship is bound to the signer; and every points-bearing number is written ONLY by the
+// server (Admin SDK bypasses these rules). What clients can do is deliberately small:
+//   - read channels you're a member of, and post as yourself;
+//   - toggle your OWN reaction / your OWN uid in a list — never inflate a count;
+//   - confirm/decline recognition where YOU are the helped party — flipping status only.
+// Points, xpEvents, and pulse rows are server-authored. A client can never mint XP.
+//
+// Helper functions below are the canonical @cohort/core set (submissions/cohort-common/
+// src/firestore/rules-helpers.rules) copied verbatim — Firestore rules have no import.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Fields a request is trying to change.
+    function changed() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // An identity field is WRITE-ONCE: an absent/null value may be backfilled to a real value, but
+    // a value can never be repointed to something else (or cleared). The cross-app shared-context
+    // bus keys purely on the GitHub handle, and each app maps a server-verified uid → this profile
+    // field → the bus key. If the field were freely rewritable, a member could repoint it to a
+    // teammate's login and then read / forge tasks under / erase that teammate's shared context
+    // across the whole suite. Freezing it closes the repoint-an-established-account attack.
+    function frozenIdentity(field) {
+      return resource.data.get(field, null) == null
+             || request.resource.data.get(field, null) == resource.data.get(field, null);
+    }
+
+    // A list whose set has the same size holds no repeats.
+    function noDuplicates(list) {
+      return list.toSet().size() == list.size();
+    }
+
+    // Proves a member only ever toggles *themselves* in a uid list. noDuplicates is what makes
+    // the set reasoning and the length reasoning agree: Firestore arrays allow duplicates and
+    // every count here is `array.length`, so [] -> [me, me, me] must NOT read as "one me".
+    function togglesOnlySelf(before, after) {
+      return noDuplicates(after)
+             && after.toSet().difference(before.toSet())
+                  .union(before.toSet().difference(after.toSet()))
+                  .hasOnly([request.auth.uid]);
+    }
+
+    function channelMemberUids(channelId) {
+      return get(/databases/$(database)/documents/channels/$(channelId)).data.memberUids;
+    }
+
+    // A reactions update touches ONLY the caller's own key. reactions is a map {uid: emoji};
+    // the diff's affected keys (added / removed / changed) must be exactly the caller's uid, so
+    // nobody can react as someone else or clear another person's reaction. Missing field → {}.
+    function reactionTogglesSelf(before, after) {
+      return after.get('reactions', {}).diff(before.get('reactions', {}))
+               .affectedKeys().hasOnly([request.auth.uid]);
+    }
+
+    // A message body must be a non-empty string within a sane bound. Unbounded bodies are a
+    // read-cost and abuse vector (one giant message inflates every channel-load read); this is
+    // the server-side ceiling, mirrored by the composer's client-side limit.
+    function validBody(body) {
+      return body is string && body.size() > 0 && body.size() <= 4000;
+    }
+
+    // --- profiles ------------------------------------------------------------
+    // Readable by the cohort (to render authors, members, the roster). Writable only by the
+    // member themselves; uid is immutable. No deletes — messages reference authors by uid.
+    match /profiles/{uid} {
+      allow read: if signedIn();
+      allow create: if isSelf(uid) && request.resource.data.uid == uid;
+      // uid is immutable, and the identity keys (githubLogin + its handle mirror — what the bus
+      // keys on, see getHandle) are write-once: backfill from null is allowed (first sign-in learns
+      // the login), repointing an already-set value is denied.
+      allow update: if isSelf(uid)
+                    && request.resource.data.uid == resource.data.uid
+                    && frozenIdentity('githubLogin')
+                    && frozenIdentity('handle');
+      allow delete: if false;
+    }
+
+    // --- channels ------------------------------------------------------------
+    // Read only if you're a member (this is what makes private channels/DMs private).
+    // Any signed-in member may create a channel, but only with themselves in the initial
+    // member set — you cannot conjure a channel that reads someone else in. memberUids may
+    // change (join/leave), but creatorUid and kind are frozen.
+    match /channels/{channelId} {
+      // A PUBLIC channel's doc is discoverable by any signed-in member — that's how you find
+      // and join it (the join transaction must read it first). Its MESSAGES stay members-only
+      // (see the messages rule), so "public" means joinable, not readable-without-joining.
+      // PRIVATE channels and DMs are members-only even at the doc level. `resource == null`
+      // covers a get() of a not-yet-created channel inside the create-or-join transaction.
+      allow read: if signedIn()
+                    && (
+                      resource == null
+                      || resource.data.isPrivate == false
+                      || request.auth.uid in resource.data.memberUids
+                    );
+      allow create: if signedIn()
+                    && isSelf(request.resource.data.creatorUid)
+                    && request.auth.uid in request.resource.data.memberUids
+                    && noDuplicates(request.resource.data.memberUids);
+      allow update: if signedIn()
+                    && request.resource.data.creatorUid == resource.data.creatorUid
+                    && request.resource.data.kind == resource.data.kind
+                    && noDuplicates(request.resource.data.memberUids)
+                    && (
+                      // An existing member may edit the channel (rename, or leave).
+                      request.auth.uid in resource.data.memberUids
+                      ||
+                      // A non-member may JOIN a PUBLIC channel — but only by adding their own
+                      // uid and touching nothing else (no renaming a room you're not in, no
+                      // flipping privacy, no adding anyone but yourself). Private channels/DMs
+                      // are join-by-membership-only, so they are excluded here.
+                      (resource.data.isPrivate == false
+                        && changed().hasOnly(['memberUids'])
+                        && togglesOnlySelf(resource.data.memberUids, request.resource.data.memberUids))
+                    );
+      allow delete: if false;
+
+      // --- messages ----------------------------------------------------------
+      // Read only if you're a member of the parent channel. Post only as yourself, and only
+      // into a channel you belong to — no posting into rooms you're not in. authorUid and
+      // createdAt are frozen after creation.
+      //
+      // Two kinds of update, and nothing else:
+      //   - the AUTHOR editing their own message body/editedAt;
+      //   - ANY member toggling their OWN reaction. Reactions are an inline map keyed by uid
+      //     (`reactions: {uid: emoji}`) so counts are `map.keys().size()`, never inflatable —
+      //     and the rule proves an update touches ONLY the caller's own key. Inline (not a
+      //     subcollection) so the existing message listener carries reactions with zero extra
+      //     reads: a channel of 200 messages needs one listener, not 200.
+      match /messages/{messageId} {
+        allow read: if signedIn()
+                    && request.auth.uid in channelMemberUids(channelId);
+        allow create: if signedIn()
+                    && isSelf(request.resource.data.authorUid)
+                    && request.auth.uid in channelMemberUids(channelId)
+                    && validBody(request.resource.data.body);
+        allow update: if signedIn()
+                    && request.auth.uid in channelMemberUids(channelId)
+                    && request.resource.data.authorUid == resource.data.authorUid
+                    && !changed().hasAny(['authorUid', 'createdAt'])
+                    && (
+                      // Author curating their own message (body/edit marker, not reactions).
+                      (isSelf(resource.data.authorUid) && !changed().hasAny(['reactions'])
+                        && validBody(request.resource.data.body))
+                      ||
+                      // Any member toggling ONLY their own reaction key.
+                      (changed().hasOnly(['reactions'])
+                        && reactionTogglesSelf(resource.data, request.resource.data))
+                    );
+        allow delete: if signedIn() && isSelf(resource.data.authorUid);
+      }
+
+      // --- reads -------------------------------------------------------------
+      // Personal unread bookmark (doc id == uid): lastReadAt, yours alone. Never broadcast,
+      // never readable by the cohort — "be kind to the quiet" means your read state is not a
+      // signal anyone else gets to see. Member-scoped like everything else in the channel.
+      match /reads/{uid} {
+        allow read, write: if isSelf(uid)
+                    && request.auth.uid in channelMemberUids(channelId);
+      }
+    }
+
+    // --- commitments ---------------------------------------------------------
+    // "I'll do X by Y". Created by the author as themselves. The PM task url + status
+    // transitions to done are written server-side (Admin) after the GitHub task closes, so
+    // clients can create/edit their own text but cannot forge pmTaskUrl-backed completion.
+    match /commitments/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && isSelf(request.resource.data.authorUid);
+      allow update: if signedIn()
+                    && isSelf(resource.data.authorUid)
+                    && request.resource.data.authorUid == resource.data.authorUid
+                    // Completion, the on-time award, and the PM link are the server's to write
+                    // (Admin bypasses). dueAt/status/pmExternalId are frozen for clients too:
+                    // onTime is judged against the stored dueAt at completion, so a client that
+                    // could push dueAt into the future (or flip status, or retarget which issue's
+                    // webhook completes it) would defeat the on-time XP gate. Clients edit text only.
+                    && !changed().hasAny(['pmTaskUrl', 'points', 'dueAt', 'status', 'pmExternalId']);
+      allow delete: if false;
+    }
+
+    // --- recognitions --------------------------------------------------------
+    // "X helped Y". Suggested AND confirmed/declined by the server (Admin) only. Confirm is
+    // server-only ON PURPOSE: flipping status and writing the XP ledger entry must be ONE
+    // atomic act. If clients could flip status directly (an earlier version allowed the helped
+    // peer to), a direct SDK write would mark a recognition "confirmed" while the server-only
+    // points never got written — a confirmed-but-unawarded state that silently denies the
+    // helper their XP. The confirm/decline route (auth-gated) is the only path, and it does
+    // both in one transaction. Clients read only.
+    match /recognitions/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    // --- xpEvents ------------------------------------------------------------
+    // Append-only ledger. The single source of XP/rank/reputation — all derived by query +
+    // reduce, never a mutable total. Written EXCLUSIVELY by admin routes; clients get read
+    // only. This is the rule that makes "clients can never write points" true.
+    //
+    // A client may read ONLY its OWN ledger rows (profileUid == me) — enough to render its own
+    // XP counter, and nothing more. Reading the WHOLE collection is server-only: if any signed-in
+    // client could scan every row it could sum per-uid and reconstruct the full ranking of who's
+    // behind — exactly the public scoreboard "be kind to the quiet" forbids. The neighbors-only
+    // leaderboard is computed server-side (Admin bypasses this) and never returns the full order.
+    match /xpEvents/{id} {
+      allow read: if signedIn() && isSelf(resource.data.profileUid);
+      allow create, update, delete: if false;
+    }
+
+    // --- quests --------------------------------------------------------------
+    // Personal quests. Readable by the owner; created/awarded server-side. A member may mark
+    // their own quest's progress, but rewardPts and completion→award are server-written.
+    match /quests/{id} {
+      allow read: if signedIn() && isSelf(resource.data.profileUid);
+      allow create: if false;
+      allow update: if signedIn()
+                    && isSelf(resource.data.profileUid)
+                    && !changed().hasAny(['rewardPts', 'status']);
+      allow delete: if false;
+    }
+
+    // --- badges --------------------------------------------------------------
+    // Threshold awards. Definitions are public-read; a member's earned badges are server-written.
+    match /badges/{code} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+    match /profiles/{uid}/badges/{code} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // --- pulseEvents ---------------------------------------------------------
+    // The live recognition/progress feed. Append-only and SERVER-authored — a client must
+    // not be able to fake "so-and-so was recognised". Read by the cohort.
+    match /pulseEvents/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    // --- cohortGoals ---------------------------------------------------------
+    // Cooperative team goals (current/target/period). Read by all; advanced server-side.
+    match /cohortGoals/{metric} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // --- Rally assistant (Home) ----------------------------------------------
+    // The assistant's conversation + memory are PRIVATE to the one user and written ONLY by the
+    // server route (Admin bypasses these rules). The client may read its own thread/memory to
+    // render them, but can never write — so nobody can forge a reply, seed the model's memory, or
+    // read anyone else's conversation. Doc id is the uid.
+    match /assistantThreads/{uid} {
+      allow read: if isSelf(uid);
+      allow write: if false;
+      match /messages/{mid} {
+        allow read: if isSelf(uid);
+        allow write: if false;
+      }
+    }
+    match /assistantMemory/{uid} {
+      allow read: if isSelf(uid);
+      allow write: if false;
+    }
+
+    // --- shared cross-app context bus (server-only) --------------------------
+    // The cohort suite's shared brain: memory, activity history, and agent-to-agent tasks, keyed
+    // by GitHub handle. Written ONLY by trusted app servers (Admin bypasses these rules); no client
+    // ever reads or writes it directly, so one user can't read another's cross-app context or forge
+    // a task for someone else's agent. In production this lives in a dedicated shared project with
+    // the same deny-all-clients rules.
+    match /cohortContext/{key} {
+      allow read, write: if false;
+      match /{document=**} {
+        allow read, write: if false;
+      }
+    }
+    match /agentTasks/{id} {
+      allow read, write: if false;
+    }
+  }
+}

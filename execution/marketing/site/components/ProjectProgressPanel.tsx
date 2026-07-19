@@ -125,8 +125,9 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 <code>{personalizeProgramText(project.submission.prTitle, handle)}</code> in{' '}
                 <a href={progress.submission.repoUrl} target="_blank" rel="noopener noreferrer">
                   {progress.submission.repo}
-                </a>{' '}
-                and merge before the deadline.
+                </a>
+                , fill every required PR body section, and merge before the deadline. No real cohort
+                signup quota before merge.
               </p>
             )}
           </div>

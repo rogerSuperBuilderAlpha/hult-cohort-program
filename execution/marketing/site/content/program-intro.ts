@@ -75,13 +75,13 @@ export const phase1Loop: LoopStep[] = [
   },
   {
     step: 2,
-    title: 'Review every peer',
-    body: 'File a structured technical review for each peer system as a GitHub issue.',
+    title: 'Review every peer on GitHub',
+    body: 'On each project’s Peer review tab, open a peer, then use “Open GitHub → write review & submit issue.” That creates an issue on their app repo titled Review by @{you}: @{peer}. Fill the rubric template and click Submit new issue on GitHub.',
   },
   {
     step: 3,
-    title: 'Optional upvote',
-    body: 'Keep Vote: up in the issue to upvote, or omit it to abstain. No downvotes. Tallies are not shown on the site.',
+    title: 'Optional upvote (or abstain)',
+    body: 'Keep the Vote: up line in the issue body to upvote, or delete that section to abstain. No downvotes. Refresh the site afterward — it tracks your personal status only, not cohort tallies.',
   },
   {
     step: 4,

@@ -1290,7 +1290,7 @@
 }
 
 .reviewHowTo {
-  padding: 14px 16px;
+  padding: 18px 18px 16px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg-subtle);
@@ -1301,6 +1301,58 @@
   font-size: 0.95rem;
   color: var(--text-muted);
   line-height: 1.6;
+}
+
+.reviewHowToSublead {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.reviewHowToSteps {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.reviewHowToStep {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.reviewHowToStepNum {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.reviewHowToStepTitle {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--hult-ink);
+  margin-bottom: 4px;
+}
+
+.reviewHowToStepBody {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.55;
 }
 
 .reviewProgressBar {

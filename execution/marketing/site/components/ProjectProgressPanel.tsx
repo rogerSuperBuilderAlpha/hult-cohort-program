@@ -168,13 +168,14 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                   Written reviews {reviews.writtenCompleted}/{reviews.required}
                 </strong>
                 <p className={styles.progressDetail}>
-                  GitHub issue titled <code>{reviewTitleExample}</code> on the cohort repository for
-                  each peer. Optionally include <code>Vote: up</code> to upvote, or omit it to
-                  abstain. {VOTE_NOTE}
+                  File a GitHub issue titled <code>{reviewTitleExample}</code> on each peer&apos;s{' '}
+                  <strong>app/build repo</strong> (use the Peer review tab — it opens the correct New
+                  Issue form). Keep <code>Vote: up</code> to upvote, or delete that section to abstain.
+                  Click <strong>Submit new issue</strong> on GitHub, then refresh here. {VOTE_NOTE}
                 </p>
                 <p className={styles.progressDetail}>
                   Upvotes so far (optional): {reviews.upvotesCompleted}/{reviews.required}.{' '}
-                  <a href="#peer-ratings">Go to review list →</a>
+                  <a href="#peer-ratings">Full instructions &amp; peer list →</a>
                 </p>
               </div>
             </li>

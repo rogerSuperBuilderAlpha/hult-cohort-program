@@ -187,10 +187,13 @@ export function ProjectPeerReviewSection({
         {project.reviews.dueNote}.
       </p>
       <p className={styles.formNote} style={{ marginBottom: 0 }}>
-        For each peer: evaluate their deployment, read their submission pull request, then file a
-        written GitHub review. Optionally keep <code>Vote: up</code> in the issue to upvote, or
-        delete that section to abstain. This site shows your personal status only — not cohort
-        tallies. Review week opens when the Sunday submission deadline closes.
+        Reviews live on <strong>GitHub</strong>, not as a form on this site. For each peer: evaluate
+        their deployment, read their submission pull request, then open a New Issue on their app repo
+        titled <code>Review by @{'{you}'}: @{'{peer}'}</code>. Fill the template, keep{' '}
+        <code>Vote: up</code> to upvote or delete that section to abstain, click{' '}
+        <strong>Submit new issue</strong> on GitHub, then return here and refresh. This site shows
+        your personal status only — not cohort tallies. Full step-by-step instructions appear on the
+        Peer review tab after enrollment.
       </p>
     </section>
   );

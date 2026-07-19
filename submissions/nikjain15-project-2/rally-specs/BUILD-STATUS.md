@@ -4,6 +4,29 @@ Authoritative running log. Newest entry on top.
 
 ---
 
+## 2026-07-19 — Test rigor + regression push (nearly doubled the suite)
+
+Expanded automated coverage across every dimension, for Rally individually AND the Rally↔Pulse seam.
+**209 → 435 tests (+226)**, gate green (typecheck · lint · **175 unit · 124 rules · 120 integration** ·
+e2e smoke). Authored via a parallel per-dimension workflow, then each suite validated green on the
+emulator; every new test runs (no padding). Only code change required was a `vi.fn` typing fix.
+
+- **Rules (53→124):** new `tests/rules/firestore-attacks.test.ts` — an attack case on every
+  collection (xpEvents mint/inflate/cross-read, pulseEvents/goals/badges/quests, recognition status,
+  commitment field freeze, channel membership/join, message ownership/body/reactions, identity-key
+  freeze, assistant + bus deny-all).
+- **Integration (53→120):** `cross-app.test.ts` (dispatch lifecycle, concurrent double-claim,
+  addressing isolation, replay independence, memory/activity round-trip + isolation + erasure),
+  `anti-gaming.test.ts` (isAuthoredSource, self-recognition, replay/double-award idempotency),
+  `resilience.test.ts` (busDb fallback when SHARED unset/malformed — degrade, never crash).
+- **Unit (87→175):** `detect-model` (extractJson/schema validation, detection-never-awards),
+  `points-and-tools`, `contract-extra` (drift guard), `text-logic-extra`, `ui-voice` (no "AI" in UI).
+- **Docs/visuals:** `rally-specs/ARCHITECTURE.md` (system + recognition-loop diagrams) + signed-in
+  screenshots (`npm run screenshots` → `tests/e2e/screenshots.spec.ts` + `scripts/seed-data.mjs`,
+  emulator-only). PR body given exact grader headings + a Mermaid architecture diagram.
+
+---
+
 ## 2026-07-19 — Cross-app (Rally↔Pulse) hardening pass
 
 Fixed the Rally-side findings from the suite audit ([CROSS-APP-AUDIT-REPORT.md](CROSS-APP-AUDIT-REPORT.md)).

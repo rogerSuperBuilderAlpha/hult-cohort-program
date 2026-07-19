@@ -62,7 +62,14 @@ export default defineConfig({
     },
     {
       name: 'full',
-      testIgnore: /.*\.smoke\.spec\.ts/,
+      // Exclude the smoke suite (runs against prod) and the docs screenshot spec (an on-demand
+      // capture tool, not a regression test) from the full signed-in suite.
+      testIgnore: /(\.smoke\.spec\.ts|screenshots\.spec\.ts)$/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'screenshots',
+      testMatch: /screenshots\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],

@@ -112,7 +112,8 @@ export default function ApproachPage() {
           Four steps, in plain terms: read the work into facts, show those facts two ways, guard
           anything the AI writes, and build the rest in layers.
         </p>
-        <div className="relative">
+        <ArchDiagram />
+        <div className="relative mt-6">
           <span className="absolute left-[15px] top-3 bottom-3 w-px bg-zinc-800" aria-hidden />
           <div className="space-y-3">
             {ARCH.map((a) => (
@@ -206,5 +207,52 @@ function Band({ label, children }: { label: string; children: React.ReactNode })
       <h2 className="mb-4 text-xs text-zinc-400">{label}</h2>
       {children}
     </section>
+  );
+}
+
+/**
+ * The system, drawn: the public repo feeds one sensing core; the core feeds a signed-out
+ * cohort view and a signed-in board; the board's AI sentence passes a consent gate before it
+ * posts. An SVG so it stays crisp. Zinc throughout, one emerald node for the core that's the
+ * heart of it — nothing else coloured.
+ */
+function ArchDiagram() {
+  return (
+    <div className="overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+      <svg viewBox="0 0 640 260" className="h-auto w-full min-w-[560px]" role="img" aria-label="The public repo feeds the sensing core, which feeds the signed-out cohort view and your signed-in board; the board's AI sentence passes a consent gate before it posts">
+        <defs>
+          <marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#52525b" strokeWidth="1.2" />
+          </marker>
+        </defs>
+        {/* connectors */}
+        <line x1="150" y1="130" x2="196" y2="130" stroke="#52525b" strokeWidth="1.2" markerEnd="url(#a2)" />
+        <path d="M372,110 C410,110 410,58 448,58" fill="none" stroke="#52525b" strokeWidth="1.2" markerEnd="url(#a2)" />
+        <path d="M372,150 C410,150 410,192 448,192" fill="none" stroke="#52525b" strokeWidth="1.2" markerEnd="url(#a2)" />
+
+        {/* GitHub repo */}
+        <rect x="12" y="104" width="138" height="52" rx="8" fill="#18181b" stroke="#3f3f46" strokeWidth="1.2" />
+        <text x="30" y="128" fill="#fafafa" fontSize="13" fontWeight="500" fontFamily="sans-serif">Public repo</text>
+        <text x="30" y="146" fill="#a1a1aa" fontSize="11" fontFamily="sans-serif">commits &amp; PRs</text>
+
+        {/* sensing core (emerald) */}
+        <rect x="200" y="98" width="172" height="64" rx="8" fill="#18181b" stroke="#34d399" strokeWidth="1.3" />
+        <text x="220" y="124" fill="#fafafa" fontSize="13" fontWeight="500" fontFamily="sans-serif">Sensing core</text>
+        <text x="220" y="142" fill="#a1a1aa" fontSize="11" fontFamily="sans-serif">turns activity into facts</text>
+
+        {/* signed-out */}
+        <rect x="452" y="32" width="176" height="52" rx="8" fill="#18181b" stroke="#3f3f46" strokeWidth="1.2" />
+        <text x="470" y="55" fill="#fafafa" fontSize="12.5" fontWeight="500" fontFamily="sans-serif">Signed out</text>
+        <text x="470" y="72" fill="#a1a1aa" fontSize="11" fontFamily="sans-serif">the cohort&#39;s week</text>
+
+        {/* signed-in board */}
+        <rect x="452" y="166" width="176" height="52" rx="8" fill="#18181b" stroke="#3f3f46" strokeWidth="1.2" />
+        <text x="470" y="189" fill="#fafafa" fontSize="12.5" fontWeight="500" fontFamily="sans-serif">Signed in</text>
+        <text x="470" y="206" fill="#a1a1aa" fontSize="11" fontFamily="sans-serif">your own board</text>
+
+        {/* consent gate on the AI path */}
+        <text x="452" y="240" fill="#71717a" fontSize="10.5" fontFamily="monospace">AI sentence → consent gate → posts</text>
+      </svg>
+    </div>
   );
 }

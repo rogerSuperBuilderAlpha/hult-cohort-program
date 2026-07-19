@@ -12,7 +12,7 @@ import { fetchPullCommits, fetchPullFiles, type GitHubCommit } from './github';
  * checkNarrative pass — it goes to one person (the author, about their own work), not to
  * 64 feeds, and a human sits between this text and anything public.
  *
- * The honest constraint (LAYER-2-3-DESIGN.md): Pulse cannot see the Claude Code session
+ * The honest constraint (LAYER-2-3-DESIGN.md): Pulse cannot see the coding session
  * that solved the problem — that transcript lives on the member's machine. So extraction
  * reads what Pulse legitimately CAN see: the PR's commit messages, filenames, and the
  * shape of the struggle. When that's too thin to say anything real, it says so —

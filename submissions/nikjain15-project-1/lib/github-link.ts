@@ -94,6 +94,15 @@ export async function setCreateTasksFromBranches(uid: string, value: boolean): P
   await updateDoc(doc(db, 'githubLinks', uid), { createTasksFromBranches: value });
 }
 
+/**
+ * The agent-publish opt-in — Settings only, default off, never set by /connect. Gates the
+ * one agent action that publishes (drafting and banking a recipe to the cohort). Off is the
+ * safe default per AGENTS.md rule 2: cut autonomy before Settings.
+ */
+export async function setAgentPublishOptIn(uid: string, value: boolean): Promise<void> {
+  await updateDoc(doc(db, 'githubLinks', uid), { agentPublishOptIn: value });
+}
+
 export async function setExcludedRepos(uid: string, excludedRepos: string[]): Promise<void> {
   await updateDoc(doc(db, 'githubLinks', uid), { excludedRepos });
 }

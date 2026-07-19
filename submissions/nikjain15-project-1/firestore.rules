@@ -53,7 +53,17 @@ service cloud.firestore {
     match /members/{uid} {
       allow read: if signedIn();
       allow create: if isSelf(uid) && request.resource.data.uid == uid;
-      allow update: if isSelf(uid) && request.resource.data.uid == resource.data.uid;
+      // `handle` is the cross-app identity key: every bus route maps the verified uid to
+      // `members/{uid}.handle` and trusts it (the bus writes with the rule-exempt Admin SDK).
+      // It is set exactly once — null at create, then backfilled to the GitHub login when the
+      // OAuth identity arrives (auth-context.tsx ensureMember). After that it is FROZEN: a client
+      // must never repoint an established member's handle to a victim's, which would let them
+      // read, forge tasks under, or erase the victim's cross-app context. Settable from null,
+      // immutable thereafter.
+      allow update: if isSelf(uid)
+                    && request.resource.data.uid == resource.data.uid
+                    && (resource.data.handle == null
+                        || request.resource.data.handle == resource.data.handle);
       allow delete: if false;
     }
 
@@ -74,6 +84,33 @@ service cloud.firestore {
     // --- githubLinks ---------------------------------------------------------
     // Your connection + consent state. Nobody else's business, ever.
     match /githubLinks/{uid} {
+      allow read, write: if isSelf(uid);
+    }
+
+    // --- briefs --------------------------------------------------------------
+    // A per-member cache of the model-written Home brief (lib/use-brief.ts), keyed by uid.
+    // The brief is self-narration — the reader's own week and the cohort's collective
+    // momentum — so it is nobody else's to read or write. Same shape as githubLinks: yours
+    // alone. Purely a cache; losing it costs one regeneration, never correctness.
+    match /briefs/{uid} {
+      allow read, write: if isSelf(uid);
+    }
+
+    // --- boardViews ----------------------------------------------------------
+    // A member's private workflow lens (lib/board-view.ts): the lanes they chose and where
+    // each card sits within them. A lane is a private view, never a fact about the card — the
+    // shared truth is the task's canonical status. So like githubLinks/briefs this doc is
+    // yours ALONE: no peer may read which lanes you use or write into your placements.
+    match /boardViews/{uid} {
+      allow read, write: if isSelf(uid);
+    }
+
+    // --- askThreads ----------------------------------------------------------
+    // The Ask Pulse agent's transcript — your commands and Pulse's replies, so the panel
+    // remembers your context across visits (lib/ask-thread.ts). It can quote your own tasks
+    // and Pulse's answers about your own board, so like githubLinks it is yours ALONE: no
+    // peer may read your conversation or write into it. Scoped by the owning uid in the path.
+    match /askThreads/{uid}/turns/{turnId} {
       allow read, write: if isSelf(uid);
     }
 
@@ -239,13 +276,14 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create: if signedIn()
                     && isSelf(request.resource.data.authorUid)
-                    && request.resource.data.unstuckUids.size() == 0;
+                    && request.resource.data.unstuckUids.size() == 0
+                    && request.resource.data.get('publicThanksUids', []).size() == 0;
       allow update: if signedIn()
                     && (
                       // author editing their own recipe (but not inflating its rank)
                       (isSelf(resource.data.authorUid)
                         && request.resource.data.authorUid == resource.data.authorUid
-                        && !changed().hasAny(['unstuckUids']))
+                        && !changed().hasAny(['unstuckUids', 'publicThanksUids']))
                       ||
                       // anyone ELSE marking themselves unstuck by it.
                       //
@@ -258,6 +296,15 @@ service cloud.firestore {
                       (!isSelf(resource.data.authorUid)
                         && changed().hasOnly(['unstuckUids'])
                         && togglesOnlySelf(resource.data.unstuckUids, request.resource.data.unstuckUids))
+                      ||
+                      // anyone ELSE opting into a PUBLIC thank-you naming themselves. This is the
+                      // separate, explicit consent the broker gates its one public intro_made post
+                      // on — kept apart from the private unstuck credit so a quiet member is never
+                      // named to the cohort without deliberately choosing it. Same self-only
+                      // constraint; the author can't stage a thank-you to themselves.
+                      (!isSelf(resource.data.authorUid)
+                        && changed().hasOnly(['publicThanksUids'])
+                        && togglesOnlySelf(resource.data.get('publicThanksUids', []), request.resource.data.publicThanksUids))
                     );
       allow delete: if isSelf(resource.data.authorUid);
     }

@@ -118,7 +118,12 @@ async function ensureMember(user: User, githubLogin?: string | null, preferredNa
       // onAuthStateChanged wins the race with signInWithPopup / updateProfile. Backfill
       // rather than no-op, or the race decides who you are.
       const patch: Record<string, string> = {};
-      if (githubLogin && snap.data().handle !== githubLogin) patch.handle = githubLogin;
+      // Backfill the handle ONLY when it's still null (the OAuth identity arriving after the doc
+      // was created). Never repoint an already-set handle: firestore.rules freezes it (it's the
+      // cross-app bus identity key), so attempting a value→value change would fail the transaction
+      // and break sign-in. If a member renames their GitHub login the handle keeps its first value
+      // — the secure choice, and a rare, documented edge (AGENTS.md "handle is the GitHub login").
+      if (githubLogin && snap.data().handle == null) patch.handle = githubLogin;
       if (preferredName?.trim() && snap.data().displayName !== preferredName.trim()) {
         patch.displayName = preferredName.trim();
       }

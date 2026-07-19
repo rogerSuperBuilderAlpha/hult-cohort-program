@@ -71,6 +71,6 @@ Pulse is **not**: **peppy · corporate · apologetic.**
 ## Before shipping any copy change
 
 1. Does it follow rules 1–10?
-2. Does it collide with an ethics rail (AGENTS.md "Rules that outrank your judgement")? The
+2. Does it collide with an ethics rail (the "Rules that outrank your judgement")? The
    ethic wins, every time.
 3. Is the string pinned by a test? `grep -rn "<the string>" tests/` before editing.

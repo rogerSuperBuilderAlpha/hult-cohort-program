@@ -3,13 +3,22 @@
 **A reviewer will try to break this.** 64 of them, each with an agent, each looking for the thing
 that doesn't work. Assume adversarial use, not a happy path.
 
-Companion: [DESIGN-SPEC.md](DESIGN-SPEC.md) · [CHECKLIST.md](CHECKLIST.md) (definition of done).
+Companion: [DESIGN-SPEC.md](DESIGN-SPEC.md).
 
 ---
 
 ## 0. Read this before you believe a red suite
 
-**Restart the emulator before a full e2e run, and again before you diagnose anything.**
+**`npm run test:e2e` now brings its own fresh emulator** — it wraps the full suite in
+`emulators:exec`, so every run starts from an empty database and tears the emulator down
+after. That is the fix for the flake below: a fresh members collection keeps the snapshot
+fan-out under the collapse threshold for the whole run. Just have a dev server available
+(Playwright starts `npm run dev:emulator` for you, or reuses one you already have) — no
+hand-started `npm run emulator` needed, and nothing to remember to restart.
+
+The fast iterative loop is still there: `npm run test:e2e:managed` runs against whatever
+emulator + dev server you already have up, for quick single-spec reruns. It's the one that
+degrades — so if IT goes red, restart the emulator first (below) before believing it.
 
 ```bash
 pkill -f cloud-firestore-emulator; pkill -f emulators:start
@@ -17,7 +26,7 @@ export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 npm run emulator
 ```
 
-Cost us an hour on 2026-07-17. Both new tests failed *with the fix in place*, and sign-up hung on
+This cost us an hour on 2026-07-17. Both new tests failed *with the fix in place*, and sign-up hung on
 "Working…" forever. Every probe came back clean — auth returned real tokens, the rules allowed member
 creation, Firestore REST answered 200 — because **REST keeps working while the SDK is dead**. The
 emulator's own log had it:
@@ -73,8 +82,8 @@ Cache by commit SHA range and **skip members with no new commits entirely**. Nev
 already narrated. A test that asserts "unchanged SHA range → zero model calls" (§1.3) is protecting
 the budget, not just correctness.
 
-⚠️ **This needs an API key with credits.** A $200/mo Claude Code subscription is not API credit —
-they're separate. The key goes in Vercel env vars, server-side only, **never** `NEXT_PUBLIC_*`.
+⚠️ **This needs an API key with credits.** A chat/subscription plan is not API credit — they're
+separate. The key goes in Vercel env vars, server-side only, **never** `NEXT_PUBLIC_*`.
 
 ### Test fixtures are not product seed data
 
@@ -212,7 +221,7 @@ Playwright viewports: **320 · 375 · 480 · 768 · 1024 · 1440**.
 3. npm run test:rules          # emulator
 4. npm run test:e2e:smoke      # deployed URL
 5. Re-run EVERY previously-passing checklist row  ← the regression bit
-6. Update CHECKLIST.md state in place (☐ → ✅)
+6. Update the definition-of-done tracker in place (☐ → ✅)
 ```
 
 **Rule: sensing must never break CRUD.** After every sensing change, re-run B4–B8 with GitHub

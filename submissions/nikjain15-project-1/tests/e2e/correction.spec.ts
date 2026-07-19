@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { signUp, uniqueEmail, uniqueName } from './helpers';
 
 /**
@@ -18,7 +18,7 @@ import { signUp, uniqueEmail, uniqueName } from './helpers';
  * rules — which is the half that was never watched and the half that can break.
  */
 
-const EMULATOR = 'http://127.0.0.1:8080/v1/projects/demo-pulse/databases/(default)/documents';
+const EMULATOR = `http://127.0.0.1:${process.env.FIRESTORE_EMULATOR_PORT ?? '8080'}/v1/projects/demo-pulse/databases/(default)/documents`;
 
 /**
  * The receipt region, scoped.
@@ -51,7 +51,13 @@ async function uidForEmail(page: Page, email: string): Promise<string> {
   return match!.fields.uid.stringValue;
 }
 
-async function seedNarratedShip(page: Page, uid: string, id: string, narrative: string) {
+async function seedNarratedShip(
+  page: Page,
+  uid: string,
+  id: string,
+  narrative: string,
+  kudosUids: string[] = []
+) {
   // `owner` is the emulator's god token — it bypasses rules, which is right for a fixture
   // and wrong for anything asserted below.
   const res = await page.request.post(`${EMULATOR}/pulse?documentId=${id}`, {
@@ -77,7 +83,7 @@ async function seedNarratedShip(page: Page, uid: string, id: string, narrative: 
           },
         },
         editedAt: { nullValue: null },
-        kudos: { arrayValue: { values: [] } },
+        kudos: { arrayValue: { values: kudosUids.map((u) => ({ stringValue: u })) } },
         createdAt: { timestampValue: new Date().toISOString().replace(/\.\d+/, '') },
       },
     },
@@ -115,7 +121,9 @@ test.describe('the receipt you can correct', () => {
     await page.goto('/');
     await page.getByRole('button', { name: /edit the wording/i }).click();
 
-    const editor = page.getByRole('textbox');
+    // Scoped to the receipt: Home now also carries the Ask Pulse input, so an unscoped
+    // textbox lookup is ambiguous. The reword editor lives in the posted-row receipt.
+    const editor = receipt(page).getByRole('textbox');
     // Prefilled: correcting a sentence means editing it, not retyping it.
     await expect(editor).toHaveValue(wrong);
 
@@ -128,6 +136,30 @@ test.describe('the receipt you can correct', () => {
     // admits it posted the original.
     await expect(receipt(page).getByText(/you reworded it/i)).toBeVisible();
     await expect(receipt(page).getByText(/pulse posted this/i)).toBeVisible();
+  });
+
+  test('your own kudos count is a receipt, never a dead button', async ({ page }) => {
+    // The bug this pins: on your own row the kudos control was an inert heart that read as
+    // a broken button — and in prod every row was the owner's own. It is now a plain count
+    // of the recognition others gave you, with nothing pressable that can't be pressed.
+    const email = uniqueEmail('correct');
+    await signUp(page, 'Correction Probe', email);
+    const uid = await uidForEmail(page, email);
+    const sentence = uniqueName('Pulse wrote this too.');
+    // A peer already gave it a kudos, so there is a count to render on the owner's row.
+    await seedNarratedShip(page, uid, `e2e_kudos_${Date.now()}`, sentence, ['uid_a_peer']);
+
+    await page.goto('/');
+    await expect(receipt(page).getByText(sentence)).toBeVisible();
+
+    // The count is there — shown plainly, no heart glyph to mistake for a control.
+    const kudos = receipt(page).getByText(/\bkudos\b/);
+    await expect(kudos).toBeVisible();
+
+    // The heart of the fix: no kudos button on your own row, and the count is not inside
+    // one. You cannot kudos yourself, so nothing here should look like you can.
+    await expect(receipt(page).getByRole('button', { name: /kudos/i })).toHaveCount(0);
+    await expect(kudos.locator('xpath=ancestor-or-self::button')).toHaveCount(0);
   });
 
   test('undo removes the post, with no argument', async ({ page }) => {

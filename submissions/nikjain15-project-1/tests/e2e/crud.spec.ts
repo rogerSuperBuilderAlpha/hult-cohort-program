@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { createProject, createTask, signOut, signUp, uniqueEmail, uniqueName } from './helpers';
 
 /**
@@ -157,6 +157,12 @@ test.describe('B5 · B6 — tasks and the status workflow', () => {
       await page.getByLabel('Project', { exact: true }).selectOption({ label: project });
       await page.getByLabel('Due', { exact: true }).fill(date);
       await page.getByRole('button', { name: 'Create task' }).click();
+      // Wait for the card before the next iteration's reload. Clicking "Create task" only
+      // dispatches the click — `save()` awaits the Firestore write, then closes the modal —
+      // so the very next `page.goto('/board')` could abort that in-flight write and the
+      // first task would silently never persist. Under full-suite load that lost the
+      // overdue card outright. Waiting for the heading is the same barrier createTask() uses.
+      await page.getByRole('heading', { name: title, exact: true }).waitFor();
     }
 
     // Compare the two computed colours rather than pinning a literal: Tailwind 4 emits

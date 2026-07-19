@@ -44,6 +44,8 @@ export async function createRecipe(
     authorUid: actor.uid,
     // Empty at creation, and the rules enforce it: a recipe cannot be born ranked.
     unstuckUids: [],
+    // Explicit public-thanks consent — empty until a helped person deliberately opts in.
+    publicThanksUids: [],
     createdAt: serverTimestamp(),
   });
 
@@ -77,4 +79,16 @@ export async function updateRecipe(
  */
 export async function markUnstuck(recipeId: string, uid: string) {
   await updateDoc(doc(db, 'recipes', recipeId), { unstuckUids: arrayUnion(uid) });
+}
+
+/**
+ * "Say thanks publicly." — the SEPARATE, explicit consent to a public `intro_made` post.
+ *
+ * Marking a recipe unstuck (above) is a private credit to the author; it must never on its own put
+ * the stuck person's name in the cohort feed. This is the deliberate, disclosed opt-in that lets the
+ * broker publish the one public "{helper} unstuck {you}" thank-you. Idempotent (arrayUnion); the
+ * rules deny it to the recipe's author (you can't stage a thank-you to yourself).
+ */
+export async function thankPublicly(recipeId: string, uid: string) {
+  await updateDoc(doc(db, 'recipes', recipeId), { publicThanksUids: arrayUnion(uid) });
 }

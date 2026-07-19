@@ -6,10 +6,14 @@ import { Board } from '@/components/Board';
 import { applyFilters, Filters, useFilters } from '@/components/Filters';
 import { SyncNote } from '@/components/SyncNote';
 import { TaskModal } from '@/components/TaskModal';
+import { WorkflowPicker } from '@/components/WorkflowPicker';
+import { placeCard } from '@/lib/board-view';
 import { useAuth } from '@/lib/auth-context';
+import { useBoardView } from '@/lib/use-board-view';
 import { useGitHubLink } from '@/lib/use-github-link';
 import { useCohort } from '@/lib/use-cohort';
 import { useSync } from '@/lib/use-sync';
+import { columnsOrDefault } from '@/lib/workflows';
 import type { Status, Task } from '@/lib/types';
 
 export default function BoardPage() {
@@ -46,6 +50,10 @@ function BoardView() {
   const { link, ready: linkReady } = useGitHubLink(user!.uid);
   const outcome = useSync({ actor, link, tasks, projects, members, ready: ready && linkReady });
 
+  // The user's private workflow lens. Null (no choice) → the classic three-column board.
+  const view = useBoardView(user!.uid);
+  const columns = useMemo(() => columnsOrDefault(view), [view]);
+
   // Archived projects' tasks stay off the board — archiving is how you get work out of
   // sight without deleting it, and nothing in Project 1 hard-deletes a project.
   const liveProjects = useMemo(() => projects.filter((p) => !p.archived), [projects]);
@@ -66,6 +74,10 @@ function BoardView() {
 
       <SyncNote outcome={outcome} />
 
+      <div className="mb-3 flex items-center justify-end">
+        <WorkflowPicker uid={actor.uid} view={view} />
+      </div>
+
       <Filters uid={actor.uid} members={members} projects={liveProjects} onNew={() => setCreating('todo')} />
 
       {!ready ? (
@@ -78,6 +90,9 @@ function BoardView() {
           members={members}
           onOpenTask={setEditing}
           onNewTask={setCreating}
+          columns={columns}
+          placement={view?.placement}
+          onPlaceCard={(taskId, laneId) => void placeCard(actor.uid, taskId, laneId)}
         />
       )}
 

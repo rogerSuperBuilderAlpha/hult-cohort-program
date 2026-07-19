@@ -43,8 +43,14 @@ export const db = getFirestore(app);
  */
 if (useEmulator && !(globalThis as EmulatorFlag).__pulseEmulator) {
   (globalThis as EmulatorFlag).__pulseEmulator = true;
-  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  // Ports default to the firebase.json ones (8080/9099) and are overridable via env, so a
+  // second concurrent emulator (e.g. another session's) can run on different ports without
+  // colliding. Defaults unchanged, so production and normal `npm run test:e2e` are unaffected.
+  const host = process.env.NEXT_PUBLIC_EMULATOR_HOST ?? '127.0.0.1';
+  const fsPort = Number(process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT ?? 8080);
+  const authPort = Number(process.env.NEXT_PUBLIC_AUTH_EMULATOR_PORT ?? 9099);
+  connectAuthEmulator(auth, `http://${host}:${authPort}`, { disableWarnings: true });
+  connectFirestoreEmulator(db, host, fsPort);
 }
 
 type EmulatorFlag = typeof globalThis & { __pulseEmulator?: boolean };

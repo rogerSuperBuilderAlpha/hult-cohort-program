@@ -141,8 +141,14 @@ describe('intro_made — only when help visibly lands, once, with verified names
     await publishIntroMade(db);
     expect((await db.collection('pulse').doc(`intro_${introId}`).get()).exists).toBe(false);
 
-    // The stuck person marks themselves unstuck by the recipe — help landed, publish.
+    // The stuck person marks themselves unstuck — a PRIVATE credit to the author. This alone must
+    // NOT publish a public post naming them ("never punish the quiet"): consent is separate.
     await db.collection('recipes').doc(recipeId).update({ unstuckUids: [stuckUid] });
+    await publishIntroMade(db);
+    expect((await db.collection('pulse').doc(`intro_${introId}`).get()).exists).toBe(false);
+
+    // Only when the stuck person deliberately opts into a public thank-you does it publish.
+    await db.collection('recipes').doc(recipeId).update({ publicThanksUids: [stuckUid] });
     await publishIntroMade(db);
 
     const event = await db.collection('pulse').doc(`intro_${introId}`).get();
@@ -169,11 +175,25 @@ describe('intro_made — only when help visibly lands, once, with verified names
     const recipeId = await seedRecipe(helperUid, problem, 'f');
 
     await runBrokerJob(db);
-    // Even with the recipe marked helpful, a suggested intro publishes nothing — the
-    // helper never acted, so there is no story to tell.
-    await db.collection('recipes').doc(recipeId).update({ unstuckUids: [stuckUid] });
+    // Even with the recipe marked helpful AND public thanks opted in, a suggested intro publishes
+    // nothing — the helper never acted, so there is no story to tell.
+    await db.collection('recipes').doc(recipeId).update({ unstuckUids: [stuckUid], publicThanksUids: [stuckUid] });
     await publishIntroMade(db);
     const events = await db.collection('pulse').where('otherUid', '==', stuckUid).get();
     expect(events.size).toBe(0);
+  });
+
+  it('unstuck WITHOUT public-thanks consent never names the stuck person, even on a sent intro', async () => {
+    const { stuckUid, helperUid, problem } = await seedPair('g');
+    await seedAgingTask(stuckUid, problem, 'g');
+    const recipeId = await seedRecipe(helperUid, problem, 'g');
+    await runBrokerJob(db);
+    const introId = introDocId({ stuckUid, helperUid, problem });
+    await db.collection('introductions').doc(introId).update({ state: 'sent' });
+    // Helped, sent — but the stuck person never opted into a public thank-you.
+    await db.collection('recipes').doc(recipeId).update({ unstuckUids: [stuckUid] });
+    await publishIntroMade(db);
+    const events = await db.collection('pulse').where('otherUid', '==', stuckUid).get();
+    expect(events.size).toBe(0); // silence is the default — the quiet are never outed
   });
 });

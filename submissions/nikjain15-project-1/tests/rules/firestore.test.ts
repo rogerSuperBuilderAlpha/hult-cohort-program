@@ -460,6 +460,29 @@ describe('recipes — you cannot rank yourself', () => {
   it('lets a member publish a recipe under their own name', async () => {
     await assertSucceeds(addDoc(collection(as(env, ALICE), 'recipes'), recipe(ALICE)));
   });
+
+  // publicThanksUids — the explicit consent the broker gates its public intro_made post on.
+  // Same self-only shape as unstuckUids; kept separate so the private credit never outs the quiet.
+  it('lets a helped member opt THEMSELVES into a public thank-you', async () => {
+    await seed(env, path, recipe(BOB, { unstuckUids: [ALICE], publicThanksUids: [] }));
+    await assertSucceeds(updateDoc(doc(as(env, ALICE), path), { publicThanksUids: [ALICE] }));
+  });
+
+  it('denies opting SOMEONE ELSE into a public thank-you (no consent-by-proxy)', async () => {
+    await seed(env, path, recipe(BOB, { publicThanksUids: [] }));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { publicThanksUids: ['uid_carol'] }));
+  });
+
+  it('denies the author staging a public thank-you to themselves', async () => {
+    await seed(env, path, recipe(ALICE, { publicThanksUids: [] }));
+    await assertFails(updateDoc(doc(as(env, ALICE), path), { publicThanksUids: [ALICE] }));
+  });
+
+  it('denies a recipe created with public thanks already set', async () => {
+    await assertFails(
+      addDoc(collection(as(env, ALICE), 'recipes'), recipe(ALICE, { publicThanksUids: [BOB] })),
+    );
+  });
 });
 
 /* ==========================================================================
@@ -498,9 +521,23 @@ describe('members — A cannot become B', () => {
     await assertSucceeds(setDoc(doc(as(env, ALICE), `members/${ALICE}`), member(ALICE)));
   });
 
-  it('lets A update their own member doc', async () => {
+  it('lets A update a mutable field on their own member doc (e.g. photoURL)', async () => {
     await seed(env, `members/${ALICE}`, member(ALICE));
+    await assertSucceeds(updateDoc(doc(as(env, ALICE), `members/${ALICE}`), { photoURL: 'x' }));
+  });
+
+  it('lets A backfill a null handle once — the GitHub login arriving after the doc exists', async () => {
+    await seed(env, `members/${ALICE}`, member(ALICE, { handle: null }));
     await assertSucceeds(updateDoc(doc(as(env, ALICE), `members/${ALICE}`), { handle: 'gh_real' }));
+  });
+
+  it("denies repointing an ESTABLISHED handle — the cross-app bus key can't be stolen", async () => {
+    // The confirmed-critical exploit: set your handle to a victim's login, then the bus routes
+    // (which map your verified uid → members/{uid}.handle) act on the victim's shared context.
+    await seed(env, `members/${ALICE}`, member(ALICE, { handle: 'gh_alice' }));
+    await assertFails(
+      updateDoc(doc(as(env, ALICE), `members/${ALICE}`), { handle: 'gh_victim' })
+    );
   });
 
   it('lets a signed-in member read the cohort roster', async () => {
@@ -941,5 +978,70 @@ describe('optOuts — the exit has no signup wall, and no way back in', () => {
     await seed(env, 'optOuts/somebody', { handle: 'somebody', createdAt: new Date() });
     await assertFails(deleteDoc(doc(as(env, ALICE), 'optOuts/somebody')));
     await assertFails(updateDoc(doc(as(env, ALICE), 'optOuts/somebody'), { handle: 'other' }));
+  });
+});
+
+/* ==========================================================================
+ * briefs — a per-member cache of the model-written Home brief.
+ *
+ * The brief is self-narration: the reader's own week plus the cohort's
+ * collective momentum. It is nobody else's to read or write. Same promise as
+ * githubLinks — yours alone — so a peer can neither read your brief nor forge
+ * one under your uid.
+ * ========================================================================== */
+describe('briefs — your Home brief is yours alone', () => {
+  const path = `briefs/${ALICE}`;
+
+  it('lets you read and write your own brief', async () => {
+    await assertSucceeds(
+      setDoc(doc(as(env, ALICE), path), { week: '2026-W29', hash: 'abc', text: 'hi', updatedAt: new Date() })
+    );
+    await assertSucceeds(getDoc(doc(as(env, ALICE), path)));
+  });
+
+  it('denies a peer reading your brief', async () => {
+    await seed(env, path, { week: '2026-W29', hash: 'abc', text: 'private', updatedAt: new Date() });
+    await assertFails(getDoc(doc(as(env, BOB), path)));
+  });
+
+  it('denies a peer writing a brief under your uid', async () => {
+    await assertFails(
+      setDoc(doc(as(env, BOB), path), { week: '2026-W29', hash: 'x', text: 'forged', updatedAt: new Date() })
+    );
+  });
+
+  it('denies an anonymous read', async () => {
+    await seed(env, path, { week: '2026-W29', hash: 'abc', text: 'private', updatedAt: new Date() });
+    await assertFails(getDoc(doc(asAnon(env), path)));
+  });
+});
+
+/* ==========================================================================
+ * askThreads — the agent's transcript is yours alone.
+ *
+ * It holds your commands and Pulse's replies about YOUR board. Like githubLinks
+ * and briefs, no peer may read your conversation or write into it.
+ * ========================================================================== */
+describe('askThreads — your agent conversation is private', () => {
+  const path = `askThreads/${ALICE}/turns/t1`;
+
+  it('lets you write and read your own turns', async () => {
+    await assertSucceeds(setDoc(doc(as(env, ALICE), path), { role: 'you', text: 'move x to done', createdAt: new Date() }));
+    await assertSucceeds(getDocs(collection(as(env, ALICE), 'askThreads', ALICE, 'turns')));
+  });
+
+  it('denies a peer reading your conversation', async () => {
+    await seed(env, path, { role: 'you', text: 'private note', createdAt: new Date() });
+    await assertFails(getDoc(doc(as(env, BOB), path)));
+    await assertFails(getDocs(collection(as(env, BOB), 'askThreads', ALICE, 'turns')));
+  });
+
+  it('denies a peer writing into your conversation', async () => {
+    await assertFails(setDoc(doc(as(env, BOB), path), { role: 'you', text: 'forged', createdAt: new Date() }));
+  });
+
+  it('denies an anonymous read', async () => {
+    await seed(env, path, { role: 'you', text: 'private note', createdAt: new Date() });
+    await assertFails(getDoc(doc(asAnon(env), path)));
   });
 });

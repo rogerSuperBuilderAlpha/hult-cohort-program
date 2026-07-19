@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { signUp, uniqueEmail } from './helpers';
 
 /**
@@ -15,7 +15,7 @@ import { signUp, uniqueEmail } from './helpers';
  * that was never watched and the half that can break.
  */
 
-const EMULATOR = 'http://127.0.0.1:8080/v1/projects/demo-pulse/databases/(default)/documents';
+const EMULATOR = `http://127.0.0.1:${process.env.FIRESTORE_EMULATOR_PORT ?? '8080'}/v1/projects/demo-pulse/databases/(default)/documents`;
 
 test.describe.configure({ timeout: 90_000 });
 
@@ -117,10 +117,15 @@ test.describe('ask_first — you approve before it posts', () => {
     await expect(postedRow).toBeVisible();
     await expect(postedRow.getByText('I shipped the approval queue.')).toBeVisible();
 
-    // And in the database, the sentence moved from proposal to narrative.
-    const after = await readEvent(page, id);
-    expect(after.narrative).toBe('I shipped the approval queue.');
-    expect(after.proposedNarrative).toBeNull();
+    // And in the database, the sentence moved from proposal to narrative. Poll the server
+    // state — the post write is async and may lag the optimistic UI update above, so a
+    // single read can land before it commits and see narrative still null (same reason the
+    // sibling "Not this time" test polls). Match the published narrative, then assert the
+    // proposal was cleared in the same converged read.
+    await expect
+      .poll(async () => (await readEvent(page, id)).narrative, { timeout: 5000 })
+      .toBe('I shipped the approval queue.');
+    expect((await readEvent(page, id)).proposedNarrative).toBeNull();
   });
 
   test('Not this time drops the sentence and keeps the facts', async ({ page }) => {

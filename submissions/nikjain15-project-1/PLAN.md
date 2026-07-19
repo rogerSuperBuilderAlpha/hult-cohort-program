@@ -59,9 +59,9 @@ Two, one source of truth, zero drift.
 | Repo | Role |
 |---|---|
 | **`nikjain15/hult-cohort-program`** (fork) | **Working tree.** App at `submissions/nikjain15-project-1/`. The PR comes from here. |
-| **`nikjain15/pm-nikjain15`** | **Portfolio + deploy target.** App at root. Public. Generated from the fork. |
+| **`nikjain15/pulse`** | **Portfolio + deploy target.** App at root. Public. Generated from the fork. |
 
-**Production URL: https://pm-nikjain15.vercel.app** (Vercel team `Pulse`, project `pm-nikjain15`)
+**Production URL: https://pulsecohort.vercel.app** (Vercel team `Pulse`, project `pulse`)
 
 `./sync-portfolio.sh` regenerates the portfolio repo via `git subtree split` — real commit history,
 app at root, force-pushed. Idempotent; re-run after any commit worth publishing.
@@ -159,7 +159,7 @@ Layer 1 (sense) ships week 1. Seed data is no longer needed: the cohort's PRs ar
 | 1 | Sign **Expectations Acknowledgment** on the dashboard |
 | 2 | Baseline **survey** (or decline — both unlock the project) |
 | 3 | **Firebase**: project is `cursor-boston-project` (already in `.env.local`) → enable Auth (GitHub + Email/Password) → create Firestore in **production mode** |
-| 4 | **Vercel**: import **`nikjain15/pm-nikjain15`** — root directory `/`, production branch `main`. No monorepo config needed. |
+| 4 | **Vercel**: import **`nikjain15/pulse`** — root directory `/`, production branch `main`. No monorepo config needed. |
 | 5 | **Discord** ([invite](https://discord.gg/Wsncg8YYqc)) — ask Roger the two questions below |
 | 6 | After shipping: post on LinkedIn/X, tag Cursor Boston + Hult |
 | 7 | 64 written reviews + 64 private votes by **Mon Jul 20, 2:00 PM ET** |

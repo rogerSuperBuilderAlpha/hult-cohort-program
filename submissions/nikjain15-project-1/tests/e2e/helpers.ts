@@ -1,6 +1,51 @@
 import type { Page } from '@playwright/test';
 
 /**
+ * Wipe the emulator's Firestore documents and auth accounts.
+ *
+ * This is the fix for the WebChannel-collapse flake (TESTING.md §0). Every test signs up a
+ * member, and `subscribeToMembers` watches the whole `members` collection — so the snapshot
+ * fan-out grows with every account the run has ever created. Past ~45 members the emulator's
+ * back channel gives up ("too many pending messagings … abort the channel"), and from then
+ * on the SDK is dead while REST keeps answering, so sign-up hangs on "Working…" with no
+ * error and a different pair of tests fails each run.
+ *
+ * `emulators:exec` already hands each *run* a fresh, empty database — that stops run-to-run
+ * pollution but does nothing about accumulation *within* a run. Calling this before every
+ * test keeps `members` at ~one doc, so the fan-out never approaches the collapse threshold.
+ *
+ * **Firestore documents only — deliberately NOT the auth accounts.** Deleting the auth user
+ * mid-run once took the whole emulator down: a client whose listeners hadn't finished
+ * tearing down from the just-ended test would suddenly have an invalid token, its reads
+ * would fail rules evaluation ("No matching allow statements" — `request.auth` is null), and
+ * the Firestore SDK would retry-storm the emulator on those denials until it fell over
+ * (permission-denied → unavailable → ECONNREFUSED). Clearing a *document* out from under a
+ * still-authenticated client is benign by comparison — a missing doc reads as empty, no
+ * retry. Auth accounts accumulate harmlessly (unique emails, no snapshot fan-out), so the
+ * collapse this guards against is a Firestore-collection problem, not an auth one.
+ *
+ * Only the emulator exposes this `/emulator/v1/...` endpoint; the full suite may never run
+ * against anything else (playwright.config guards that), so hard-coding localhost is safe.
+ */
+const EMULATOR_PROJECT = 'demo-pulse';
+// Port defaults to 8080, overridable so a run isolated onto a spare port (to dodge a second
+// concurrent emulator) resets the right one.
+const FS_PORT = process.env.FIRESTORE_EMULATOR_PORT ?? '8080';
+const FIRESTORE_RESET = `http://127.0.0.1:${FS_PORT}/emulator/v1/projects/${EMULATOR_PROJECT}/databases/(default)/documents`;
+
+export async function resetEmulator(): Promise<void> {
+  const firestore = await fetch(FIRESTORE_RESET, { method: 'DELETE' });
+  // Fail loudly. A reset that silently no-ops brings the flake straight back, and a suite
+  // that can't reach the emulator is invalid, not merely red — say so instead of drifting.
+  if (!firestore.ok) {
+    throw new Error(
+      `Emulator reset failed (firestore ${firestore.status}). ` +
+        `Is the Firestore emulator up on 8080 for project ${EMULATOR_PROJECT}?`
+    );
+  }
+}
+
+/**
  * Unique per run, so a re-run never collides with a leftover account.
  *
  * `.test` is a reserved TLD that can never resolve — a belt-and-braces guarantee that

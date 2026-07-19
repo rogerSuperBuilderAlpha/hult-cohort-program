@@ -12,6 +12,7 @@ import { COHORT_REPO } from '@/lib/github';
 import {
   disconnectGitHub,
   setCreateTasksFromBranches,
+  setAgentPublishOptIn,
   setExcludedRepos,
   setMode,
   setNarration,
@@ -173,6 +174,8 @@ function SettingsView() {
 
         <BranchTasksCard uid={uid} link={link} onError={setError} />
 
+        <AgentPublishCard uid={uid} link={link} onError={setError} />
+
         <ReposCard uid={uid} link={link} onError={setError} />
 
         <PostsCard posts={posts} onError={setError} />
@@ -327,6 +330,53 @@ function BranchTasksCard({
           </span>
           <span className="mt-0.5 block text-xs text-zinc-400">
             Off means Pulse only moves cards you already made — it infers status, never new work.
+          </span>
+        </span>
+      </label>
+    </Card>
+  );
+}
+
+/* ------------------------------------------- 3b. let the agent draft and post for you */
+
+function AgentPublishCard({
+  uid,
+  link,
+  onError,
+}: {
+  uid: string;
+  link: GitHubLink;
+  onError: (msg: string | null) => void;
+}) {
+  // Off by default, and not granted by /connect — publishing for you is a separate, later
+  // choice. AGENTS.md rule 2: cut autonomy before Settings.
+  const on = link.agentPublishOptIn === true;
+
+  const toggle = async () => {
+    onError(null);
+    try {
+      await setAgentPublishOptIn(uid, !on);
+    } catch {
+      onError("We couldn't save that. Nothing changed.");
+    }
+  };
+
+  return (
+    <Card title="Let Ask Pulse draft and post for you">
+      <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded p-2 hover:bg-zinc-800/40">
+        <input
+          type="checkbox"
+          checked={on}
+          onChange={toggle}
+          className="mt-0.5 h-4 w-4 accent-zinc-400"
+        />
+        <span>
+          <span className="block text-sm text-zinc-100">
+            Ask Pulse can draft a recipe from your work and post it
+          </span>
+          <span className="mt-0.5 block text-xs text-zinc-400">
+            Off by default. On, you can ask Pulse to draft a recipe; you edit it and confirm
+            before it posts to the cohort under your name. Your own board never needs this.
           </span>
         </span>
       </label>

@@ -15,6 +15,18 @@ import { ENROLLED, type CohortSnapshot, type PublicMember } from './cohort';
  */
 export async function buildCohortSnapshot(): Promise<CohortSnapshot> {
   const fetchedAt = new Date().toISOString();
+
+  // Under the local emulator (e2e), never make the live GitHub call. `/signin` is a server
+  // component that blocks its first render on this fetch, and on a cold dev server that call
+  // is slow enough — or rate-limited enough — to time out `signUp`, which every full-suite
+  // test starts with (`page.goto('/signin')`). An empty, non-degraded cohort renders /signin
+  // instantly and truthfully: there is no cohort data in a throwaway emulator, so showing
+  // none is honest, not a stub of fake activity. Gated on the emulator flag, so production
+  // still reads the real repo.
+  if (process.env.NEXT_PUBLIC_USE_EMULATOR === '1') {
+    return { members: [], enrolled: ENROLLED, fetchedAt, degraded: null };
+  }
+
   const result = await fetchCohortPulls();
 
   if (!result.ok) {

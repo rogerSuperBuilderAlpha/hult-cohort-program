@@ -3,6 +3,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { setTaskStatus } from '@/lib/data';
 import { STATUS_LABELS, STATUSES, type Member, type Project, type Status, type Task } from '@/lib/types';
+import {
+  isClassic,
+  planLaneMove,
+  resolveColumnId,
+  type WorkflowColumn,
+} from '@/lib/workflows';
 import { TaskCard } from './TaskCard';
 
 type Actor = { uid: string; name: string; photoURL: string | null };
@@ -23,6 +29,9 @@ export function Board({
   members,
   onOpenTask,
   onNewTask,
+  columns,
+  placement,
+  onPlaceCard,
 }: {
   actor: Actor;
   tasks: Task[];
@@ -30,9 +39,17 @@ export function Board({
   members: Member[];
   onOpenTask: (task: Task) => void;
   onNewTask: (status: Status) => void;
+  /** The user's private workflow lanes. Omitted or classic → the original three-column board
+   *  renders unchanged (the path the pinned specs assert on). */
+  columns?: readonly WorkflowColumn[];
+  /** taskId -> lane id, for THIS user only. Decides which lane a card of a given status sits in. */
+  placement?: Record<string, string>;
+  /** Record a card's lane (private). Called when a card is dragged between lanes; a move that
+   *  also crosses a canonical status still goes through setTaskStatus separately. */
+  onPlaceCard?: (taskId: string, laneId: string) => void;
 }) {
   const [dragging, setDragging] = useState<Task | null>(null);
-  const [dragOver, setDragOver] = useState<Status | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState<ReadonlySet<string>>(new Set());
 
   const projectById = new Map(projects.map((p) => [p.id, p]));
@@ -86,6 +103,18 @@ export function Board({
   async function move(task: Task, status: Status) {
     if (task.status === status) return;
     await setTaskStatus(actor, task, status);
+  }
+
+  /**
+   * Move a card into a target lane (dynamic workflow only). If the lane belongs to a different
+   * canonical status, the real status changes through the same logged path as everything else;
+   * the private lane placement is recorded either way. A same-status re-file changes nothing
+   * shared — only your own lens.
+   */
+  async function moveToLane(task: Task, target: WorkflowColumn) {
+    const plan = planLaneMove(task, target);
+    onPlaceCard?.(task.id, plan.laneId);
+    if (plan.status) await setTaskStatus(actor, task, plan.status);
   }
 
   /**
@@ -145,6 +174,99 @@ export function Board({
     if (task.status === 'done' && pr) return `Pulse moved this — PR #${pr} merged`;
     if (pr) return `Pulse made this card — PR #${pr}`;
     return 'Pulse made this card from your branch';
+  }
+
+  // A dynamic workflow is active only when the user chose a non-classic set of lanes. The
+  // classic path below is left byte-for-byte identical — it's what the responsive/crud specs
+  // assert on, and the default for everyone who never picked a workflow.
+  const place = placement ?? {};
+  if (columns && !isClassic(columns)) {
+    return (
+      <div
+        className="
+          -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2
+          min-[768px]:mx-0 min-[768px]:grid min-[768px]:overflow-visible min-[768px]:px-0
+          min-[1440px]:gap-5
+        "
+        // Lanes can outnumber the classic three, so the grid track count is dynamic. Below
+        // 768 it stays the scroll-snapped carousel with a peek (never stacks) — same as classic.
+        style={{ ['--lanes' as string]: columns.length }}
+        data-testid="board"
+        data-workflow="dynamic"
+      >
+        <style>{`@media (min-width:768px){[data-workflow="dynamic"]{grid-template-columns:repeat(${columns.length},minmax(0,1fr))}}`}</style>
+        {columns.map((lane) => {
+          const inLane = tasks.filter(
+            (t) => t.status === lane.status && resolveColumnId(t, columns, place) === lane.id
+          );
+          return (
+            <section
+              key={lane.id}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(lane.id);
+              }}
+              onDragLeave={() => setDragOver((s) => (s === lane.id ? null : s))}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(null);
+                if (dragging) moveToLane(dragging, lane);
+                setDragging(null);
+              }}
+              className={`
+                w-[78%] shrink-0 snap-start rounded-lg border p-3 transition-colors
+                min-[480px]:w-[46%] min-[768px]:w-auto
+                ${dragOver === lane.id ? 'border-emerald-500/60 bg-zinc-900/60' : 'border-zinc-800 bg-zinc-900/30'}
+              `}
+              data-lane={lane.id}
+              data-lane-status={lane.status}
+            >
+              <header className="mb-3 flex items-center justify-between">
+                <h2 className="text-xs text-zinc-400">
+                  {lane.label.toLowerCase()} · {inLane.length}
+                </h2>
+                <button
+                  onClick={() => onNewTask(lane.status)}
+                  aria-label={`New task in ${lane.label}`}
+                  className="text-xs text-zinc-400 transition-colors hover:text-zinc-300"
+                >
+                  +
+                </button>
+              </header>
+
+              <div className="space-y-2">
+                {inLane.map((task) => (
+                  <div
+                    key={task.id}
+                    className={celebrating.has(task.id) ? 'motion-safe:animate-[pulse-once_600ms_ease-out]' : ''}
+                  >
+                    <TaskCard
+                      task={task}
+                      project={projectById.get(task.projectId)}
+                      assignee={task.assigneeUid ? memberByUid.get(task.assigneeUid) : undefined}
+                      pulseDid={pulseDidIds.has(task.id) ? pulseDidLine(task) : undefined}
+                      onOpen={() => onOpenTask(task)}
+                      onStatusChange={(s) => move(task, s)}
+                      onDragStart={() => setDragging(task)}
+                    />
+                  </div>
+                ))}
+
+                {inLane.length === 0 && (
+                  // Reuse the classic board's on-voice invitations, keyed by the lane's canonical
+                  // status (VOICE: empty states invite; never the banned "nothing here").
+                  <p className="py-6 text-center text-xs text-zinc-400">
+                    {lane.status === 'todo' && 'Empty. Hit + and claim the first card.'}
+                    {lane.status === 'in_progress' && 'Nothing in flight. Yet.'}
+                    {lane.status === 'done' && 'Ship something — it lands here by itself.'}
+                  </p>
+                )}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    );
   }
 
   return (

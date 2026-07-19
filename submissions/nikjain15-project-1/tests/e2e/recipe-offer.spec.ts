@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { signUp, uniqueEmail, uniqueName } from './helpers';
 
 /**
@@ -21,7 +21,7 @@ import { signUp, uniqueEmail, uniqueName } from './helpers';
  * through the real signed-in UI under the real rules.
  */
 
-const EMULATOR = 'http://127.0.0.1:8080/v1/projects/demo-pulse/databases/(default)/documents';
+const EMULATOR = `http://127.0.0.1:${process.env.FIRESTORE_EMULATOR_PORT ?? '8080'}/v1/projects/demo-pulse/databases/(default)/documents`;
 
 const offer = (page: Page) =>
   page.locator('section').filter({ hasText: /took a while\. Keep what worked/i });

@@ -17,7 +17,13 @@ import { actOnIntroduction, subscribeToIntroductions } from '@/lib/introductions
 import { formatEvidence, relativeTime, selectAsk, type Ask, type AskContext } from '@/lib/sense';
 import type { GitHubLink, Introduction, Member, PulseEvent, Recipe, Task } from '@/lib/types';
 import { useCohort } from '@/lib/use-cohort';
+import { AskPulse } from './AskPulse';
+import { Momentum } from './Momentum';
+import { SpottedConnection } from './SpottedConnection';
 import { useRecipes } from '@/lib/use-recipes';
+import { useBrief } from '@/lib/use-brief';
+import { useConnection } from '@/lib/use-connection';
+import type { BriefFacts } from '@/lib/brief-fallback';
 
 /**
  * Home — `/` signed in. DESIGN-SPEC §6.
@@ -58,9 +64,59 @@ const MOTION_CSS = `
 @media (prefers-reduced-motion: no-preference) {
   @keyframes pulse-row-in { from { opacity: 0 } to { opacity: 1 } }
   .pulse-row-in { animation: pulse-row-in 200ms ease-out }
+}
+/* Home is two columns on desktop — content left, the Pulse agent as a sticky rail right —
+   and a single stacked column below lg, where the agent sits right under the hero (second,
+   still prominent) so it's never buried at the bottom on a phone. */
+.home-grid {
+  display: grid;
+  /* Stacked (mobile): generous row gap so the agent reads as its own block under the hero,
+     not crowded against it. */
+  gap: 2.75rem 2rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'hero' 'agent' 'updates' 'feed';
+}
+.home-hero { grid-area: hero; }
+.home-agent { grid-area: agent; min-width: 0; }
+.home-updates { grid-area: updates; min-width: 0; }
+.home-feed { grid-area: feed; }
+@media (min-width: 1024px) {
+  .home-grid {
+    /* A wide gutter (4rem) so the agent rail is clearly separated from the content column
+       and easy to track as its own workspace. */
+    column-gap: 4rem;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 400px);
+    grid-template-areas: 'hero agent' 'updates agent' 'feed agent';
+  }
+  .home-agent { position: sticky; top: 1.5rem; align-self: start; }
+  /* A hairline down the middle of the gutter so the eye can track exactly where the content
+     column ends and the agent begins. Fades at top and bottom so it never looks like a hard
+     table border. Anchored to the sticky agent element, sat in the -2rem gutter midpoint. */
+  .home-agent::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(63 63 70 / 0.7) 12%,
+      rgb(63 63 70 / 0.7) 88%,
+      transparent
+    );
+  }
 }`;
 
 /* ----------------------------------------------------------------------- view */
+
+/** The small category label above each update card, so its kind is obvious at a glance. */
+function CardLabel({ children }: { children: string }) {
+  return (
+    <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-500">{children}</p>
+  );
+}
 
 function HomeView() {
   const { user, memberName } = useAuth();
@@ -110,6 +166,20 @@ function HomeView() {
     [uid, tasks, projects, ready, helperIntro, stuckName]
   );
 
+  // "Pulse spotted a connection" — your own open work, matched against the cohort's PUBLIC
+  // PRs. Your handle (never guessed — from your member doc) keeps the match from suggesting
+  // you to yourself; your open task titles are the only thing of yours that leaves the page,
+  // and only a peer's public PR ever comes back.
+  const myHandle = useMemo(() => members.find((m) => m.uid === uid)?.handle ?? null, [members, uid]);
+  const myOpenTitles = useMemo(
+    () =>
+      tasks
+        .filter((t) => (t.creatorUid === uid || t.assigneeUid === uid) && t.status !== 'done')
+        .map((t) => t.title),
+    [tasks, uid]
+  );
+  const connection = useConnection({ handle: myHandle, workHints: myOpenTitles });
+
   // "That one took a while. Keep what worked?" — Layer 2's offer, for YOUR newest hard
   // ship only. `offerGone` exists because the dismissal lives in localStorage, which
   // isn't reactive — the card has to leave the screen the moment it's resolved, not on
@@ -124,62 +194,121 @@ function HomeView() {
     <>
       <style>{MOTION_CSS}</style>
 
-      {/* Narratives are prose. Past ~68ch they get harder to read, so extra width becomes
-          margin and never a second column (§4). Centred from 1440. */}
-      <div className="w-full max-w-[68ch] min-[1440px]:mx-auto">
+      <div className="mx-auto w-full max-w-6xl">
         {/* One stable page title. Visually the header already reads "Pulse"; a screen
             reader navigating by heading needs a real h1 that doesn't move or change with
-            state. sr-only so it doesn't duplicate the header on screen. Everything below
-            is h2. */}
+            state. sr-only so it doesn't duplicate the header on screen. */}
         <h1 className="sr-only">Your week on Pulse</h1>
 
         <ErrorNote>{error}</ErrorNote>
 
-        {posted ? (
-          <PostedRow event={posted} onError={setError} />
-        ) : linkReady && link === null ? (
-          // Never chose at /connect — wandered off mid-decision. One open question, asked
-          // once; answering it (either way) makes this card gone for good.
-          <DecideCard uid={uid} onError={setError} />
-        ) : (
-          // Only the person who declined gets told there's nothing of theirs — everyone
-          // else's silence is nobody's business, including their own dashboard's.
-          link?.status === 'declined' && <NothingOfYours />
-        )}
+        {/* Two columns on desktop: content left, the Pulse agent as a sticky rail on the
+            right. Below lg it collapses to one column — the agent sits right under the hero
+            (see .home-grid), so it stays prominent on a phone instead of at the very bottom. */}
+        <div className="home-grid">
+          {/* Hero — momentum leads, with the single Pulse voice beneath it. */}
+          <div className="home-hero">
+            <PulseBrief
+              events={events}
+              tasks={tasks}
+              uid={uid}
+              displayName={memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member'}
+              narrationOptIn={link?.narrationOptIn === true}
+            />
+          </div>
 
-        {offer && (
-          <RecipeOfferCard
-            actor={{
-              uid,
-              // Member doc, not the User: the rules reject a mismatched actorName, and the
-              // old `?? ''` fallback could even publish a nameless recipe. See auth-context.
-              name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
-              photoURL: user!.photoURL,
-            }}
-            offer={offer}
-            onGone={() => setOfferGone(true)}
-          />
-        )}
+          {/* The agent — its own workspace, sticky beside the content on desktop. */}
+          <div className="home-agent">
+            <AskPulse
+              actor={{
+                uid,
+                name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+                photoURL: user!.photoURL,
+              }}
+              tasks={tasks}
+              projects={projects}
+              members={members}
+              ready={ready}
+              canPublish={link?.agentPublishOptIn === true}
+            />
+          </div>
 
-        {/* One card, not two stacked negations: when an invitation above is showing and
-            the ask ladder only has its floor to offer, "nothing of yours" + "nothing needs
-            you" reads like the product shrugging twice. The invitation wins the slot. */}
-        {!(
-          !posted &&
-          linkReady &&
-          (link === null || link?.status === 'declined') &&
-          ask.kind === 'nothing'
-        ) && <StandingAsk ask={ask} uid={uid} ready={ready} intro={helperIntro} onError={setError} />}
+          {/* Updates — each card gets a small category label above it, so at a glance you
+              know what kind of thing it is (a connection, a receipt, your next move…). */}
+          <div className="home-updates space-y-6">
+            {/* The one collaborative nudge — public facts only, your own Home, at most one. */}
+            {connection && (
+              <div>
+                <CardLabel>collaboration</CardLabel>
+                <SpottedConnection connection={connection} members={members} />
+              </div>
+            )}
 
-        <CohortWeek
-          events={events}
-          fresh={fresh}
-          members={members}
-          recipes={recipes}
-          ready={feedReady}
-          uid={uid}
-          onError={setError}
-        />
+            {posted ? (
+              <div>
+                <CardLabel>your receipt</CardLabel>
+                <PostedRow event={posted} onError={setError} />
+              </div>
+            ) : linkReady && link === null ? (
+              // Never chose at /connect — wandered off mid-decision. One open question, asked
+              // once; answering it (either way) makes this card gone for good.
+              <div>
+                <CardLabel>one decision</CardLabel>
+                <DecideCard uid={uid} onError={setError} />
+              </div>
+            ) : (
+              // Only the person who declined gets told there's nothing of theirs — everyone
+              // else's silence is nobody's business, including their own dashboard's.
+              link?.status === 'declined' && <NothingOfYours />
+            )}
+
+            {offer && (
+              <div>
+                <CardLabel>keep what worked</CardLabel>
+                <RecipeOfferCard
+                  actor={{
+                    uid,
+                    // Member doc, not the User: the rules reject a mismatched actorName, and the
+                    // old `?? ''` fallback could even publish a nameless recipe. See auth-context.
+                    name: memberName ?? user!.displayName ?? user!.email?.split('@')[0] ?? 'member',
+                    photoURL: user!.photoURL,
+                  }}
+                  offer={offer}
+                  members={members}
+                  onGone={() => setOfferGone(true)}
+                />
+              </div>
+            )}
+
+            {/* One card, not two stacked negations: when an invitation above is showing and
+                the ask ladder only has its floor to offer, "nothing of yours" + "nothing needs
+                you" reads like the product shrugging twice. The invitation wins the slot. */}
+            {!(
+              !posted &&
+              linkReady &&
+              (link === null || link?.status === 'declined') &&
+              ask.kind === 'nothing'
+            ) && (
+              <div>
+                <CardLabel>your next move</CardLabel>
+                <StandingAsk ask={ask} uid={uid} ready={ready} intro={helperIntro} onError={setError} />
+              </div>
+            )}
+          </div>
+
+          {/* The cohort's week — recedes at the bottom of the content column. */}
+          <div className="home-feed">
+            <CohortWeek
+              events={events}
+              fresh={fresh}
+              members={members}
+              recipes={recipes}
+              ready={feedReady}
+              uid={uid}
+              onError={setError}
+            />
+          </div>
+        </div>
       </div>
     </>
   );
@@ -346,7 +475,7 @@ function PostedRow({ event, onError }: { event: PulseEvent; onError: (m: string 
 
   return (
     <section
-      className={`mb-6 rounded-lg border p-4 ${
+      className={`rounded-lg border p-4 ${
         pending || firstEver ? 'border-emerald-500/40 bg-zinc-900' : 'border-zinc-800 bg-zinc-900'
       }`}
     >
@@ -487,7 +616,7 @@ function DecideCard({ uid, onError }: { uid: string; onError: (m: string | null)
   };
 
   return (
-    <section className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+    <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
       <h2 className="text-base text-zinc-100">One decision is waiting on you.</h2>
       <p className="mt-1 text-sm text-zinc-400">
         Should Pulse run your board — move cards, post what you shipped? You left before
@@ -514,7 +643,7 @@ function DecideCard({ uid, onError }: { uid: string; onError: (m: string | null)
 
 function NothingOfYours() {
   return (
-    <section className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+    <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
       <h2 className="text-base text-zinc-100">Your board is live. Pulse just can&rsquo;t see you yet.</h2>
       <p className="mt-1 text-sm text-zinc-400">
         Connect GitHub and your cards start moving themselves. Or run the whole thing by
@@ -622,14 +751,14 @@ function StandingAsk({
 }) {
   if (!ready) {
     return (
-      <section className="mb-8 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+      <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
         <p className="text-sm text-zinc-400">Looking for the one thing that needs you…</p>
       </section>
     );
   }
 
   return (
-    <section className="mb-8 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+    <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
       <AskBody ask={ask} uid={uid} intro={intro} onError={onError} />
     </section>
   );
@@ -790,6 +919,163 @@ function AskCard({
 }
 
 /* --------------------------------------------------- 3 · the cohort's week */
+
+/**
+ * This week, together — DESIGN-SPEC §6 (v2). The cohort's collective momentum, so Home
+ * leads with shared work rather than a personal to-do list.
+ *
+ * Aggregate by construction, never per-person — the same reasoning as `PulseStrip`: a count
+ * of what the cohort shipped, figured out, and unstuck, from the feed already in memory, so
+ * no new query and no cost. Two of the three measure GENEROSITY (recipes banked, people a
+ * teammate unstuck) because that is the thing worth motivating, and the one thing the rails
+ * forbid is a scoreboard that ranks output per person: nobody is named, no silence is
+ * countable, no bar or tile is ever a person's. A week with nothing in it says so plainly —
+ * an invitation, never invented activity (§6.3).
+ *
+ * v2 note: this reopens §4's motion budget by one beat. The block fades in on mount using
+ * the SAME `pulse-row-in` the feed uses — one shared idiom, behind `prefers-reduced-motion`,
+ * not a new kind of animation.
+ */
+function PulseBrief({
+  events,
+  tasks,
+  uid,
+  displayName,
+  narrationOptIn,
+}: {
+  events: PulseEvent[];
+  tasks: Task[];
+  uid: string;
+  displayName: string;
+  narrationOptIn: boolean;
+}) {
+  const s = useMemo(() => {
+    const midnight = new Date();
+    midnight.setHours(0, 0, 0, 0);
+    const weekAgo = midnight.getTime() - 6 * 86_400_000;
+    const shipDays = new Set<number>();
+    const shipsByOffset = [0, 0, 0, 0, 0, 0, 0]; // index = days ago, 0 = today
+    let cohortShipped = 0;
+    let banked = 0;
+    let cohortUnstuck = 0;
+    let youShipped = 0;
+    let youUnstuck = 0;
+    let youKudos = 0;
+    for (const e of events) {
+      const ms = e.createdAt.toDate().getTime();
+      const recent = ms >= weekAgo;
+      if (e.kind === 'task_shipped') {
+        if (recent) cohortShipped += 1;
+        const at = e.createdAt.toDate();
+        at.setHours(0, 0, 0, 0);
+        const d = Math.round((midnight.getTime() - at.getTime()) / 86_400_000);
+        if (d >= 0 && d <= 30) shipDays.add(d);
+        if (d >= 0 && d <= 6) shipsByOffset[d] += 1;
+      } else if (e.kind === 'recipe_banked' && recent) {
+        banked += 1;
+      } else if (e.kind === 'intro_made' && recent) {
+        cohortUnstuck += 1;
+      }
+      if (e.actorUid === uid) {
+        if (e.kind === 'task_shipped') youShipped += 1;
+        else if (e.kind === 'intro_made') youUnstuck += 1;
+        youKudos += e.kudos.length;
+      }
+    }
+    const todayShipped = shipDays.has(0);
+    let streak = 0;
+    for (let d = todayShipped ? 0 : 1; shipDays.has(d); d++) streak += 1;
+    // oldest → today, for the momentum "current" line.
+    const shipsByDay = [6, 5, 4, 3, 2, 1, 0].map((o) => shipsByOffset[o]);
+    // What you're in the middle of — your own open cards, so the brief can name the work.
+    const yourOpenTitles = tasks
+      .filter((t) => (t.creatorUid === uid || t.assigneeUid === uid) && t.status !== 'done')
+      .map((t) => t.title);
+    return {
+      cohortShipped,
+      banked,
+      cohortUnstuck,
+      youShipped,
+      youUnstuck,
+      youKudos,
+      streak,
+      shipsByDay,
+      yourOpenTitles,
+    };
+  }, [events, tasks, uid]);
+
+  const facts: BriefFacts = {
+    displayName,
+    cohortShipped: s.cohortShipped,
+    cohortFiguredOut: s.banked,
+    cohortUnstuck: s.cohortUnstuck,
+    shipStreakDays: s.streak,
+    youShipped: s.youShipped,
+    youUnstuck: s.youUnstuck,
+    youKudos: s.youKudos,
+    yourOpenTitles: s.yourOpenTitles,
+  };
+  // Hooks run unconditionally, before any early return.
+  const brief = useBrief({ uid, facts, narrationOptIn });
+
+  // Nothing has happened and nothing is open — the brief stays quiet rather than narrate an
+  // empty week (VOICE rule 4 puts the invitation elsewhere).
+  const empty =
+    s.cohortShipped === 0 &&
+    s.banked === 0 &&
+    s.cohortUnstuck === 0 &&
+    s.youShipped === 0 &&
+    s.yourOpenTitles.length === 0;
+  if (empty) return null;
+
+  const yours = [
+    s.youShipped > 0 && `shipped ${s.youShipped}`,
+    s.youUnstuck > 0 && `unstuck ${s.youUnstuck}`,
+    s.youKudos > 0 && `${s.youKudos} kudos`,
+  ].filter(Boolean);
+
+  return (
+    <div className="pulse-row-in">
+      {/* Momentum leads — the cohort's pulse is the first thing, collective and never ranked. */}
+      <Momentum
+        data={{
+          shipsByDay: s.shipsByDay,
+          streakDays: s.streak,
+          figuredOut: s.banked,
+          unstuck: s.cohortUnstuck,
+          cohortShipped: s.cohortShipped,
+        }}
+      />
+
+      {/* One Pulse voice — the model-written brief. The momentum's own caption was removed so
+          this reads as the single narration, not a second one. */}
+      <div className="mt-6 flex items-start gap-3">
+        <span
+          aria-hidden
+          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-medium text-emerald-950"
+        >
+          P
+        </span>
+        <div>
+          {brief.text && (
+            <p
+              className="text-lg leading-snug text-zinc-100"
+              style={{ fontFamily: 'var(--font-voice, Georgia, serif)' }}
+            >
+              {brief.text}
+            </p>
+          )}
+          {yours.length > 0 && (
+            <p className="mt-1.5 text-xs text-zinc-500">
+              your part <span className="text-zinc-600">&middot; only you see this</span> —{' '}
+              {yours.join(' · ')}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function CohortWeek({
   events,
@@ -1125,9 +1411,17 @@ function Kudos({
     'flex min-h-11 shrink-0 items-center gap-1.5 text-xs motion-safe:transition-transform motion-safe:duration-200';
 
   if (own || !onToggle) {
+    // Your own row. You can't kudos yourself — the rules enforce it too — so there is no
+    // control here, only the count others gave you. No heart glyph: a heart you can't
+    // press read as a dead button in prod, where every row was the owner's own. A plain
+    // muted count reads as the receipt it is and explains itself without the tooltip that
+    // phones never saw. Nothing shows until someone gives one — a lone "0" about your own
+    // post would be a scoreboard, and there is no scoreboard here.
+    if (count === 0) return null;
     return (
-      <span className={`${shared} text-zinc-400`} title="Your own — kudos come from other people">
-        {body}
+      <span className={`${shared} text-zinc-500`}>
+        <span className="tabular-nums">{count}</span>
+        <span>kudos</span>
       </span>
     );
   }

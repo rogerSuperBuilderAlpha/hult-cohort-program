@@ -107,7 +107,7 @@ deployed URL. That's deliberate: these tests create members, projects and tasks,
 explicit that fixtures must never reach production (D10). Fake cohort activity in the collection
 reviewers read would falsify the submission's central honesty claim.
 
-**They go ✅ only after a pass against `pm-nikjain15.vercel.app` with real accounts**, once the app is
+**They go ✅ only after a pass against `pulsecohort.vercel.app` with real accounts**, once the app is
 deployed — that's the checklist's definition of done and it's still owed.
 
 Run them: `npm run emulator` · `npm run dev:emulator` · `npm run test:e2e`.
@@ -269,7 +269,7 @@ Fix — either one, ~2 minutes:
   members in one go), or
 - paste `firestore.rules` into the Firestore console's Rules tab and publish.
 
-Verify it worked: `curl -s https://pm-nikjain15.vercel.app/ | grep -c nikjain15` → should be ≥ 1.
+Verify it worked: `curl -s https://pulsecohort.vercel.app/ | grep -c nikjain15` → should be ≥ 1.
 
 ---
 
@@ -640,7 +640,7 @@ a single fixture in production, which is the other half of the point.
 |---|---|
 | Firestore database | ✅ live, **production mode** (REST probe → `PERMISSION_DENIED`, not 404) |
 | Firebase billing | ✅ **Blaze** — no quota-outage risk |
-| `authorizedDomains` | ✅ includes `pm-nikjain15.vercel.app` |
+| `authorizedDomains` | ✅ includes `pulsecohort.vercel.app` |
 | Email/Password sign-up | ✅ **open** (`INVALID_EMAIL` ⇒ validation runs ⇒ open) |
 | GitHub OAuth | ✅ configured (real `github.com/login/oauth/authorize` URI) |
 | `firestore.rules` | ◐ published, unverified against a real write |

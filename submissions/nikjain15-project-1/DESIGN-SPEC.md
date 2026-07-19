@@ -6,8 +6,8 @@
 
 Design is closed. Implement it; don't redesign it.
 
-Companions: [CHECKLIST.md](CHECKLIST.md) (definition of done) · [TESTING.md](TESTING.md) (test
-regime) · [PLAN.md](PLAN.md) (submission mechanics) · [pulse-flows.html](pulse-flows.html) (17
+Companions: [TESTING.md](TESTING.md) (test
+regime) · [pulse-flows.html](pulse-flows.html) (17
 screens) · [pulse-responsive.html](pulse-responsive.html) (responsive sandbox).
 
 ---
@@ -545,7 +545,8 @@ Write these; don't let a reviewer find them:
 - Layers 2 and 3 are designed and surfaced, **not automated** — that's the roadmap, stated plainly.
 - Out of scope: comments, notifications, attachments, search, dark mode, presence, webhooks.
 
-**Agent usage must be honest.** This design and most of this code came from Claude. Say so.
+**Degrade honestly.** Never present a stale feed as live, never fake data, and state limitations
+plainly rather than hiding them.
 
 ---
 

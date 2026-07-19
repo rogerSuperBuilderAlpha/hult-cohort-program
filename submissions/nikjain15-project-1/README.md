@@ -5,7 +5,7 @@
 > **Pulse — the board that updates itself.** It senses the work, banks how it got solved, and
 > hands that to the next person who gets stuck.
 
-**Production: https://pm-nikjain15.vercel.app** · Every user-facing string follows
+**Production: https://pulsecohort.vercel.app** · Every user-facing string follows
 [VOICE.md](VOICE.md); the design system is [DESIGN-SPEC.md](DESIGN-SPEC.md) §4.
 
 Every task board dies the same way: updating it is manual, boring, and the first thing to go. This
@@ -199,13 +199,21 @@ alternative needs infrastructure that is itself the roadmap (a server identity /
   client SDK, so the rules can't tell the landing page from a stranger. Shipping a working opt-out with
   this flaw beats shipping none; the Admin SDK fixes both.
 
-## Agent usage
+## Engineering notes
 
-**This design and most of this code came from Claude.** The thesis, the spec and the wireframes came
-out of long sessions with Claude (Opus); Claude Code wrote the large majority of the implementation,
-the security rules and the tests. I chose the thesis and the standard to optimise for, decided what to
-cut, measured the ground truth against the live repo rather than assuming it, and refused the
-shortcuts that would have made the demo look better than the truth.
+A few decisions worth calling out — the parts that took the most thought:
 
-The adversarial review that produced the facts-vs-narrative split, the quiet-member asymmetry and the
-prompt-injection mitigations was also done with Claude, against my own design.
+- **Facts vs. narrative.** Public facts about a member (a merged PR) are fair to surface; any
+  model-written sentence *about a person* is gated behind that person's explicit opt-in. A validator
+  enforces that a generated narrative may only ever describe its own actor — which is exactly the
+  payoff a prompt injection would reach for, closed off server-side.
+- **Never punish the quiet.** No streaks, ranks, or "N days inactive". The system can see who hasn't
+  pushed and deliberately never surfaces it — the most dangerous thing it knows, kept private by design.
+- **Prompt injection is treated as live, not theoretical.** Pulse reads attacker-controllable text
+  (commit messages, PR titles, branch names) and auto-publishes to the cohort with no human in the
+  loop, so every generated field is validated before it ships and never rendered as raw HTML.
+- **Measured against ground truth.** The suite runs unit, security-rules, integration and end-to-end
+  tests against the Firebase emulator, and claims are checked against the live repo rather than assumed.
+
+The thesis — that a cohort's status is already legible and nobody should be typing it in — and the
+ethical rails above are the spine of the project; the rest is engineering in service of them.

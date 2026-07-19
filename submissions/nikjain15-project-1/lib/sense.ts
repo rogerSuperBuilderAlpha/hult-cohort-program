@@ -442,6 +442,54 @@ export function checkNarrative(
   return { ok: true, narrative: text };
 }
 
+/** A recipe body is far longer than a narrative sentence, so the narration cap can't apply. */
+const RECIPE_MAX_CHARS = 4000;
+
+export type RecipeBodyCheck =
+  | { ok: true }
+  | { ok: false; reason: 'empty' | 'too_long' | 'names_another_member'; member?: string };
+
+/**
+ * The peer-name gate for an agent-DRAFTED recipe. design-agent-peer.md.
+ *
+ * A recipe publishes to the whole cohort under the author's name. When a human types it, it
+ * is their own words about their own work — no gate. But an AGENT draft is model-written from
+ * attacker-controlled commit/PR text, so it could be steered to name and disparage a peer in
+ * cohort-read prose. This is the one new publish path `checkNarrative` doesn't cover.
+ *
+ * Same mention scan as `checkNarrative` (the typographic-fold defence against zero-width and
+ * combining-mark evasion), but NO markup check — recipes legitimately carry code — and,
+ * unlike narration, **no facts-only fallback**: a peer-named draft does not get quietly
+ * redacted and published; it is BLOCKED, and the UI hands the draft back to edit. The author,
+ * not the model, decides whether their teammate's name belongs in something posted as them.
+ */
+export function checkRecipeBody(
+  problem: string,
+  body: string,
+  actor: { handle: string | null; displayName: string },
+  otherMembers: readonly { handle: string | null; displayName: string }[]
+): RecipeBodyCheck {
+  const text = `${problem}\n${body}`.trim();
+  if (!text) return { ok: false, reason: 'empty' };
+  if (text.length > RECIPE_MAX_CHARS) return { ok: false, reason: 'too_long' };
+
+  const foldedText = foldForMention(text);
+  const actorTokens = new Set(
+    [actor.handle, actor.displayName].filter((v): v is string => !!v).map(foldForMention)
+  );
+  for (const member of otherMembers) {
+    for (const token of [member.handle, member.displayName]) {
+      if (!token) continue;
+      const folded = foldForMention(token);
+      if (!folded || actorTokens.has(folded)) continue;
+      if (mentions(foldedText, folded)) {
+        return { ok: false, reason: 'names_another_member', member: member.displayName };
+      }
+    }
+  }
+  return { ok: true };
+}
+
 /**
  * Canonicalise text for the mention test: decompose compatibility forms, drop combining
  * marks, strip zero-width characters, lowercase. Mirrors `normaliseTitle`'s folding so the

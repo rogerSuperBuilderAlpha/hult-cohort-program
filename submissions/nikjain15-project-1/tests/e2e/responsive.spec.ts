@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { createProject, createTask, signUp, uniqueEmail, uniqueName } from './helpers';
 
 /**
@@ -160,15 +160,17 @@ test.describe('responsive — spec §4', () => {
   }
 
   /**
-   * The feed is the opposite problem to the board: narratives are prose, and past ~68ch
-   * they get harder to read. Extra width becomes margin, never a second column.
+   * The feed is the opposite problem to the board: narratives are prose, and read harder
+   * the wider they run. In the momentum-first Home the feed lives in the left grid column
+   * (`.home-feed`), so extra viewport width becomes margin around the capped content column,
+   * never a second column or a full-bleed feed.
    */
-  test('1440px — feed is capped at 68ch and centred, never a second column', async ({ page }) => {
+  test('1440px — feed sits in a bounded column, never full-width or a second column', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     await settle(page);
 
-    const feed = page.locator('.max-w-\\[68ch\\]').first();
+    const feed = page.locator('.home-feed').first();
     await feed.waitFor({ timeout: 15_000 });
 
     const { width, viewport } = await feed.evaluate((el) => ({
@@ -176,12 +178,12 @@ test.describe('responsive — spec §4', () => {
       viewport: window.innerWidth,
     }));
 
-    // The cap is the point: at 1440 the feed must be much narrower than the window.
+    // The cap is the point: at 1440 the feed column must be much narrower than the window.
     expect(width).toBeLessThan(viewport * 0.75);
-    // 68ch at this font lands around 600px. A generous band — the assertion is "capped
-    // and readable", not a pixel that a font update would break.
+    // A generous band — the assertion is "capped and readable", not a pixel a layout tweak
+    // would break. The feed column lands around 690px inside the max-w-6xl content area.
     expect(width).toBeGreaterThan(380);
-    expect(width).toBeLessThan(800);
+    expect(width).toBeLessThan(820);
   });
 
   /**

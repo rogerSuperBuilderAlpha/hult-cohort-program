@@ -49,24 +49,26 @@ export default async function HowPage() {
           </Link>
           .
         </p>
+        <ProductShot />
       </header>
 
       {/* -------------------------------------------------- the problem */}
-      <Band label="The problem">
+      <Band label="The idea">
         <p className="text-sm leading-relaxed text-zinc-200">
-          Every task board dies the same way: updating it is manual, boring, and the first thing to
-          go. But this cohort&rsquo;s work is already legible — dozens of people running coding agents
-          against public repos. The status is already out there. Nobody should be typing it in.
+          This cohort&rsquo;s work is already legible — dozens of people running coding agents against
+          public repos, every commit and PR out in the open. The status already exists. Pulse reads
+          it and keeps the board current on its own, so nobody types an update again.
         </p>
       </Band>
 
       {/* -------------------------------------------------- three layers */}
       <Band label="How it works · three layers">
         <p className="mb-5 text-sm leading-relaxed text-zinc-300">
-          Remove the model and there&rsquo;s no product left. That&rsquo;s the test Pulse is built to pass —
-          and why a chat box in the corner was rejected.
+          Remove the model and there&rsquo;s no product left. The sensing, the writing, and the matching
+          are the product — one pipeline, three moves.
         </p>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <Pipeline />
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <LayerCard n="1" name="Sense" status="Shipped" done>
             Reads your commits and PRs, and writes your week in plain English.
           </LayerCard>
@@ -306,6 +308,113 @@ function MemberRow({ member, max }: { member: PublicMember; max: number }) {
 
 function maxPrs(members: PublicMember[]): number {
   return Math.max(1, ...members.map((m) => m.evidence.prNumbers.length));
+}
+
+/* ------------------------------------------------------------------ product shot */
+
+/**
+ * A faithful mockup of the real product — the signature Pulse moment: a card Pulse wrote
+ * itself, from a real merged PR, with the cohort's week under it. Built from the same UI the
+ * app ships (zinc-900 cards, the emerald mark, the pulse strip) so it reads as a screenshot
+ * without depending on a live capture. Numbers are real: PR #40 is this submission.
+ */
+function ProductShot() {
+  const bars = [3, 5, 2, 6, 4, 8, 11];
+  const peak = Math.max(...bars);
+  return (
+    <figure className="mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-xl shadow-black/40">
+      {/* window chrome */}
+      <div className="flex items-center gap-2 border-b border-zinc-800 bg-zinc-900 px-4 py-2.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" aria-hidden />
+        <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" aria-hidden />
+        <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" aria-hidden />
+        <span className="ml-3 font-mono text-[11px] text-zinc-500">pulsecohort.vercel.app</span>
+      </div>
+      {/* app header */}
+      <div className="flex items-center gap-3 border-b border-zinc-800 px-5 py-3">
+        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" aria-hidden />
+        <span className="text-sm font-medium text-zinc-100">Pulse</span>
+        <span className="ml-2 hidden gap-3 text-xs text-zinc-500 sm:flex">
+          <span className="text-zinc-300">home</span><span>board</span><span>projects</span><span>recipes</span>
+        </span>
+      </div>
+      <div className="p-5">
+        {/* the sentence Pulse wrote */}
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-xs text-zinc-500">pulse posted this · 1h ago</p>
+          <p className="mt-1 text-[15px] leading-snug text-zinc-100">
+            Nik Jain submitted their phase-1 project 1 for the summer cohort.
+          </p>
+          <p className="mt-1 text-xs text-emerald-500/80">PR #40</p>
+          <div className="mt-3 flex items-center gap-4 text-xs text-zinc-400">
+            <span aria-hidden>♡</span>
+            <span>kudos</span>
+            <span className="underline underline-offset-2">edit the wording</span>
+            <span className="underline underline-offset-2">undo</span>
+          </div>
+        </div>
+        {/* the pulse strip */}
+        <p className="mt-5 text-xs text-zinc-500">The cohort&rsquo;s week</p>
+        <div className="mt-2 flex h-9 items-end gap-1.5" aria-hidden>
+          {bars.map((b, i) => (
+            <span
+              key={i}
+              className={`w-full rounded-[2px] ${i === bars.length - 1 ? 'bg-zinc-500' : 'bg-zinc-700'}`}
+              style={{ height: `${Math.max(10, Math.round((b / peak) * 100))}%` }}
+            />
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-zinc-500">last 7 days · today on the right</p>
+      </div>
+      <figcaption className="border-t border-zinc-800 px-5 py-2.5 text-xs text-zinc-500">
+        The home screen — Pulse wrote that sentence from a real PR. Nobody typed it in.
+      </figcaption>
+    </figure>
+  );
+}
+
+/* ------------------------------------------------------------------ pipeline diagram */
+
+/**
+ * Sense → Bank → Broker as a drawn pipeline. An SVG, so the arrows and boxes are crisp at any
+ * width. Zinc lines, one emerald node for the layer that's live; nothing else coloured.
+ */
+function Pipeline() {
+  return (
+    <div className="overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+      <svg viewBox="0 0 640 120" className="h-auto w-full min-w-[560px]" role="img" aria-label="Sense feeds Bank feeds Broker">
+        <defs>
+          <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#52525b" strokeWidth="1.2" />
+          </marker>
+        </defs>
+        {/* connectors */}
+        <line x1="196" y1="60" x2="236" y2="60" stroke="#52525b" strokeWidth="1.2" markerEnd="url(#ah)" />
+        <line x1="404" y1="60" x2="444" y2="60" stroke="#52525b" strokeWidth="1.2" markerEnd="url(#ah)" />
+        {/* Sense (live) */}
+        <g>
+          <rect x="16" y="28" width="180" height="64" rx="8" fill="#18181b" stroke="#34d399" strokeWidth="1.2" />
+          <text x="34" y="52" fill="#fafafa" fontSize="14" fontWeight="500" fontFamily="sans-serif">Sense</text>
+          <text x="112" y="52" fill="#34d399" fontSize="11" fontFamily="monospace">shipped</text>
+          <text x="34" y="74" fill="#a1a1aa" fontSize="11.5" fontFamily="sans-serif">Reads commits &amp; PRs</text>
+        </g>
+        {/* Bank */}
+        <g>
+          <rect x="228" y="28" width="176" height="64" rx="8" fill="#18181b" stroke="#3f3f46" strokeWidth="1.2" />
+          <text x="246" y="52" fill="#fafafa" fontSize="14" fontWeight="500" fontFamily="sans-serif">Bank</text>
+          <text x="322" y="52" fill="#71717a" fontSize="11" fontFamily="monospace">designed</text>
+          <text x="246" y="74" fill="#a1a1aa" fontSize="11.5" fontFamily="sans-serif">Keeps how it got solved</text>
+        </g>
+        {/* Broker */}
+        <g>
+          <rect x="436" y="28" width="188" height="64" rx="8" fill="#18181b" stroke="#3f3f46" strokeWidth="1.2" />
+          <text x="454" y="52" fill="#fafafa" fontSize="14" fontWeight="500" fontFamily="sans-serif">Broker</text>
+          <text x="540" y="52" fill="#71717a" fontSize="11" fontFamily="monospace">designed</text>
+          <text x="454" y="74" fill="#a1a1aa" fontSize="11.5" fontFamily="sans-serif">Introduces who can help</text>
+        </g>
+      </svg>
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------------ data */

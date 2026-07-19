@@ -8,7 +8,7 @@ import { RecipeModal } from '@/components/RecipeModal';
 import { Avatar } from '@/components/TaskCard';
 import { Button, ErrorNote } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
-import { markUnstuck } from '@/lib/recipes';
+import { markUnstuck, thankPublicly } from '@/lib/recipes';
 import { useCohort } from '@/lib/use-cohort';
 import { useRecipes } from '@/lib/use-recipes';
 import type { Member, Recipe } from '@/lib/types';
@@ -129,12 +129,29 @@ function Steal({
 }) {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [thanking, setThanking] = useState(false);
 
   const unstuck = recipe.unstuckUids.length;
   const already = recipe.unstuckUids.includes(uid);
   const names = recipe.unstuckUids
     .map((u) => members.find((m) => m.uid === u)?.displayName)
     .filter(Boolean);
+  const authorName = members.find((m) => m.uid === recipe.authorUid)?.displayName ?? 'the author';
+  // Explicit public-thanks consent is a SEPARATE, opt-in choice from the private unstuck credit.
+  const thankedPublicly = (recipe.publicThanksUids ?? []).includes(uid);
+
+  async function thankPub() {
+    setError('');
+    setThanking(true);
+    try {
+      await thankPublicly(recipe.id, uid);
+    } catch (err) {
+      console.error('recipes: thankPublicly failed', err);
+      setError('Couldn’t post the public thank-you just now. Try again later.');
+    } finally {
+      setThanking(false);
+    }
+  }
 
   async function steal() {
     setError('');
@@ -173,12 +190,34 @@ function Steal({
           </Button>
           <span className="text-xs text-zinc-400">
             {copied
-              ? 'Copied. The author will see they unstuck you.'
+              ? `Copied. ${authorName} sees this helped — just them, not the cohort.`
               : already
                 ? 'You’ve marked this one as what unstuck you.'
-                : 'Copies it, and tells the author it helped.'}
+                : 'Copies it, and privately tells the author it helped.'}
           </span>
         </>
+      )}
+
+      {/* The one PUBLIC moment — never automatic. Only after being helped, and only if the helped
+          person deliberately chooses it, with the consequence stated plainly first. This is the
+          consent the broker gates its public "unstuck" post on; without it, nothing names you. */}
+      {!isAuthor && already && (
+        <div className="mt-1 flex w-full flex-wrap items-center gap-2">
+          {thankedPublicly ? (
+            <span className="text-xs text-emerald-400">
+              Public thanks sent — the cohort will see {authorName} unstuck you.
+            </span>
+          ) : (
+            <>
+              <Button variant="quiet" onClick={thankPub} disabled={thanking}>
+                {thanking ? 'Posting…' : `Thank ${authorName} publicly`}
+              </Button>
+              <span className="text-xs text-zinc-500">
+                Optional. Posts a thank-you to the whole cohort, naming you and {authorName}.
+              </span>
+            </>
+          )}
+        </div>
       )}
 
       {unstuck > 0 && !isAuthor && (

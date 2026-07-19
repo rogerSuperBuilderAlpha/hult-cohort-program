@@ -28,7 +28,10 @@ export async function makeEnv(): Promise<RulesTestEnvironment> {
     projectId: PROJECT_ID,
     firestore: {
       host: '127.0.0.1',
-      port: 8080,
+      // Defaults to the firebase.json port (8080), overridable so a run isolated onto a spare
+      // port (to dodge a concurrent session's emulator) targets the right one — matches
+      // lib/firebase and tests/e2e/helpers. Default unchanged, so normal runs are unaffected.
+      port: Number(process.env.FIRESTORE_EMULATOR_PORT ?? 8080),
       rules: readFileSync('firestore.rules', 'utf8'),
     },
   });

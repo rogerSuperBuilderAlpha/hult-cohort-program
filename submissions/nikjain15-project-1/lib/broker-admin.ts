@@ -32,7 +32,13 @@ import type { HelperKnowledge, StuckSignal } from './broker';
 export const AGING_WIP_HOURS = 48;
 
 export function adminDb(): Firestore | null {
-  if (getApps().length === 0) {
+  // Check for the DEFAULT app specifically, not `getApps().length`. busDb() may have created the
+  // named 'bus' app (when SHARED_FIREBASE_SERVICE_ACCOUNT is set), which makes getApps() non-empty
+  // even though Pulse's own default app was never initialized. Keying on length then skipped the
+  // init and called getFirestore() on a missing default app — throwing, so every bus route 500'd
+  // instead of degrading to 503, exactly when SHARED is set but FIREBASE_SERVICE_ACCOUNT is not.
+  const hasDefault = getApps().some((a) => a.name === '[DEFAULT]');
+  if (!hasDefault) {
     const svc = process.env.FIREBASE_SERVICE_ACCOUNT;
     if (svc) {
       try {
@@ -48,6 +54,29 @@ export function adminDb(): Firestore | null {
     }
   }
   return getFirestore();
+}
+
+/**
+ * The shared cross-app "context bus" (see lib/shared-context-contract.ts). In production this is a
+ * dedicated Firebase project every cohort app writes to, selected by SHARED_FIREBASE_SERVICE_ACCOUNT
+ * as its OWN named Admin app ('bus') so it never collides with Pulse's default app. Until that env
+ * is set, the bus transparently falls back to Pulse's own database — the same degrade-don't-crash
+ * rule as everything else: shared context works within Pulse today and flips to the real cross-app
+ * bus the moment the key lands. Null only if no credential exists at all.
+ */
+export function busDb(): Firestore | null {
+  const svc = process.env.SHARED_FIREBASE_SERVICE_ACCOUNT;
+  if (svc) {
+    try {
+      const existing = getApps().find((a) => a.name === 'bus');
+      const app = existing ?? initializeApp({ credential: cert(JSON.parse(svc) as Parameters<typeof cert>[0]) }, 'bus');
+      return getFirestore(app);
+    } catch {
+      // A malformed shared key must not take the agent down — fall back to the primary db.
+      return adminDb();
+    }
+  }
+  return adminDb();
 }
 
 type MemberRow = { uid: string; displayName: string; photoURL: string | null; handle: string | null };
@@ -209,8 +238,13 @@ export async function publishIntroMade(db: Firestore): Promise<number> {
     if (!intro.recipeId) continue;
 
     const recipe = await db.collection('recipes').doc(intro.recipeId).get();
-    const unstuck = (recipe.data()?.unstuckUids ?? []) as string[];
-    if (!unstuck.includes(intro.stuckUid)) continue;
+    // The gate is EXPLICIT public-thanks consent, not the private "this unstuck me" credit. Marking
+    // a recipe unstuck helps the author and the broker privately; it must never on its own name the
+    // stuck person to all 64 members. Only when the stuck person deliberately opted into a public
+    // thank-you (thankPublicly) do we publish the one `intro_made` post — so a quiet member is never
+    // outed as having-been-stuck without knowingly choosing it ("never punish the quiet").
+    const publicThanks = (recipe.data()?.publicThanksUids ?? []) as string[];
+    if (!publicThanks.includes(intro.stuckUid)) continue;
 
     const helper = members.get(intro.helperUid);
     const stuck = members.get(intro.stuckUid);

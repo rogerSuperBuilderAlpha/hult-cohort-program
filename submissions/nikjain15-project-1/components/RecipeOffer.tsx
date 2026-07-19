@@ -4,7 +4,7 @@ import { useState } from 'react';
 import type { ExtractionResult } from '@/app/api/extract-recipe/route';
 import { RecipeModal, type RecipeDraft } from '@/components/RecipeModal';
 import { selectRecipeOffer, type RecipeOffer as Offer } from '@/lib/sense';
-import type { PulseEvent, Recipe } from '@/lib/types';
+import type { Member, PulseEvent, Recipe } from '@/lib/types';
 
 type Actor = { uid: string; name: string; photoURL: string | null };
 
@@ -76,10 +76,13 @@ export function findRecipeOffer(
 export function RecipeOfferCard({
   actor,
   offer,
+  members,
   onGone,
 }: {
   actor: Actor;
   offer: Offer;
+  /** The cohort — passed to the modal so the peer-name gate can run on the model draft. */
+  members: Member[];
   /** The offer resolved — dismissed, or banked. The parent stops rendering it. */
   onGone: () => void;
 }) {
@@ -147,6 +150,7 @@ export function RecipeOfferCard({
         <RecipeModal
           actor={actor}
           draft={draft}
+          members={members}
           onClose={() => setDraft(null)}
           onCreated={() => {
             // Banked. The same tombstone as a dismissal: this work's moment is kept,

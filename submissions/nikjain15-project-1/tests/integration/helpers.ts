@@ -29,8 +29,11 @@ import {
 
 export const PROJECT_ID = 'demo-pulse';
 const FIRESTORE_HOST = '127.0.0.1';
-const FIRESTORE_PORT = 8080;
-const AUTH_URL = 'http://127.0.0.1:9099';
+// Ports default to the firebase.json ones (8080/9099) and are overridable via env, so a run
+// isolated onto a spare port (dodging a second concurrent emulator) hits the right one. Defaults
+// unchanged, so production and normal `npm run test:integration` are unaffected.
+const FIRESTORE_PORT = Number(process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT ?? 8080);
+const AUTH_URL = `http://127.0.0.1:${process.env.NEXT_PUBLIC_AUTH_EMULATOR_PORT ?? 9099}`;
 
 /**
  * lib/firebase reads NEXT_PUBLIC_USE_EMULATOR at import time and connects the shared

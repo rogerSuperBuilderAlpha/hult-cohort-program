@@ -20,7 +20,9 @@ Agents assist repo archaeology; **human writes the judgment.**
 
 ## Review artifact format
 
-Filed as **GitHub Issue** on reviewee's repo: `Review by @{reviewer}`
+Filed as **GitHub Issue** on reviewee's app repo: `Review by @{reviewer}: @{reviewee}`
+
+Optional upvote: keep a `Vote: up` section in the issue body (or delete it to abstain). See [winner-selection.md](../governance/winner-selection.md).
 
 ```markdown
 ## Review by @reviewer-handle

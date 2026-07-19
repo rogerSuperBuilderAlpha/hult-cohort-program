@@ -8,10 +8,10 @@ Instructions for AI coding agents (Cursor, Claude Code, Copilot, etc.) working i
 
 ## North star
 
-One web surface where applicants apply, admitted participants see every project with clear expectations, submit work as **GitHub PRs**, file **written peer reviews** on GitHub, and cast **private 👍/👎 votes** during Phase 1 contest weeks. Winner = most thumbs up after review week.
+One web surface where applicants apply, admitted participants see every project with clear expectations, submit work as **GitHub PRs**, file **written peer reviews** on GitHub, and optionally upvote with a public `Vote: up` in that review issue (or abstain). Winner = most upvotes after review week — counted by **staff CLI**, never shown as a site scoreboard.
 
 **Live deploy:** https://site-nine-rouge-68.vercel.app (Vercel project `hult-cohort`)  
-**Firebase project:** `hult-cohorts` · **Cohort id:** `fall26`
+**Firebase project:** `hult-cohorts` · **Cohort id:** `summer26`
 
 ---
 
@@ -23,15 +23,16 @@ One web surface where applicants apply, admitted participants see every project 
 | Changing the Next.js site | [execution/marketing/site/AGENTS.md](execution/marketing/site/AGENTS.md) |
 | Firebase / API / auth | [execution/marketing/FIREBASE.md](execution/marketing/FIREBASE.md) |
 | Program content (weeks, rubrics) | [execution/marketing/site/content/program.ts](execution/marketing/site/content/program.ts) + [curriculum/](curriculum/) |
-| Voting / peer review logic | [execution/marketing/site/lib/ratings-server.ts](execution/marketing/site/lib/ratings-server.ts), [written-reviews-server.ts](execution/marketing/site/lib/written-reviews-server.ts), UI in [ProjectProgressPanel.tsx](execution/marketing/site/components/ProjectProgressPanel.tsx) |
+| Contest / peer review | [contest-state-server.ts](execution/marketing/site/lib/contest-state-server.ts), UI in [PeerReviewCard.tsx](execution/marketing/site/components/PeerReviewCard.tsx), rules in [winner-selection.md](governance/winner-selection.md) |
 | Admissions flow | [execution/admissions-take-home/AGENTS.md](execution/admissions-take-home/AGENTS.md), [site/app/apply/](execution/marketing/site/app/apply/) |
-| **Apply / reviews / votes via MCP** | [execution/hult-cohort-mcp/](execution/hult-cohort-mcp/) |
+| **Apply / progress via MCP** | [execution/hult-cohort-mcp/](execution/hult-cohort-mcp/) (review/vote write tools retired — GitHub-native) |
 | Phase 2 user metrics API | [execution/ludwitt-hult-api/AGENTS.md](execution/ludwitt-hult-api/AGENTS.md) |
 | Launch / production gaps | [DEVPLAN.md](DEVPLAN.md) |
+| Hult incorporation handoff | [execution/checklists/hult-incorporation-handoff.md](execution/checklists/hult-incorporation-handoff.md) |
 | Governance & pass gates | [governance/](governance/), [assessment/pass-fail.md](assessment/pass-fail.md) |
 | Staff scripts (tally, roster) | [execution/cohort-scripts/README.md](execution/cohort-scripts/README.md) |
 
-⚠️ **Legacy docs:** Some curriculum/operations files may still mention ranked-choice ballots. **Implemented platform uses private 👍/👎 after written GitHub reviews.** Treat code + [content/program.ts](execution/marketing/site/content/program.ts) + [governance/winner-selection.md](governance/winner-selection.md) as source of truth.
+⚠️ **Legacy docs:** Some curriculum/operations files may still mention ranked-choice or private 👍/👎. **Implemented platform:** GitHub submissions + review issues + optional public `Vote: up`. Treat code + [content/program.ts](execution/marketing/site/content/program.ts) + [governance/winner-selection.md](governance/winner-selection.md) as source of truth.
 
 ---
 
@@ -82,28 +83,24 @@ Next.js (Vercel)  execution/marketing/site/
   /apply               GitHub sign-in + application form
   /overview            Public program overview
   /program             Project index
-  /program/[slug]      Project detail + participant progress + peer review UI
+  /program/[slug]      Project detail + personal progress + peer review UI
   /api/applications    Admin SDK → Firestore applications
   /api/me              Participant status + roster gate
   /api/cohort/stats    Live enrolled count → peer review denominator
-  /api/program/[slug]/progress      Submission + reviews + votes per user
-  /api/program/[slug]/written-reviews   Save GitHub issue URL (review gate)
-  /api/program/[slug]/ratings     Private 👍/👎 (requires written review)
+  /api/program/[slug]/progress   Submission + personal review/upvote status (GitHub)
+  /api/github/webhook  PR merge + review issues → bust contest cache
+  /api/cron/warm-contest  Warm fetchContestState for open review weeks
 
-Firestore (hult-cohorts)
-  applications/{id}
-  roster/fall26/members/{githubHandle}
-  submissions/fall26/projects/{slug}/entries/{handle}
-  peerWrittenReviews/fall26/projects/{slug}/reviewers/{voter}/reviews/{reviewee}
-  peerRatings/fall26/projects/{slug}/voters/{voter}  → { ratings: { [reviewee]: 'up'|'down' } }
-  ballots/...          Legacy ranked-choice (retired — do not write)
+Firebase (identity only): applications, roster, survey/ack, projectOutcomes
+GitHub (contest truth): merged submission PRs, review issues, optional Vote: up
+  → one shared fetchContestState(slug) cached ~60s
+Legacy Firestore paths (do not write): submissions/, peerWrittenReviews/, peerRatings/, ballots/
 ```
 
 **Peer review flow (per peer, per Phase 1 project):**
-1. Try deploy → read submission PR  
-2. File GitHub issue `Review by @{you}` on their repo  
-3. Paste issue URL on platform → unlocks vote  
-4. Cast private 👍 or 👎  
+1. Open peer deploy + PR (links from site, from GitHub contest state)  
+2. File GitHub issue `Review by @{you}: @{peer}` (optional `Vote: up` in body, or abstain)  
+3. Refresh progress on site — personal statuses only (needs review / abstained / upvoted)  
 
 **Cohort size:** Dynamic from roster — `peerReviewCount = enrolledCount - 1` ([cohort-stats-server.ts](execution/marketing/site/lib/cohort-stats-server.ts)).
 
@@ -116,7 +113,7 @@ Firestore (hult-cohorts)
 3. **Split client/server** — never import `firebase-admin` into client components; use `*-server.ts` modules (see `cohort-stats-server.ts` vs `cohort-stats-types.ts`).  
 4. **PR-first submissions** — deliverables are merged GitHub PRs, not form uploads.  
 5. **Program text** — participant-facing copy lives in `content/program.ts`; personalize with `personalize-program.ts` (`{org}`, `{handle}`, `{peerCount}`).  
-6. **Branding** — Hult ivory/red/sage theme in `app/globals.css`, `page.module.css`, [SiteHeader.tsx](execution/marketing/site/components/SiteHeader.tsx).  
+6. **Branding** — Hult 2025 cream/magenta/ink theme in `app/globals.css`, `page.module.css`, [SiteHeader.tsx](execution/marketing/site/components/SiteHeader.tsx).  
 7. **Tests/build** — run `npm run build` (site) or `npm test` (API packages) before finishing.
 
 ---
@@ -144,12 +141,9 @@ Run from `execution/marketing/site/` with local service account:
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/seed-demo-cohort.mjs` | Demo roster + submissions |
-| `scripts/seed-peer-reviews.mjs` | Demo written reviews + private votes |
-| `scripts/tally-votes.mjs` | Staff 👍 tally after review week |
-| `scripts/backfill-deploy-urls.mjs` | Backfill `deployUrl` from PR bodies |
-| `scripts/backfill-roster-submissions.mjs` | Backfill submission entries |
-| `scripts/reconcile-submissions.mjs` | Webhook backstop for merged PRs |
+| `scripts/tally-votes.ts` | Staff upvote tally from GitHub (`Vote: up`) after review week |
+| `scripts/seed-demo-cohort.mjs` | Demo roster (legacy seed helpers may still touch old paths) |
+| `scripts/reconcile-submissions.mjs` | Report-oriented / legacy backstop |
 
 Staff admissions: [execution/cohort-scripts/README.md](execution/cohort-scripts/README.md).
 

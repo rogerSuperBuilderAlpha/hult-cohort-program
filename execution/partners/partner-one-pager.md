@@ -1,7 +1,7 @@
 # Hult Cohort Developer Program — Partner one-pager
 
 **For:** Engineering leaders, talent acquisition, startup founders  
-**Summer Pilot 2026:** Jul 9 – Aug 19, 2026 (Boston anchor, Eastern Time)<br>
+**Summer Pilot 2026:** Jul 13 – Aug 23, 2026 (Boston anchor, Eastern Time)<br>
 **Contact:** [program director email]
 
 ---
@@ -29,7 +29,7 @@ A 6-week GitHub-native developer pilot. ~30 students ship cohort-owned infrastru
 
 1. **Jun–Jul:** Sign [partner referral agreement](../templates/legal/partner-referral-agreement.md) (GC-reviewed)
 2. **Jul–Aug:** Optional guest sessions; async GitHub issue mentorship
-3. **Aug 19:** Showcase attendance + office hours
+3. **Aug 23:** Showcase attendance + office hours
 4. **Aug 2026–Feb 2027:** Interview from published roster; offers tracked for guarantee compliance
 
 ## Program guarantee (for context)

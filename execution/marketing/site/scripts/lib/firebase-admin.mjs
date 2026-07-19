@@ -34,7 +34,7 @@ export function initAuth() {
 }
 
 export function cohortIdFromEnv() {
-  return process.env.COHORT_ID?.trim() || 'fall26';
+  return process.env.COHORT_ID?.trim() || 'summer26';
 }
 
 export function cohortRepoFromEnv() {

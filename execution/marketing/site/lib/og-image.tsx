@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ImageResponse } from 'next/og';
 
-/** Shared Hult mark for favicons and OG images */
+/** Shared Hult mark for favicons and OG images — 2025 brand colors */
 export function hultMarkSvg(size: number, showSubtitle = false) {
   const fontSize = Math.round(size * 0.38);
   const subSize = Math.round(size * 0.12);
@@ -15,13 +15,13 @@ export function hultMarkSvg(size: number, showSubtitle = false) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#f2f3ee',
-        color: '#0e0e0c',
+        background: '#FFFAE7',
+        color: '#2B2B2B',
         fontFamily: 'Georgia, serif',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: size * 0.04 }}>
-        <span style={{ fontSize, fontWeight: 700, color: '#a81202' }}>Hult</span>
+        <span style={{ fontSize, fontWeight: 700, color: '#CC164C' }}>Hult</span>
         {showSubtitle ? (
           <span style={{ fontSize: subSize, fontFamily: 'system-ui, sans-serif', opacity: 0.75 }}>
             Cohort
@@ -42,15 +42,15 @@ export function ogImageJsx(title: string, subtitle: string) {
         flexDirection: 'column',
         justifyContent: 'space-between',
         padding: '64px 72px',
-        background: '#f2f3ee',
-        color: '#0e0e0c',
+        background: '#FFFAE7',
+        color: '#2B2B2B',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
-        <span style={{ fontSize: 48, fontWeight: 700, color: '#a81202', fontFamily: 'Georgia, serif' }}>
+        <span style={{ fontSize: 48, fontWeight: 700, color: '#CC164C', fontFamily: 'Georgia, serif' }}>
           Hult
         </span>
-        <span style={{ fontSize: 22, fontFamily: 'system-ui, sans-serif', color: '#74857c' }}>
+        <span style={{ fontSize: 22, fontFamily: 'system-ui, sans-serif', color: '#5C5C5C' }}>
           Developer Program
         </span>
       </div>
@@ -70,7 +70,7 @@ export function ogImageJsx(title: string, subtitle: string) {
           style={{
             fontSize: 26,
             lineHeight: 1.45,
-            color: '#4a4a44',
+            color: '#5C5C5C',
             fontFamily: 'system-ui, sans-serif',
           }}
         >
@@ -81,7 +81,7 @@ export function ogImageJsx(title: string, subtitle: string) {
         style={{
           fontSize: 20,
           fontFamily: 'system-ui, sans-serif',
-          color: '#74857c',
+          color: '#5C5C5C',
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
         }}

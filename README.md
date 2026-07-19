@@ -3,13 +3,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-a81202.svg)](LICENSE)
 [![CI](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions/workflows/marketing-site.yml/badge.svg)](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions)
 
-A for-credit developer elective within the Hult **Computer Science for Business** undergraduate degree—GitHub-native projects in a six-week Summer Pilot.
+An open-access community developer program—GitHub-native projects in a six-week Summer Pilot.
 
 **Open source:** curriculum, governance docs, and platform code are published under the [MIT License](LICENSE). Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## What it is
 
-Students in the elective complete eight tracked deliverables on GitHub: peer review in Phase 1, external users and maintainers in the final sprint. The cohort platform tracks submissions, written reviews, and private votes.
+Participants in the cohort complete eight tracked deliverables on GitHub: peer review in Phase 1, external users and maintainers in the final sprint. The cohort platform tracks submissions, written reviews, and private votes.
 
 ## Start here
 

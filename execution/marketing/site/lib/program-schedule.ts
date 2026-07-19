@@ -7,7 +7,10 @@ export type ProgramPhase = 'onboarding' | 'phase-1' | 'phase-2';
 
 export type ScheduleContext = {
   now: Date;
+  /** First active project (back-compat). Prefer `activeProjects`. */
   activeProject: ProgramProject | null;
+  /** Every project whose window contains `now`. */
+  activeProjects: ProgramProject[];
   activePhase: ProgramPhase | null;
   cohortWeek: number | null;
 };
@@ -25,11 +28,20 @@ export function getProjectSchedule(project: ProgramProject): ProjectSchedule | n
   return project.schedule ?? null;
 }
 
-export function isSubmissionOpen(project: ProgramProject, now = new Date()): boolean {
+export function submissionWindowStatus(
+  project: ProgramProject,
+  now = new Date()
+): 'open' | 'not-yet' | 'closed' | 'none' {
   const schedule = getProjectSchedule(project);
-  if (!schedule) return true;
+  if (!schedule) return 'none';
   const t = now.getTime();
-  return t >= parseIso(schedule.submissionOpens).getTime() && t <= parseIso(schedule.submissionCloses).getTime();
+  if (t < parseIso(schedule.submissionOpens).getTime()) return 'not-yet';
+  if (t > parseIso(schedule.submissionCloses).getTime()) return 'closed';
+  return 'open';
+}
+
+export function isSubmissionOpen(project: ProgramProject, now = new Date()): boolean {
+  return submissionWindowStatus(project, now) === 'open';
 }
 
 export function isReviewWindowOpen(project: ProgramProject, now = new Date()): boolean {
@@ -53,8 +65,8 @@ export function reviewWindowStatus(
   return 'open';
 }
 
-/** Summer Pilot kickoff Thu Jul 9, 2026 at 09:00 Eastern Time — week 1 */
-const COHORT_START = parseIso('2026-07-09T13:00:00.000Z');
+/** Summer Pilot kickoff Mon Jul 13, 2026 at 09:00 Eastern Time — week 1 */
+const COHORT_START = parseIso('2026-07-13T13:00:00.000Z');
 
 export function cohortWeekNumber(now = new Date()): number | null {
   if (now < COHORT_START) return null;
@@ -64,6 +76,8 @@ export function cohortWeekNumber(now = new Date()): number | null {
 
 export function resolveScheduleContext(now = new Date()): ScheduleContext {
   const week = cohortWeekNumber(now);
+  const t = now.getTime();
+  const activeProjects: ProgramProject[] = [];
 
   for (const project of programProjects) {
     const schedule = getProjectSchedule(project);
@@ -75,21 +89,16 @@ export function resolveScheduleContext(now = new Date()): ScheduleContext {
       ? parseIso(schedule.reviewCloses).getTime()
       : closes;
 
-    const t = now.getTime();
     if (t >= opens && t <= reviewCloses) {
-      return {
-        now,
-        activeProject: project,
-        activePhase: project.phase,
-        cohortWeek: week,
-      };
+      activeProjects.push(project);
     }
   }
 
   return {
     now,
-    activeProject: null,
-    activePhase: null,
+    activeProject: activeProjects[0] ?? null,
+    activeProjects,
+    activePhase: activeProjects[0]?.phase ?? null,
     cohortWeek: week,
   };
 }

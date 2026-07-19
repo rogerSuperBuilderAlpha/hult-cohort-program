@@ -2,7 +2,7 @@
 
 import type { ProgramProject } from '@/content/program';
 import type { CohortStats } from '@/lib/cohort-stats-types';
-import { cohortSubmissionRepo } from '@/lib/cohort-config';
+import { cohortSubmissionRepo, participantBranch, projectBranch } from '@/lib/cohort-config';
 import { cohortRepoUrl } from '@/lib/github-urls';
 import type { ProjectProgress } from '@/lib/project-progress-types';
 import styles from '../app/page.module.css';
@@ -22,6 +22,7 @@ export function ProjectRequirementsSections({
   variant,
   progress,
 }: Props) {
+  const activeCohortId = stats?.cohortId?.trim() || 'summer26';
   const headingClass =
     variant === 'enrolled' ? styles.participantHeading : undefined;
 
@@ -44,14 +45,22 @@ export function ProjectRequirementsSections({
             <a href={cohortRepoUrl()} target="_blank" rel="noopener noreferrer">
               github.com/{cohortSubmissionRepo()}
             </a>{' '}
-            — fork or branch from <code>main</code> and open a pull request with the exact title
-            below.
+            — branch from <code>{projectBranch(activeCohortId, project.slug)}</code> and open a pull
+            request targeting that branch with the exact title below.
           </p>
         ) : null}
         <dl className={styles.dl}>
           <dt>Repo</dt>
           <dd>
             <code>{p(project.submission.repoPattern)}</code>
+          </dd>
+          <dt>Target branch</dt>
+          <dd>
+            <code>{projectBranch(activeCohortId, project.slug)}</code>
+          </dd>
+          <dt>Your branch</dt>
+          <dd>
+            <code>{participantBranch(activeCohortId, project.slug, p('{handle}'))}</code>
           </dd>
           <dt>Pull request title</dt>
           <dd>
@@ -102,21 +111,21 @@ export function ProjectRequirementsSections({
                 </li>
                 <li
                   className={
-                    progress.reviews.ratingsCompleted >= progress.reviews.required
+                    progress.reviews.upvotesCompleted > 0
                       ? styles.progressItemDone
                       : styles.progressItemPending
                   }
                 >
                   <span
                     className={
-                      progress.reviews.ratingsCompleted >= progress.reviews.required
+                      progress.reviews.upvotesCompleted > 0
                         ? styles.progressIconDone
                         : styles.progressIconPending
                     }
                   >
-                    {progress.reviews.ratingsCompleted >= progress.reviews.required ? '✓' : '○'}
+                    {progress.reviews.upvotesCompleted > 0 ? '✓' : '○'}
                   </span>
-                  {progress.reviews.ratingsCompleted}/{progress.reviews.required} private votes
+                  {progress.reviews.upvotesCompleted}/{progress.reviews.required} optional upvotes
                 </li>
               </>
             ) : null}
@@ -150,20 +159,38 @@ export function ProjectPeerReviewSection({
   p,
   stats,
   variant,
+  lockNotice,
 }: {
   project: ProgramProject;
   p: (text: string) => string;
   stats: CohortStats | null;
   variant: 'enrolled' | 'public';
+  /** When set, section is visible but peer list / votes are not loaded yet. */
+  lockNotice?: string;
 }) {
   if (!project.reviews) return null;
 
   return (
     <section className={styles.overviewBlock}>
-      <h2 className={variant === 'enrolled' ? styles.participantHeading : undefined}>Peer review</h2>
+      <h2 className={variant === 'enrolled' ? styles.participantHeading : undefined}>
+        Peer review and voting
+      </h2>
+      {lockNotice ? (
+        <div className={styles.callout}>
+          <p style={{ marginBottom: 0 }}>
+            <strong>Peer list not loaded yet.</strong> {lockNotice}
+          </p>
+        </div>
+      ) : null}
       <p>
         <strong>{peerReviewLabel(stats)}.</strong> Deliverable: {p(project.reviews.artifact)}. Due:{' '}
         {project.reviews.dueNote}.
+      </p>
+      <p className={styles.formNote} style={{ marginBottom: 0 }}>
+        For each peer: evaluate their deployment, read their submission pull request, then file a
+        written GitHub review. Optionally keep <code>Vote: up</code> in the issue to upvote, or
+        delete that section to abstain. This site shows your personal status only — not cohort
+        tallies. Review week opens when the Sunday submission deadline closes.
       </p>
     </section>
   );

@@ -69,7 +69,7 @@ No improvement window for harassment/sabotage
 | **Showcase operator** | Same pattern |
 | **Team member** | Operator picks replacement ([team-formation.md](team-formation.md)) |
 
-Runner-up = highest ranked-choice points among eligible builds from original vote (excluding removed operator's self if they won).
+Runner-up = highest thumbs-up count among eligible builds from original vote (excluding removed operator's self if they won). Ties use rubric median per winner-selection.md.
 
 Interim operator has **2 weeks** to confirm or step down; permanent if SLAs met.
 

@@ -8,7 +8,7 @@ import styles from '../page.module.css';
 export const metadata = {
   title: 'What is this program? | Hult Cohort',
   description:
-    'Visual intro to the CS for Business elective: six-week Summer Pilot timeline, Phase 1 peer review loop, and how to enroll.',
+    'Visual intro to the open-access Summer Pilot: six-week timeline, Phase 1 peer review loop, and how to apply.',
 };
 
 export default function StartPage() {
@@ -17,8 +17,7 @@ export default function StartPage() {
       <SiteHeader
         links={[
           { href: '/', label: 'Home' },
-          { href: '/program', label: 'Projects' },
-          { href: '/apply', label: 'Apply' },
+          { href: '/program', label: 'Program' },
         ]}
       />
 
@@ -26,17 +25,17 @@ export default function StartPage() {
         <p className={styles.eyebrow}>{programIntro.eyebrow}</p>
         <h1 className={styles.sectionTitle}>{programIntro.title}</h1>
         <p className={styles.introLead}>{programIntro.lead}</p>
-        <p className={styles.introNote}>{programIntro.electiveNote}</p>
+        <p className={styles.introNote}>{programIntro.communityNote}</p>
 
         <section className={styles.introSection}>
-          <h2 className={styles.introSectionTitle}>Sixteen weeks at a glance</h2>
+          <h2 className={styles.introSectionTitle}>Six weeks at a glance</h2>
           <ProgramIntroTimeline />
         </section>
 
         <section className={styles.introSection}>
           <h2 className={styles.introSectionTitle}>Phase 1 repeats this loop</h2>
           <p className={styles.sectionBody}>
-            Three internal products (PM platform, comms, showcase). Each project uses the same cycle:
+            Three contest weeks (PM, comms, vibe marketing). Each uses the same cycle:
           </p>
           <ProgramIntroLoop />
         </section>
@@ -44,7 +43,7 @@ export default function StartPage() {
         <section className={styles.introSection}>
           <h2 className={styles.introSectionTitle}>What you need</h2>
           <ul className={styles.introList}>
-            <li>{programIntro.dualEnrollment}</li>
+            <li>{programIntro.enrollmentNote}</li>
             <li>{programIntro.toolingNote}</li>
           </ul>
         </section>

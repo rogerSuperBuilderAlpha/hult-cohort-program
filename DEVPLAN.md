@@ -72,7 +72,8 @@ Run locally after pulling env: `npm run check:env`
 - [x] OG image, favicon, robots.txt, sitemap
 - [x] Structured API logging (`lib/api-log.ts`)
 - [x] Firestore backup script (`scripts/backup-firestore.mjs`)
-- [x] Rate limiting on API routes
+- [x] Rate limiting on API routes (per-IP + per-handle on applications and peer-review POSTs)
+- [ ] **Distributed rate limiting** (Upstash/Firestore counters) — deferred; in-memory limiter is per serverless instance
 - [ ] **GC sign-off** on guarantee language (blocking for public marketing)
 - [ ] **Verify Mailgun DKIM** in production if using email
 - [ ] **Confirm Vercel env** via dashboard + `npm run check:env` against pulled production env
@@ -80,9 +81,9 @@ Run locally after pulling env: `npm run check:env`
 ## P2 — Participant platform (complete)
 
 - [x] GitHub sign-in (Firebase Auth) + roster gate
-- [x] Private 👍/👎 after written GitHub reviews (not ranked-choice)
-- [x] GitHub webhook → `submissions` on merged PRs
-- [x] Peer review accordion UI + progress dashboard
+- [x] Public optional `Vote: up` after written GitHub reviews (not ranked-choice / not private Firestore ballots)
+- [x] GitHub webhook → contest cache bust on merged PRs + review issues
+- [x] Peer review accordion UI + progress dashboard (personal status only)
 - [x] Account deletion + data export (GDPR)
 - [x] Resilient PR title matching + review-window UX
 
@@ -91,7 +92,19 @@ Run locally after pulling env: `npm run check:env`
 - [ ] Create `hult-cohort` GitHub org; transfer take-home + cohort repos
 - [ ] Custom domain `cohort.hult.edu` (Hult IT CNAME)
 - [ ] Transactional email domain + DKIM (Mailgun)
-- [ ] Update stale governance docs (`PLATFORM.md`, `governance/winner-selection.md`) to match 👍/👎 model
+
+## P4 — Academic remediation (Jul 2026)
+
+- [x] Open-access community program copy (credit/certificate deferred)
+- [x] Phase 2 scope clarity (three required week-6 deliverables)
+- [x] Deadline prose aligned to ISO schedule; submission/review windows in progress UI
+- [x] WORKPLAN + rubric ranked-choice drift fixed
+- [x] Expectations Acknowledgment flow (`/api/me/acknowledgment`, dashboard gate)
+- [x] Contest outcome publish (`npx tsx scripts/tally-votes.ts --publish --confirm` → `projectOutcomes/`)
+- [x] Winner handoff UI on dashboard + project pages; unification winners panel
+- [x] Staff SOPs: tally/tie-break, Phase 2 metrics fallback, review sampling
+- [ ] Distributed rate limiting (deferred)
+- [ ] Ludwitt/Hult metrics API production (deferred — use [operations/phase-2-metrics-fallback.md](../operations/phase-2-metrics-fallback.md))
 
 ---
 

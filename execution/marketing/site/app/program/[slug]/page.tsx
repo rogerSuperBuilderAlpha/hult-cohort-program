@@ -2,10 +2,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ProgramProjectView } from '@/components/ProgramProjectView';
 import { SiteHeader } from '@/components/SiteHeader';
+import { getCohortStats } from '@/lib/cohort-stats-server';
 import { getSiteUrl } from '@/lib/site-config';
 import styles from '../../page.module.css';
 import { getProject, programProjects } from '../../../content/program';
 
+export const revalidate = 60;
 export function generateStaticParams() {
   return programProjects.map((p) => ({ slug: p.slug }));
 }
@@ -46,6 +48,8 @@ export default async function ProgramProjectPage({
       ? programProjects[index + 1]?.slug
       : undefined;
 
+  const initialStats = await getCohortStats();
+
   return (
     <main className={styles.main}>
       <SiteHeader links={[{ href: '/program', label: 'Program' }]} />
@@ -55,7 +59,12 @@ export default async function ProgramProjectPage({
         <h1 className={styles.sectionTitle}>{project.title}</h1>
         <p className={styles.overviewLead}>{project.summary}</p>
 
-        <ProgramProjectView project={project} prevSlug={prevSlug} nextSlug={nextSlug} />
+        <ProgramProjectView
+          project={project}
+          prevSlug={prevSlug}
+          nextSlug={nextSlug}
+          initialStats={initialStats}
+        />
 
         <p className={styles.backLink}>
           <Link href="/program">← All projects</Link>

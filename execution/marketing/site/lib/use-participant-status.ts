@@ -1,18 +1,14 @@
 'use client';
 
-import { useAuthedFetch } from '@/lib/use-authed-fetch';
-import type { ParticipantMe } from './participant-status';
+import { useParticipantStatusContext } from '@/components/ParticipantStatusProvider';
 
+/**
+ * Shared participant status. Args are ignored when AppProviders is mounted —
+ * kept for call-site compatibility.
+ */
 export function useParticipantStatus(
-  getIdToken: () => Promise<string | null>,
-  signedIn: boolean
+  _getIdToken?: () => Promise<string | null>,
+  _signedIn?: boolean
 ) {
-  const { data, loading, error, refresh } = useAuthedFetch<ParticipantMe>(
-    signedIn,
-    '/api/me',
-    getIdToken,
-    'Could not load your status.'
-  );
-
-  return { me: data, loading, error, refresh };
+  return useParticipantStatusContext();
 }

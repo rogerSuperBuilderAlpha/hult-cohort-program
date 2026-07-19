@@ -1,8 +1,12 @@
-import { cohortSubmissionRepo } from './cohort-config';
+import { cohortSubmissionRepo, projectBranch } from './cohort-config';
 import { githubRepoUrl } from './github-urls';
 
-/** Browse merged/open submission PRs in the cohort monorepo by title prefix. */
-export function cohortSubmissionBrowseUrl(repo: string, projectSlug: string): string {
+/** Browse merged/open submission PRs in the cohort monorepo by title prefix and base branch. */
+export function cohortSubmissionBrowseUrl(
+  repo: string,
+  projectSlug: string,
+  cohortId?: string
+): string {
   const titlePrefix: Record<string, string> = {
     onboarding: '[Onboarding]',
     'phase-1-project-1': '[Project 1]',
@@ -15,5 +19,11 @@ export function cohortSubmissionBrowseUrl(repo: string, projectSlug: string): st
   };
   const prefix = titlePrefix[projectSlug];
   const base = `${githubRepoUrl(repo)}/pulls`;
-  return prefix ? `${base}?q=is%3Apr+${encodeURIComponent(prefix)}` : base;
+  const parts = ['is:pr'];
+  if (prefix) parts.push(prefix);
+  if (cohortId) {
+    parts.push(`base:${projectBranch(cohortId, projectSlug)}`);
+  }
+  const q = encodeURIComponent(parts.join(' '));
+  return `${base}?q=${q}`;
 }

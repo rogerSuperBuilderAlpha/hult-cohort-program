@@ -42,27 +42,3 @@ textarea,
 button {
   font: inherit;
 }
-
-@keyframes hero-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.04);
-  }
-}
-
-.hero-galaxy {
-  animation: hero-breathe 30s ease-in-out infinite;
-  transform-origin: center center;
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-galaxy {
-    animation: none;
-    transform: scale(1);
-    will-change: auto;
-  }
-}

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { createTask, updateTaskStatus } from "@/app/actions/tasks";
+import { updateTaskStatus } from "@/app/actions/tasks";
+import { CreateTaskModal } from "@/components/CreateTaskModal";
 import { dueUrgency } from "@/lib/civilization";
 import { getCurrentProfile, loadCohortData } from "@/lib/data";
 import type { Profile, Project, Task, TaskStatus } from "@/lib/types";
@@ -199,9 +200,17 @@ export default async function TasksPage({
             Lightweight board for deadlines — does not affect civilization gates.
           </p>
         </div>
-        <Link href="/projects" className={secondaryButtonClass}>
-          Manage projects
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/projects" className={secondaryButtonClass}>
+            Manage projects
+          </Link>
+          <CreateTaskModal
+            profiles={data.profiles}
+            activeProjects={activeProjects}
+            meId={me.id}
+            filters={filters}
+          />
+        </div>
       </div>
 
       {error ? (
@@ -261,56 +270,6 @@ export default async function TasksPage({
             <Link href="/tasks?project=all&assignee=all&status=all" className={secondaryButtonClass}>
               Clear
             </Link>
-          </div>
-        </form>
-      </Panel>
-
-      <Panel>
-        <h2 className="mb-4 font-[family-name:var(--font-display)] text-xl font-semibold">
-          Create task
-        </h2>
-        <form action={createTask} className="grid gap-4 sm:grid-cols-2">
-          <input type="hidden" name="project" value={filters.project} />
-          <input type="hidden" name="assignee" value={filters.assignee} />
-          <input type="hidden" name="status_filter" value={filters.status} />
-          <div className="sm:col-span-2">
-            <Field label="Title">
-              <input className={inputClass} name="title" required />
-            </Field>
-          </div>
-          <div className="sm:col-span-2">
-            <Field label="Description (optional)">
-              <textarea className={inputClass} name="description" rows={2} />
-            </Field>
-          </div>
-          <Field label="Project (optional)">
-            <select className={inputClass} name="project_id" defaultValue="">
-              <option value="">No project</option>
-              {activeProjects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Assignee">
-            <select className={inputClass} name="assignee_id" defaultValue="">
-              <option value="">Unassigned</option>
-              {data.profiles.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.display_name}
-                  {p.id === me.id ? " (me)" : ""}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Due date">
-            <input className={inputClass} name="due_date" type="date" />
-          </Field>
-          <div className="sm:col-span-2">
-            <button className={buttonClass} type="submit">
-              Create task
-            </button>
           </div>
         </form>
       </Panel>

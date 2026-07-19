@@ -6,7 +6,7 @@ A project management platform for the Hult Cohort Developer Program, built to tr
 
 ## Architecture
 
-**Stack:** Next.js (App Router, TypeScript) · Tailwind CSS · Supabase (Postgres, Auth, Row Level Security) · deployed on Vercel
+**Stack:** Next.js 16 (App Router, TypeScript) · React 19 · Tailwind CSS 4 · Supabase (Postgres, Auth, Row Level Security) · deployed on Vercel
 
 **Database tables:**
 - `profiles` — cohort member accounts (extends Supabase `auth.users`)
@@ -18,16 +18,22 @@ A project management platform for the Hult Cohort Developer Program, built to tr
 - `mvp_status` — manually tracked feature completion % and open critical bugs
 - `weekly_activity` — per-member weekly activity for adoption metrics
 
+**UI shell (authenticated pages):**
+- Persistent header: sidebar toggle, Civilization Index + progress bar (center), profile avatar (right)
+- Collapsible sidebar: navigation, a "Civilization Quotes" control that cycles a rotating quote in a muted sidebar card, and profile/logout at the bottom
+- Pinned open on desktop (`md+`); overlay drawer on smaller screens
+
 **Pages:**
-- `/` — public landing page (unauthenticated)
-- `/dashboard` — cohort level, civilization energy, index progress, "due this week" tasks
-- `/ascend` — full gate checklist showing what's needed for the next civilization level
-- `/projects` — project list, create/archive
-- `/tasks` — kanban task board, filterable by project, assignee, and status
-- `/leaderboard` — individual score ranking
-- `/profile/[id]` — individual profile, PRs/contributions, voting
+- `/` — public landing page (unauthenticated); full-bleed hero video with `prefers-reduced-motion` still-image fallback; signed-in users redirect to `/dashboard`
+- `/login`, `/signup` — Supabase email/password auth
+- `/dashboard` — cohort level + civilization energy; side-by-side "My tasks due this week" and next-tier progress gates (Civilization Index lives in the header)
+- `/ascend` — full gate checklist for the next civilization level
+- `/projects` — project list; create/edit/archive via modal; titles shown with an accent chip
+- `/tasks` — kanban board with project / assignee / status filters; create via modal
+- `/leaderboard` — individual score ranking over a spiral-galaxy background
+- `/profile/[id]` — individual profile, PRs/contributions, peer voting
 - `/submit` — log a PR or contribution
-- `/admin` — MVP status editing
+- `/admin` — MVP status editing (write access limited to owners of an active project)
 
 ## Setup (fresh clone)
 
@@ -57,6 +63,16 @@ A project management platform for the Hult Cohort Developer Program, built to tr
 - **Individual leaderboard score** is boosted by a capped peer-vote multiplier, so votes amplify real output rather than substituting for it.
 - **Task board** ties the motivation layer back to real work — tasks belong to projects, have due dates with overdue/near-due highlighting, and completing one contributes a small amount of energy.
 
+## Assets
+
+| File | Used on |
+|------|---------|
+| `public/videos/hero-video.mp4` | Landing page hero (autoplay, muted, loop) |
+| `public/images/galaxy-hero.png` | Landing poster / reduced-motion fallback |
+| `public/images/spiral-galaxy-leaderboard.png` | Leaderboard background |
+
+Generated with Magnific and Envato from ChatGPT-authored prompts.
+
 ## Known limitations
 
 - PR and contribution data is self-reported; there's no GitHub API verification in v1.
@@ -68,4 +84,4 @@ A project management platform for the Hult Cohort Developer Program, built to tr
 
 ## Agent usage
 
-Claude was used throughout as a design/architecture collaborator: reviewing the initial concept, resolving open scoring-model questions (data source, vote integration, individual vs. cohort scoring, gate table vs. formula), and producing scoped build prompts executed in Cursor for the base platform, the task/deadline layer, the Projects entity, and the public landing page. Claude was also used for git and Vercel deployment troubleshooting (environment variable key format, monorepo root directory misconfiguration, framework preset mismatch on the live deployment).
+Claude was used throughout as a design/architecture collaborator: reviewing the initial concept, resolving open scoring-model questions (data source, vote integration, individual vs. cohort scoring, gate table vs. formula), and producing scoped build prompts executed in Cursor for the base platform, the task/deadline layer, the Projects entity, and the public landing page. Later Cursor sessions added the authenticated AppShell (header + collapsible sidebar + civilization quotes), modal create flows for projects/tasks, and the leaderboard galaxy background. Claude was also used for git and Vercel deployment troubleshooting (environment variable key format, monorepo root directory misconfiguration, framework preset mismatch on the live deployment).

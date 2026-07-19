@@ -1,15 +1,10 @@
 import Link from "next/link";
-import {
-  archiveProject,
-  createProject,
-  updateProject,
-} from "@/app/actions/projects";
+import { archiveProject, updateProject } from "@/app/actions/projects";
+import { CreateProjectModal } from "@/components/CreateProjectModal";
 import { getCurrentProfile, loadCohortData } from "@/lib/data";
 import type { Project } from "@/lib/types";
 import {
   Field,
-  Panel,
-  buttonClass,
   inputClass,
   secondaryButtonClass,
 } from "@/components/ui";
@@ -40,13 +35,16 @@ export default async function ProjectsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold">
-          Projects
-        </h1>
-        <p className="mt-2 text-[var(--muted)]">
-          Group tasks under a project. Owners can edit and archive their own.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold">
+            Projects
+          </h1>
+          <p className="mt-2 text-[var(--muted)]">
+            Group tasks under a project. Owners can edit and archive their own.
+          </p>
+        </div>
+        <CreateProjectModal />
       </div>
 
       {error ? (
@@ -65,29 +63,6 @@ export default async function ProjectsPage({
                 : "Done."}
         </p>
       ) : null}
-
-      <Panel>
-        <h2 className="mb-4 font-[family-name:var(--font-display)] text-xl font-semibold">
-          Create project
-        </h2>
-        <form action={createProject} className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <Field label="Name">
-              <input className={inputClass} name="name" required />
-            </Field>
-          </div>
-          <div className="sm:col-span-2">
-            <Field label="Description (optional)">
-              <textarea className={inputClass} name="description" rows={2} />
-            </Field>
-          </div>
-          <div className="sm:col-span-2">
-            <button className={buttonClass} type="submit">
-              Create project
-            </button>
-          </div>
-        </form>
-      </Panel>
 
       <div className="space-y-4">
         {sorted.length === 0 ? (
@@ -133,7 +108,7 @@ function ProjectCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold">
+            <h2 className="inline-block rounded-lg bg-transparent px-2.5 py-1 font-[family-name:var(--font-display)] text-xl font-semibold text-[var(--ink)]">
               {project.name}
             </h2>
             {archived ? (

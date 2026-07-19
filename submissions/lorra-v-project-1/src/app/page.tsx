@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { HeroBackground } from "@/components/HeroBackground";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function LandingPage() {
@@ -15,25 +15,7 @@ export default async function LandingPage() {
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden bg-[var(--bg)]">
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="hero-galaxy absolute inset-0">
-          <Image
-            src="/images/galaxy-hero.png"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-        </div>
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(6,10,20,0.92) 0%, rgba(6,10,20,0.75) 30%, rgba(6,10,20,0.35) 60%, rgba(6,10,20,0.1) 100%)",
-          }}
-        />
-      </div>
+      <HeroBackground />
 
       <header className="relative z-10 flex items-center justify-between px-6 py-5 sm:px-10">
         <p className="font-[family-name:var(--font-display)] text-sm tracking-wide text-[var(--ink)]/90">

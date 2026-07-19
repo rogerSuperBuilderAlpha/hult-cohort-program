@@ -2,14 +2,13 @@ import Link from "next/link";
 import {
   LEVEL_LABELS,
   computeCivilizationEnergy,
-  computeCivilizationIndex,
   computeCohortMetrics,
   evaluateCohortLevel,
   dueUrgency,
   weekDateBounds,
 } from "@/lib/civilization";
 import { getCurrentProfile, loadCohortData } from "@/lib/data";
-import { GateList, Panel, ProgressBar } from "@/components/ui";
+import { GateList, Panel } from "@/components/ui";
 
 export default async function DashboardPage() {
   const me = await getCurrentProfile();
@@ -17,7 +16,6 @@ export default async function DashboardPage() {
   const metrics = computeCohortMetrics(data);
   const { level, nextLevelGates } = evaluateCohortLevel(metrics);
   const energy = computeCivilizationEnergy(data);
-  const index = computeCivilizationIndex(metrics);
 
   const { start, end } = weekDateBounds();
   const myDueThisWeek = me
@@ -67,75 +65,67 @@ export default async function DashboardPage() {
         </Panel>
       </div>
 
-      <Panel>
-        <div className="mb-3 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm text-[var(--muted)]">Civilization Index</p>
-            <p className="font-[family-name:var(--font-display)] text-2xl font-semibold">
-              {(index * 100).toFixed(0)}% toward Galactic targets
-            </p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Panel className="h-full">
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold">
+              My tasks due this week
+            </h2>
+            <Link
+              href={me ? `/tasks?project=all&assignee=${me.id}&status=all` : "/tasks"}
+              className="shrink-0 text-sm text-[var(--accent)] hover:underline"
+            >
+              Open board →
+            </Link>
           </div>
-          <p className="text-xs text-[var(--muted)]">Cosmetic only — gates decide level</p>
-        </div>
-        <ProgressBar value={index} />
-      </Panel>
+          {myDueThisWeek.length === 0 ? (
+            <p className="text-sm text-[var(--muted)]">Nothing due this week.</p>
+          ) : (
+            <ul className="space-y-2">
+              {myDueThisWeek.map((task) => {
+                const urgency = dueUrgency(task.due_date);
+                const dueColor =
+                  urgency === "overdue"
+                    ? "text-[var(--danger)]"
+                    : urgency === "soon"
+                      ? "text-[var(--accent)]"
+                      : "text-[var(--muted)]";
+                return (
+                  <li
+                    key={task.id}
+                    className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--line)] pb-2 last:border-0"
+                  >
+                    <Link href="/tasks" className="font-medium hover:text-[var(--accent)]">
+                      {task.title}
+                    </Link>
+                    <span className={`text-sm ${dueColor}`}>{task.due_date}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Panel>
 
-      <Panel>
-        <div className="mb-3 flex items-center justify-between gap-4">
+        <Panel className="h-full">
           <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold">
-            My tasks due this week
+            {level === "pre_level_1" ? "Progress toward Builder" : "Path to the next tier"}
           </h2>
-          <Link
-            href={me ? `/tasks?project=all&assignee=${me.id}&status=all` : "/tasks"}
-            className="text-sm text-[var(--accent)] hover:underline"
-          >
-            Open board →
-          </Link>
-        </div>
-        {myDueThisWeek.length === 0 ? (
-          <p className="text-sm text-[var(--muted)]">Nothing due this week.</p>
-        ) : (
-          <ul className="space-y-2">
-            {myDueThisWeek.map((task) => {
-              const urgency = dueUrgency(task.due_date);
-              const dueColor =
-                urgency === "overdue"
-                  ? "text-[var(--danger)]"
-                  : urgency === "soon"
-                    ? "text-[var(--accent)]"
-                    : "text-[var(--muted)]";
-              return (
-                <li
-                  key={task.id}
-                  className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--line)] pb-2 last:border-0"
-                >
-                  <Link href="/tasks" className="font-medium hover:text-[var(--accent)]">
-                    {task.title}
-                  </Link>
-                  <span className={`text-sm ${dueColor}`}>{task.due_date}</span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </Panel>
-
-      <Panel>
-        <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold">
-          {level === "pre_level_1" ? "Progress toward Builder" : "Path to the next tier"}
-        </h2>
-        <p className="mt-1 mb-4 text-sm text-[var(--muted)]">
-          {nextLevelGates.length
-            ? "Open gates below. Full checklist on the ascend page."
-            : "Galactic Civilization achieved."}
-        </p>
-        {nextLevelGates.length ? <GateList gates={nextLevelGates.slice(0, 4)} /> : null}
-        {nextLevelGates.length > 4 ? (
-          <Link href="/ascend" className="mt-4 inline-block text-sm text-[var(--accent)] hover:underline">
-            See all gates →
-          </Link>
-        ) : null}
-      </Panel>
+          <p className="mt-1 mb-4 text-sm text-[var(--muted)]">
+            {nextLevelGates.length
+              ? "Open gates below. Full checklist on the ascend page."
+              : "Galactic Civilization achieved."}
+          </p>
+          {nextLevelGates.length ? <GateList gates={nextLevelGates.slice(0, 4)} /> : null}
+          {nextLevelGates.length > 4 ? (
+            <Link
+              href="/ascend"
+              className="mt-4 inline-block text-sm text-[var(--accent)] hover:underline"
+            >
+              See all gates →
+            </Link>
+          ) : null}
+        </Panel>
+      </div>
     </div>
   );
 }

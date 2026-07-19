@@ -1,0 +1,14 @@
+[
+  {
+    "users": 5000,
+    "provisionMs": 19799,
+    "xpEvents": 44760,
+    "postP95": 13.13,
+    "throughput": 159.1,
+    "lbDocsRead": 44760,
+    "lbP95": 1403.01,
+    "briefDocsRead": 204,
+    "joinP95": 20907.14,
+    "listenerP95": 68.62
+  }
+]

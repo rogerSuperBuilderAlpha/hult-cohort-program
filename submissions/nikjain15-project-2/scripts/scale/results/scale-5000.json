@@ -1,0 +1,102 @@
+{
+  "startedAt": "2026-07-19T01:13:07.552Z",
+  "config": {
+    "users": 5000,
+    "channels": 83,
+    "channelsPerUser": 4,
+    "messagesPerUser": 8,
+    "recognitionRate": 0.5,
+    "concurrentWriters": 80,
+    "holdSeconds": 6
+  },
+  "provision": {
+    "provisionMs": 19799,
+    "approxXpEvents": 44760
+  },
+  "workload": {
+    "postLatencyMs": {
+      "n": 960,
+      "p50": 3.14,
+      "p95": 13.13,
+      "p99": 23.5,
+      "max": 26.42
+    },
+    "posts": 960,
+    "errors": 0,
+    "throughputPerSec": 159.1
+  },
+  "joinContention": {
+    "joiners": 80,
+    "ok": 12,
+    "fail": 68,
+    "joinLatencyMs": {
+      "n": 12,
+      "p50": 5776.12,
+      "p95": 20907.14,
+      "p99": 20907.14,
+      "max": 20907.14
+    }
+  },
+  "probes": {
+    "leaderboard": {
+      "latencyMs": {
+        "n": 20,
+        "p50": 881.62,
+        "p95": 1403.01,
+        "p99": 1403.01,
+        "max": 1403.01
+      },
+      "docsReadPerCall": 44760
+    },
+    "brief": {
+      "latencyMs": {
+        "n": 20,
+        "p50": 211.76,
+        "p95": 435.68,
+        "p99": 435.68,
+        "max": 435.68
+      },
+      "docsReadPerCall": 204
+    },
+    "channelPage": {
+      "latencyMs": {
+        "n": 20,
+        "p50": 53.47,
+        "p95": 59.05,
+        "p99": 59.05,
+        "max": 59.05
+      },
+      "docsReadPerCall": 100
+    },
+    "findTeammate": {
+      "latencyMs": {
+        "n": 20,
+        "p50": 29.11,
+        "p95": 51.49,
+        "p99": 51.49,
+        "max": 51.49
+      },
+      "docsReadPerCall": 200
+    },
+    "summarize": {
+      "latencyMs": {
+        "n": 20,
+        "p50": 89.29,
+        "p95": 111.97,
+        "p99": 111.97,
+        "max": 111.97
+      },
+      "docsReadPerCall": 380
+    }
+  },
+  "listener": {
+    "deliveryLatencyMs": {
+      "n": 30,
+      "p50": 58.99,
+      "p95": 68.62,
+      "p99": 70.19,
+      "max": 70.19
+    },
+    "delivered": 30
+  }
+}

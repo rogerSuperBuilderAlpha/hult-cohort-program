@@ -6,16 +6,18 @@ Summer Pilot 2026, Project 1 — PM platform (Phase 1).
 
 https://pm-r3s0lv343vr.vercel.app
 
-Build repo / branch: https://github.com/r3s0lv343vr/pitch-rise-verification/tree/agent/pm-platform-phase1-continued
+Build repo: https://github.com/r3s0lv343vr/pm-r3s0lv343vr (`main`)
 
-Supabase project: `pm-r3s0lv343vr` (`uahrzlkpjkbttubnnypv`) — schema synced, seeded, Vercel env configured (`DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`).
+Historical Cloud Agent branch (kept, not deleted): https://github.com/r3s0lv343vr/pitch-rise-verification/tree/agent/pm-platform-phase1-continued
+
+Supabase project: `pm-r3s0lv343vr` (`uahrzlkpjkbttubnnypv`) — schema synced, seeded, Vercel env configured (`DATABASE_URL` = **Transaction pooler :6543**, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`).
 
 Demo logins (password `password123`): `pm@hult-cohort.test`, `admin@hult-cohort.test`, `member@hult-cohort.test`, `staff-review@hult-cohort.test`.
 
 ## Setup steps verified on a fresh clone
 
-1. `git clone -b agent/pm-platform-phase1-continued https://github.com/r3s0lv343vr/pitch-rise-verification.git && cd pitch-rise-verification`
-2. `cp .env.example .env` and set `DATABASE_URL` (Postgres), `NEXTAUTH_URL`, `NEXTAUTH_SECRET`
+1. `git clone https://github.com/r3s0lv343vr/pm-r3s0lv343vr.git && cd pm-r3s0lv343vr`
+2. `cp .env.example .env` and set `DATABASE_URL` (Postgres Transaction pooler on Vercel), `NEXTAUTH_URL`, `NEXTAUTH_SECRET`
 3. `npm install`
 4. `npx prisma migrate deploy` (or `npx prisma db push` if schema is ahead of migration history)
 5. `npm run db:seed`
@@ -27,7 +29,7 @@ Demo logins (password `password123`): `pm@hult-cohort.test`, `admin@hult-cohort.
 
 - **App:** Next.js 15 App Router + Tailwind
 - **Auth:** Auth.js (NextAuth) credentials / JWT sessions; roles Admin / PM / Member / Viewer
-- **Data:** Prisma + PostgreSQL (Supabase Session pooler for IPv4)
+- **Data:** Prisma + PostgreSQL (Supabase **Transaction** pooler `:6543` + `pgbouncer=true` in production; Session/direct URL only for migrations when needed)
 - **Mutations:** Server Actions
 - **Hosting:** Vercel
 - **Phase 1 surfaces:** Command Center (Overview / Kanban / Process Map / Gantt), My Work (clock + assignments), Projects (budget/risks/map), Reports with **Trend Analysis** + **Insights** (workload, dependency impact, resource reallocation, budget/time/risk charts)
@@ -50,9 +52,9 @@ User → Next.js (App Router)
 
 ## Known limitations
 
-- Integration connect toggles are stubs (not live third-party sync).
+- Integration connect toggles are disclosed non-functional stubs (not live third-party sync; local Connected flag only).
 - No native mobile app; email reminders not shipped.
-- Preferred standalone app repo name `pm-r3s0lv343vr` is the Vercel project; source currently lives on `pitch-rise-verification` branch `agent/pm-platform-phase1-continued`.
+- Canonical source is `r3s0lv343vr/pm-r3s0lv343vr` (`main`); earlier work remains on `pitch-rise-verification` branch `agent/pm-platform-phase1-continued` for history.
 - Some analytics (burn/schedule curves) are derived from task dates/status burn ratios rather than a full historical cost ledger.
 - **Phase 1 scope only.** Phase 2 expects ticketing plus a sandbox to test changes and stress-test project/budget impacts before/as work proceeds, to limit further risk and budget overshoot. Phase 3 expects AI and forecasting capabilities; some Phase 3 work may run concurrently with Phase 2. Hoping to complete those by Sunday.
 - I'd like to present.

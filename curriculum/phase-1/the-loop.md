@@ -38,7 +38,7 @@ Program director delivers:
 
 ### Eligible build checklist
 
-To appear on the peer review/vote list, student's **submission PR must be merged to `main`** by deploy deadline. The PR body is the proof-of-work record — no separate link submission form.
+To appear on the peer review/vote list, student's **submission PR must be merged** to the project branch by deploy deadline. The PR body (filled template) is the proof-of-work record — no separate link submission form, and **no real cohort signup quota before merge**.
 
 Merged PR must include:
 

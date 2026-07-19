@@ -16,7 +16,7 @@ Every eligible build must implement all **baseline** features. Differentiating f
 | **Tasks** | Create task with title, description, status, assignee |
 | **Status workflow** | ≥ 3 states (e.g. todo / in progress / done) |
 | **Assignment** | Assign task to any cohort member (by email or username) |
-| **Multi-user auth** | Email+password or OAuth; **≥ 30 distinct accounts** supported |
+| **Multi-user auth** | Email+password or OAuth; sized for the **enrolled cohort** (capacity — not a pre-merge signup quota) |
 | **Task list views** | Filter by assignee, status, project |
 | **Deployment** | Public HTTPS URL; data persists across redeploys |
 
@@ -39,7 +39,7 @@ Every eligible build must implement all **baseline** features. Differentiating f
 | Criterion | Minimum bar |
 |-----------|-------------|
 | **Uptime** | Deploy URL returns 200 during staff smoke-test at deadline |
-| **Auth** | 30 test accounts creatable without manual DB edits |
+| **Auth** | Multiple test accounts creatable without manual DB edits (prove multi-user works) |
 | **Data persistence** | Tasks survive page refresh and redeploy |
 | **Concurrent use** | 10 simultaneous users without visible errors (load test optional but rubric credit) |
 | **Security** | No hardcoded secrets in repo; `.env` in `.gitignore` |
@@ -63,13 +63,15 @@ Stack is **agnostic**. TypeScript/Next.js on Vercel is the documented default in
 
 ## Account model (review window)
 
-By **Thu Oct 2, 17:00** deploy deadline, builder must:
+**Merge eligibility is the PR template + merge by deadline** (see `content/program.ts`). You do **not** need real cohort signups before merging.
+
+By review week, builders should:
 
 1. Post signup instructions in README
-2. Create accounts for **≥ 5 peer reviewers** on request (or open registration with cohort email domain)
-3. Staff test account created: `staff-review@hult-cohort.test` (password in `#setup-verification` during review week)
+2. Leave open registration (or create accounts for peer reviewers on request)
+3. Staff test account available if requested: `staff-review@hult-cohort.test` (password in `#setup-verification` during review week)
 
-Reviewers must be able to create a project and task without builder assistance.
+Reviewers must be able to sign up (or log in) and create a project and task without builder assistance.
 
 ---
 

@@ -39,6 +39,13 @@ export function ProjectRequirementsSections({
 
       <section className={styles.overviewBlock}>
         <h2 className={headingClass}>Submission instructions</h2>
+        <p className={styles.callout} style={{ marginTop: 0, marginBottom: 16 }}>
+          <strong>Merge bar:</strong> use the exact pull request title, fill every required PR body
+          section listed below, and merge by the deadline. That is what makes a submission eligible.
+          You do <strong>not</strong> need to collect real cohort signups (or hit a user quota) before
+          merging — multi-user capacity is a product design requirement; peers use your deploy during
+          review week.
+        </p>
         {variant === 'enrolled' ? (
           <p className={styles.formNote} style={{ marginTop: 0, marginBottom: 16 }}>
             Cohort repository:{' '}

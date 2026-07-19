@@ -72,7 +72,7 @@ export const programProjects: ProgramProject[] = [
       'Cursor and Claude Code active (~$400/mo); Expectations Acknowledgment signed on the dashboard',
       'Build individually; deploy to production over HTTPS before the deadline',
       'Design for motivation — progress visibility, clear next actions, and signals that make people want to ship',
-      'Support all enrolled accounts, projects, tasks, assignments, and status workflows',
+      'Ship multi-user auth and project/task workflows sized for the enrolled cohort (capacity — you do not need real cohort signups before merging)',
       'File a written technical review on each peer submission (optional Vote: up in the issue, or abstain)',
       'The submission with the most votes after review closes operates the cohort PM stack',
       'Non-winners contribute fixes and improvements to the winning platform',
@@ -91,7 +91,7 @@ export const programProjects: ProgramProject[] = [
         'Agent usage summary',
       ],
       deadlineNote:
-        'Pull request merged by Sunday week 1, 17:00 Eastern Time — unmerged pull requests are ineligible for review',
+        'Merge bar: fill every required PR body section below, then merge by Sunday week 1, 17:00 Eastern Time. You do not need real cohort signups first — unmerged PRs are ineligible for review.',
     },
     reviews: {
       artifact:
@@ -123,7 +123,7 @@ export const programProjects: ProgramProject[] = [
     },
     expectations: [
       'Build and deploy a communications platform; integrate with the winning PM platform where appropriate',
-      'Support real-time or asynchronous communication for all enrolled participants',
+      'Ship multi-user messaging sized for the enrolled cohort (capacity — you do not need real cohort signups before merging)',
       'File a written technical review on each peer submission (optional Vote: up in the issue, or abstain)',
       'Non-winners contribute to the winning communications platform',
     ],
@@ -133,7 +133,8 @@ export const programProjects: ProgramProject[] = [
       baseBranchPattern: 'projects/{cohortId}/{slug}',
       headBranchPattern: 'participants/{cohortId}/{slug}/{handle}',
       prBodyMustInclude: ['Production URL', 'PM platform integration notes', 'Agent usage'],
-      deadlineNote: 'Pull request merged by Sunday week 2, 17:00 Eastern Time',
+      deadlineNote:
+        'Merge bar: fill every required PR body section, then merge by Sunday week 2, 17:00 Eastern Time. No real cohort signup quota before merge.',
     },
     reviews: {
       artifact:
@@ -165,7 +166,7 @@ export const programProjects: ProgramProject[] = [
     },
     expectations: [
       'Ship a production marketing site with strong visual and narrative vibe',
-      'Profiles and project evidence for every enrolled participant',
+      'Profiles and project evidence for enrolled participants (placeholders OK at merge if roster still filling)',
       'Partner-facing documentation and clear calls to engage',
       'Written technical review on each peer submission (optional Vote: up, or abstain)',
     ],
@@ -180,7 +181,8 @@ export const programProjects: ProgramProject[] = [
         'Vibe / positioning notes',
         'Partner-facing README',
       ],
-      deadlineNote: 'Pull request merged by Sunday week 3, 17:00 Eastern Time',
+      deadlineNote:
+        'Merge bar: fill every required PR body section, then merge by Sunday week 3, 17:00 Eastern Time. No signup quota before merge.',
     },
     reviews: {
       artifact:
@@ -210,8 +212,8 @@ export const programProjects: ProgramProject[] = [
     },
     expectations: [
       'Register the application via the Ludwitt/Hult API; JWT authentication and event tracking operational',
-      'Acquire external users — the platform records usage; self-reporting is not accepted',
-      'Submit a proof-of-work pull request with listing URL and date-stamped metrics snapshot',
+      'Promote externally — qualified usage is counted by the platform snapshot (self-reporting is not accepted)',
+      'Submit a proof-of-work pull request with listing URL and date-stamped metrics snapshot filled in the PR template',
     ],
     submission: {
       repoPattern: '{repo}',
@@ -224,7 +226,8 @@ export const programProjects: ProgramProject[] = [
         'Metrics API snapshot (date-stamped)',
         'Promotion channels used',
       ],
-      deadlineNote: 'Pull request merged by Sunday week 4, 17:00 Eastern Time — metrics snapshot taken on that date',
+      deadlineNote:
+        'Merge bar: fill every required PR body section, then merge by Sunday week 4, 17:00 Eastern Time. The ≥25-user pass gate is verified from the platform snapshot / PR evidence — not a separate “collect users before you may open a PR” rule.',
     },
     passGate: ['≥25 qualified external users on platform snapshot'],
   },

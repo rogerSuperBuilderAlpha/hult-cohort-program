@@ -66,7 +66,8 @@ export const programProjects: ProgramProject[] = [
       submissionOpens: '2026-07-13T13:00:00.000Z',
       submissionCloses: '2026-07-19T21:00:00.000Z',
       reviewOpens: '2026-07-19T21:00:00.000Z',
-      reviewCloses: '2026-07-20T18:00:00.000Z',
+      /** Mon Jul 20, 2026 · 17:00 Eastern — aligned with participant comms (was 14:00 ET / closed early). */
+      reviewCloses: '2026-07-20T21:00:00.000Z',
     },
     expectations: [
       'Cursor and Claude Code active (~$400/mo); Expectations Acknowledgment signed on the dashboard',
@@ -96,7 +97,7 @@ export const programProjects: ProgramProject[] = [
     reviews: {
       artifact:
         'Written technical review on each peer submission (GitHub issue); optional Vote: up or abstain',
-      dueNote: 'Monday week 2, 14:00 Eastern Time (review window closes)',
+      dueNote: 'Monday week 2, 17:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Submission pull request merged or eligible miss documented',

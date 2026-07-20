@@ -43,10 +43,14 @@ Demo login: `sofia.martinez@demo.cohort` / `demo1234` (project owner, top scorer
 
 ## Known limitations
 
+- Supabase free tier email rate limit: new signups may hit "email rate limit exceeded" during heavy reviewer testing — use demo accounts to bypass (sofia.martinez@demo.cohort / demo1234)
+- Email confirmation redirects to localhost on Supabase free tier — Site URL configured but Supabase free plan has limited email customization
+- Demo accounts use simple password (demo1234) intentionally for reviewer access — production accounts enforce strong passwords (8+ chars, uppercase, lowercase, number, special character)
 - No email notifications (in-app only)
 - No GitHub issue/PR linking
 - No review/vote module
 - No load testing performed
+- Assignee field-lock trigger prevents priority inflation but is enforced at DB level only (UI already restricts this)
 
 ## Agent usage summary
 

@@ -1,10 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { AgentPromptHarness } from '@/components/AgentPromptHarness';
 import { PeerReviewCard } from '@/components/PeerReviewCard';
 import { ReviewHowTo } from '@/components/ReviewHowTo';
 import type { ProjectProgress, PeerRatingTarget } from '@/lib/project-progress-types';
 import styles from '../app/page.module.css';
+
+const REVIEW_HARNESS_LEAD =
+  'Prefer to run reviews with an agent? Copy this into Cursor or Claude Code. It asks whether to ' +
+  'review one repo you name or auto-discover every merged submission, then drafts a filed-ready ' +
+  'GitHub review issue (with the optional Vote: up) for each — to copy-paste or to post for you.';
 
 function PeerReviewSection({
   title,
@@ -62,6 +68,7 @@ type RatingBoardProps = {
   reviewerHandle: string;
   onUpdated: () => void;
   refreshing?: boolean;
+  reviewAgentPrompt?: string;
 };
 
 export function PeerRatingBoard({
@@ -69,6 +76,7 @@ export function PeerRatingBoard({
   reviewerHandle,
   onUpdated,
   refreshing = false,
+  reviewAgentPrompt,
 }: RatingBoardProps) {
   const [expandedHandle, setExpandedHandle] = useState<string | null>(null);
 
@@ -168,6 +176,15 @@ export function PeerRatingBoard({
       ) : null}
 
       <ReviewHowTo showWinnerNote={voteWeek} />
+
+      {reviewAgentPrompt ? (
+        <AgentPromptHarness
+          prompt={reviewAgentPrompt}
+          personalized
+          title="Review agent prompt (Cursor / Claude Code)"
+          lead={REVIEW_HARNESS_LEAD}
+        />
+      ) : null}
 
       <div className={styles.reviewProgressBar}>
         <span>

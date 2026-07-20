@@ -1303,6 +1303,17 @@
   line-height: 1.6;
 }
 
+.reviewHowToGoal {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.6;
+  background: var(--surface-muted, rgba(0, 0, 0, 0.03));
+  border-left: 3px solid var(--accent, #c2185b);
+  border-radius: 6px;
+}
+
 .reviewHowToSublead {
   margin: 8px 0 0;
   font-size: 0.95rem;

@@ -1,4 +1,5 @@
 import {
+  REVIEW_HOW_TO_GOAL,
   REVIEW_HOW_TO_LEAD,
   REVIEW_HOW_TO_STEPS,
   WINNER_NOTE,
@@ -16,6 +17,7 @@ export function ReviewHowTo({ showWinnerNote = false }: Props) {
       <p className={styles.reviewHowToLead}>
         <strong>How to leave a review and upvote</strong>
       </p>
+      <p className={styles.reviewHowToGoal}>{REVIEW_HOW_TO_GOAL}</p>
       <p className={styles.reviewHowToSublead}>{REVIEW_HOW_TO_LEAD}</p>
       <ol className={styles.reviewHowToSteps}>
         {REVIEW_HOW_TO_STEPS.map((step, index) => (

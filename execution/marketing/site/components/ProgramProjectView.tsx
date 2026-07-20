@@ -16,6 +16,7 @@ import type { CohortStats } from '@/lib/cohort-stats-types';
 import { cohortOrg } from '@/lib/cohort-config';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { buildProjectAgentPrompt, buildPublicAgentPrompt } from '@/lib/project-agent-prompt';
+import { buildPeerReviewAgentPrompt } from '@/lib/peer-review-agent-prompt';
 import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import { useProjectProgress } from '@/lib/use-project-progress';
@@ -141,6 +142,10 @@ function EnrolledView({
     return <ProjectViewLoading />;
   }
 
+  const reviewAgentPrompt = project.reviews
+    ? buildPeerReviewAgentPrompt(project, handle, org, stats)
+    : undefined;
+
   const peerReviewShell = project.reviews ? (
     progress && progressEnabled ? (
       <PeerRatingBoard
@@ -148,6 +153,7 @@ function EnrolledView({
         reviewerHandle={handle}
         onUpdated={() => void refreshProgress()}
         refreshing={progressLoading}
+        reviewAgentPrompt={reviewAgentPrompt}
       />
     ) : (
       <ProjectPeerReviewSection

@@ -16,6 +16,10 @@ export const WINNER_NOTE =
 export const VOTE_NOTE =
   'Upvotes are public on GitHub (Vote: up in your review issue). Abstain by filing the review without that line. There are no downvotes.';
 
+/** Why reviews exist — shown above the how-to on the Peer review tab. */
+export const REVIEW_HOW_TO_GOAL =
+  'A review does two jobs at once. First, it is real feedback that helps a peer make their product better — so make it specific: run their app, read their code, cite what you saw. Second, the same issue is your ballot: adding Vote: up upvotes that submission, omitting it abstains, and there are no downvotes. The submission with the most upvotes wins and operates its platform for the whole cohort. Your reviews are public on GitHub under your handle, so write ones you would be proud to sign.';
+
 /** Lead paragraph above the numbered how-to on the Peer review tab. */
 export const REVIEW_HOW_TO_LEAD =
   'Reviews and optional upvotes happen on GitHub — not as a button on this site. This page only tracks whether we found your review issue. Follow the steps below for every peer with a merged submission.';

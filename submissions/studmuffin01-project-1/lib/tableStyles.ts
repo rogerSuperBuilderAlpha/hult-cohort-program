@@ -12,6 +12,17 @@ export const tdClass =
 export const tdPrimaryClass =
   "border border-slate-200 px-4 py-3 text-sm font-medium text-slate-900 dark:border-surface-border dark:text-surface-primary";
 
+/** Compact cells for initiative summary task tables. */
+export const initiativeThClass =
+  "border border-slate-200 bg-slate-50 px-2 py-1 text-left text-xs font-semibold leading-none text-slate-800 dark:border-surface-border dark:bg-surface-bg dark:text-surface-primary";
+
+export const initiativeTdClass =
+  "border border-slate-200 px-2 py-0.5 text-xs leading-tight text-slate-700 dark:border-surface-border dark:text-surface-secondary";
+
+export const initiativeTaskNumberHeaderClass = `${initiativeThClass} w-28 whitespace-nowrap`;
+
+export const initiativeTaskNumberClass = `${initiativeTdClass} w-28 whitespace-nowrap text-left tabular-nums`;
+
 export const cohortTdBaseClass =
   "border px-4 py-0.5 text-sm leading-tight transition-colors duration-300";
 

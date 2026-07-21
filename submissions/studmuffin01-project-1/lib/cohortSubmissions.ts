@@ -2,7 +2,7 @@
  * Cohort submission types and calculations for initiative summary tables.
  */
 
-import { initiatives } from "@/lib/initiatives";
+import { getAllInitiativeSlugs } from "@/lib/initiatives";
 
 export const COHORT_ROW_COUNT = 67;
 export const COHORT_NAME_MAX_LENGTH = 30;
@@ -32,7 +32,6 @@ export type AllSubmissions = Record<string, InitiativeSubmissions>;
 
 export const COHORT_SUBMISSIONS_STORAGE_KEY = "initiara-cohort-submissions";
 
-const VALID_INITIATIVE_SLUGS = new Set(initiatives.map((initiative) => initiative.slug));
 
 export function sanitizeCohortName(value: string): string {
   return value.replace(/[^a-zA-Z0-9]/g, "").slice(0, COHORT_NAME_MAX_LENGTH);
@@ -124,8 +123,10 @@ function parseCohortSubmissions(raw: unknown): AllSubmissions {
 
   const parsed: AllSubmissions = {};
 
+  const validSlugs = getAllInitiativeSlugs();
+
   for (const [slug, initiativeData] of Object.entries(raw)) {
-    if (!VALID_INITIATIVE_SLUGS.has(slug)) {
+    if (!validSlugs.has(slug)) {
       continue;
     }
 

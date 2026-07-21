@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
 import PlaceholderPage from "@/components/PlaceholderPage";
-import { getInitiativeBySlug, initiatives } from "@/lib/initiatives";
+import { DEFAULT_INITIATIVES, getInitiativeBySlug } from "@/lib/initiatives";
 
 interface InitiativePageProps {
   params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
-  return initiatives.map((initiative) => ({ slug: initiative.slug }));
+  return DEFAULT_INITIATIVES.map((initiative) => ({ slug: initiative.slug }));
 }
 
 export default async function InitiativePage({ params }: InitiativePageProps) {

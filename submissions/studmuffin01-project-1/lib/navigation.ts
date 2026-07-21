@@ -6,6 +6,7 @@ export interface SidebarNavItem {
 }
 
 export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
+  { href: "/start-new-initiative", label: "Start New Initiative" },
   { href: "/cohorts-status", label: "Cohort's Status" },
   { href: "/my-status", label: "My Status" },
   { href: "/action-items", label: "Action Items" },

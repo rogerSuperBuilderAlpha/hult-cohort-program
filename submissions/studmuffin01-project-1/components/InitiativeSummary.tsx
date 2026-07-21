@@ -1,218 +1,300 @@
 "use client";
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import CohortRow from "@/components/CohortRow";
 import GoToNav from "@/components/GoToNav";
-import {
-  AllSubmissions,
-  COHORT_ROW_COUNT,
-  getRowSubmission,
-  InitiativeSubmissions,
-  SubmissionField,
-} from "@/lib/cohortSubmissions";
-import { getInitiativeAnchorId, initiatives, type Initiative } from "@/lib/initiatives";
-import { STATUS_TIER_DEFINITIONS } from "@/lib/rowTiers";
-import { tableClass, thClass } from "@/lib/tableStyles";
+import InitiativeTaskRow from "@/components/InitiativeTaskRow";
+import { InitiativeTasks, TaskField, taskNumberExists } from "@/lib/initiativeTasks";
+import { initiativeTaskNumberClass, initiativeTaskNumberHeaderClass, initiativeThClass } from "@/lib/tableStyles";
+import { getInitiativeAnchorId, type Initiative } from "@/lib/initiatives";
 
-const rowNumbers = Array.from({ length: COHORT_ROW_COUNT }, (_, index) => index + 1);
-const ROW_HEIGHT_PX = 28;
-const ROW_OVERSCAN = 6;
-const TABLE_BODY_MAX_HEIGHT = "28rem";
-const COLUMN_COUNT = 8;
+const actionButtonClassName =
+  "rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/30 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-2 dark:focus:ring-offset-surface-card";
 
-function StatusLegend() {
-  return (
-    <div
-      aria-label="Row status colour legend"
-      className="rounded border border-slate-200 bg-white px-3 py-2 shadow-sm dark:border-surface-border dark:bg-surface-card"
-    >
-      <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] leading-tight">
-        {STATUS_TIER_DEFINITIONS.map((item) => (
-          <li key={item.label} className="flex items-center gap-1.5 text-slate-700 dark:text-surface-secondary">
-            <span
-              className={`inline-block h-2 w-4 shrink-0 rounded-sm border ${
-                item.isDefault ? "bg-white dark:bg-surface-bg" : ""
-              }`}
-              style={{
-                backgroundColor: item.background,
-                borderColor: item.border,
-              }}
-              aria-hidden="true"
-            />
-            <span className="tabular-nums">
-              {item.label}
-              {item.trophy ? " 🏆" : ""}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+const addButtonClassName = `${actionButtonClassName} bg-brand-600 text-white hover:bg-brand-700`;
+
+const deleteButtonClassName = `${actionButtonClassName} border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20`;
+
+const deletePanelClassName =
+  "rounded-lg border border-slate-200 bg-white p-3 shadow-md ring-1 ring-slate-200 dark:border-surface-border dark:bg-surface-card dark:ring-surface-border";
+
+const deleteInputClassName =
+  "w-20 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm tabular-nums text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-surface-border dark:bg-surface-bg dark:text-surface-primary";
+
+const confirmDeleteClassName = `${actionButtonClassName} border border-red-400 bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-700 dark:border-red-500/60`;
+
+interface InitiativeTaskTableProps {
+  initiative: Initiative;
+  displayLabel: string;
+  allInitiatives: Initiative[];
+  tasks: InitiativeTasks;
+  onEnsureTasks: (initiativeSlug: string) => void;
+  onUpdateField: (initiativeSlug: string, rowId: string, field: TaskField, value: string) => void;
+  onAddRow: (initiativeSlug: string) => void;
+  onAddSubTask: (initiativeSlug: string, parentTaskNumber: string) => void;
+  onDeleteRow: (initiativeSlug: string, taskNumber: string) => boolean;
 }
 
-interface VirtualizedCohortBodyProps {
-  initiativeTitle: string;
-  submissions: InitiativeSubmissions;
-  onToggleField: (rowNumber: number, field: SubmissionField) => void;
-  onUpdateName: (rowNumber: number, name: string) => void;
-}
-
-function VirtualizedCohortBody({
-  initiativeTitle,
-  submissions,
-  onToggleField,
-  onUpdateName,
-}: VirtualizedCohortBodyProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 30 });
+const InitiativeTaskTable = memo(function InitiativeTaskTable({
+  initiative,
+  displayLabel,
+  allInitiatives,
+  tasks,
+  onEnsureTasks,
+  onUpdateField,
+  onAddRow,
+  onAddSubTask,
+  onDeleteRow,
+}: InitiativeTaskTableProps) {
+  const [isChoosingDelete, setIsChoosingDelete] = useState(false);
+  const [deleteTaskNumber, setDeleteTaskNumber] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const deleteInputId = `${initiative.slug}-delete-task-number`;
+  const deleteControlsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const scrollElement = scrollRef.current;
-    if (!scrollElement) return;
+    onEnsureTasks(initiative.slug);
+  }, [initiative.slug, onEnsureTasks]);
 
-    const updateRange = () => {
-      const start = Math.max(
-        0,
-        Math.floor(scrollElement.scrollTop / ROW_HEIGHT_PX) - ROW_OVERSCAN
-      );
-      const visibleCount =
-        Math.ceil(scrollElement.clientHeight / ROW_HEIGHT_PX) + ROW_OVERSCAN * 2;
-      const end = Math.min(COHORT_ROW_COUNT, start + visibleCount);
-      setVisibleRange((current) =>
-        current.start === start && current.end === end ? current : { start, end }
-      );
-    };
-
-    updateRange();
-    scrollElement.addEventListener("scroll", updateRange, { passive: true });
-    window.addEventListener("resize", updateRange);
-
-    return () => {
-      scrollElement.removeEventListener("scroll", updateRange);
-      window.removeEventListener("resize", updateRange);
-    };
+  const closeDeleteMode = useCallback(() => {
+    setIsChoosingDelete(false);
+    setDeleteTaskNumber("");
+    setDeleteError(null);
   }, []);
 
-  const topSpacerHeight = visibleRange.start * ROW_HEIGHT_PX;
-  const bottomSpacerHeight = (COHORT_ROW_COUNT - visibleRange.end) * ROW_HEIGHT_PX;
-  const visibleRows = rowNumbers.slice(visibleRange.start, visibleRange.end);
+  useEffect(() => {
+    if (!isChoosingDelete) {
+      return;
+    }
 
-  return (
-    <div
-      ref={scrollRef}
-      className="overflow-x-auto overflow-y-auto"
-      style={{ maxHeight: TABLE_BODY_MAX_HEIGHT }}
-    >
-      <table className={tableClass}>
-        <caption className="sr-only">{initiativeTitle} cohort submissions</caption>
-        <thead className="sticky top-0 z-10">
-          <tr>
-            <th className={`${thClass} w-16 text-center`}>#</th>
-            <th className={`${thClass} min-w-[9rem]`}>Name</th>
-            <th className={`${thClass} text-center`}>Pull Request Merged</th>
-            <th className={`${thClass} text-center`}>1st Review Submitted</th>
-            <th className={`${thClass} text-center`}>2nd Review Submitted</th>
-            <th className={`${thClass} text-center`}>1st Vote Submitted</th>
-            <th className={`${thClass} text-center`}>2nd Vote Submitted</th>
-            <th className={`${thClass} text-center`}>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {topSpacerHeight > 0 && (
-            <tr aria-hidden="true">
-              <td colSpan={COLUMN_COUNT} style={{ height: topSpacerHeight, padding: 0, border: "none" }} />
-            </tr>
-          )}
-          {visibleRows.map((rowNumber) => (
-            <CohortRow
-              key={rowNumber}
-              rowNumber={rowNumber}
-              row={getRowSubmission(submissions, rowNumber)}
-              onToggleField={onToggleField}
-              onUpdateName={onUpdateName}
-            />
-          ))}
-          {bottomSpacerHeight > 0 && (
-            <tr aria-hidden="true">
-              <td colSpan={COLUMN_COUNT} style={{ height: bottomSpacerHeight, padding: 0, border: "none" }} />
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+    const handleClickOutside = (event: MouseEvent) => {
+      if (deleteControlsRef.current && !deleteControlsRef.current.contains(event.target as Node)) {
+        closeDeleteMode();
+      }
+    };
 
-interface InitiativeCohortTableProps {
-  initiative: Initiative;
-  submissions: InitiativeSubmissions;
-  onToggle: (initiativeSlug: string, rowNumber: number, field: SubmissionField) => void;
-  onUpdateName: (initiativeSlug: string, rowNumber: number, name: string) => void;
-}
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isChoosingDelete, closeDeleteMode]);
 
-const InitiativeCohortTable = memo(function InitiativeCohortTable({
-  initiative,
-  submissions,
-  onToggle,
-  onUpdateName,
-}: InitiativeCohortTableProps) {
-  const onToggleField = useCallback(
-    (rowNumber: number, field: SubmissionField) => {
-      onToggle(initiative.slug, rowNumber, field);
+  useEffect(() => {
+    if (isChoosingDelete && tasks.length <= 1) {
+      closeDeleteMode();
+    }
+  }, [closeDeleteMode, isChoosingDelete, tasks.length]);
+
+  const handleUpdateField = useCallback(
+    (rowId: string, field: TaskField, value: string) => {
+      onUpdateField(initiative.slug, rowId, field, value);
     },
-    [initiative.slug, onToggle]
+    [initiative.slug, onUpdateField]
   );
 
-  const onUpdateRowName = useCallback(
-    (rowNumber: number, name: string) => {
-      onUpdateName(initiative.slug, rowNumber, name);
+  const handleAddRow = useCallback(() => {
+    onAddRow(initiative.slug);
+  }, [initiative.slug, onAddRow]);
+
+  const handleAddSubTask = useCallback(
+    (parentTaskNumber: string) => {
+      onAddSubTask(initiative.slug, parentTaskNumber);
     },
-    [initiative.slug, onUpdateName]
+    [initiative.slug, onAddSubTask]
   );
+
+  const toggleDeleteMode = useCallback(() => {
+    if (tasks.length <= 1) {
+      return;
+    }
+
+    setIsChoosingDelete((current) => {
+      if (current) {
+        setDeleteTaskNumber("");
+        setDeleteError(null);
+      }
+      return !current;
+    });
+  }, [tasks.length]);
+
+  const confirmDelete = useCallback(() => {
+    const trimmedTaskNumber = deleteTaskNumber.trim();
+
+    if (!trimmedTaskNumber) {
+      setDeleteError("Enter a valid task number.");
+      return;
+    }
+
+    if (!taskNumberExists(tasks, trimmedTaskNumber)) {
+      setDeleteError(`Task ${trimmedTaskNumber} does not exist.`);
+      return;
+    }
+
+    const deleted = onDeleteRow(initiative.slug, trimmedTaskNumber);
+    if (deleted) {
+      closeDeleteMode();
+    }
+  }, [closeDeleteMode, deleteTaskNumber, initiative.slug, onDeleteRow, tasks]);
 
   return (
     <div id={getInitiativeAnchorId(initiative.slug)} className="scroll-mt-8 space-y-3">
       <h3 className="overflow-visible rounded-lg bg-brand-50 px-3 py-3.5 text-center font-display text-lg font-bold leading-relaxed text-brand-700 underline decoration-brand-400 underline-offset-[0.2em] dark:bg-brand-500/10 dark:text-brand-400 dark:decoration-brand-500/60 sm:text-xl">
-        {initiative.title}
+        {displayLabel}
       </h3>
 
-      <VirtualizedCohortBody
-        initiativeTitle={initiative.title}
-        submissions={submissions}
-        onToggleField={onToggleField}
-        onUpdateName={onUpdateRowName}
-      />
+      <div className="rounded-xl bg-white shadow-md ring-1 ring-slate-200 dark:bg-surface-card dark:shadow-none dark:ring-surface-border">
+        <table className="w-full table-fixed border-collapse">
+          <caption className="sr-only">{displayLabel} tasks</caption>
+          <colgroup>
+            <col className="w-28" />
+            <col className="w-[32%]" />
+            <col className="w-[12%]" />
+            <col className="w-[14%]" />
+            <col className="w-[14%]" />
+            <col className="w-[22%]" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th className={initiativeTaskNumberHeaderClass}>Task No.</th>
+              <th className={initiativeThClass}>Description</th>
+              <th className={initiativeThClass}>Status</th>
+              <th className={initiativeThClass}>Date Due</th>
+              <th className={initiativeThClass}>Responsibility</th>
+              <th className={initiativeThClass}>Comments</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tasks.map((row) => (
+              <InitiativeTaskRow
+                key={row.id}
+                row={row}
+                onUpdateField={handleUpdateField}
+                onAddSubTask={handleAddSubTask}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <GoToNav menuIdSuffix={initiative.slug} />
+      <div className="flex flex-wrap items-start gap-3">
+        <button type="button" onClick={handleAddRow} className={addButtonClassName}>
+          Add Task
+        </button>
+
+        <div ref={deleteControlsRef} className="flex flex-wrap items-start gap-2">
+          <button
+            type="button"
+            onClick={toggleDeleteMode}
+            disabled={tasks.length <= 1}
+            aria-expanded={isChoosingDelete}
+            aria-haspopup="dialog"
+            className={deleteButtonClassName}
+          >
+            Delete Task
+          </button>
+
+          {isChoosingDelete && (
+            <div role="dialog" aria-label="Select task to delete" className={deletePanelClassName}>
+              <p className="text-sm font-semibold text-slate-900 dark:text-surface-primary">
+                Select Task
+              </p>
+
+              <div className="mt-2 flex items-center gap-2">
+                <label htmlFor={deleteInputId} className="sr-only">
+                  Task number to delete
+                </label>
+                <input
+                  id={deleteInputId}
+                  type="text"
+                  inputMode="decimal"
+                  value={deleteTaskNumber}
+                  onChange={(event) => {
+                    setDeleteTaskNumber(event.target.value);
+                    if (deleteError) setDeleteError(null);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      confirmDelete();
+                    }
+                    if (event.key === "Escape") {
+                      event.preventDefault();
+                      closeDeleteMode();
+                    }
+                  }}
+                  autoFocus
+                  className={deleteInputClassName}
+                  aria-invalid={deleteError ? true : undefined}
+                  aria-describedby={deleteError ? `${deleteInputId}-error` : undefined}
+                />
+
+                <button
+                  type="button"
+                  onClick={confirmDelete}
+                  className={confirmDeleteClassName}
+                  aria-label="Delete selected task"
+                >
+                  Del
+                </button>
+              </div>
+
+              {deleteError && (
+                <p
+                  id={`${deleteInputId}-error`}
+                  role="alert"
+                  className="mt-2 text-xs text-red-600 dark:text-red-400"
+                >
+                  {deleteError}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <GoToNav initiatives={allInitiatives} menuIdSuffix={initiative.slug} />
     </div>
   );
 });
 
 export default function InitiativeSummary({
-  submissions,
-  onToggle,
-  onUpdateName,
+  initiatives,
+  getTasks,
+  onEnsureTasks,
+  onUpdateField,
+  onAddRow,
+  onAddSubTask,
+  onDeleteRow,
 }: {
-  submissions: AllSubmissions;
-  onToggle: (initiativeSlug: string, rowNumber: number, field: SubmissionField) => void;
-  onUpdateName: (initiativeSlug: string, rowNumber: number, name: string) => void;
+  initiatives: Initiative[];
+  getTasks: (initiativeSlug: string) => InitiativeTasks;
+  onEnsureTasks: (initiativeSlug: string) => void;
+  onUpdateField: (initiativeSlug: string, rowId: string, field: TaskField, value: string) => void;
+  onAddRow: (initiativeSlug: string) => void;
+  onAddSubTask: (initiativeSlug: string, parentTaskNumber: string) => void;
+  onDeleteRow: (initiativeSlug: string, taskNumber: string) => boolean;
 }) {
   return (
     <section aria-label="Initiative summary" className="space-y-8">
-      <div className="space-y-3">
-        <h2 className="section-heading">Initiative Summary</h2>
-        <StatusLegend />
-      </div>
+      <h2 className="section-heading">Initiative Summary</h2>
 
-      {initiatives.map((initiative) => (
-        <InitiativeCohortTable
-          key={initiative.slug}
-          initiative={initiative}
-          submissions={submissions[initiative.slug] ?? {}}
-          onToggle={onToggle}
-          onUpdateName={onUpdateName}
-        />
-      ))}
+      {initiatives.length === 0 ? (
+        <p className="text-sm text-slate-500 dark:text-surface-secondary">
+          Task tables appear here after you add initiatives from Start New Initiative.
+        </p>
+      ) : (
+        initiatives.map((initiative) => (
+          <InitiativeTaskTable
+            key={initiative.slug}
+            initiative={initiative}
+            displayLabel={initiative.title}
+            allInitiatives={initiatives}
+            tasks={getTasks(initiative.slug)}
+            onEnsureTasks={onEnsureTasks}
+            onUpdateField={onUpdateField}
+            onAddRow={onAddRow}
+            onAddSubTask={onAddSubTask}
+            onDeleteRow={onDeleteRow}
+          />
+        ))
+      )}
     </section>
   );
 }

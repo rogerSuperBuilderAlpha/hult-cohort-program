@@ -1,16 +1,38 @@
 "use client";
 
+import { useCallback } from "react";
 import CommandCenterRow from "@/components/CommandCenterRow";
 import Dashboard from "@/components/Dashboard";
 import InitiativeSummary from "@/components/InitiativeSummary";
 import PageHeader from "@/components/PageHeader";
 import PageShell, { CommandCenterSpacer } from "@/components/PageShell";
-import { useCohortSubmissions } from "@/hooks/useCohortSubmissions";
+import { useInitiativeTasks } from "@/hooks/useInitiativeTasks";
+import { useInitiatives } from "@/hooks/useInitiatives";
 
 export default function DashboardPage() {
-  const { submissions, isLoaded, toggleSubmission, updateRowName } = useCohortSubmissions();
+  const {
+    tasksByInitiative,
+    isLoaded: tasksLoaded,
+    getTasks,
+    ensureInitiativeTasks,
+    updateTaskField,
+    addTaskRow,
+    addSubTaskRow,
+    deleteTaskRow,
+    removeInitiativeTasks,
+  } = useInitiativeTasks();
+  const { customInitiatives, deleteInitiative, isLoaded: initiativesLoaded } = useInitiatives();
 
-  if (!isLoaded) {
+  const handleDeleteInitiative = useCallback(
+    (slug: string) => {
+      if (deleteInitiative(slug)) {
+        removeInitiativeTasks(slug);
+      }
+    },
+    [deleteInitiative, removeInitiativeTasks]
+  );
+
+  if (!tasksLoaded || !initiativesLoaded) {
     return (
       <PageShell header={<PageHeader id="top" />}>
         <CommandCenterRow>
@@ -36,7 +58,11 @@ export default function DashboardPage() {
     >
       <CommandCenterRow>
         <div className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
-          <Dashboard submissions={submissions} />
+          <Dashboard
+            initiatives={customInitiatives}
+            tasksByInitiative={tasksByInitiative}
+            onDeleteInitiative={handleDeleteInitiative}
+          />
         </div>
       </CommandCenterRow>
 
@@ -45,9 +71,13 @@ export default function DashboardPage() {
         <div className="min-w-0 flex-1 space-y-12 px-4 pb-8 sm:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-5xl">
             <InitiativeSummary
-              submissions={submissions}
-              onToggle={toggleSubmission}
-              onUpdateName={updateRowName}
+              initiatives={customInitiatives}
+              getTasks={getTasks}
+              onEnsureTasks={ensureInitiativeTasks}
+              onUpdateField={updateTaskField}
+              onAddRow={addTaskRow}
+              onAddSubTask={addSubTaskRow}
+              onDeleteRow={deleteTaskRow}
             />
           </div>
         </div>

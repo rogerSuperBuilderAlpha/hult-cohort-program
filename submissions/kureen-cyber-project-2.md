@@ -1,4 +1,4 @@
-﻿# Project 2 Submission — @kureen-cyber
+# Project 2 Submission — @kureen-cyber
 
 **Banter** — production cohort communications for the Hult pilot: channels, DMs, threads, notifications, Banterlina research assistant, and dual Banter / Firebase (PM) auth linked by GitHub handle.
 

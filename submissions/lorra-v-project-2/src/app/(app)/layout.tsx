@@ -22,6 +22,12 @@ export default async function AppLayout({
     .eq("id", user.id)
     .maybeSingle();
 
+  const { data: channels } = await supabase
+    .from("channels")
+    .select("id, name")
+    .eq("is_archived", false)
+    .order("name", { ascending: true });
+
   return (
     <AppShell
       user={{
@@ -31,6 +37,7 @@ export default async function AppLayout({
         role: profile?.role ?? "member",
         avatarUrl: profile?.avatar_url ?? null,
       }}
+      channels={channels ?? []}
     >
       {children}
     </AppShell>

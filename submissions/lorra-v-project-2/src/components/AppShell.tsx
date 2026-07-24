@@ -3,11 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import {
-  PLACEHOLDER_CHANNELS,
-  PLACEHOLDER_DMS,
-  PRIMARY_NAV,
-} from "@/lib/nav";
+import { PRIMARY_NAV } from "@/lib/nav";
+import { CreateChannelButton } from "@/components/CreateChannelButton";
 
 export type ShellUser = {
   id: string;
@@ -16,6 +13,17 @@ export type ShellUser = {
   role: string;
   avatarUrl: string | null;
 };
+
+export type ShellChannel = {
+  id: string;
+  name: string;
+};
+
+/** Placeholder DM list until DMs step lands. */
+const PLACEHOLDER_DMS = [
+  { id: "dm-1", name: "Asha Patel" },
+  { id: "dm-2", name: "Daniel Kim" },
+];
 
 function NavIcon({ label }: { label: string }) {
   const letter = label.charAt(0).toUpperCase();
@@ -32,9 +40,11 @@ function NavIcon({ label }: { label: string }) {
 export function AppShell({
   children,
   user,
+  channels,
 }: {
   children: React.ReactNode;
   user: ShellUser;
+  channels: ShellChannel[];
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -116,16 +126,24 @@ export function AppShell({
         </nav>
 
         <div className="mt-6 flex-1 overflow-y-auto px-3 pb-4">
-          <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-white/45">
-            Channels
-          </p>
+          <div className="mb-2 flex items-center justify-between px-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/45">
+              Channels
+            </p>
+            <CreateChannelButton isAdmin={isAdmin} />
+          </div>
           <ul className="mb-5 flex flex-col gap-0.5">
-            {PLACEHOLDER_CHANNELS.map((channel) => (
+            {channels.map((channel) => (
               <li key={channel.id}>
                 <Link
-                  href={`/channels/${channel.id}`}
-                  data-testid={`channel-link-${channel.id}`}
-                  className="block rounded-[var(--radius-button)] px-3 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white"
+                  href={`/channels/${channel.name}`}
+                  data-testid={`channel-link-${channel.name}`}
+                  className={[
+                    "block rounded-[var(--radius-button)] px-3 py-2 text-sm hover:bg-white/10 hover:text-white",
+                    pathname === `/channels/${channel.name}`
+                      ? "bg-white/10 text-white"
+                      : "text-white/75",
+                  ].join(" ")}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <span className="text-white/45">#</span> {channel.name}

@@ -1,22 +1,48 @@
-export default async function ChannelPlaceholderPage({
+import { notFound, redirect } from "next/navigation";
+import { ChannelView } from "@/components/ChannelView";
+import { createClient } from "@/lib/supabase/server";
+import {
+  getChannelBySlug,
+  listChannelMembers,
+  listChannelMessages,
+} from "@/app/(app)/channels/actions";
+
+export default async function ChannelPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, display_name, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const channel = await getChannelBySlug(slug);
+  if (!channel) notFound();
+
+  const [messages, members] = await Promise.all([
+    listChannelMessages(channel.id),
+    listChannelMembers(channel.id),
+  ]);
 
   return (
-    <section
-      data-testid="channel-page"
-      className="mx-auto max-w-3xl rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 md:p-8"
-    >
-      <p className="text-sm font-medium text-[var(--color-primary)]">Channel</p>
-      <h1 className="mt-2 text-2xl font-semibold text-[var(--color-dark)]">
-        #{slug}
-      </h1>
-      <p className="mt-3 text-[var(--color-secondary)] leading-relaxed">
-        Realtime message list and composer arrive in Step 4.
-      </p>
-    </section>
+    <ChannelView
+      channel={channel}
+      currentUser={{
+        id: user.id,
+        role: profile?.role ?? "member",
+        displayName: profile?.display_name ?? user.email ?? "Member",
+      }}
+      initialMessages={messages}
+      initialMembers={members}
+    />
   );
 }

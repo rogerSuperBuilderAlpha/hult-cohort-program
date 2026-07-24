@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#10131b" />
+    <meta name="description" content="Relay 65 — an async-first, realtime communications home for the Hult Developer Cohort." />
+    <meta property="og:title" content="Relay 65 — Cohort communication without the noise" />
+    <meta property="og:description" content="Channels, DMs, threads, decisions, task links, and the pulse of Cohort 65." />
+    <meta property="og:image" content="assets/og-cover.svg" />
+    <meta property="og:type" content="website" />
+    <title>Relay 65</title>
+    <link rel="icon" href="assets/relay-mark.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js?release=20260723"></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+    <div class="noise" aria-hidden="true"></div>
+
+    <section id="auth-screen" class="auth-screen" aria-labelledby="auth-title">
+      <div class="auth-nav">
+        <a class="brand-lockup" href="#" aria-label="Relay home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="img"><path d="M8 8.5h14.5c6.35 0 11.5 5.15 11.5 11.5S28.85 31.5 22.5 31.5H8V8.5Z"/><path class="brand-cut" d="M15 15.5h7.5a4.5 4.5 0 1 1 0 9H15v-9Z"/></svg>
+          </span>
+          <span>Relay <b>65</b></span>
+        </a>
+        <span class="auth-badge">Summer Pilot 2026</span>
+      </div>
+
+      <div class="auth-layout">
+        <div class="auth-copy">
+          <p class="eyebrow"><span class="live-dot"></span> Built for the Hult developer cohort</p>
+          <h1 id="auth-title">The signal,<br /><span>not the noise.</span></h1>
+          <p class="auth-lede">A lively, async-first home for decisions, questions, project momentum, and everything your cohort needs to ship together.</p>
+          <div class="auth-actions">
+            <button id="github-signin" class="button button-primary button-large" type="button">
+              <span data-icon="github"></span>
+              Continue with GitHub
+            </button>
+            <button id="demo-signin" class="button button-ghost button-large" type="button">
+              Explore the demo
+              <span data-icon="arrow-right"></span>
+            </button>
+          </div>
+          <p class="auth-note"><span data-icon="shield"></span> Any GitHub account can enter this shared review workspace. Private channels and DMs remain member-scoped.</p>
+        </div>
+
+        <div class="auth-preview" aria-hidden="true">
+          <div class="preview-window">
+            <div class="preview-topbar">
+              <div class="traffic"><i></i><i></i><i></i></div>
+              <span># ship-room</span>
+              <span class="preview-live">LIVE</span>
+            </div>
+            <div class="preview-body">
+              <div class="preview-sidebar">
+                <span class="preview-logo">R</span>
+                <span></span><span></span><span></span>
+              </div>
+              <div class="preview-channels">
+                <b>COHORT 65</b>
+                <span># announcements</span>
+                <span># general</span>
+                <span class="selected"># ship-room <i>4</i></span>
+                <span># reviews</span>
+                <small>DIRECT MESSAGES</small>
+                <span>● Maya Chen</span>
+                <span>● Theo Grant</span>
+              </div>
+              <div class="preview-chat">
+                <div class="preview-heading"><b># ship-room</b><span>Make it real. Make it delightful.</span></div>
+                <div class="preview-message">
+                  <div class="preview-avatar avatar-a">MC</div>
+                  <div><b>Maya <small>10:32</small></b><p>The onboarding flow is live. Dropping the task here for a fast pass 👀</p><div class="preview-task"><span>PM</span><div><small>READY FOR REVIEW</small><b>Polish cohort onboarding</b></div></div></div>
+                </div>
+                <div class="preview-message">
+                  <div class="preview-avatar avatar-b">TG</div>
+                  <div><b>Theo <small>10:34</small></b><p>Reviewed. Tiny copy note, otherwise this is a ship. <em>@Maya</em></p><div class="preview-reactions"><span>🔥 5</span><span>🚀 3</span></div></div>
+                </div>
+                <div class="preview-composer"><span>Share an update with #ship-room…</span><b>⌘↵</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="floating-card floating-card-one"><span class="spark">✦</span><div><b>Decision captured</b><small>Everyone stays aligned</small></div></div>
+          <div class="floating-card floating-card-two"><div class="stacked-avatars"><i>ZA</i><i>MC</i><i>TG</i></div><div><b>12 active now</b><small>Cohort pulse is strong</small></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pending-screen" class="pending-screen is-hidden" aria-labelledby="pending-title">
+      <div class="pending-card">
+        <span class="pending-icon" data-icon="lock"></span>
+        <p class="eyebrow">GitHub connected</p>
+        <h2 id="pending-title">Workspace setup needed.</h2>
+        <p>Relay could not confirm that this workspace is open for GitHub members yet.</p>
+        <div class="identity-card">
+          <div id="pending-avatar" class="avatar avatar-xl">GH</div>
+          <div><b id="pending-name">GitHub member</b><span id="pending-handle">@handle</span></div>
+        </div>
+        <div class="uid-box"><span>Firebase UID</span><code id="pending-uid">—</code><button id="copy-uid" class="icon-button" type="button" aria-label="Copy UID"><span data-icon="copy"></span></button></div>
+        <p class="pending-help">Ask the Firebase project owner to create or correct <code>settings/workspace</code> with <code>accessMode: "open"</code>. You do not need an approval or a manually created member record.</p>
+        <div class="pending-actions"><button id="recheck-access" class="button button-primary" type="button">Recheck workspace</button><button id="pending-signout" class="button button-ghost" type="button">Sign out</button></div>
+      </div>
+    </section>
+
+    <div id="demo-banner" class="demo-banner is-hidden">
+      <span><b>Demo mode.</b> Everything works locally and persists in this browser.</span>
+      <a href="DEPLOYMENT.md">Connect Firebase →</a>
+      <button id="close-demo-banner" type="button" aria-label="Dismiss demo banner">×</button>
+    </div>
+
+    <div id="app" class="app-shell is-hidden">
+      <aside class="icon-rail" aria-label="Primary navigation">
+        <button class="rail-brand" type="button" data-action="view-chat" aria-label="Relay chat">
+          <svg viewBox="0 0 40 40" role="img"><path d="M8 8.5h14.5c6.35 0 11.5 5.15 11.5 11.5S28.85 31.5 22.5 31.5H8V8.5Z"/><path class="brand-cut" d="M15 15.5h7.5a4.5 4.5 0 1 1 0 9H15v-9Z"/></svg>
+        </button>
+        <nav class="rail-nav">
+          <button class="rail-button is-active" type="button" data-view="chat" aria-label="Messages"><span data-icon="message-circle"></span><small>Chat</small></button>
+          <button class="rail-button" type="button" data-view="activity" aria-label="Activity"><span data-icon="bell"></span><small>Activity</small><i id="rail-notification-count" class="rail-count is-hidden">0</i></button>
+          <button class="rail-button" type="button" data-view="bookmarks" aria-label="Saved messages"><span data-icon="bookmark"></span><small>Saved</small></button>
+          <button class="rail-button" type="button" data-action="open-search" aria-label="Search"><span data-icon="search"></span><small>Search</small></button>
+        </nav>
+        <div class="rail-bottom">
+          <button id="theme-toggle" class="rail-button" type="button" aria-label="Toggle theme"><span data-icon="sun"></span><small>Theme</small></button>
+          <button id="rail-profile" class="rail-avatar" type="button" aria-label="Profile menu"><span id="rail-avatar-label">ZU</span><i></i></button>
+        </div>
+      </aside>
+
+      <aside id="workspace-sidebar" class="workspace-sidebar">
+        <div class="workspace-head">
+          <button class="workspace-title" type="button" data-action="workspace-menu">
+            <span class="workspace-icon">65</span>
+            <span><b>Hult Cohort</b><small>Summer Pilot 2026</small></span>
+            <span data-icon="chevron-down"></span>
+          </button>
+          <button class="icon-button mobile-close" data-action="close-sidebar" type="button" aria-label="Close navigation"><span data-icon="x"></span></button>
+        </div>
+
+        <button class="quick-search" type="button" data-action="open-search"><span data-icon="search"></span><span>Search Relay</span><kbd>⌘ K</kbd></button>
+
+        <div class="sidebar-scroll">
+          <section class="sidebar-section">
+            <button class="section-heading" type="button" data-toggle-section="channels"><span data-icon="chevron-down"></span><span>Channels</span></button>
+            <button class="section-add" type="button" data-action="new-channel" aria-label="Create channel"><span data-icon="plus"></span></button>
+            <div id="channel-list" class="channel-list"></div>
+          </section>
+
+          <section class="sidebar-section">
+            <button class="section-heading" type="button" data-toggle-section="dms"><span data-icon="chevron-down"></span><span>Direct messages</span></button>
+            <button class="section-add" type="button" data-action="new-dm" aria-label="Start direct message"><span data-icon="plus"></span></button>
+            <div id="dm-list" class="channel-list"></div>
+          </section>
+
+          <section class="sidebar-section sidebar-mini-section">
+            <button class="sidebar-link" type="button" data-view="threads"><span data-icon="messages-square"></span><span>Your threads</span><i id="thread-count">2</i></button>
+            <button class="sidebar-link" type="button" data-view="activity"><span data-icon="at-sign"></span><span>Mentions</span><i id="mention-count">3</i></button>
+          </section>
+        </div>
+
+        <div class="sprint-card">
+          <div class="sprint-head"><span><i></i> Submission window</span><b id="deadline-label">3d 02h</b></div>
+          <h3>Week 2 · Internal comms</h3>
+          <div class="progress-track"><i id="deadline-progress"></i></div>
+          <p>Merge by Sun, Jul 26 · 5:00 PM EDT</p>
+          <button id="open-cohort-project" type="button">View project brief <span data-icon="arrow-up-right"></span></button>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="main-header">
+          <div class="header-leading">
+            <button class="icon-button mobile-only" data-action="open-sidebar" type="button" aria-label="Open navigation"><span data-icon="menu"></span></button>
+            <div id="conversation-icon" class="conversation-icon">#</div>
+            <div class="conversation-copy">
+              <div class="conversation-title-row"><h1 id="conversation-title">ship-room</h1><button id="favorite-channel" class="star-button" type="button" aria-label="Favorite channel"><span data-icon="star"></span></button></div>
+              <p id="conversation-description">Make it real. Make it delightful.</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="active-stack" id="header-active-stack" aria-label="Active members"></div>
+            <button id="header-member-count" class="header-member-count" type="button" data-action="open-members"><span data-icon="users"></span><span>65</span></button>
+            <button class="icon-button" type="button" data-action="open-search" aria-label="Search conversation"><span data-icon="search"></span></button>
+            <button class="icon-button" type="button" data-action="toggle-context" aria-label="Toggle details"><span data-icon="panel-right"></span></button>
+            <button class="icon-button" type="button" data-action="channel-menu" aria-label="Conversation options"><span data-icon="more-horizontal"></span></button>
+          </div>
+        </header>
+
+        <section id="content-view" class="content-view">
+          <div id="chat-view" class="chat-view">
+            <div id="message-scroll" class="message-scroll">
+              <button id="load-older" class="load-older is-hidden" type="button">Load older messages</button>
+              <div id="message-list" class="message-list" aria-live="polite"></div>
+              <div id="typing-row" class="typing-row is-hidden"><span class="typing-avatar">MC</span><i></i><i></i><i></i><small>Maya is typing</small></div>
+            </div>
+
+            <div id="composer-wrap" class="composer-wrap">
+              <div id="reply-banner" class="reply-banner is-hidden"><span data-icon="corner-up-left"></span><span>Replying in thread</span><button type="button" data-action="cancel-thread-reply"><span data-icon="x"></span></button></div>
+              <div id="task-preview" class="task-preview is-hidden"></div>
+              <div class="composer">
+                <div class="composer-topline">
+                  <select id="signal-type" class="signal-select" aria-label="Message signal type">
+                    <option value="message">Message</option>
+                    <option value="update">Update</option>
+                    <option value="ask">Ask</option>
+                    <option value="decision">Decision</option>
+                    <option value="win">Win</option>
+                  </select>
+                  <span id="composer-destination">to #ship-room</span>
+                  <span class="composer-shortcut">Send <kbd>⌘ ↵</kbd></span>
+                </div>
+                <textarea id="message-input" rows="1" maxlength="5000" placeholder="Share an update with #ship-room…"></textarea>
+                <div class="composer-toolbar">
+                  <div class="composer-tools">
+                    <button type="button" data-action="format-bold" aria-label="Bold"><b>B</b></button>
+                    <button type="button" data-action="format-code" aria-label="Code"><span data-icon="code"></span></button>
+                    <button class="is-unavailable" type="button" data-action="attach-file" aria-label="Attachments unavailable in the free Firebase release." aria-describedby="attachments-unavailable-note" aria-disabled="true" title="Attachments are unavailable in the free Firebase release."><span data-icon="paperclip"></span></button>
+                    <span id="attachments-unavailable-note" class="sr-only">Attachments are unavailable in the free Firebase release.</span>
+                    <button type="button" data-action="attach-task" aria-label="Attach PM task"><span data-icon="square-kanban"></span></button>
+                    <button type="button" data-action="insert-emoji" aria-label="Add emoji"><span data-icon="smile"></span></button>
+                    <span class="toolbar-divider"></span>
+                    <button class="standup-button" type="button" data-action="insert-standup"><span>☀</span> Standup</button>
+                  </div>
+                  <button id="send-message" class="send-button" type="button" aria-label="Send message"><span data-icon="send"></span></button>
+                </div>
+              </div>
+              <p id="composer-lock" class="composer-lock is-hidden"><span data-icon="lock"></span> Only staff and operators can post in announcements.</p>
+            </div>
+          </div>
+
+          <div id="collection-view" class="collection-view is-hidden"></div>
+        </section>
+      </main>
+
+      <aside id="context-panel" class="context-panel">
+        <div class="context-head"><div><p class="eyebrow">Workspace pulse</p><h2>Right now</h2></div><button class="icon-button" type="button" data-action="toggle-context" aria-label="Close details"><span data-icon="x"></span></button></div>
+        <div class="context-scroll">
+          <section class="pulse-card signal-card">
+            <div class="pulse-orbit"><span>12</span><i></i><i></i><i></i></div>
+            <div><b>12 people in flow</b><p>Most active in <strong>#ship-room</strong></p></div>
+          </section>
+
+          <section class="context-section">
+            <div class="context-section-head"><h3>Project board</h3><span class="connected-pill"><i></i> Connected</span></div>
+            <button id="pm-board-card" class="pm-board-card" type="button">
+              <span class="pm-logo"><span data-icon="square-kanban"></span></span>
+              <span><small>WINNING PM PLATFORM</small><b>Week 2 delivery board</b><em>Open tasks, owners & deadlines</em></span>
+              <span data-icon="arrow-up-right"></span>
+            </button>
+          </section>
+
+          <section class="context-section">
+            <div class="context-section-head"><h3>Needs a signal</h3><button type="button" data-view="activity">View all</button></div>
+            <div id="signal-summary" class="signal-summary"></div>
+          </section>
+
+          <section class="context-section">
+            <div class="context-section-head"><h3>Active now</h3><button type="button" data-action="open-members">65 members</button></div>
+            <div id="active-members" class="active-members"></div>
+          </section>
+
+          <section class="context-section">
+            <div class="context-section-head"><h3>Daily rhythm</h3></div>
+            <button class="rhythm-card" type="button" data-action="insert-standup"><span>☀️</span><span><b>Post your async standup</b><small>Yesterday · Today · Blockers</small></span><span data-icon="arrow-right"></span></button>
+            <button class="rhythm-card" type="button" data-action="new-decision"><span>◆</span><span><b>Capture a decision</b><small>Make the outcome searchable</small></span><span data-icon="arrow-right"></span></button>
+          </section>
+
+          <div class="keyboard-card"><span data-icon="command"></span><p><b>Move at keyboard speed</b><small>Press <kbd>⌘ K</kbd> to jump anywhere.</small></p></div>
+        </div>
+      </aside>
+
+      <nav class="mobile-nav" aria-label="Mobile navigation">
+        <button class="is-active" type="button" data-view="chat"><span data-icon="message-circle"></span><small>Chat</small></button>
+        <button type="button" data-view="activity"><span data-icon="bell"></span><small>Activity</small></button>
+        <button type="button" data-action="open-search"><span data-icon="search"></span><small>Search</small></button>
+        <button type="button" data-view="bookmarks"><span data-icon="bookmark"></span><small>Saved</small></button>
+        <button type="button" data-action="open-sidebar"><span data-icon="menu"></span><small>More</small></button>
+      </nav>
+    </div>
+
+    <aside id="thread-panel" class="thread-panel" aria-label="Message thread" aria-hidden="true">
+      <div class="thread-head"><div><p class="eyebrow">Thread</p><h2 id="thread-title">Replies</h2></div><button class="icon-button" type="button" data-action="close-thread" aria-label="Close thread"><span data-icon="x"></span></button></div>
+      <div id="thread-root" class="thread-root"></div>
+      <div class="thread-divider"><span id="thread-reply-count">0 replies</span></div>
+      <div id="thread-replies" class="thread-replies"></div>
+      <div class="thread-composer"><textarea id="thread-input" rows="2" maxlength="3000" placeholder="Reply…"></textarea><button id="send-thread-reply" class="send-button" type="button" aria-label="Send reply"><span data-icon="send"></span></button></div>
+    </aside>
+
+    <div id="modal-backdrop" class="modal-backdrop is-hidden" data-action="close-modal"></div>
+    <section id="modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div id="modal-content"></div>
+    </section>
+
+    <section id="command-palette" class="command-palette is-hidden" role="dialog" aria-modal="true" aria-labelledby="command-title">
+      <div class="command-box">
+        <div class="command-search"><span data-icon="search"></span><input id="command-input" type="search" autocomplete="off" placeholder="Jump to a channel, person, or message…" aria-label="Search Relay"/><kbd>ESC</kbd></div>
+        <div id="command-results" class="command-results"></div>
+        <div class="command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>⌘K</kbd> Close</span></div>
+      </div>
+    </section>
+
+    <div id="emoji-popover" class="emoji-popover is-hidden" role="dialog" aria-label="Choose emoji"></div>
+    <div id="profile-menu" class="profile-menu is-hidden"></div>
+    <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+
+    <template id="message-template">
+      <article class="message">
+        <button class="avatar-button" type="button"><span class="avatar"></span><i></i></button>
+        <div class="message-body">
+          <div class="message-meta"><b class="message-author"></b><span class="role-pill is-hidden"></span><time></time><span class="edited-label is-hidden">edited</span></div>
+          <div class="signal-label is-hidden"></div>
+          <div class="message-content"></div>
+          <div class="message-attachment is-hidden"></div>
+          <div class="message-task is-hidden"></div>
+          <div class="message-reactions"></div>
+          <button class="thread-link is-hidden" type="button"></button>
+        </div>
+        <div class="message-actions">
+          <button type="button" data-message-action="react" aria-label="Add reaction"><span data-icon="smile-plus"></span></button>
+          <button type="button" data-message-action="reply" aria-label="Reply in thread"><span data-icon="message-square-reply"></span></button>
+          <button type="button" data-message-action="bookmark" aria-label="Save message"><span data-icon="bookmark"></span></button>
+          <button type="button" data-message-action="more" aria-label="More actions"><span data-icon="more-horizontal"></span></button>
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

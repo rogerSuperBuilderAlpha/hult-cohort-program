@@ -1,0 +1,287 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function githubSignedIn() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider == 'github.com';
+    }
+
+    function memberDoc(uid) {
+      return get(/databases/$(database)/documents/members/$(uid));
+    }
+
+    function isMember() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/members/$(request.auth.uid))
+        && memberDoc(request.auth.uid).data.active == true;
+    }
+
+    function role() {
+      return isMember() ? memberDoc(request.auth.uid).data.role : 'guest';
+    }
+
+    function isStaff() {
+      return role() in ['admin', 'staff'];
+    }
+
+    function openRegistration() {
+      return exists(/databases/$(database)/documents/settings/workspace)
+        && get(/databases/$(database)/documents/settings/workspace).data.accessMode == 'open';
+    }
+
+    function channelDoc(channelId) {
+      return get(/databases/$(database)/documents/channels/$(channelId));
+    }
+
+    function canReadChannelData(channel) {
+      return isMember()
+        && (
+          channel.type == 'public'
+          || (
+            channel.memberIds is list
+            && request.auth.uid in channel.memberIds
+          )
+        );
+    }
+
+    // Firestore evaluates collection queries against their potential result
+    // set. Keep the `is list` structural check for direct document reads, but
+    // use the membership predicate the array-contains query can prove here.
+    function canListChannelData(channel) {
+      return isMember()
+        && (
+          (
+            channel.keys().hasAll(['type'])
+            && channel.type == 'public'
+          )
+          || request.auth.uid in channel.memberIds
+        );
+    }
+
+    function activeMember(uid) {
+      return exists(/databases/$(database)/documents/members/$(uid))
+        && get(/databases/$(database)/documents/members/$(uid)).data.active == true;
+    }
+
+    function canReadChannel(channelId) {
+      return canReadChannelData(
+        get(/databases/$(database)/documents/channels/$(channelId)).data
+      );
+    }
+
+    function canPostChannel(channelId) {
+      return canReadChannel(channelId)
+        && channelDoc(channelId).data.archived != true
+        && channelDoc(channelId).data.postingRoles is list
+        && (
+          channelDoc(channelId).data.postingRoles.size() == 0
+          || role() in channelDoc(channelId).data.postingRoles
+        );
+    }
+
+    function conversationDoc(conversationId) {
+      return get(/databases/$(database)/documents/conversations/$(conversationId));
+    }
+
+    function isConversationParticipant(conversationId) {
+      return isMember()
+        && request.auth.uid in conversationDoc(conversationId).data.participantIds;
+    }
+
+    function validMessageCreate() {
+      return attachmentIsAbsentOrNull()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.content is string
+        && request.resource.data.content.size() <= 5000
+        && request.resource.data.signalType in ['message', 'update', 'ask', 'decision', 'win'];
+    }
+
+    function attachmentIsAbsentOrNull() {
+      return !request.resource.data.keys().hasAny(['attachment'])
+        || request.resource.data.attachment == null;
+    }
+
+    function validReplyCreate() {
+      return attachmentIsAbsentOrNull()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.content is string
+        && request.resource.data.content.size() <= 3000;
+    }
+
+    function reactionOrThreadUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['reactions', 'threadCount', 'lastReplyAt']);
+    }
+
+    function ownContentUpdate() {
+      return resource.data.senderId == request.auth.uid
+        && request.resource.data.senderId == resource.data.senderId
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['content', 'editedAt', 'task']);
+    }
+
+    match /settings/{settingId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isStaff();
+    }
+
+    match /members/{uid} {
+      allow read: if isMember() || (signedIn() && request.auth.uid == uid) || isStaff();
+      allow create: if (
+        githubSignedIn()
+        && request.auth.uid == uid
+        && openRegistration()
+        && request.resource.data.uid == uid
+        && request.resource.data.active == true
+        && request.resource.data.role == 'member'
+      ) || isStaff();
+      allow update: if isStaff() || (
+        signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.active == resource.data.active
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['lastSeenAt', 'status', 'headline', 'avatarUrl', 'displayName', 'email', 'githubHandle'])
+      );
+      allow delete: if isStaff();
+    }
+
+    match /access_requests/{uid} {
+      allow create: if githubSignedIn()
+        && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.status == 'pending';
+      allow read: if (signedIn() && request.auth.uid == uid) || isStaff();
+      allow update: if (signedIn() && request.auth.uid == uid && resource.data.status == 'pending') || isStaff();
+      allow delete: if isStaff() || (signedIn() && request.auth.uid == uid);
+    }
+
+    match /channels/{channelId} {
+      allow read: if canReadChannelData(resource.data);
+      allow list: if canListChannelData(resource.data);
+      allow create: if isMember()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.type == 'public'
+        && request.resource.data.archived == false
+        && request.resource.data.sort is number
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 42
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 240
+        && request.resource.data.postingRoles is list
+        && (request.resource.data.postingRoles.size() == 0 || isStaff());
+      allow update: if request.resource.data.sort is number
+        && (
+          isStaff()
+          || (
+            isMember()
+            && resource.data.createdBy == request.auth.uid
+            && request.resource.data.createdBy == resource.data.createdBy
+            && request.resource.data.type == resource.data.type
+            && request.resource.data.postingRoles == resource.data.postingRoles
+            && request.resource.data.name is string
+            && request.resource.data.name.size() > 0
+            && request.resource.data.name.size() <= 42
+            && request.resource.data.description is string
+            && request.resource.data.description.size() <= 240
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['name', 'emoji', 'description', 'pmUrl', 'archived', 'archivedAt', 'updatedAt'])
+          )
+          || (
+            canReadChannel(channelId)
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['lastMessageAt', 'lastMessagePreview'])
+          )
+        );
+      allow delete: if isStaff();
+
+      match /messages/{messageId} {
+        allow read: if canReadChannel(channelId);
+        allow create: if canPostChannel(channelId) && validMessageCreate();
+        allow update: if canReadChannel(channelId) && (reactionOrThreadUpdate() || ownContentUpdate());
+        allow delete: if canReadChannel(channelId)
+          && (resource.data.senderId == request.auth.uid || isStaff());
+
+        match /replies/{replyId} {
+          allow read: if canReadChannel(channelId);
+          allow create: if canPostChannel(channelId) && validReplyCreate();
+          allow update: if canReadChannel(channelId) && (
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+            || (resource.data.senderId == request.auth.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['content', 'editedAt']))
+          );
+          allow delete: if canReadChannel(channelId)
+            && (resource.data.senderId == request.auth.uid || isStaff());
+        }
+      }
+    }
+
+    match /conversations/{conversationId} {
+      allow read: if isConversationParticipant(conversationId);
+      allow create: if isMember()
+        && request.resource.data.participantIds is list
+        && request.resource.data.participantIds.size() == 2
+        && request.resource.data.participantIds[0] != request.resource.data.participantIds[1]
+        && request.auth.uid in request.resource.data.participantIds
+        && activeMember(request.resource.data.participantIds[0])
+        && activeMember(request.resource.data.participantIds[1]);
+      allow update: if isConversationParticipant(conversationId)
+        && request.resource.data.participantIds == resource.data.participantIds
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['lastMessageAt', 'lastMessagePreview']);
+      allow delete: if isConversationParticipant(conversationId);
+
+      match /messages/{messageId} {
+        allow read: if isConversationParticipant(conversationId);
+        allow create: if isConversationParticipant(conversationId) && validMessageCreate();
+        allow update: if isConversationParticipant(conversationId)
+          && (reactionOrThreadUpdate() || ownContentUpdate());
+        allow delete: if isConversationParticipant(conversationId)
+          && resource.data.senderId == request.auth.uid;
+
+        match /replies/{replyId} {
+          allow read: if isConversationParticipant(conversationId);
+          allow create: if isConversationParticipant(conversationId) && validReplyCreate();
+          allow update: if isConversationParticipant(conversationId) && (
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+            || (resource.data.senderId == request.auth.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['content', 'editedAt']))
+          );
+          allow delete: if isConversationParticipant(conversationId)
+            && resource.data.senderId == request.auth.uid;
+        }
+      }
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn() && resource.data.recipientId == request.auth.uid;
+      allow create: if isMember()
+        && request.resource.data.actorId == request.auth.uid
+        && request.resource.data.recipientId != request.auth.uid
+        && activeMember(request.resource.data.recipientId)
+        && request.resource.data.type in ['mention', 'dm', 'thread', 'task'];
+      allow update: if signedIn()
+        && resource.data.recipientId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if signedIn() && resource.data.recipientId == request.auth.uid;
+    }
+
+    match /reports/{reportId} {
+      allow create: if isMember()
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() <= 800;
+      allow read: if isStaff() || (signedIn() && resource.data.reporterId == request.auth.uid);
+      allow update, delete: if isStaff();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

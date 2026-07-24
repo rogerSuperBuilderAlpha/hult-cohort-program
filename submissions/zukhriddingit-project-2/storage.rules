@@ -1,0 +1,64 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function member() {
+      return signedIn()
+        && firestore.exists(/databases/(default)/documents/members/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/members/$(request.auth.uid)).data.active == true;
+    }
+
+    function staff() {
+      return member()
+        && firestore.get(/databases/(default)/documents/members/$(request.auth.uid)).data.role in ['admin', 'staff'];
+    }
+
+    function allowedUpload() {
+      return request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType.matches('^(image/(png|jpeg|gif|webp)|application/pdf|text/plain|text/markdown)$');
+    }
+
+    function channelReadable(channelId) {
+      return member()
+        && firestore.exists(/databases/(default)/documents/channels/$(channelId))
+        && (
+          firestore.get(/databases/(default)/documents/channels/$(channelId)).data.type == 'public'
+          || (
+            firestore.get(/databases/(default)/documents/channels/$(channelId)).data.memberIds is list
+            && request.auth.uid in firestore.get(/databases/(default)/documents/channels/$(channelId)).data.memberIds
+          )
+        );
+    }
+
+    function dmParticipant(conversationId) {
+      return member()
+        && firestore.exists(/databases/(default)/documents/conversations/$(conversationId))
+        && request.auth.uid in firestore.get(/databases/(default)/documents/conversations/$(conversationId)).data.participantIds;
+    }
+
+    match /channel-attachments/{channelId}/{uid}/{fileName} {
+      allow read: if channelReadable(channelId);
+      allow create, update: if channelReadable(channelId)
+        && request.auth.uid == uid
+        && allowedUpload();
+      allow delete: if channelReadable(channelId)
+        && (request.auth.uid == uid || staff());
+    }
+
+    match /dm-attachments/{conversationId}/{uid}/{fileName} {
+      allow read: if dmParticipant(conversationId);
+      allow create, update: if dmParticipant(conversationId)
+        && request.auth.uid == uid
+        && allowedUpload();
+      allow delete: if dmParticipant(conversationId)
+        && request.auth.uid == uid;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

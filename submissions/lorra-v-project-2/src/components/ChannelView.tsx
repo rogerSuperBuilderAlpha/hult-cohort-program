@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Channel, Message } from "@/lib/types";
 import { listChannelMembers, listChannelMessages, archiveChannel } from "@/app/(app)/channels/actions";
 import { MessageComposer } from "@/components/MessageComposer";
 import { MessageItem } from "@/components/MessageItem";
+import { ThreadPanel } from "@/components/ThreadPanel";
 
 type MemberRow = {
   user_id: string;
@@ -23,14 +25,18 @@ export function ChannelView({
   currentUser,
   initialMessages,
   initialMembers,
+  initialThreadId = null,
 }: {
   channel: Channel;
   currentUser: { id: string; role: string; displayName: string };
   initialMessages: Message[];
   initialMembers: MemberRow[];
+  initialThreadId?: string | null;
 }) {
+  const pathname = usePathname();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [members, setMembers] = useState<MemberRow[]>(initialMembers);
+  const [threadRootId, setThreadRootId] = useState<string | null>(initialThreadId);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +57,11 @@ export function ChannelView({
   useEffect(() => {
     setMessages(initialMessages);
     setMembers(initialMembers);
-  }, [initialMessages, initialMembers, channel.id]);
+  }, [channel.id]); // eslint-disable-line react-hooks/exhaustive-deps -- sync on channel switch only
+
+  useEffect(() => {
+    setThreadRootId(initialThreadId);
+  }, [initialThreadId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,6 +97,17 @@ export function ChannelView({
       void supabase.removeChannel(sub);
     };
   }, [channel.id, refresh]);
+
+  function openThread(id: string) {
+    setThreadRootId(id);
+    window.history.replaceState(null, "", `${pathname}?thread=${id}`);
+  }
+
+  function closeThread() {
+    setThreadRootId(null);
+    window.history.replaceState(null, "", pathname);
+    void refresh();
+  }
 
   const memberOptions = members
     .map((m) => m.profiles)
@@ -145,6 +166,7 @@ export function ChannelView({
                 parentType="channel"
                 pathKey={channel.name}
                 onChanged={() => void refresh()}
+                onOpenThread={() => openThread(m.id)}
               />
             ))
           )}
@@ -168,24 +190,37 @@ export function ChannelView({
         </div>
       </section>
 
-      <aside
-        data-testid="channel-members"
-        className="hidden w-56 shrink-0 rounded-[var(--radius-card)] bg-[var(--color-surface)] p-4 lg:block"
-      >
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-secondary)]">
-          Members ({members.length})
-        </h2>
-        <ul className="mt-3 space-y-2">
-          {members.map((m) => (
-            <li key={m.user_id} className="flex items-center gap-2 text-sm text-[var(--color-dark)]">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-bg)] text-xs font-semibold">
-                {(m.profiles?.display_name || "?").charAt(0).toUpperCase()}
-              </span>
-              <span className="truncate">{m.profiles?.display_name || m.user_id}</span>
-            </li>
-          ))}
-        </ul>
-      </aside>
+      {threadRootId ? (
+        <ThreadPanel
+          threadRootId={threadRootId}
+          parentType="channel"
+          pathKey={channel.name}
+          parentLabel={`#${channel.name}`}
+          members={memberOptions}
+          currentUser={currentUser}
+          onClose={closeThread}
+          onChanged={() => void refresh()}
+        />
+      ) : (
+        <aside
+          data-testid="channel-members"
+          className="hidden w-56 shrink-0 rounded-[var(--radius-card)] bg-[var(--color-surface)] p-4 lg:block"
+        >
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-secondary)]">
+            Members ({members.length})
+          </h2>
+          <ul className="mt-3 space-y-2">
+            {members.map((m) => (
+              <li key={m.user_id} className="flex items-center gap-2 text-sm text-[var(--color-dark)]">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-bg)] text-xs font-semibold">
+                  {(m.profiles?.display_name || "?").charAt(0).toUpperCase()}
+                </span>
+                <span className="truncate">{m.profiles?.display_name || m.user_id}</span>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )}
     </div>
   );
 }

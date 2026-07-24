@@ -9,10 +9,13 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function ConversationPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ thread?: string }>;
 }) {
   const { id } = await params;
+  const { thread: initialThreadId } = await searchParams;
   const conversation = await getConversation(id);
   if (!conversation) notFound();
 
@@ -43,6 +46,7 @@ export default async function ConversationPage({
       }}
       initialMessages={messages}
       initialMembers={members}
+      initialThreadId={initialThreadId ?? null}
     />
   );
 }

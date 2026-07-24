@@ -229,5 +229,5 @@ export async function markConversationRead(conversationId: string) {
     .eq("conversation_id", conversationId)
     .eq("user_id", profile.id);
   if (error) throw new Error(error.message);
-  revalidatePath(`/messages/${conversationId}`);
+  // No revalidatePath here — callers refresh client state; revalidate caused mount loops.
 }

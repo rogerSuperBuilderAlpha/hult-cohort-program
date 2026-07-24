@@ -10,6 +10,7 @@ import {
   type Channel,
   type Message,
 } from "@/lib/types";
+import { listParentMessages } from "@/app/(app)/messaging/actions";
 
 async function requireUser() {
   const supabase = await createClient();
@@ -52,45 +53,7 @@ export async function getChannelBySlug(slug: string): Promise<Channel | null> {
 }
 
 export async function listChannelMessages(channelId: string): Promise<Message[]> {
-  const { supabase } = await requireUser();
-
-  const { data, error } = await supabase
-    .from("messages")
-    .select(
-      `
-      *,
-      profiles:author_id ( id, display_name, avatar_url, email ),
-      reactions ( message_id, user_id, emoji ),
-      attachments ( id, message_id, file_url, file_name, mime_type, size_bytes ),
-      mentions ( message_id, mentioned_user_id )
-    `,
-    )
-    .eq("parent_type", "channel")
-    .eq("parent_id", channelId)
-    .is("thread_root_id", null)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: true })
-    .limit(200);
-
-  if (error) throw new Error(error.message);
-
-  const roots = (data ?? []) as Message[];
-  if (roots.length === 0) return [];
-
-  const rootIds = roots.map((m) => m.id);
-  const { data: replies } = await supabase
-    .from("messages")
-    .select("thread_root_id")
-    .in("thread_root_id", rootIds)
-    .is("deleted_at", null);
-
-  const counts = new Map<string, number>();
-  for (const r of replies ?? []) {
-    if (!r.thread_root_id) continue;
-    counts.set(r.thread_root_id, (counts.get(r.thread_root_id) ?? 0) + 1);
-  }
-
-  return roots.map((m) => ({ ...m, reply_count: counts.get(m.id) ?? 0 }));
+  return listParentMessages("channel", channelId);
 }
 
 export async function listChannelMembers(channelId: string) {

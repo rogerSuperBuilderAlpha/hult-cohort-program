@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { extractMentionIds } from "@/lib/format";
 import {
@@ -27,11 +26,6 @@ async function requireUser() {
 
   if (!profile || profile.status !== "active") throw new Error("Inactive profile");
   return { supabase, user, profile };
-}
-
-function revalidateParent(parentType: MessageParentType, pathKey: string) {
-  if (parentType === "channel") revalidatePath(`/channels/${pathKey}`);
-  else revalidatePath(`/messages/${pathKey}`);
 }
 
 export async function listParentMessages(
@@ -66,21 +60,66 @@ export async function listParentMessages(
   const rootIds = roots.map((m) => m.id);
   const { data: replies } = await supabase
     .from("messages")
-    .select("thread_root_id")
+    .select(
+      `
+      thread_root_id,
+      author_id,
+      created_at,
+      profiles:author_id ( id, display_name, avatar_url )
+    `,
+    )
     .in("thread_root_id", rootIds)
-    .is("deleted_at", null);
+    .is("deleted_at", null)
+    .order("created_at", { ascending: true });
 
-  const counts = new Map<string, number>();
+  const byRoot = new Map<
+    string,
+    {
+      count: number;
+      last_reply_at: string | null;
+      participants: Map<string, { id: string; display_name: string; avatar_url: string | null }>;
+    }
+  >();
+
   for (const r of replies ?? []) {
     if (!r.thread_root_id) continue;
-    counts.set(r.thread_root_id, (counts.get(r.thread_root_id) ?? 0) + 1);
+    const cur = byRoot.get(r.thread_root_id) ?? {
+      count: 0,
+      last_reply_at: null,
+      participants: new Map(),
+    };
+    cur.count += 1;
+    cur.last_reply_at = r.created_at;
+    const p = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
+    if (p) {
+      cur.participants.set(p.id, {
+        id: p.id,
+        display_name: p.display_name,
+        avatar_url: p.avatar_url,
+      });
+    }
+    byRoot.set(r.thread_root_id, cur);
   }
 
-  return roots.map((m) => ({
-    ...m,
-    profiles: Array.isArray(m.profiles) ? m.profiles[0] : m.profiles,
-    reply_count: counts.get(m.id) ?? 0,
-  }));
+  return roots.map((m) => {
+    const meta = byRoot.get(m.id);
+    const author = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
+    const participants = new Map(meta?.participants ?? []);
+    if (author) {
+      participants.set(author.id, {
+        id: author.id,
+        display_name: author.display_name,
+        avatar_url: author.avatar_url,
+      });
+    }
+    return {
+      ...m,
+      profiles: author,
+      reply_count: meta?.count ?? 0,
+      last_reply_at: meta?.last_reply_at ?? null,
+      participants: Array.from(participants.values()),
+    };
+  });
 }
 
 export async function sendParentMessage(input: {
@@ -142,7 +181,6 @@ export async function sendParentMessage(input: {
     if (attErr) throw new Error(attErr.message);
   }
 
-  revalidateParent(input.parentType, input.pathKey);
   return {
     ...(message as Message),
     profiles: Array.isArray(message.profiles) ? message.profiles[0] : message.profiles,
@@ -180,8 +218,6 @@ export async function editParentMessage(input: {
     .update({ body_richtext: body, edited_at: new Date().toISOString() })
     .eq("id", input.messageId);
   if (error) throw new Error(error.message);
-
-  revalidateParent(input.parentType, input.pathKey);
 }
 
 export async function deleteParentMessage(input: {
@@ -206,8 +242,6 @@ export async function deleteParentMessage(input: {
     .update({ deleted_at: new Date().toISOString(), body_richtext: "" })
     .eq("id", input.messageId);
   if (error) throw new Error(error.message);
-
-  revalidateParent(input.parentType, input.pathKey);
 }
 
 export async function toggleParentReaction(input: {
@@ -241,8 +275,6 @@ export async function toggleParentReaction(input: {
     });
     if (error) throw new Error(error.message);
   }
-
-  revalidateParent(input.parentType, input.pathKey);
 }
 
 export async function uploadAttachment(formData: FormData): Promise<{

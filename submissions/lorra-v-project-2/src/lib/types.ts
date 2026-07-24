@@ -67,6 +67,12 @@ export type Message = {
   attachments?: Attachment[];
   mentions?: Mention[];
   reply_count?: number;
+  last_reply_at?: string | null;
+  participants?: {
+    id: string;
+    display_name: string;
+    avatar_url: string | null;
+  }[];
 };
 
 export const REACTION_EMOJI = ["👍", "❤️", "🎉", "👀", "😄"] as const;

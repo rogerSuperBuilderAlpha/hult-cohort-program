@@ -9,10 +9,13 @@ import {
 
 export default async function ChannelPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ thread?: string }>;
 }) {
   const { slug } = await params;
+  const { thread: initialThreadId } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -43,6 +46,7 @@ export default async function ChannelPage({
       }}
       initialMessages={messages}
       initialMembers={members}
+      initialThreadId={initialThreadId ?? null}
     />
   );
 }

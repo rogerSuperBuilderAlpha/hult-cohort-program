@@ -18,12 +18,16 @@ export function MessageItem({
   parentType,
   pathKey,
   onChanged,
+  onOpenThread,
+  compact = false,
 }: {
   message: Message;
   currentUser: UserLike;
   parentType: MessageParentType;
   pathKey: string;
   onChanged: () => void;
+  onOpenThread?: () => void;
+  compact?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(message.body_richtext);
@@ -211,11 +215,48 @@ export function MessageItem({
             </div>
           ) : null}
 
-          {(message.reply_count ?? 0) > 0 ? (
-            <p className="mt-2 text-xs font-medium text-[var(--color-primary)]">
-              {message.reply_count} {message.reply_count === 1 ? "reply" : "replies"} — threads in
-              Step 6
-            </p>
+          {!compact && onOpenThread ? (
+            (message.reply_count ?? 0) > 0 ? (
+              <button
+                type="button"
+                data-testid="thread-replies-open"
+                onClick={onOpenThread}
+                className="mt-2 flex items-center gap-2 text-xs font-medium text-[var(--color-primary)] hover:underline"
+              >
+                <span className="flex -space-x-1.5">
+                  {(message.participants ?? []).slice(0, 3).map((p) => (
+                    <span
+                      key={p.id}
+                      className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--color-surface)] bg-[color-mix(in_srgb,var(--color-primary)_18%,white)] text-[10px] font-semibold text-[var(--color-dark)]"
+                    >
+                      {p.display_name.charAt(0).toUpperCase()}
+                    </span>
+                  ))}
+                </span>
+                <span>
+                  {message.reply_count}{" "}
+                  {message.reply_count === 1 ? "reply" : "replies"}
+                </span>
+                {message.last_reply_at ? (
+                  <span className="font-normal text-[var(--color-secondary)]">
+                    · last{" "}
+                    {new Date(message.last_reply_at).toLocaleTimeString([], {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                ) : null}
+              </button>
+            ) : (
+              <button
+                type="button"
+                data-testid="message-reply-thread"
+                onClick={onOpenThread}
+                className="mt-2 text-xs font-medium text-[var(--color-secondary)] hover:text-[var(--color-primary)] hover:underline"
+              >
+                Reply in thread
+              </button>
+            )
           ) : null}
 
           {error ? <p className="mt-2 text-xs text-[var(--color-danger)]">{error}</p> : null}
@@ -235,6 +276,15 @@ export function MessageItem({
             {emoji}
           </button>
         ))}
+        {!compact && onOpenThread ? (
+          <button
+            type="button"
+            onClick={onOpenThread}
+            className="rounded px-1.5 text-xs text-[var(--color-secondary)] hover:bg-[var(--color-bg)]"
+          >
+            Reply
+          </button>
+        ) : null}
         {editable ? (
           <button
             type="button"

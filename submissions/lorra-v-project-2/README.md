@@ -17,7 +17,8 @@ Product requirements: [`docs/PRD.md`](docs/PRD.md) (single source of truth).
 |------|--------|
 | 1. Scaffold (tokens, shell, Manrope, Supabase clients) | ✅ |
 | 2. Schema + RLS + seed | ✅ |
-| 3–11 | Not started |
+| 3. Auth (Google SSO, allowlist, magic link, local demo login) | ✅ |
+| 4–11 | Not started |
 
 ## Local setup (fresh clone)
 
@@ -32,17 +33,24 @@ Fill `.env.local` with your **Supabase dev** values:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (publishable key OK)
 - `SUPABASE_SERVICE_ROLE_KEY` (secret key OK)
-- `DATABASE_URL` — Postgres URI from Dashboard → Project Settings → Database → Connection string (Session pooler). Required for `npm run db:apply`.
+- `DATABASE_URL` — optional if you applied SQL in the dashboard
+- `NEXT_PUBLIC_ENABLE_DEV_LOGIN=true` — shows localhost seed password login
+- `DEV_ADMIN_EMAIL` / `DEV_ADMIN_PASSWORD` — defaults to seed admin
+
+**Supabase Auth setup (Google):**
+1. Auth → Providers → Google: enable with Client ID/Secret from Google Cloud.
+2. Google Cloud authorized redirect URI: `{SUPABASE_URL}/auth/v1/callback`
+3. Auth → URL Configuration: Site URL `http://localhost:3000`, redirect allow `http://localhost:3000/**`
+4. Auth → Providers → Email: enable (needed for magic link + seed password login)
 
 Then:
 
 ```bash
-npm run db:apply
-npm run db:seed
+npm run db:seed   # if not already seeded
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) → redirected to `/login`.
 
 **Seed logins (local only):** password `ConexusSeed!2026` for all seeded users, e.g. `admin@conexus.local`.
 
@@ -59,7 +67,8 @@ Then `npm run db:seed`.
 
 ```bash
 npm run test:e2e:step1
-npm run test:e2e:step2   # after db:apply + db:seed
+npm run test:e2e:step2   # after schema + seed
+npm run test:e2e:step3   # auth gate + seed login
 ```
 
 ## Design tokens (PRD §8)

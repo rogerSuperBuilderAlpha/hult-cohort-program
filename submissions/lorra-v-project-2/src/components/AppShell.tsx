@@ -9,6 +9,14 @@ import {
   PRIMARY_NAV,
 } from "@/lib/nav";
 
+export type ShellUser = {
+  id: string;
+  email: string;
+  displayName: string;
+  role: string;
+  avatarUrl: string | null;
+};
+
 function NavIcon({ label }: { label: string }) {
   const letter = label.charAt(0).toUpperCase();
   return (
@@ -21,9 +29,16 @@ function NavIcon({ label }: { label: string }) {
   );
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  user,
+}: {
+  children: React.ReactNode;
+  user: ShellUser;
+}) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isAdmin = user.role === "admin";
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -32,7 +47,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-full bg-[var(--color-bg)]">
-      {/* Mobile overlay */}
       {sidebarOpen ? (
         <button
           type="button"
@@ -83,6 +97,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+          {isAdmin ? (
+            <Link
+              href="/admin/roster"
+              data-testid="nav-roster"
+              onClick={() => setSidebarOpen(false)}
+              className={[
+                "flex items-center gap-3 rounded-[var(--radius-button)] px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive("/admin/roster")
+                  ? "bg-[color-mix(in_srgb,var(--color-primary)_28%,transparent)] text-white"
+                  : "text-white/80 hover:bg-white/10 hover:text-white",
+              ].join(" ")}
+            >
+              <NavIcon label="Roster" />
+              Roster
+            </Link>
+          ) : null}
         </nav>
 
         <div className="mt-6 flex-1 overflow-y-auto px-3 pb-4">
@@ -123,8 +153,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="border-t border-white/10 px-4 py-4">
-          <p className="text-xs text-white/50">Phase A scaffold</p>
-          <p className="text-sm font-medium text-white/90">Local build · Step 1</p>
+          <p data-testid="shell-user-name" className="truncate text-sm font-medium text-white/90">
+            {user.displayName}
+          </p>
+          <p className="truncate text-xs text-white/50">{user.email}</p>
+          <form action="/auth/signout" method="post" className="mt-3">
+            <button
+              type="submit"
+              data-testid="sign-out"
+              className="text-xs font-medium text-[var(--color-primary)] hover:underline"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
       </aside>
 

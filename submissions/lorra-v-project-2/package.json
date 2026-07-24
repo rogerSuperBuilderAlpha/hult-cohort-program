@@ -12,7 +12,8 @@
     "db:verify": "node scripts/verify-schema.mjs",
     "test:e2e": "playwright test",
     "test:e2e:step1": "playwright test tests/step1-scaffold.spec.ts",
-    "test:e2e:step2": "playwright test tests/step2-schema.spec.ts"
+    "test:e2e:step2": "playwright test tests/step2-schema.spec.ts",
+    "test:e2e:step3": "playwright test tests/step3-auth.spec.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

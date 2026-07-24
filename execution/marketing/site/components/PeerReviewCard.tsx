@@ -1,8 +1,7 @@
 'use client';
 
 import type { PeerRatingTarget } from '@/lib/project-progress-types';
-import { newReviewIssueUrl } from '@/lib/written-reviews-format';
-import { VOTE_NOTE } from '@/lib/review-week-copy';
+import { newReviewIssueUrl, reviewIssueTitle } from '@/lib/written-reviews-format';
 import styles from '../app/page.module.css';
 
 type Status = 'needs-review' | 'reviewed' | 'upvoted';
@@ -46,6 +45,7 @@ export function PeerReviewCard({
 }: CardProps) {
   const status = peerStatus(peer);
   const bodyId = `peer-review-body-${peer.handle}`;
+  const issueTitle = reviewIssueTitle(reviewerHandle, peer.handle);
 
   return (
     <div className={`${styles.peerReviewCard} ${expanded ? styles.peerReviewCardOpen : ''}`}>
@@ -109,12 +109,12 @@ export function PeerReviewCard({
             <li className={styles.reviewStep}>
               <div className={styles.reviewStepTitle}>
                 <span className={styles.reviewStepNum}>3</span>
-                File review on GitHub (optional upvote)
+                File the review on GitHub
               </div>
               {reviewWindowStatus === 'not-yet' && reviewOpensFormatted ? (
                 <p className={styles.reviewWindowNotice}>
                   <strong>Review week opens {reviewOpensFormatted}.</strong> You may browse their
-                  deployment and pull request now.
+                  deployment and pull request now. File the GitHub issue when the window opens.
                 </p>
               ) : null}
               {reviewWindowStatus === 'closed' ? (
@@ -137,6 +137,11 @@ export function PeerReviewCard({
                 </div>
               ) : (
                 <>
+                  <p className={styles.reviewStepHint}>
+                    Reviews are <strong>GitHub issues</strong>, not a form on this site. The button
+                    below opens the New Issue page on <code>{peer.repo}</code> with the correct title
+                    and a review template already filled in.
+                  </p>
                   <a
                     href={newReviewIssueUrl(peer.repo, reviewerHandle, peer.handle)}
                     target="_blank"
@@ -144,19 +149,22 @@ export function PeerReviewCard({
                     className={styles.reviewActionBtn}
                   >
                     {reviewWindowOpen
-                      ? 'File review + optional upvote on GitHub →'
+                      ? 'Open GitHub → write review & submit issue'
                       : 'Preview GitHub issue template →'}
                   </a>
                   <p className={styles.reviewStepHint}>
-                    Opens <code>{peer.repo}</code> with title{' '}
-                    <code>
-                      Review by @{reviewerHandle}: @{peer.handle}
-                    </code>
-                    . Keep <code>Vote: up</code> to upvote, or delete that section to abstain.
+                    <strong>On GitHub:</strong> leave the title as{' '}
+                    <code>{issueTitle}</code>. Complete the rubric in the body. Then either keep the
+                    line <code>Vote: up</code> (upvote) or delete the Vote section (abstain). Click{' '}
+                    <strong>Submit new issue</strong> on GitHub to publish.
                   </p>
                 </>
               )}
 
+              <div className={styles.reviewStepTitle} style={{ marginTop: 16 }}>
+                <span className={styles.reviewStepNum}>4</span>
+                Refresh status here
+              </div>
               <button
                 type="button"
                 className={styles.secondaryBtn}
@@ -167,9 +175,10 @@ export function PeerReviewCard({
                 {refreshing ? 'Refreshing…' : 'Refresh status'}
               </button>
               <p className={styles.reviewStepHint}>
-                Status may take up to a minute to update after you file or edit the GitHub issue.
+                After you submit (or edit) the issue on GitHub, return here and refresh. Status may
+                take up to a minute to update. You should see Reviewed (abstained) or Upvoted —
+                there is no separate “cast vote” button on this site.
               </p>
-              <p className={styles.reviewStepHint}>{VOTE_NOTE}</p>
             </li>
           </ol>
         </div>

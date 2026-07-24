@@ -39,6 +39,13 @@ export function ProjectRequirementsSections({
 
       <section className={styles.overviewBlock}>
         <h2 className={headingClass}>Submission instructions</h2>
+        <p className={styles.callout} style={{ marginTop: 0, marginBottom: 16 }}>
+          <strong>Merge bar:</strong> use the exact pull request title, fill every required PR body
+          section listed below, and merge by the deadline. That is what makes a submission eligible.
+          You do <strong>not</strong> need to collect real cohort signups (or hit a user quota) before
+          merging — multi-user capacity is a product design requirement; peers use your deploy during
+          review week.
+        </p>
         {variant === 'enrolled' ? (
           <p className={styles.formNote} style={{ marginTop: 0, marginBottom: 16 }}>
             Cohort repository:{' '}
@@ -187,10 +194,13 @@ export function ProjectPeerReviewSection({
         {project.reviews.dueNote}.
       </p>
       <p className={styles.formNote} style={{ marginBottom: 0 }}>
-        For each peer: evaluate their deployment, read their submission pull request, then file a
-        written GitHub review. Optionally keep <code>Vote: up</code> in the issue to upvote, or
-        delete that section to abstain. This site shows your personal status only — not cohort
-        tallies. Review week opens when the Sunday submission deadline closes.
+        Reviews live on <strong>GitHub</strong>, not as a form on this site. For each peer: evaluate
+        their deployment, read their submission pull request, then open a New Issue on their app repo
+        titled <code>Review by @{'{you}'}: @{'{peer}'}</code>. Fill the template, keep{' '}
+        <code>Vote: up</code> to upvote or delete that section to abstain, click{' '}
+        <strong>Submit new issue</strong> on GitHub, then return here and refresh. This site shows
+        your personal status only — not cohort tallies. Full step-by-step instructions appear on the
+        Peer review tab after enrollment.
       </p>
     </section>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { PeerReviewCard } from '@/components/PeerReviewCard';
-import { REVIEW_HOW_TO, WINNER_NOTE } from '@/lib/review-week-copy';
+import { ReviewHowTo } from '@/components/ReviewHowTo';
 import type { ProjectProgress, PeerRatingTarget } from '@/lib/project-progress-types';
 import styles from '../app/page.module.css';
 
@@ -167,14 +167,7 @@ export function PeerRatingBoard({
         </div>
       ) : null}
 
-      <div className={styles.reviewHowTo}>
-        <p className={styles.reviewHowToLead}>{REVIEW_HOW_TO}</p>
-        {voteWeek ? (
-          <p className={styles.privacyNote}>
-            <strong>Selection:</strong> {WINNER_NOTE}
-          </p>
-        ) : null}
-      </div>
+      <ReviewHowTo showWinnerNote={voteWeek} />
 
       <div className={styles.reviewProgressBar}>
         <span>

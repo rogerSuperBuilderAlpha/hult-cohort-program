@@ -12,7 +12,7 @@
 >
 > **Ecosystem dynamics:** You're not building a todo app for yourself. You're building infrastructure others will file bugs against, submit PRs to, and blame when it goes down before a deadline. Design for that.
 >
-> **Constraints:** Public repo in the cohort org. Production HTTPS URL. Must handle ≥ 30 accounts. Stack is your choice.
+> **Constraints:** Public repo in the cohort org. Production HTTPS URL. Multi-user auth sized for the enrolled cohort (capacity — merge when the PR template is complete; you do not need real signups first). Stack is your choice.
 >
 > **Differentiation:** What makes your platform better for *this* cohort than Linear, Notion, or GitHub Projects? If the answer is nothing, rethink.
 

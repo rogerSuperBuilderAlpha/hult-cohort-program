@@ -166,7 +166,12 @@ export function buildProjectAgentPrompt(
     `## PR body must include these sections`,
     ...prBodyItems.map((item) => `- ${item}`),
     ``,
-    `## Pass gate (submission must satisfy)`,
+    `## Merge bar (do not invent extra gates)`,
+    `- A submission is eligible when: exact PR title, every required PR body section filled, Production URL works if required, and the PR is merged by the deadline.`,
+    `- Do NOT tell me to collect N real user signups (or “30 accounts”) before merging. Cohort-sized multi-user support is a product capacity requirement — peers sign up on the live deploy during review week.`,
+    `- Pass-gate metrics (e.g. Phase 2 user counts) belong in the required PR body / platform snapshot evidence — they are not a reason to block opening the PR.`,
+    ``,
+    `## Pass gate (program criteria — evidence goes in the PR template)`,
     ...project.passGate.map((item) => `- ${p(item)}`),
   ];
 

@@ -23,7 +23,8 @@ Product requirements: [`docs/PRD.md`](docs/PRD.md) (single source of truth).
 | 6. Threads | ✅ |
 | 7. Notifications | ✅ |
 | 8. Forth adapter | ✅ |
-| 9–11 | Not started |
+| 9. Create ticket + TicketLink cards + unfurl | ✅ |
+| 10–11 | Not started |
 
 ## Local setup (fresh clone)
 
@@ -82,6 +83,7 @@ npm run test:e2e:step5   # DMs
 npm run test:e2e:step6   # threads
 npm run test:e2e:step7   # notifications
 npm run test:e2e:step8   # Forth adapter (fixtures)
+npm run test:e2e:step9   # create ticket + unfurl
 ```
 
 ### Forth adapter (Step 8)

@@ -9,6 +9,10 @@ import {
 } from "@/lib/types";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { createNotifications } from "@/lib/notify-server";
+import {
+  getTicketLinksForMessageIds,
+  unfurlForthUrlsInMessage,
+} from "@/app/(app)/forth/actions";
 
 export type MessageParentType = "channel" | "conversation";
 
@@ -102,6 +106,8 @@ export async function listParentMessages(
     byRoot.set(r.thread_root_id, cur);
   }
 
+  const ticketLinks = await getTicketLinksForMessageIds(rootIds);
+
   return roots.map((m) => {
     const meta = byRoot.get(m.id);
     const author = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
@@ -113,12 +119,24 @@ export async function listParentMessages(
         avatar_url: author.avatar_url,
       });
     }
+    const link = ticketLinks[m.id];
     return {
       ...m,
       profiles: author,
       reply_count: meta?.count ?? 0,
       last_reply_at: meta?.last_reply_at ?? null,
       participants: Array.from(participants.values()),
+      ticket_link: link
+        ? {
+            id: link.id,
+            forth_ticket_id: link.forth_ticket_id,
+            forth_url: link.forth_url,
+            title_snapshot: link.title_snapshot,
+            status_snapshot: link.status_snapshot,
+            assignee_email_snapshot: link.assignee_email_snapshot,
+            last_synced_at: link.last_synced_at,
+          }
+        : null,
     };
   });
 }
@@ -240,9 +258,36 @@ export async function sendParentMessage(input: {
     console.warn("notify after send failed", e instanceof Error ? e.message : e);
   }
 
+  let bodyFinal = body;
+  try {
+    bodyFinal = await unfurlForthUrlsInMessage({
+      messageId: message.id as string,
+      body,
+      parentType: input.parentType,
+      parentId: input.parentId,
+    });
+  } catch (e) {
+    console.warn("forth unfurl failed", e instanceof Error ? e.message : e);
+  }
+
+  const ticketLinks = await getTicketLinksForMessageIds([message.id as string]);
+  const link = ticketLinks[message.id as string];
+
   return {
     ...(message as Message),
+    body_richtext: bodyFinal,
     profiles: Array.isArray(message.profiles) ? message.profiles[0] : message.profiles,
+    ticket_link: link
+      ? {
+          id: link.id,
+          forth_ticket_id: link.forth_ticket_id,
+          forth_url: link.forth_url,
+          title_snapshot: link.title_snapshot,
+          status_snapshot: link.status_snapshot,
+          assignee_email_snapshot: link.assignee_email_snapshot,
+          last_synced_at: link.last_synced_at,
+        }
+      : null,
   };
 }
 

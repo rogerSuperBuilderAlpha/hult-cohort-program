@@ -7,6 +7,7 @@ import { extractMentionIds } from "@/lib/format";
 import type { Message } from "@/lib/types";
 import type { MessageParentType } from "@/app/(app)/messaging/actions";
 import { createNotifications } from "@/lib/notify-server";
+import { getTicketLinksForMessageIds } from "@/app/(app)/forth/actions";
 
 export type ThreadParticipant = {
   id: string;
@@ -180,7 +181,25 @@ export async function listThreadReplies(threadRootId: string): Promise<Message[]
     .order("created_at", { ascending: true })
     .limit(200);
   if (error) throw new Error(error.message);
-  return (data ?? []).map((m) => normalizeMessage(m as Message));
+  const messages = (data ?? []).map((m) => normalizeMessage(m as Message));
+  const ticketLinks = await getTicketLinksForMessageIds(messages.map((m) => m.id));
+  return messages.map((m) => {
+    const link = ticketLinks[m.id];
+    return {
+      ...m,
+      ticket_link: link
+        ? {
+            id: link.id,
+            forth_ticket_id: link.forth_ticket_id,
+            forth_url: link.forth_url,
+            title_snapshot: link.title_snapshot,
+            status_snapshot: link.status_snapshot,
+            assignee_email_snapshot: link.assignee_email_snapshot,
+            last_synced_at: link.last_synced_at,
+          }
+        : null,
+    };
+  });
 }
 
 export async function openThread(threadRootId: string) {

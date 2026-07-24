@@ -73,6 +73,16 @@ export type Message = {
     display_name: string;
     avatar_url: string | null;
   }[];
+  /** Attached Forth TicketLink when this message is a ticket card. */
+  ticket_link?: {
+    id: string;
+    forth_ticket_id: string;
+    forth_url: string;
+    title_snapshot: string;
+    status_snapshot: string;
+    assignee_email_snapshot: string | null;
+    last_synced_at: string;
+  } | null;
 };
 
 export const REACTION_EMOJI = ["👍", "❤️", "🎉", "👀", "😄"] as const;

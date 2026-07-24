@@ -9,6 +9,8 @@ import {
   toggleParentReaction,
   type MessageParentType,
 } from "@/app/(app)/messaging/actions";
+import { CreateForthTicketModal } from "@/components/CreateForthTicketModal";
+import { TicketLinkCard } from "@/components/TicketLinkCard";
 
 type UserLike = { id: string; role: string };
 
@@ -33,6 +35,7 @@ export function MessageItem({
   const [draft, setDraft] = useState(message.body_richtext);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [forthOpen, setForthOpen] = useState(false);
 
   const author = Array.isArray(message.profiles)
     ? message.profiles[0]
@@ -165,11 +168,18 @@ export function MessageItem({
                 </button>
               </div>
             </div>
+          ) : message.ticket_link ? (
+            <TicketLinkCard link={message.ticket_link} />
           ) : (
             <div
               className="mt-1 text-sm leading-relaxed text-[var(--color-dark)] [&_a]:text-[var(--color-primary)] [&_code]:rounded [&_code]:bg-[var(--color-bg)] [&_code]:px-1"
               dangerouslySetInnerHTML={{
-                __html: formatMessageHtml(message.body_richtext),
+                __html: formatMessageHtml(
+                  message.body_richtext.replace(
+                    /<!--conexusticket:[0-9a-f-]+-->\s*/gi,
+                    "",
+                  ),
+                ),
               }}
             />
           )}
@@ -259,6 +269,17 @@ export function MessageItem({
             )
           ) : null}
 
+          {!compact && !message.thread_root_id ? (
+            <button
+              type="button"
+              data-testid="message-create-forth"
+              onClick={() => setForthOpen(true)}
+              className="mt-1 block text-xs font-medium text-[var(--color-primary)] hover:underline"
+            >
+              Create Forth ticket
+            </button>
+          ) : null}
+
           {error ? <p className="mt-2 text-xs text-[var(--color-danger)]">{error}</p> : null}
         </div>
       </div>
@@ -285,6 +306,15 @@ export function MessageItem({
             Reply
           </button>
         ) : null}
+        {!compact && !message.thread_root_id ? (
+          <button
+            type="button"
+            onClick={() => setForthOpen(true)}
+            className="rounded px-1.5 text-xs text-[var(--color-primary)] hover:bg-[var(--color-bg)]"
+          >
+            Forth
+          </button>
+        ) : null}
         {editable ? (
           <button
             type="button"
@@ -306,6 +336,21 @@ export function MessageItem({
           </button>
         ) : null}
       </div>
+
+      {forthOpen ? (
+        <CreateForthTicketModal
+          messageId={message.id}
+          defaultTitle={message.body_richtext
+            .replace(/<!--conexusticket:[0-9a-f-]+-->/gi, "")
+            .trim()}
+          pathKey={pathKey}
+          onClose={() => setForthOpen(false)}
+          onCreated={() => {
+            onChanged();
+            onOpenThread?.();
+          }}
+        />
+      ) : null}
     </article>
   );
 }

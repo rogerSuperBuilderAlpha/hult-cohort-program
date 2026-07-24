@@ -1,0 +1,13 @@
+node_modules/
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+.env
+.env.*
+!.env.example
+.firebaserc
+.DS_Store
+*.log
+coverage/
+relay65.zip

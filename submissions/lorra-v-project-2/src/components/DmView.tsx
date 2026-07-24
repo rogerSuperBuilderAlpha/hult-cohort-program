@@ -2,8 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Channel, Message } from "@/lib/types";
-import { listChannelMembers, listChannelMessages, archiveChannel } from "@/app/(app)/channels/actions";
+import type { Message } from "@/lib/types";
+import { listParentMessages } from "@/app/(app)/messaging/actions";
+import {
+  listConversationMembers,
+  markConversationRead,
+  type ConversationSummary,
+} from "@/app/(app)/messages/actions";
 import { MessageComposer } from "@/components/MessageComposer";
 import { MessageItem } from "@/components/MessageItem";
 
@@ -18,13 +23,13 @@ type MemberRow = {
   } | null;
 };
 
-export function ChannelView({
-  channel,
+export function DmView({
+  conversation,
   currentUser,
   initialMessages,
   initialMembers,
 }: {
-  channel: Channel;
+  conversation: ConversationSummary;
   currentUser: { id: string; role: string; displayName: string };
   initialMessages: Message[];
   initialMembers: MemberRow[];
@@ -37,21 +42,23 @@ export function ChannelView({
   const refresh = useCallback(async () => {
     try {
       const [msgs, mems] = await Promise.all([
-        listChannelMessages(channel.id),
-        listChannelMembers(channel.id),
+        listParentMessages("conversation", conversation.id),
+        listConversationMembers(conversation.id),
       ]);
       setMessages(msgs);
       setMembers(mems);
       setError(null);
+      await markConversationRead(conversation.id);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to refresh");
     }
-  }, [channel.id]);
+  }, [conversation.id]);
 
   useEffect(() => {
     setMessages(initialMessages);
     setMembers(initialMembers);
-  }, [initialMessages, initialMembers, channel.id]);
+    void markConversationRead(conversation.id);
+  }, [initialMessages, initialMembers, conversation.id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,7 +66,7 @@ export function ChannelView({
 
   useEffect(() => {
     const supabase = createClient();
-    const channelName = `messages:channel:${channel.id}`;
+    const channelName = `messages:conversation:${conversation.id}`;
     const sub = supabase
       .channel(channelName)
       .on(
@@ -68,7 +75,7 @@ export function ChannelView({
           event: "*",
           schema: "public",
           table: "messages",
-          filter: `parent_id=eq.${channel.id}`,
+          filter: `parent_id=eq.${conversation.id}`,
         },
         () => {
           void refresh();
@@ -86,7 +93,7 @@ export function ChannelView({
     return () => {
       void supabase.removeChannel(sub);
     };
-  }, [channel.id, refresh]);
+  }, [conversation.id, refresh]);
 
   const memberOptions = members
     .map((m) => m.profiles)
@@ -94,38 +101,23 @@ export function ChannelView({
     .map((p) => ({ id: p!.id, display_name: p!.display_name }));
 
   return (
-    <div data-testid="channel-view" className="flex h-[calc(100vh-7rem)] min-h-[420px] gap-4">
+    <div data-testid="dm-view" className="flex h-[calc(100vh-7rem)] min-h-[420px] gap-4">
       <section className="flex min-w-0 flex-1 flex-col rounded-[var(--radius-card)] bg-[var(--color-surface)] shadow-[0_1px_2px_rgba(22,50,79,0.04)]">
         <header className="flex items-start justify-between gap-3 border-b border-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)] px-5 py-4">
           <div>
-            <p className="text-sm font-medium text-[var(--color-primary)]">Channel</p>
+            <p className="text-sm font-medium text-[var(--color-primary)]">
+              {conversation.type === "group_dm" ? "Group DM" : "Direct message"}
+            </p>
             <h1
-              data-testid="channel-title"
+              data-testid="dm-title"
               className="text-2xl font-semibold text-[var(--color-dark)]"
             >
-              #{channel.name}
+              {conversation.title}
             </h1>
-            {channel.description ? (
-              <p className="mt-1 text-sm text-[var(--color-secondary)]">{channel.description}</p>
-            ) : null}
+            <p className="mt-1 text-sm text-[var(--color-secondary)]">
+              {members.length} {members.length === 1 ? "person" : "people"}
+            </p>
           </div>
-          {currentUser.role === "admin" ? (
-            <button
-              type="button"
-              data-testid="archive-channel"
-              className="rounded-[var(--radius-button)] border border-[color-mix(in_srgb,var(--color-secondary)_25%,transparent)] px-3 py-1.5 text-xs font-medium text-[var(--color-secondary)]"
-              onClick={async () => {
-                if (!confirm(`Archive #${channel.name}?`)) return;
-                await archiveChannel({
-                  channelId: channel.id,
-                  channelSlug: channel.name,
-                });
-                window.location.href = "/";
-              }}
-            >
-              Archive
-            </button>
-          ) : null}
         </header>
 
         <div
@@ -134,7 +126,7 @@ export function ChannelView({
         >
           {messages.length === 0 ? (
             <p className="px-4 py-8 text-sm text-[var(--color-secondary)]">
-              No messages yet. Say hello to the cohort.
+              No messages yet. Start the conversation.
             </p>
           ) : (
             messages.map((m) => (
@@ -142,8 +134,8 @@ export function ChannelView({
                 key={m.id}
                 message={m}
                 currentUser={currentUser}
-                parentType="channel"
-                pathKey={channel.name}
+                parentType="conversation"
+                pathKey={conversation.id}
                 onChanged={() => void refresh()}
               />
             ))
@@ -156,20 +148,18 @@ export function ChannelView({
             <p className="mb-2 text-xs text-[var(--color-danger)]">{error}</p>
           ) : null}
           <MessageComposer
-            parentType="channel"
-            parentId={channel.id}
-            pathKey={channel.name}
-            placeholder={`Message #${channel.name}`}
+            parentType="conversation"
+            parentId={conversation.id}
+            pathKey={conversation.id}
+            placeholder={`Message ${conversation.title}`}
             members={memberOptions}
-            adminPostOnly={channel.admin_post_only}
-            isAdmin={currentUser.role === "admin"}
             onSent={() => void refresh()}
           />
         </div>
       </section>
 
       <aside
-        data-testid="channel-members"
+        data-testid="dm-members"
         className="hidden w-56 shrink-0 rounded-[var(--radius-card)] bg-[var(--color-surface)] p-4 lg:block"
       >
         <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--color-secondary)]">

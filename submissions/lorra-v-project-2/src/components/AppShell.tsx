@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PRIMARY_NAV } from "@/lib/nav";
 import { CreateChannelButton } from "@/components/CreateChannelButton";
+import { StartDmButton } from "@/components/StartDmButton";
 
 export type ShellUser = {
   id: string;
@@ -19,11 +20,10 @@ export type ShellChannel = {
   name: string;
 };
 
-/** Placeholder DM list until DMs step lands. */
-const PLACEHOLDER_DMS = [
-  { id: "dm-1", name: "Asha Patel" },
-  { id: "dm-2", name: "Daniel Kim" },
-];
+export type ShellDm = {
+  id: string;
+  title: string;
+};
 
 function NavIcon({ label }: { label: string }) {
   const letter = label.charAt(0).toUpperCase();
@@ -41,10 +41,12 @@ export function AppShell({
   children,
   user,
   channels,
+  dms,
 }: {
   children: React.ReactNode;
   user: ShellUser;
   channels: ShellChannel[];
+  dms: ShellDm[];
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -152,21 +154,34 @@ export function AppShell({
             ))}
           </ul>
 
-          <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-white/45">
-            Direct messages
-          </p>
-          <ul className="flex flex-col gap-0.5">
-            {PLACEHOLDER_DMS.map((dm) => (
-              <li key={dm.id}>
-                <Link
-                  href={`/messages/${dm.id}`}
-                  className="block rounded-[var(--radius-button)] px-3 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  {dm.name}
-                </Link>
-              </li>
-            ))}
+          <div className="mb-2 flex items-center justify-between px-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/45">
+              Direct messages
+            </p>
+            <StartDmButton />
+          </div>
+          <ul data-testid="dm-sidebar-list" className="flex flex-col gap-0.5">
+            {dms.length === 0 ? (
+              <li className="px-3 py-2 text-xs text-white/45">No DMs yet</li>
+            ) : (
+              dms.map((dm) => (
+                <li key={dm.id}>
+                  <Link
+                    href={`/messages/${dm.id}`}
+                    data-testid={`dm-sidebar-${dm.id}`}
+                    className={[
+                      "block truncate rounded-[var(--radius-button)] px-3 py-2 text-sm hover:bg-white/10 hover:text-white",
+                      pathname === `/messages/${dm.id}`
+                        ? "bg-white/10 text-white"
+                        : "text-white/75",
+                    ].join(" ")}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    {dm.title}
+                  </Link>
+                </li>
+              ))
+            )}
           </ul>
         </div>
 

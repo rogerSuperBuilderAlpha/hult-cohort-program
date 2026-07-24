@@ -19,7 +19,8 @@ Product requirements: [`docs/PRD.md`](docs/PRD.md) (single source of truth).
 | 2. Schema + RLS + seed | ✅ |
 | 3. Auth (Google SSO, allowlist, magic link, local demo login) | ✅ |
 | 4. Channel messaging | ✅ |
-| 5–11 | Not started |
+| 5. DMs (1:1 + group) | ✅ |
+| 6–11 | Not started |
 
 ## Local setup (fresh clone)
 
@@ -74,6 +75,7 @@ npm run test:e2e:step1
 npm run test:e2e:step2   # after schema + seed
 npm run test:e2e:step3   # auth gate + seed login
 npm run test:e2e:step4   # channel messaging
+npm run test:e2e:step5   # DMs
 ```
 
 ## Design tokens (PRD §8)

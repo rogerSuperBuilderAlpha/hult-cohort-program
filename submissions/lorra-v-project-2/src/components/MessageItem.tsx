@@ -4,22 +4,25 @@ import { useMemo, useState } from "react";
 import { canEditMessage, formatBytes, formatMessageHtml } from "@/lib/format";
 import { REACTION_EMOJI, type Message } from "@/lib/types";
 import {
-  deleteChannelMessage,
-  editChannelMessage,
-  toggleReaction,
-} from "@/app/(app)/channels/actions";
+  deleteParentMessage,
+  editParentMessage,
+  toggleParentReaction,
+  type MessageParentType,
+} from "@/app/(app)/messaging/actions";
 
 type UserLike = { id: string; role: string };
 
 export function MessageItem({
   message,
   currentUser,
-  channelSlug,
+  parentType,
+  pathKey,
   onChanged,
 }: {
   message: Message;
   currentUser: UserLike;
-  channelSlug: string;
+  parentType: MessageParentType;
+  pathKey: string;
   onChanged: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -27,7 +30,9 @@ export function MessageItem({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const author = message.profiles;
+  const author = Array.isArray(message.profiles)
+    ? message.profiles[0]
+    : message.profiles;
   const isOwn = message.author_id === currentUser.id;
   const isAdmin = currentUser.role === "admin";
   const editable = isOwn && canEditMessage(message.created_at, message.edited_at);
@@ -47,7 +52,12 @@ export function MessageItem({
     setBusy(true);
     setError(null);
     try {
-      await toggleReaction({ messageId: message.id, emoji, channelSlug });
+      await toggleParentReaction({
+        messageId: message.id,
+        emoji,
+        parentType,
+        pathKey,
+      });
       onChanged();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Reaction failed");
@@ -60,10 +70,11 @@ export function MessageItem({
     setBusy(true);
     setError(null);
     try {
-      await editChannelMessage({
+      await editParentMessage({
         messageId: message.id,
         body: draft,
-        channelSlug,
+        parentType,
+        pathKey,
       });
       setEditing(false);
       onChanged();
@@ -79,7 +90,11 @@ export function MessageItem({
     setBusy(true);
     setError(null);
     try {
-      await deleteChannelMessage({ messageId: message.id, channelSlug });
+      await deleteParentMessage({
+        messageId: message.id,
+        parentType,
+        pathKey,
+      });
       onChanged();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete failed");

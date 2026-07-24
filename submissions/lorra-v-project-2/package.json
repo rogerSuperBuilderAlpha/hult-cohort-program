@@ -14,7 +14,8 @@
     "test:e2e:step1": "playwright test tests/step1-scaffold.spec.ts",
     "test:e2e:step2": "playwright test tests/step2-schema.spec.ts",
     "test:e2e:step3": "playwright test tests/step3-auth.spec.ts",
-    "test:e2e:step4": "playwright test tests/step4-channels.spec.ts"
+    "test:e2e:step4": "playwright test tests/step4-channels.spec.ts",
+    "test:e2e:step5": "playwright test tests/step5-dms.spec.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

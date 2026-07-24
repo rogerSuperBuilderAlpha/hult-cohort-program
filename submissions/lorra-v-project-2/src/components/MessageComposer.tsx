@@ -2,25 +2,30 @@
 
 import { useMemo, useRef, useState, useTransition } from "react";
 import {
-  sendChannelMessageWithFiles,
+  sendParentMessage,
   uploadAttachment,
-} from "@/app/(app)/channels/actions";
+  type MessageParentType,
+} from "@/app/(app)/messaging/actions";
 
 type Member = { id: string; display_name: string };
 
 export function MessageComposer({
-  channelId,
-  channelSlug,
+  parentType,
+  parentId,
+  pathKey,
+  placeholder,
   members,
-  adminPostOnly,
-  isAdmin,
+  adminPostOnly = false,
+  isAdmin = false,
   onSent,
 }: {
-  channelId: string;
-  channelSlug: string;
+  parentType: MessageParentType;
+  parentId: string;
+  pathKey: string;
+  placeholder: string;
   members: Member[];
-  adminPostOnly: boolean;
-  isAdmin: boolean;
+  adminPostOnly?: boolean;
+  isAdmin?: boolean;
   onSent: () => void;
 }) {
   const [body, setBody] = useState("");
@@ -119,10 +124,12 @@ export function MessageComposer({
     setError(null);
     startTransition(async () => {
       try {
-        await sendChannelMessageWithFiles({
-          channelId,
-          channelSlug,
+        await sendParentMessage({
+          parentType,
+          parentId,
+          pathKey,
           body: body.trim(),
+          memberProfiles: members,
           files: pendingFiles,
         });
         setBody("");
@@ -222,7 +229,7 @@ export function MessageComposer({
           data-testid="composer-input"
           value={body}
           rows={2}
-          placeholder={`Message #${channelSlug}`}
+          placeholder={placeholder}
           className="min-h-[44px] flex-1 resize-none bg-transparent py-2 text-sm text-[var(--color-dark)] outline-none"
           onChange={(e) => onChangeBody(e.target.value)}
           onKeyDown={(e) => {

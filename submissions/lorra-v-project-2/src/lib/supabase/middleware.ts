@@ -42,7 +42,10 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublic) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
-    redirectUrl.searchParams.set("next", pathname);
+    // Don't forward wildcard patterns (e.g. Site URL mistakenly set to /**)
+    if (!pathname.includes("*")) {
+      redirectUrl.searchParams.set("next", pathname);
+    }
     return NextResponse.redirect(redirectUrl);
   }
 

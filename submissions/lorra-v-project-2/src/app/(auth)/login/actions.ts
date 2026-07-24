@@ -3,13 +3,14 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ensureProfileForUser } from "@/lib/auth/ensure-profile";
+import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 
 function appUrl() {
   return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 }
 
 export async function signInWithGoogle(formData: FormData) {
-  const next = String(formData.get("next") || "/");
+  const next = safeRedirectPath(String(formData.get("next") || "/"));
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -31,7 +32,7 @@ export async function signInWithMagicLink(formData: FormData) {
   const email = String(formData.get("email") || "")
     .trim()
     .toLowerCase();
-  const next = String(formData.get("next") || "/");
+  const next = safeRedirectPath(String(formData.get("next") || "/"));
   if (!email) {
     redirect("/login?error=missing_email");
   }
@@ -64,7 +65,7 @@ export async function signInWithDevPassword(formData: FormData) {
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") || "");
-  const next = String(formData.get("next") || "/");
+  const next = safeRedirectPath(String(formData.get("next") || "/"));
 
   const expectedEmail = (
     process.env.DEV_ADMIN_EMAIL || "admin@conexus.local"
@@ -102,5 +103,5 @@ export async function signInWithDevPassword(formData: FormData) {
     redirect(`/login?error=${result.reason}`);
   }
 
-  redirect(next.startsWith("/") ? next : "/");
+  redirect(next);
 }

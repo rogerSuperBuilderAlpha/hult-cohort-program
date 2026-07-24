@@ -3,6 +3,7 @@ import {
   signInWithGoogle,
   signInWithMagicLink,
 } from "./actions";
+import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 
 const ERROR_COPY: Record<string, string> = {
   not_allowlisted: "Ask your facilitator for access.",
@@ -30,7 +31,9 @@ export default async function LoginPage({
   );
   const sent = params.sent === "1";
   const emailHint = typeof params.email === "string" ? params.email : "";
-  const next = typeof params.next === "string" ? params.next : "/";
+  const next = safeRedirectPath(
+    typeof params.next === "string" ? params.next : "/",
+  );
   const enableDevLogin = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === "true";
   const devEmail = process.env.DEV_ADMIN_EMAIL || "admin@conexus.local";
 

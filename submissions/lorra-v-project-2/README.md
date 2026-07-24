@@ -40,7 +40,10 @@ Fill `.env.local` with your **Supabase dev** values:
 **Supabase Auth setup (Google):**
 1. Auth → Providers → Google: enable with Client ID/Secret from Google Cloud.
 2. Google Cloud authorized redirect URI: `{SUPABASE_URL}/auth/v1/callback`
-3. Auth → URL Configuration: Site URL `http://localhost:3000`, redirect allow `http://localhost:3000/**`
+3. Auth → URL Configuration:
+   - **Site URL:** `http://localhost:3000` (must NOT include `/**` — that caused post-login 404s)
+   - **Redirect URLs:** `http://localhost:3000/**`
+
 4. Auth → Providers → Email: enable (needed for magic link + seed password login)
 
 Then:

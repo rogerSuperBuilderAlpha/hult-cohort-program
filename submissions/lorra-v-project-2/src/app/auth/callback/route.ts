@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ensureProfileForUser } from "@/lib/auth/ensure-profile";
+import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const next = safeRedirectPath(searchParams.get("next"));
   const appOrigin = process.env.NEXT_PUBLIC_APP_URL || origin;
 
   if (!code) {
@@ -42,6 +43,5 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${appOrigin}/login?error=${reason}`);
   }
 
-  const safeNext = next.startsWith("/") ? next : "/";
-  return NextResponse.redirect(`${appOrigin}${safeNext}`);
+  return NextResponse.redirect(`${appOrigin}${next}`);
 }

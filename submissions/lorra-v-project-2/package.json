@@ -7,13 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "db:apply": "node scripts/apply-schema.mjs",
+    "db:seed": "node scripts/seed.mjs",
+    "db:verify": "node scripts/verify-schema.mjs",
     "test:e2e": "playwright test",
-    "test:e2e:step1": "playwright test tests/step1-scaffold.spec.ts"
+    "test:e2e:step1": "playwright test tests/step1-scaffold.spec.ts",
+    "test:e2e:step2": "playwright test tests/step2-schema.spec.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
     "next": "16.2.11",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

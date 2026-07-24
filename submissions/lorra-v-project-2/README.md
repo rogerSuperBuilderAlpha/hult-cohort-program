@@ -22,7 +22,8 @@ Product requirements: [`docs/PRD.md`](docs/PRD.md) (single source of truth).
 | 5. DMs (1:1 + group) | ✅ |
 | 6. Threads | ✅ |
 | 7. Notifications | ✅ |
-| 8–11 | Not started |
+| 8. Forth adapter | ✅ |
+| 9–11 | Not started |
 
 ## Local setup (fresh clone)
 
@@ -80,7 +81,21 @@ npm run test:e2e:step4   # channel messaging
 npm run test:e2e:step5   # DMs
 npm run test:e2e:step6   # threads
 npm run test:e2e:step7   # notifications
+npm run test:e2e:step8   # Forth adapter (fixtures)
 ```
+
+### Forth adapter (Step 8)
+
+Default is **fixture mode** (`FORTH_USE_FIXTURES=true`) so local demos never block on Forth HTTP.
+
+| Piece | Path |
+|-------|------|
+| `PMAdapter` + `ForthAdapter` + `FixtureAdapter` | `src/lib/forth/` |
+| Webhook | `POST /api/webhooks/forth` (`X-Forth-Signature: sha256=…`) |
+| Poller | `POST /api/cron/poll-forth` (Bearer `CRON_SECRET`, or open in fixture mode) |
+| Status | `GET /api/forth/status` |
+
+Live mode: set `FORTH_USE_FIXTURES=false`, `FORTH_API_KEY`, and `FORTH_WEBHOOK_SECRET` once the §7.0 contract is agreed.
 
 **Step 6 schema:** if `thread_subscriptions` is missing, run `supabase/migrations/004_thread_subscriptions.sql` in the Supabase SQL Editor (or `npm run db:apply` when `DATABASE_URL` is set).
 

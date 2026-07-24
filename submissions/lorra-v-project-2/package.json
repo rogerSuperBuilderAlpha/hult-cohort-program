@@ -17,7 +17,8 @@
     "test:e2e:step4": "playwright test tests/step4-channels.spec.ts",
     "test:e2e:step5": "playwright test tests/step5-dms.spec.ts",
     "test:e2e:step6": "playwright test tests/step6-threads.spec.ts",
-    "test:e2e:step7": "playwright test tests/step7-notifications.spec.ts"
+    "test:e2e:step7": "playwright test tests/step7-notifications.spec.ts",
+    "test:e2e:step8": "playwright test tests/step8-forth.spec.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

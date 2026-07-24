@@ -3,7 +3,9 @@ export type AppNotificationType =
   | "dm"
   | "thread_reply"
   | "added_to_conversation"
-  | "added_to_channel";
+  | "added_to_channel"
+  | "forth_assigned"
+  | "forth_status";
 
 export type AppNotification = {
   id: string;
@@ -33,6 +35,12 @@ export function hrefForEntityRef(entityRef: string): string {
   if (parts[0] === "conversation" && parts.length >= 2) {
     return `/messages/${parts[1]}`;
   }
+  if (parts[0] === "forth" && parts.length >= 2) {
+    const base =
+      process.env.NEXT_PUBLIC_FORTH_BASE_URL?.replace(/\/$/, "") ||
+      "https://forth-bice.vercel.app";
+    return `${base}/t/${parts[1]}`;
+  }
   return "/";
 }
 
@@ -49,6 +57,10 @@ export function labelForNotification(n: AppNotification): string {
       return `${who} added you to a conversation`;
     case "added_to_channel":
       return `${who} added you to a channel`;
+    case "forth_assigned":
+      return "A Forth ticket was assigned to you";
+    case "forth_status":
+      return "A linked Forth ticket changed status";
     default:
       return `${who} sent a notification`;
   }

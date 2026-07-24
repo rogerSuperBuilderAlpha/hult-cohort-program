@@ -5,6 +5,7 @@ import {
   createTicketFromMessage,
   listAssigneeOptions,
 } from "@/app/(app)/forth/actions";
+import { useToast } from "@/components/ToastProvider";
 
 export function CreateForthTicketModal({
   messageId,
@@ -26,6 +27,7 @@ export function CreateForthTicketModal({
   >([]);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const { pushToast } = useToast();
 
   useEffect(() => {
     void listAssigneeOptions()
@@ -59,10 +61,13 @@ export function CreateForthTicketModal({
                   assigneeEmail: assigneeEmail || null,
                   pathKey,
                 });
+                pushToast("Forth ticket created", "success");
                 onCreated();
                 onClose();
               } catch (err) {
-                setError(err instanceof Error ? err.message : "Create failed");
+                const msg = err instanceof Error ? err.message : "Create failed";
+                setError(msg);
+                pushToast(msg, "error");
               }
             });
           }}

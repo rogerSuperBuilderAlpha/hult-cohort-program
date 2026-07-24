@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { FileRow } from "@/app/(app)/files/actions";
+import { EmptyState } from "@/components/EmptyState";
 
 function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
@@ -54,39 +55,43 @@ export function FilesView({
         </select>
       </label>
 
-      <ul data-testid="files-list" className="mt-6 space-y-2">
+      <div data-testid="files-list" className="mt-6">
         {filtered.length === 0 ? (
-          <li className="text-sm text-[var(--color-secondary)]">
-            No attachments yet. Attach a file from a channel composer.
-          </li>
+          <EmptyState
+            testId="files-empty"
+            title={initial.length === 0 ? "No attachments yet" : "No files in this filter"}
+            description="Attach an image, PDF, docx, or zip from a channel or DM composer."
+          />
         ) : (
-          filtered.map((f) => (
-            <li key={f.id}>
-              <a
-                href={f.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-testid="file-row"
-                className="flex items-center justify-between gap-3 rounded-[var(--radius-card)] border border-[color-mix(in_srgb,var(--color-secondary)_18%,transparent)] px-4 py-3 no-underline hover:border-[var(--color-primary)]"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-[var(--color-dark)]">
-                    {f.file_name}
-                  </p>
-                  <p className="mt-0.5 text-xs text-[var(--color-secondary)]">
-                    {f.channel_name
-                      ? `#${f.channel_name}`
-                      : f.parent_type === "conversation"
-                        ? "DM"
-                        : "Message"}{" "}
-                    · {formatBytes(f.size_bytes)} · {f.mime_type}
-                  </p>
-                </div>
-              </a>
-            </li>
-          ))
+          <ul className="space-y-2">
+            {filtered.map((f) => (
+              <li key={f.id}>
+                <a
+                  href={f.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="file-row"
+                  className="flex items-center justify-between gap-3 rounded-[var(--radius-card)] border border-[color-mix(in_srgb,var(--color-secondary)_18%,transparent)] px-4 py-3 no-underline hover:border-[var(--color-primary)]"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[var(--color-dark)]">
+                      {f.file_name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[var(--color-secondary)]">
+                      {f.channel_name
+                        ? `#${f.channel_name}`
+                        : f.parent_type === "conversation"
+                          ? "DM"
+                          : "Message"}{" "}
+                      · {formatBytes(f.size_bytes)} · {f.mime_type}
+                    </p>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+      </div>
     </section>
   );
 }

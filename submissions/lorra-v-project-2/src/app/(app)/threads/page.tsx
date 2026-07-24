@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listSubscribedThreads } from "@/app/(app)/threads/actions";
+import { EmptyState } from "@/components/EmptyState";
 
 export default async function ThreadsPage() {
   const threads = await listSubscribedThreads();
@@ -15,9 +16,11 @@ export default async function ThreadsPage() {
       </p>
 
       {threads.length === 0 ? (
-        <p data-testid="threads-empty" className="mt-8 text-sm text-[var(--color-secondary)]">
-          No subscribed threads yet. Open a message and click Reply to start one.
-        </p>
+        <EmptyState
+          testId="threads-empty"
+          title="No subscribed threads yet"
+          description="Open a channel message and click Reply in thread to start one."
+        />
       ) : (
         <ul data-testid="threads-list" className="mt-6 divide-y divide-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)]">
           {threads.map((t) => (

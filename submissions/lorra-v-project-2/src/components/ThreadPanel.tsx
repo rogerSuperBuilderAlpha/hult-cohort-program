@@ -6,6 +6,8 @@ import type { Message } from "@/lib/types";
 import { openThread, sendThreadReply } from "@/app/(app)/threads/actions";
 import { uploadAttachment, type MessageParentType } from "@/app/(app)/messaging/actions";
 import { MessageItem } from "@/components/MessageItem";
+import { SkeletonBlock } from "@/components/EmptyState";
+import { useToast } from "@/components/ToastProvider";
 import { formatMessageHtml } from "@/lib/format";
 
 type Member = { id: string; display_name: string };
@@ -45,6 +47,7 @@ export function ThreadPanel({
   const [pending, startTransition] = useTransition();
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { pushToast } = useToast();
 
   const refresh = useCallback(async () => {
     try {
@@ -106,7 +109,9 @@ export function ThreadPanel({
         await refresh();
         onChanged();
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Reply failed");
+        const msg = e instanceof Error ? e.message : "Reply failed";
+        setError(msg);
+        pushToast(msg, "error");
       }
     });
   }
@@ -169,7 +174,10 @@ export function ThreadPanel({
             />
           </article>
         ) : (
-          <p className="px-3 py-4 text-sm text-[var(--color-secondary)]">Loading thread…</p>
+          <div className="space-y-2 px-3 py-4" data-testid="thread-loading">
+            <SkeletonBlock className="h-16 w-full" />
+            <SkeletonBlock className="h-10 w-3/4" />
+          </div>
         )}
 
         {replies.map((m) => (

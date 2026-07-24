@@ -127,8 +127,16 @@ export function ChannelView({
     .map((p) => ({ id: p!.id, display_name: p!.display_name }));
 
   return (
-    <div data-testid="channel-view" className="flex h-[calc(100vh-7rem)] min-h-[420px] gap-4">
-      <section className="flex min-w-0 flex-1 flex-col rounded-[var(--radius-card)] bg-[var(--color-surface)] shadow-[0_1px_2px_rgba(22,50,79,0.04)]">
+    <div
+      data-testid="channel-view"
+      className="relative flex h-[calc(100vh-7rem)] min-h-[420px] gap-4"
+    >
+      <section
+        className={[
+          "flex min-w-0 flex-1 flex-col rounded-[var(--radius-card)] bg-[var(--color-surface)] shadow-[0_1px_2px_rgba(22,50,79,0.04)]",
+          threadRootId ? "hidden md:flex" : "flex",
+        ].join(" ")}
+      >
         <header className="flex items-start justify-between gap-3 border-b border-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)] px-5 py-4">
           <div>
             <p className="text-sm font-medium text-[var(--color-primary)]">Channel</p>
@@ -176,9 +184,15 @@ export function ChannelView({
           className="flex-1 space-y-1 overflow-y-auto px-2 py-3"
         >
           {messages.length === 0 ? (
-            <p className="px-4 py-8 text-sm text-[var(--color-secondary)]">
-              No messages yet. Say hello to the cohort.
-            </p>
+            <div className="px-4 py-8">
+              <p className="text-sm font-medium text-[var(--color-dark)]">
+                No messages yet
+              </p>
+              <p className="mt-1 text-sm text-[var(--color-secondary)]">
+                Say hello to the cohort — mentions, attachments, and Forth tickets
+                start here.
+              </p>
+            </div>
           ) : (
             messages.map((m) => (
               <MessageItem

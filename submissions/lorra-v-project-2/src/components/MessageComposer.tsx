@@ -6,6 +6,7 @@ import {
   uploadAttachment,
   type MessageParentType,
 } from "@/app/(app)/messaging/actions";
+import { useToast } from "@/components/ToastProvider";
 
 type Member = { id: string; display_name: string };
 
@@ -42,6 +43,7 @@ export function MessageComposer({
   const [pending, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { pushToast } = useToast();
 
   const canPost = !adminPostOnly || isAdmin;
 
@@ -112,7 +114,9 @@ export function MessageComposer({
         ]);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      const msg = e instanceof Error ? e.message : "Upload failed";
+      setError(msg);
+      pushToast(msg, "error");
     } finally {
       if (fileRef.current) fileRef.current.value = "";
     }
@@ -137,7 +141,9 @@ export function MessageComposer({
         setMentionQuery(null);
         onSent();
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Send failed");
+        const msg = e instanceof Error ? e.message : "Send failed";
+        setError(msg);
+        pushToast(msg, "error");
       }
     });
   }

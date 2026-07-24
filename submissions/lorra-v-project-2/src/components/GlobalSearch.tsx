@@ -10,7 +10,7 @@ export function GlobalSearch() {
   return (
     <form
       data-testid="global-search"
-      className="hidden min-w-0 flex-1 max-w-md sm:block"
+      className="min-w-0 flex-1 max-w-md"
       onSubmit={(e) => {
         e.preventDefault();
         const next = q.trim();

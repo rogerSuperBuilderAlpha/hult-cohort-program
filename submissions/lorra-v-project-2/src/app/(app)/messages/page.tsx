@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listConversations } from "@/app/(app)/messages/actions";
 import { StartDmButton } from "@/components/StartDmButton";
+import { EmptyState } from "@/components/EmptyState";
 
 export default async function MessagesPage() {
   const conversations = await listConversations();
@@ -23,12 +24,11 @@ export default async function MessagesPage() {
       </div>
 
       {conversations.length === 0 ? (
-        <p
-          data-testid="messages-empty"
-          className="mt-8 text-sm text-[var(--color-secondary)]"
-        >
-          No conversations yet. Use + to start a DM.
-        </p>
+        <EmptyState
+          testId="messages-empty"
+          title="No conversations yet"
+          description="Start a 1:1 or group DM from the sidebar + button."
+        />
       ) : (
         <ul data-testid="messages-list" className="mt-6 divide-y divide-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)]">
           {conversations.map((c) => (

@@ -12,6 +12,7 @@ import {
   PresenceDot,
   PresenceProvider,
 } from "@/components/PresenceProvider";
+import { ToastProvider } from "@/components/ToastProvider";
 
 export type ShellUser = {
   id: string;
@@ -66,6 +67,7 @@ export function AppShell({
 
   return (
     <PresenceProvider userId={user.id} displayName={user.displayName}>
+    <ToastProvider>
     <div className="flex min-h-full bg-[var(--color-bg)]">
       {sidebarOpen ? (
         <button
@@ -243,6 +245,7 @@ export function AppShell({
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>
     </div>
+    </ToastProvider>
     </PresenceProvider>
   );
 }

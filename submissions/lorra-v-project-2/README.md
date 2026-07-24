@@ -24,7 +24,10 @@ Product requirements: [`docs/PRD.md`](docs/PRD.md) (single source of truth).
 | 7. Notifications | ✅ |
 | 8. Forth adapter | ✅ |
 | 9. Create ticket + TicketLink cards + unfurl | ✅ |
-| 10–11 | Not started |
+| 10. Home digest, Tasks, Files, search, presence | ✅ |
+| 11. Polish (empty states, skeletons, toasts, README) | ✅ |
+
+Phase A complete for local demo. **Do not push** until Phase B/C go-ahead.
 
 ## Local setup (fresh clone)
 
@@ -49,7 +52,6 @@ Fill `.env.local` with your **Supabase dev** values:
 3. Auth → URL Configuration:
    - **Site URL:** `http://localhost:3000` (must NOT include `/**` — that caused post-login 404s)
    - **Redirect URLs:** `http://localhost:3000/**`
-
 4. Auth → Providers → Email: enable (needed for magic link + seed password login)
 
 Then:
@@ -61,14 +63,17 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) → redirected to `/login`.
 
-**Seed logins (local only):** password `ConexusSeed!2026` for all seeded users, e.g. `admin@conexus.local`.
+**Seed logins (local only):** password `ConexusSeed!2026` for all seeded users, e.g. `admin@conexus.local` / `asha@conexus.local`.
 
-### Alternate schema apply (no DATABASE_URL)
+### Schema apply (no DATABASE_URL)
 
 In the Supabase SQL Editor, run in order:
 
 1. `supabase/migrations/001_schema.sql`
 2. `supabase/migrations/002_rls.sql`
+3. `supabase/migrations/003_storage.sql` (attachments bucket)
+4. `supabase/migrations/004_thread_subscriptions.sql` (Threads unread)
+5. `supabase/migrations/005_search_fts.sql` (optional ranked FTS; search falls back to `ilike`)
 
 Then `npm run db:seed`.
 
@@ -85,9 +90,7 @@ npm run test:e2e:step7   # notifications
 npm run test:e2e:step8   # Forth adapter (fixtures)
 npm run test:e2e:step9   # create ticket + unfurl
 npm run test:e2e:step10  # home / tasks / files / search / presence
-```
-
-**Step 10 search FTS (optional):** apply `supabase/migrations/005_search_fts.sql` in the SQL Editor for ranked Postgres full-text search. Without it, search falls back to `ilike`.
+npm run test:e2e:step11  # polish smoke
 ```
 
 ### Forth adapter (Step 8)
@@ -103,7 +106,22 @@ Default is **fixture mode** (`FORTH_USE_FIXTURES=true`) so local demos never blo
 
 Live mode: set `FORTH_USE_FIXTURES=false`, `FORTH_API_KEY`, and `FORTH_WEBHOOK_SECRET` once the §7.0 contract is agreed.
 
-**Step 6 schema:** if `thread_subscriptions` is missing, run `supabase/migrations/004_thread_subscriptions.sql` in the Supabase SQL Editor (or `npm run db:apply` when `DATABASE_URL` is set).
+## 15-minute handover / redeploy (PRD §6)
+
+Target: a teammate can run Conexus locally (or redeploy later on Vercel) without tribal knowledge.
+
+1. **Clone + install** — `cd submissions/lorra-v-project-2 && npm install`
+2. **Env** — copy `.env.example` → `.env.local`; fill Supabase URL, anon key, service role. Keep Forth on fixtures unless the §7.0 contract is live.
+3. **Schema** — apply migrations `001`–`004` (and `005` if you want FTS) in the SQL Editor, or `npm run db:apply` when `DATABASE_URL` is set.
+4. **Seed** — `npm run db:seed` (creates ~10 users + `#general` / `#announcements` / `#random`).
+5. **Auth** — enable Email + Google in Supabase; set Site URL to the app origin (no trailing `/**` on Site URL).
+6. **Run** — `npm run dev` → login as `admin@conexus.local` / `ConexusSeed!2026`.
+7. **Health** — `GET /api/health` and `GET /api/forth/status` should return `ok: true`.
+8. **Verify** — `npm run build` then `npm run test:e2e:step3` (or a later step) before handing off.
+
+**Vercel (Phase B):** import this app directory, set the same env vars (never commit secrets), point production redirect URLs at the Vercel domain, disable `NEXT_PUBLIC_ENABLE_DEV_LOGIN` in production.
+
+**Do not invent production URLs or credentials** — use the project’s real Supabase/Vercel projects when Phase B starts.
 
 ## Design tokens (PRD §8)
 

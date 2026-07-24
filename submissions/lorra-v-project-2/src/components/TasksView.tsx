@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { TaskLink } from "@/app/(app)/tasks/actions";
+import { EmptyState } from "@/components/EmptyState";
 
 export function TasksView({ initial }: { initial: TaskLink[] }) {
   const [status, setStatus] = useState("all");
@@ -80,38 +81,46 @@ export function TasksView({ initial }: { initial: TaskLink[] }) {
         </label>
       </div>
 
-      <ul data-testid="tasks-list" className="mt-6 space-y-2">
+      <div data-testid="tasks-list" className="mt-6">
         {filtered.length === 0 ? (
-          <li className="text-sm text-[var(--color-secondary)]">
-            No TicketLinks match these filters.
-          </li>
+          <EmptyState
+            testId="tasks-empty"
+            title={initial.length === 0 ? "No TicketLinks yet" : "No matches"}
+            description={
+              initial.length === 0
+                ? "Create a Forth ticket from a channel message to see it here."
+                : "Try clearing status or assignee filters."
+            }
+          />
         ) : (
-          filtered.map((t) => (
-            <li key={t.id}>
-              <a
-                href={t.forth_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-testid="task-row"
-                className="block rounded-[var(--radius-card)] border border-[color-mix(in_srgb,var(--color-secondary)_18%,transparent)] px-4 py-3 no-underline transition-colors hover:border-[var(--color-primary)]"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-[var(--color-dark)]">
-                    {t.title_snapshot}
+          <ul className="space-y-2">
+            {filtered.map((t) => (
+              <li key={t.id}>
+                <a
+                  href={t.forth_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="task-row"
+                  className="block rounded-[var(--radius-card)] border border-[color-mix(in_srgb,var(--color-secondary)_18%,transparent)] px-4 py-3 no-underline transition-colors hover:border-[var(--color-primary)]"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-[var(--color-dark)]">
+                      {t.title_snapshot}
+                    </p>
+                    <span className="rounded-full bg-[var(--color-bg)] px-2 py-0.5 text-xs font-medium text-[var(--color-dark)]">
+                      {t.status_snapshot}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-[var(--color-secondary)]">
+                    {t.channel_name ? `#${t.channel_name}` : "Channel"} ·{" "}
+                    {t.assignee_email_snapshot || "Unassigned"}
                   </p>
-                  <span className="rounded-full bg-[var(--color-bg)] px-2 py-0.5 text-xs font-medium text-[var(--color-dark)]">
-                    {t.status_snapshot}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-[var(--color-secondary)]">
-                  {t.channel_name ? `#${t.channel_name}` : "Channel"} ·{" "}
-                  {t.assignee_email_snapshot || "Unassigned"}
-                </p>
-              </a>
-            </li>
-          ))
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+      </div>
 
       <p className="mt-4 text-xs text-[var(--color-secondary)]">
         Tip: create tickets from messages with{" "}

@@ -6,6 +6,7 @@ import { createServiceClient } from "@/lib/supabase/admin";
 import { extractMentionIds } from "@/lib/format";
 import type { Message } from "@/lib/types";
 import type { MessageParentType } from "@/app/(app)/messaging/actions";
+import { createNotifications } from "@/lib/notify-server";
 
 export type ThreadParticipant = {
   id: string;
@@ -309,6 +310,47 @@ export async function sendThreadReply(input: {
     [root.author_id, ...mentionIds],
     true,
   );
+
+  const threadEntity =
+    root.parent_type === "channel"
+      ? `thread:${input.threadRootId}:channel:${input.pathKey}`
+      : `thread:${input.threadRootId}:conversation:${root.parent_id}`;
+
+  const subscriberIds = new Set<string>();
+  subscriberIds.add(root.author_id);
+  const { data: subs } = await supabase
+    .from("thread_subscriptions")
+    .select("user_id")
+    .eq("thread_root_id", input.threadRootId);
+  for (const s of subs ?? []) subscriberIds.add(s.user_id as string);
+  const { data: priorReplies } = await supabase
+    .from("messages")
+    .select("author_id")
+    .eq("thread_root_id", input.threadRootId)
+    .is("deleted_at", null);
+  for (const r of priorReplies ?? []) subscriberIds.add(r.author_id as string);
+
+  subscriberIds.delete(profile.id);
+  for (const id of mentionIds) subscriberIds.delete(id);
+
+  await createNotifications(
+    Array.from(subscriberIds).map((userId) => ({
+      userId,
+      type: "thread_reply" as const,
+      actorId: profile.id,
+      entityRef: threadEntity,
+    })),
+  );
+  if (mentionIds.length) {
+    await createNotifications(
+      mentionIds.map((userId) => ({
+        userId,
+        type: "mention" as const,
+        actorId: profile.id,
+        entityRef: threadEntity,
+      })),
+    );
+  }
 
   revalidatePath("/threads");
 

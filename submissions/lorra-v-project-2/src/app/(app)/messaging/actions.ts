@@ -8,6 +8,7 @@ import {
   type Message,
 } from "@/lib/types";
 import { createServiceClient } from "@/lib/supabase/admin";
+import { createNotifications } from "@/lib/notify-server";
 
 export type MessageParentType = "channel" | "conversation";
 
@@ -179,6 +180,64 @@ export async function sendParentMessage(input: {
       size_bytes: file.size_bytes,
     });
     if (attErr) throw new Error(attErr.message);
+  }
+
+  // PRD §4.4 — mentions + DMs (channel-message dots are sidebar-only later)
+  try {
+    if (input.parentType === "conversation") {
+      const { data: members } = await supabase
+        .from("conversation_members")
+        .select("user_id")
+        .eq("conversation_id", input.parentId);
+      const recipients = (members ?? [])
+        .map((m) => m.user_id as string)
+        .filter((id) => id !== profile.id);
+      await createNotifications(
+        recipients.map((userId) => ({
+          userId,
+          type: "dm" as const,
+          actorId: profile.id,
+          entityRef: `conversation:${input.parentId}:message:${message.id}`,
+        })),
+      );
+      if (mentionIds.length) {
+        await createNotifications(
+          mentionIds.map((userId) => ({
+            userId,
+            type: "mention" as const,
+            actorId: profile.id,
+            entityRef: `conversation:${input.parentId}:message:${message.id}`,
+          })),
+        );
+      }
+    } else if (mentionIds.length) {
+      const { data: members } = await supabase
+        .from("channel_members")
+        .select("user_id, notification_level")
+        .eq("channel_id", input.parentId);
+      const levelByUser = new Map(
+        (members ?? []).map((m) => [
+          m.user_id as string,
+          (m.notification_level as string) || "all",
+        ]),
+      );
+      const mentionRecipients = mentionIds.filter((id) => {
+        const level = levelByUser.get(id) || "all";
+        return level !== "mute";
+      });
+      if (mentionRecipients.length) {
+        await createNotifications(
+          mentionRecipients.map((userId) => ({
+            userId,
+            type: "mention" as const,
+            actorId: profile.id,
+            entityRef: `channel:${input.pathKey}:message:${message.id}`,
+          })),
+        );
+      }
+    }
+  } catch (e) {
+    console.warn("notify after send failed", e instanceof Error ? e.message : e);
   }
 
   return {

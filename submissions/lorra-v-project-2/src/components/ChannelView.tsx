@@ -8,6 +8,7 @@ import { listChannelMembers, listChannelMessages, archiveChannel } from "@/app/(
 import { MessageComposer } from "@/components/MessageComposer";
 import { MessageItem } from "@/components/MessageItem";
 import { ThreadPanel } from "@/components/ThreadPanel";
+import { ChannelNotificationLevel } from "@/components/ChannelNotificationLevel";
 
 type MemberRow = {
   user_id: string;
@@ -130,23 +131,26 @@ export function ChannelView({
               <p className="mt-1 text-sm text-[var(--color-secondary)]">{channel.description}</p>
             ) : null}
           </div>
-          {currentUser.role === "admin" ? (
-            <button
-              type="button"
-              data-testid="archive-channel"
-              className="rounded-[var(--radius-button)] border border-[color-mix(in_srgb,var(--color-secondary)_25%,transparent)] px-3 py-1.5 text-xs font-medium text-[var(--color-secondary)]"
-              onClick={async () => {
-                if (!confirm(`Archive #${channel.name}?`)) return;
-                await archiveChannel({
-                  channelId: channel.id,
-                  channelSlug: channel.name,
-                });
-                window.location.href = "/";
-              }}
-            >
-              Archive
-            </button>
-          ) : null}
+          <div className="flex shrink-0 items-center gap-2">
+            <ChannelNotificationLevel channelId={channel.id} />
+            {currentUser.role === "admin" ? (
+              <button
+                type="button"
+                data-testid="archive-channel"
+                className="rounded-[var(--radius-button)] border border-[color-mix(in_srgb,var(--color-secondary)_25%,transparent)] px-3 py-1.5 text-xs font-medium text-[var(--color-secondary)]"
+                onClick={async () => {
+                  if (!confirm(`Archive #${channel.name}?`)) return;
+                  await archiveChannel({
+                    channelId: channel.id,
+                    channelSlug: channel.name,
+                  });
+                  window.location.href = "/";
+                }}
+              >
+                Archive
+              </button>
+            ) : null}
+          </div>
         </header>
 
         <div

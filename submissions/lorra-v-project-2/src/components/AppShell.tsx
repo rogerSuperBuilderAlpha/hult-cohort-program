@@ -6,6 +6,7 @@ import { useState } from "react";
 import { PRIMARY_NAV } from "@/lib/nav";
 import { CreateChannelButton } from "@/components/CreateChannelButton";
 import { StartDmButton } from "@/components/StartDmButton";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export type ShellUser = {
   id: string;
@@ -221,13 +222,7 @@ export function AppShell({
               Hult Cohort · Internal communications
             </p>
           </div>
-          <div
-            data-testid="notification-bell-placeholder"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-bg)] text-sm text-[var(--color-secondary)]"
-            title="Notifications (Step 7)"
-          >
-            ⌄
-          </div>
+          <NotificationBell userId={user.id} />
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>

@@ -16,7 +16,8 @@
     "test:e2e:step3": "playwright test tests/step3-auth.spec.ts",
     "test:e2e:step4": "playwright test tests/step4-channels.spec.ts",
     "test:e2e:step5": "playwright test tests/step5-dms.spec.ts",
-    "test:e2e:step6": "playwright test tests/step6-threads.spec.ts"
+    "test:e2e:step6": "playwright test tests/step6-threads.spec.ts",
+    "test:e2e:step7": "playwright test tests/step7-notifications.spec.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
@@ -24,7 +25,8 @@
     "next": "16.2.11",
     "postgres": "^3.4.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

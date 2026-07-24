@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/admin";
+import { createNotifications } from "@/lib/notify-server";
 
 export type ConversationSummary = {
   id: string;
@@ -215,6 +216,15 @@ export async function startConversation(input: {
   }));
   const { error: memErr } = await admin.from("conversation_members").insert(memberRows);
   if (memErr) throw new Error(memErr.message);
+
+  await createNotifications(
+    uniqueOthers.map((userId) => ({
+      userId,
+      type: "added_to_conversation" as const,
+      actorId: profile.id,
+      entityRef: `conversation:${conversation.id}`,
+    })),
+  );
 
   revalidatePath("/messages");
   revalidatePath("/");

@@ -1,3 +1,4 @@
+import { isAdminEmail } from "@/lib/auth/admin-emails";
 import { createServiceClient } from "@/lib/supabase/admin";
 
 export type EnsureProfileResult =
@@ -59,13 +60,15 @@ export async function ensureProfileForUser(input: {
     existing?.display_name ||
     email.split("@")[0];
 
+  const role = isAdminEmail(email) ? "admin" : (existing?.role ?? "member");
+
   const { error: upsertErr } = await admin.from("profiles").upsert(
     {
       id: input.id,
       email,
       display_name: displayName,
       avatar_url: input.avatarUrl ?? null,
-      role: existing?.role ?? "member",
+      role,
       status: "active",
     },
     { onConflict: "id" },

@@ -46,6 +46,13 @@ const SEED_USERS = [
   { email: "alex@conexus.local", display_name: "Alex Nguyen", role: "member" },
   { email: "taylor@conexus.local", display_name: "Taylor Brooks", role: "member" },
   { email: "morgan@conexus.local", display_name: "Morgan Diaz", role: "member" },
+  // Real Google SSO account — roster + admin role only (no password auth user)
+  {
+    email: "lorrainevillaroel@gmail.com",
+    display_name: "Lorraine Villaroel",
+    role: "admin",
+    skipAuthCreate: true,
+  },
 ];
 
 function authHeaders() {
@@ -134,14 +141,40 @@ async function main() {
 
   const profileIds = [];
   for (const user of SEED_USERS) {
-    const id = await upsertAuthUser(existingByEmail, user);
-    profileIds.push({ id, ...user });
-
+    // Always add to roster allowlist
     const { error: rosterErr } = await admin.from("roster_allowlist").upsert(
       { email: user.email, display_name: user.display_name },
       { onConflict: "email" },
     );
     if (rosterErr) throw new Error(`roster ${user.email}: ${rosterErr.message}`);
+
+    let id;
+    if (user.skipAuthCreate) {
+      // Google SSO account — do not create password auth; promote profile if already signed in
+      id = existingByEmail.get(user.email.toLowerCase())?.id;
+      if (id) {
+        const { error: profileErr } = await admin.from("profiles").upsert(
+          {
+            id,
+            email: user.email,
+            display_name: user.display_name,
+            role: user.role,
+            status: "active",
+            avatar_url: null,
+          },
+          { onConflict: "id" },
+        );
+        if (profileErr) throw new Error(`profile ${user.email}: ${profileErr.message}`);
+        profileIds.push({ id, ...user });
+        console.log(`  user ${user.email} (${user.role}) — Google SSO, profile promoted`);
+      } else {
+        console.log(`  roster ${user.email} (${user.role}) — awaiting Google SSO`);
+      }
+      continue;
+    }
+
+    id = await upsertAuthUser(existingByEmail, user);
+    profileIds.push({ id, ...user });
 
     const { error: profileErr } = await admin.from("profiles").upsert(
       {
@@ -159,7 +192,10 @@ async function main() {
     console.log(`  user ${user.email} (${user.role})`);
   }
 
-  const adminId = profileIds.find((p) => p.role === "admin").id;
+  const adminId = profileIds.find((p) => p.email === "admin@conexus.local")?.id;
+  if (!adminId) {
+    throw new Error("Seed admin@conexus.local is missing — cannot create default channels");
+  }
 
   let workspaceId;
   const { data: existingWs, error: wsReadErr } = await admin

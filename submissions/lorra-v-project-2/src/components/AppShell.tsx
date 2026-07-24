@@ -7,6 +7,11 @@ import { PRIMARY_NAV } from "@/lib/nav";
 import { CreateChannelButton } from "@/components/CreateChannelButton";
 import { StartDmButton } from "@/components/StartDmButton";
 import { NotificationBell } from "@/components/NotificationBell";
+import { GlobalSearch } from "@/components/GlobalSearch";
+import {
+  PresenceDot,
+  PresenceProvider,
+} from "@/components/PresenceProvider";
 
 export type ShellUser = {
   id: string;
@@ -24,6 +29,7 @@ export type ShellChannel = {
 export type ShellDm = {
   id: string;
   title: string;
+  peerIds: string[];
 };
 
 function NavIcon({ label }: { label: string }) {
@@ -59,6 +65,7 @@ export function AppShell({
   };
 
   return (
+    <PresenceProvider userId={user.id} displayName={user.displayName}>
     <div className="flex min-h-full bg-[var(--color-bg)]">
       {sidebarOpen ? (
         <button
@@ -165,31 +172,38 @@ export function AppShell({
             {dms.length === 0 ? (
               <li className="px-3 py-2 text-xs text-white/45">No DMs yet</li>
             ) : (
-              dms.map((dm) => (
+              dms.map((dm) => {
+                const peerId = dm.peerIds[0];
+                return (
                 <li key={dm.id}>
                   <Link
                     href={`/messages/${dm.id}`}
                     data-testid={`dm-sidebar-${dm.id}`}
                     className={[
-                      "block truncate rounded-[var(--radius-button)] px-3 py-2 text-sm hover:bg-white/10 hover:text-white",
+                      "flex items-center gap-2 truncate rounded-[var(--radius-button)] px-3 py-2 text-sm hover:bg-white/10 hover:text-white",
                       pathname === `/messages/${dm.id}`
                         ? "bg-white/10 text-white"
                         : "text-white/75",
                     ].join(" ")}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    {dm.title}
+                    {peerId ? <PresenceDot userId={peerId} /> : null}
+                    <span className="truncate">{dm.title}</span>
                   </Link>
                 </li>
-              ))
+              );
+              })
             )}
           </ul>
         </div>
 
         <div className="border-t border-white/10 px-4 py-4">
-          <p data-testid="shell-user-name" className="truncate text-sm font-medium text-white/90">
-            {user.displayName}
-          </p>
+          <div className="flex items-center gap-2">
+            <PresenceDot userId={user.id} />
+            <p data-testid="shell-user-name" className="truncate text-sm font-medium text-white/90">
+              {user.displayName}
+            </p>
+          </div>
           <p className="truncate text-xs text-white/50">{user.email}</p>
           <form action="/auth/signout" method="post" className="mt-3">
             <button
@@ -222,11 +236,13 @@ export function AppShell({
               Hult Cohort · Internal communications
             </p>
           </div>
+          <GlobalSearch />
           <NotificationBell userId={user.id} />
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>
     </div>
+    </PresenceProvider>
   );
 }

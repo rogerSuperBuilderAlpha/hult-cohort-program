@@ -315,6 +315,16 @@ export async function archiveChannel(input: { channelId: string; channelSlug: st
   revalidatePath(`/channels/${input.channelSlug}`);
 }
 
+export async function markChannelRead(channelId: string) {
+  const { supabase, profile } = await requireUser();
+  const { error } = await supabase
+    .from("channel_members")
+    .update({ last_read_at: new Date().toISOString() })
+    .eq("channel_id", channelId)
+    .eq("user_id", profile.id);
+  if (error) throw new Error(error.message);
+}
+
 export async function uploadAttachment(formData: FormData): Promise<{
   file_url: string;
   file_name: string;

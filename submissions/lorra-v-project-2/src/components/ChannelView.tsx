@@ -4,11 +4,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Channel, Message } from "@/lib/types";
-import { listChannelMembers, listChannelMessages, archiveChannel } from "@/app/(app)/channels/actions";
+import {
+  listChannelMembers,
+  listChannelMessages,
+  archiveChannel,
+  markChannelRead,
+} from "@/app/(app)/channels/actions";
 import { MessageComposer } from "@/components/MessageComposer";
 import { MessageItem } from "@/components/MessageItem";
 import { ThreadPanel } from "@/components/ThreadPanel";
 import { ChannelNotificationLevel } from "@/components/ChannelNotificationLevel";
+import { PresenceDot } from "@/components/PresenceProvider";
+import Link from "next/link";
 
 type MemberRow = {
   user_id: string;
@@ -59,6 +66,10 @@ export function ChannelView({
     setMessages(initialMessages);
     setMembers(initialMembers);
   }, [channel.id]); // eslint-disable-line react-hooks/exhaustive-deps -- sync on channel switch only
+
+  useEffect(() => {
+    void markChannelRead(channel.id).catch(() => undefined);
+  }, [channel.id]);
 
   useEffect(() => {
     setThreadRootId(initialThreadId);
@@ -132,6 +143,13 @@ export function ChannelView({
             ) : null}
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href={`/search?channel=${channel.id}`}
+              data-testid="channel-search-link"
+              className="rounded-[var(--radius-button)] border border-[color-mix(in_srgb,var(--color-secondary)_25%,transparent)] px-3 py-1.5 text-xs font-medium text-[var(--color-secondary)] hover:text-[var(--color-primary)]"
+            >
+              Search
+            </Link>
             <ChannelNotificationLevel channelId={channel.id} />
             {currentUser.role === "admin" ? (
               <button
@@ -216,8 +234,12 @@ export function ChannelView({
           <ul className="mt-3 space-y-2">
             {members.map((m) => (
               <li key={m.user_id} className="flex items-center gap-2 text-sm text-[var(--color-dark)]">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-bg)] text-xs font-semibold">
+                <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-bg)] text-xs font-semibold">
                   {(m.profiles?.display_name || "?").charAt(0).toUpperCase()}
+                  <PresenceDot
+                    userId={m.user_id}
+                    className="absolute bottom-0 right-0 ring-2 ring-[var(--color-surface)]"
+                  />
                 </span>
                 <span className="truncate">{m.profiles?.display_name || m.user_id}</span>
               </li>

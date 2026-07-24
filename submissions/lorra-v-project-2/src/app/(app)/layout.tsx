@@ -29,10 +29,14 @@ export default async function AppLayout({
     .eq("is_archived", false)
     .order("name", { ascending: true });
 
-  let dms: { id: string; title: string }[] = [];
+  let dms: { id: string; title: string; peerIds: string[] }[] = [];
   try {
     const conversations = await listConversations();
-    dms = conversations.map((c) => ({ id: c.id, title: c.title }));
+    dms = conversations.map((c) => ({
+      id: c.id,
+      title: c.title,
+      peerIds: c.member_ids.filter((id) => id !== user.id),
+    }));
   } catch {
     dms = [];
   }

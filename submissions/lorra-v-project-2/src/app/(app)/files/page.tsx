@@ -1,13 +1,19 @@
-export default function FilesPage() {
-  return (
-    <section
-      data-testid="files-page"
-      className="mx-auto max-w-3xl rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 md:p-8"
-    >
-      <h1 className="text-2xl font-semibold text-[var(--color-dark)]">Files</h1>
-      <p className="mt-3 text-[var(--color-secondary)] leading-relaxed">
-        Attachments you can see, filterable by channel — Step 10.
-      </p>
-    </section>
-  );
+import { listVisibleAttachments } from "@/app/(app)/files/actions";
+import { FilesView } from "@/components/FilesView";
+
+export default async function FilesPage() {
+  let files: Awaited<ReturnType<typeof listVisibleAttachments>> = [];
+  try {
+    files = await listVisibleAttachments();
+  } catch {
+    files = [];
+  }
+  const channelMap = new Map<string, string>();
+  for (const f of files) {
+    if (f.channel_id && f.channel_name) channelMap.set(f.channel_id, f.channel_name);
+  }
+  const channels = Array.from(channelMap.entries())
+    .map(([id, name]) => ({ id, name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  return <FilesView initial={files} channels={channels} />;
 }

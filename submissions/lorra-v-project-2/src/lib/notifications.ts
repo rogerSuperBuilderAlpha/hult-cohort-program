@@ -30,9 +30,15 @@ export function hrefForEntityRef(entityRef: string): string {
     if (parts[2] === "conversation") return `/messages/${parts[3]}?thread=${rootId}`;
   }
   if (parts[0] === "channel" && parts.length >= 2) {
+    if (parts[2] === "message" && parts[3]) {
+      return `/channels/${parts[1]}?thread=${parts[3]}`;
+    }
     return `/channels/${parts[1]}`;
   }
   if (parts[0] === "conversation" && parts.length >= 2) {
+    if (parts[2] === "message" && parts[3]) {
+      return `/messages/${parts[1]}?thread=${parts[3]}`;
+    }
     return `/messages/${parts[1]}`;
   }
   if (parts[0] === "forth" && parts.length >= 2) {

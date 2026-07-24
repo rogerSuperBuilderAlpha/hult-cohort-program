@@ -84,6 +84,10 @@ npm run test:e2e:step6   # threads
 npm run test:e2e:step7   # notifications
 npm run test:e2e:step8   # Forth adapter (fixtures)
 npm run test:e2e:step9   # create ticket + unfurl
+npm run test:e2e:step10  # home / tasks / files / search / presence
+```
+
+**Step 10 search FTS (optional):** apply `supabase/migrations/005_search_fts.sql` in the SQL Editor for ranked Postgres full-text search. Without it, search falls back to `ilike`.
 ```
 
 ### Forth adapter (Step 8)

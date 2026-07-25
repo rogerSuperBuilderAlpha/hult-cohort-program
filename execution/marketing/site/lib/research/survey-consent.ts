@@ -32,7 +32,7 @@ export const CONSENT = {
     {
       heading: 'What you will be asked to do',
       body:
-        'If you agree, you will complete three short surveys: one before the pilot\u2019s first working week, one after the first review cycle, and one at the end of week 6. Each takes about 10 to 15 minutes. There are no right or wrong answers.',
+        'If you agree, you will complete three short surveys: one before week 1, one after week 3, and one after week 6. Each takes about 10 to 15 minutes. There are no right or wrong answers.',
     },
     {
       heading: 'Voluntary participation',

@@ -4,7 +4,7 @@
 
 **URL:** `cohort.hult.edu` (or subdomain TBD)
 **Applications open:** June 15, 2026
-**Cohort start:** July 9, 2026 at 09:00 Eastern Time
+**Cohort start:** July 13, 2026 at 09:00 Eastern Time
 
 ---
 
@@ -83,7 +83,7 @@ When we place you, you receive **10% of our referral fee back** — often ~$5,00
 3. Decision within 2 weeks
 
 **Cohort size:** 30 students (Boston anchor; online welcome)
-**Apply by:** July 8, 2026
+**Apply by:** July 12, 2026
 
 ---
 

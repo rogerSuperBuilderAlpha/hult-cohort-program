@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
+import { cohortMarketing } from '@/content/program';
 import { AccountSection } from '@/components/AccountSection';
+import { ApplyNextCohortSection } from '@/components/ApplyNextCohortSection';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import {
   isApplicantInFlight,
@@ -15,8 +17,7 @@ import { readApplicationApiError } from '@/lib/read-application-api-error';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import styles from '../page.module.css';
 
-const DEFAULT_TAKE_HOME =
-  'https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26';
+import { DEFAULT_TAKE_HOME_REPO_URL, takeHomeDisplayLabel } from '@/lib/applications';
 
 function SignedInBar({
   handle,
@@ -56,6 +57,54 @@ function SignedInBar({
   );
 }
 
+function CharCountTextarea({
+  name,
+  label,
+  maxLength,
+  rows,
+  required,
+}: {
+  name: string;
+  label: string;
+  maxLength: number;
+  rows: number;
+  required?: boolean;
+}) {
+  const [length, setLength] = useState(0);
+
+  return (
+    <label>
+      {label} ({length}/{maxLength} characters)
+      <textarea
+        name={name}
+        required={required}
+        rows={rows}
+        maxLength={maxLength}
+        onInput={(e) => setLength(e.currentTarget.value.length)}
+      />
+    </label>
+  );
+}
+
+function ApplicationSubmittedPanel({ takeHomeUrl }: { takeHomeUrl: string }) {
+  return (
+    <div className={styles.participantPanel}>
+      <div className={styles.calloutSuccess}>
+        <p style={{ marginTop: 0 }}>
+          <strong>Application submitted.</strong> Check your email for the take-home link, or open
+          the repository below.
+        </p>
+      </div>
+      <p className={styles.formNote}>
+        Take-home repo:{' '}
+        <a href={takeHomeUrl} target="_blank" rel="noopener noreferrer">
+          {takeHomeDisplayLabel()}
+        </a>
+      </p>
+    </div>
+  );
+}
+
 function TakeHomeSteps({
   takeHomeUrl,
   handle,
@@ -82,7 +131,7 @@ function TakeHomeSteps({
         <li>
           Open the repository:{' '}
           <a href={takeHomeUrl} target="_blank" rel="noopener noreferrer">
-            {takeHomeUrl}
+            {takeHomeDisplayLabel()}
           </a>
         </li>
         <li>
@@ -95,7 +144,7 @@ function TakeHomeSteps({
           <code>[Admissions] Fix task board — {handle}</code> from branch{' '}
           <code>admissions/{handle}</code>.
         </li>
-        <li>Complete the pull request template in full, including documentation of agent usage.</li>
+        <li>Complete the submission template in full, including tooling notes and test evidence.</li>
         <li>A decision will be issued within 48 hours of your take-home pull request.</li>
       </ol>
     </div>
@@ -137,13 +186,16 @@ export default function ApplyPage() {
     getIdToken,
     Boolean(profile)
   );
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
 
   const enrolled = isEnrolled(me);
   const pendingRoster = isAdmittedPendingRoster(me);
   const inFlight = isApplicantInFlight(me);
-  const takeHomeUrl = me?.application?.takeHomeRepoUrl || DEFAULT_TAKE_HOME;
+  const takeHomeUrl =
+    me?.application?.takeHomeRepoUrl ||
+    process.env.NEXT_PUBLIC_TAKE_HOME_REPO_URL ||
+    DEFAULT_TAKE_HOME_REPO_URL;
   const terminalApplication =
     me?.application?.status === 'waitlisted' || me?.application?.status === 'rejected';
   const showAccountSection = Boolean(me?.githubHandle) && !terminalApplication;
@@ -198,17 +250,21 @@ export default function ApplyPage() {
 
       await refresh();
       form.reset();
-      setSubmitStatus('idle');
+      setSubmitStatus('success');
     } catch (err) {
       setSubmitStatus('error');
       setSubmitMessage(err instanceof Error ? err.message : 'Something went wrong');
     }
   }
 
-  const pageTitle = enrolled ? 'Apply' : pendingRoster ? 'Admitted' : 'Apply';
+  const pageTitle = enrolled
+    ? 'Apply'
+    : pendingRoster
+      ? 'Admitted'
+      : 'Apply for Summer 2026';
   const pageLead = pendingRoster
     ? 'You have been admitted to the Summer Pilot. Enrollment is being finalized; participant tools will become available shortly.'
-    : 'Sign in with GitHub and complete the application form. If admitted to the take-home stage, you will have 48 hours to submit a pull request. Admissions follows the same GitHub-based workflow as the program.';
+    : `Complete the application form for the ${cohortMarketing.cohortStart.replace(', 2026', '')} cohort. After you submit, you receive a focused 48-hour technical take-home before admission decisions are made.`;
 
   return (
     <main className={styles.main} id="main-content">
@@ -216,7 +272,7 @@ export default function ApplyPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>
-          Summer Pilot 2026 · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : 'Applications open June 15'}
+          Summer Pilot 2026 · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : `Applications open ${cohortMarketing.applicationsOpen.replace(', 2026', '')}`}
         </p>
         <h1 className={styles.sectionTitle}>{pageTitle}</h1>
         <p className={styles.overviewLead}>{pageLead}</p>
@@ -231,8 +287,8 @@ export default function ApplyPage() {
         ) : !profile ? (
           <div className={styles.authGate}>
             <p className={styles.authGateLead}>
-              Sign in with GitHub to begin your application. Your application is linked to this
-              account — the same identity you will use for all program submissions.
+              Sign in to begin. Your application is tied to the engineering identity used for
+              submissions, reviews, and cohort records.
             </p>
             <button type="button" className={styles.githubSignInBtn} onClick={() => void signIn()}>
               Sign in with GitHub
@@ -271,6 +327,8 @@ export default function ApplyPage() {
                 title="Not admitted this cycle."
                 body="Thank you for your application. You may reapply in a future cohort."
               />
+            ) : submitStatus === 'success' && !inFlight ? (
+              <ApplicationSubmittedPanel takeHomeUrl={takeHomeUrl} />
             ) : inFlight && me ? (
               <TakeHomeSteps
                 takeHomeUrl={takeHomeUrl}
@@ -281,7 +339,6 @@ export default function ApplyPage() {
               />
             ) : (
               <form className={styles.applyForm} onSubmit={onSubmit}>
-                <input type="hidden" name="githubHandle" value={me?.githubHandle ?? ''} />
                 <div className={styles.nameRow}>
                   <label>
                     First name
@@ -301,14 +358,20 @@ export default function ApplyPage() {
                   <span className={styles.githubLockedValue}>@{me?.githubHandle ?? '…'}</span>
                   <span className={styles.githubLockedNote}>Linked to your sign-in — not editable</span>
                 </div>
-                <label>
-                  Why this program (200 words max)
-                  <textarea name="motivation" required rows={5} maxLength={1500} />
-                </label>
-                <label>
-                  Project 1 PM platform idea (100 words)
-                  <textarea name="project1Idea" required rows={3} maxLength={800} />
-                </label>
+                <CharCountTextarea
+                  name="motivation"
+                  label="Why this program"
+                  maxLength={1500}
+                  rows={5}
+                  required
+                />
+                <CharCountTextarea
+                  name="project1Idea"
+                  label="Project 1 PM platform idea"
+                  maxLength={800}
+                  rows={3}
+                  required
+                />
                 <label>
                   Timezone
                   <input name="timezone" type="text" required placeholder="America/New_York" />
@@ -350,13 +413,12 @@ export default function ApplyPage() {
                   <label className={styles.checkboxLabel}>
                     <input name="confirmTooling" type="checkbox" required />
                     I confirm I can cover approximately $400 per month for Cursor and Claude Code for
-                    the six-week pilot, and that I am registered (or will register) for this elective
-                    through Hult.
+                    the six-week pilot.
                   </label>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPublicWork" type="checkbox" required />
-                    I understand that my code, reviews, and project work will be publicly visible
-                    on GitHub.
+                    I understand that my code, reviews, and project work will be visible for
+                    assessment and partner review.
                   </label>
                   <label className={styles.checkboxLabel}>
                     <input name="confirmPolicies" type="checkbox" required />
@@ -396,10 +458,12 @@ export default function ApplyPage() {
 
         {!enrolled && !pendingRoster && (
           <p className={styles.formNote}>
-            Register for the course through Hult and complete this platform apply + take-home. Tooling
-            runs ~$400/month. Details: <Link href="/start">program intro</Link>.
+            Register for the course through Hult and complete this application plus the technical
+            take-home. Tooling runs ~$400/month. Details: <Link href="/start">program intro</Link>.
           </p>
         )}
+
+        <ApplyNextCohortSection />
       </article>
     </main>
   );

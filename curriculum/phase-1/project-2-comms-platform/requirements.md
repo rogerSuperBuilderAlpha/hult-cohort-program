@@ -12,7 +12,7 @@
 | **Announcements** | Role or channel where only operator/admin can post (for staff announcements) |
 | **Notifications** | In-app and/or email on @mention or DM |
 | **Search** | Search message content by keyword |
-| **Multi-user auth** | ≥ 30 accounts; **same email as PM platform** (shared user table or matching email required) |
+| **Multi-user auth** | Sized for the enrolled cohort (capacity — not a pre-merge signup quota); **same email as PM platform** (shared user table or matching email required) |
 | **Deployment** | Public HTTPS URL |
 
 ### Differentiating

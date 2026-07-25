@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week 1 Vercel Smoke Test — @jayyyw34</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f2f3ee;
+        color: #1a1a1a;
+      }
+      main {
+        max-width: 36rem;
+        padding: 2rem;
+        border: 1px solid #74857c;
+        border-radius: 12px;
+        background: #fff;
+      }
+      h1 {
+        margin-top: 0;
+        color: #a81202;
+        font-size: 1.4rem;
+      }
+      code {
+        background: #f2f3ee;
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Hult Cohort · Week 1 deploy smoke test</h1>
+      <p><strong>GitHub:</strong> <code>@jayyyw34</code></p>
+      <p><strong>Purpose:</strong> Verify Vercel account, GitHub-linked deploy, and public HTTPS URL for onboarding.</p>
+      <p><strong>Status:</strong> Production deploy OK.</p>
+      <p><strong>Deployed:</strong> <span id="ts"></span></p>
+    </main>
+    <script>
+      document.getElementById('ts').textContent = new Date().toISOString();
+    </script>
+  </body>
+</html>

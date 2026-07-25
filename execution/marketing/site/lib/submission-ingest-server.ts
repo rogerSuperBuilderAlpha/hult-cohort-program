@@ -1,6 +1,10 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { programProjects } from '@/content/program';
-import { getCohortContext } from '@/lib/cohort-config';
+import {
+  allowLegacyMainSubmissions,
+  getCohortContext,
+  projectBranch,
+} from '@/lib/cohort-config';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import type { CohortStats } from '@/lib/cohort-stats-types';
 import {
@@ -15,6 +19,9 @@ export type ParsedSubmissionPr = {
   prNumber: number;
   prUrl: string;
   prTitle: string;
+  baseRef?: string;
+  headRef?: string;
+  authorLogin?: string | null;
 };
 
 export function verifyGithubWebhookSignature(
@@ -52,41 +59,13 @@ export function parseGithubWebhookPayload(rawBody: string): unknown {
   throw new Error('Unrecognized webhook body format.');
 }
 
-function extractFirstHttpsUrl(text: string): string | null {
-  const match = text.match(/https:\/\/[^\s<>\]"')]+/i);
-  if (!match) return null;
-  return match[0].replace(/[.,;]+$/, '');
-}
+import { extractDeployUrl } from './deploy-url.mjs';
+import { extractAppRepo, parseGithubRepoFullName } from './app-repo.mjs';
 
-/** Parse deploy URL from submission PR body (Production URL / Deploy URL label). */
-export function extractDeployUrl(prBody: string | null | undefined): string | null {
-  if (!prBody?.trim()) return null;
-
-  const lines = prBody.split(/\r?\n/);
-  const labelPattern =
-    /^\s*(?:\*\*)?(?:production\s+url|deploy(?:ment)?\s+url)(?:\*\*)?\s*:?\s*(.*)$/i;
-
-  for (let i = 0; i < lines.length; i++) {
-    const match = lines[i].match(labelPattern);
-    if (!match) continue;
-
-    const inline = extractFirstHttpsUrl(match[1] ?? '');
-    if (inline) return inline;
-
-    for (let j = i + 1; j < Math.min(i + 4, lines.length); j++) {
-      const line = lines[j].trim();
-      if (!line) continue;
-      const url = extractFirstHttpsUrl(line);
-      if (url) return url;
-      if (!line.match(/^[\s\-*]/)) break;
-    }
-  }
-
-  return null;
-}
+export { extractDeployUrl, extractAppRepo, parseGithubRepoFullName };
 
 const EMPTY_STATS: CohortStats = {
-  cohortId: 'fall26',
+  cohortId: 'summer26',
   enrolledCount: 0,
   peerReviewCount: 0,
   available: true,
@@ -98,6 +77,9 @@ export function matchMergedPullRequest(params: {
   prNumber: number;
   prHtmlUrl: string;
   merged: boolean;
+  baseRef?: string;
+  headRef?: string;
+  authorLogin?: string | null;
 }): ParsedSubmissionPr | null {
   if (!params.merged) return null;
 
@@ -118,6 +100,12 @@ export function matchMergedPullRequest(params: {
     );
     if (!submissionTitlesMatch(params.prTitle, expectedTitle)) continue;
 
+    if (params.baseRef) {
+      const expectedBase = projectBranch(cohortId, project.slug);
+      const legacyMain = allowLegacyMainSubmissions() && params.baseRef === 'main';
+      if (params.baseRef !== expectedBase && !legacyMain) continue;
+    }
+
     return {
       projectSlug: project.slug,
       githubHandle: handle,
@@ -125,6 +113,9 @@ export function matchMergedPullRequest(params: {
       prNumber: params.prNumber,
       prUrl: params.prHtmlUrl,
       prTitle: params.prTitle,
+      baseRef: params.baseRef,
+      headRef: params.headRef,
+      authorLogin: params.authorLogin,
     };
   }
 

@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 /**
- * DEPRECATED — legacy ranked-choice instant runoff tally.
+ * DEPRECATED — legacy ranked-choice instant runoff tally from CSV.
  *
- * The live cohort platform uses private 👍/👎 votes stored in Firestore
- * (`peerRatings/...`). Use the staff tally script instead:
+ * Canonical staff tally (public optional Vote: up on GitHub):
  *
  *   cd execution/marketing/site
- *   node scripts/tally-votes.mjs --project=phase-1-project-1
- *   node scripts/tally-votes.mjs --all
+ *   npx tsx scripts/tally-votes.ts --project=phase-1-project-1
+ *   npx tsx scripts/tally-votes.ts --all
  *
  * This script remains for historical CSV exports only.
  *

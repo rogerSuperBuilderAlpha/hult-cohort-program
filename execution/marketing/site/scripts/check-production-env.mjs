@@ -13,9 +13,16 @@ const REQUIRED_PUBLIC = [
   'NEXT_PUBLIC_FIREBASE_APP_ID',
 ];
 
-const REQUIRED_SERVER = ['GITHUB_TOKEN', 'GITHUB_WEBHOOK_SECRET'];
+const REQUIRED_SERVER = [
+  'GITHUB_TOKEN',
+  'GITHUB_WEBHOOK_SECRET',
+  'UNSUBSCRIBE_SECRET',
+  'RESEARCH_HASH_SALT',
+];
 
 const FIREBASE_ADMIN = ['FIREBASE_SERVICE_ACCOUNT_JSON', 'FIREBASE_SERVICE_ACCOUNT_PATH'];
+
+const FORBIDDEN_IN_PRODUCTION = ['REVIEW_WINDOW_OVERRIDE', 'ALLOW_UNVERIFIED_REVIEWS'];
 
 const RECOMMENDED = [
   'NEXT_PUBLIC_TAKE_HOME_REPO_URL',
@@ -52,6 +59,14 @@ const publicOk = checkGroup('Public client vars', REQUIRED_PUBLIC);
 const adminOk = checkGroup('Firebase Admin', FIREBASE_ADMIN, { requireOneOf: true });
 const serverOk = checkGroup('Server secrets', REQUIRED_SERVER);
 
+let forbiddenOk = true;
+console.log('\nForbidden in production (must be unset):');
+for (const name of FORBIDDEN_IN_PRODUCTION) {
+  const bad = isSet(name);
+  if (bad) forbiddenOk = false;
+  console.log(`${bad ? '✗' : '✓'} ${name}${bad ? ' (set — remove for production)' : ''}`);
+}
+
 console.log('\nRecommended:');
 for (const name of RECOMMENDED) {
   console.log(`${isSet(name) ? '✓' : '○'} ${name}`);
@@ -64,6 +79,6 @@ if (siteUrl) {
   console.log('\nCanonical URL: (unset — falls back to VERCEL_URL or site-nine-rouge-68.vercel.app)');
 }
 
-const ok = publicOk && adminOk && serverOk;
+const ok = publicOk && adminOk && serverOk && forbiddenOk;
 console.log(ok ? '\nAll required vars present in this shell.' : '\nMissing required vars in this shell.');
 process.exit(ok ? 0 : 1);

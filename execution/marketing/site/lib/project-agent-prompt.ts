@@ -1,20 +1,17 @@
 import type { ProgramProject } from '@/content/program';
 import type { CohortStats } from './cohort-stats-types';
-import { cohortSubmissionRepo } from './cohort-config';
+import {
+  cohortId,
+  cohortSubmissionRepo,
+  participantBranch,
+  projectBranch,
+} from './cohort-config';
 import { cohortRepoUrl } from './github-urls';
 import { personalizeProgramText } from './personalize-program';
+import { reviewIssueTitle } from './written-reviews-format';
 
-function branchName(slug: string, handle: string): string {
-  switch (slug) {
-    case 'onboarding':
-      return `onboarding/${handle}`;
-    case 'phase-1-unification':
-      return `integration/${handle}`;
-    case 'phase-2-open-source':
-      return `oss-tracking/${handle}`;
-    default:
-      return `submission/${handle}`;
-  }
+function resolveCohortId(stats?: CohortStats | null): string {
+  return stats?.cohortId?.trim() || cohortId();
 }
 
 function extraInterviewQuestions(project: ProgramProject): string[] {
@@ -77,13 +74,20 @@ function extraInterviewQuestions(project: ProgramProject): string[] {
   }
 }
 
-function workflowSteps(project: ProgramProject, handle: string, org: string): string[] {
-  const branch = branchName(project.slug, handle);
+function workflowSteps(
+  project: ProgramProject,
+  handle: string,
+  org: string,
+  activeCohortId: string
+): string[] {
+  const id = activeCohortId;
+  const headBranch = participantBranch(id, project.slug, handle);
+  const baseBranch = projectBranch(id, project.slug);
   const prTitle = personalizeProgramText(project.submission.prTitle, handle, org);
 
   const common = [
     `Confirm I can open PRs on \`${cohortSubmissionRepo()}\` (collaborator access or fork → upstream PR).`,
-    `Create branch \`${branch}\` from \`main\`.`,
+    `Create branch \`${headBranch}\` from \`${baseBranch}\` (or from \`cohorts/${id}\` if the project branch is not created yet).`,
   ];
 
   switch (project.slug) {
@@ -92,7 +96,7 @@ function workflowSteps(project: ProgramProject, handle: string, org: string): st
         ...common,
         `Add or update my tooling checklist (markdown) under \`participants/${handle}.md\` or as specified in the roster repo README.`,
         'Include Expectations Acknowledgment confirmation and agent workflow notes.',
-        `Open PR titled \`${prTitle}\` → \`main\`.`,
+        `Open PR titled \`${prTitle}\` → \`${baseBranch}\`.`,
         'Push branch and give me the PR URL. Do not merge unless I say so.',
       ];
     case 'phase-2-open-source':
@@ -100,14 +104,14 @@ function workflowSteps(project: ProgramProject, handle: string, org: string): st
         ...common,
         'Open a tracking PR in the cohort repo linking upstream repo + PR (do not confuse with upstream merge).',
         'Do not push to upstream unless I explicitly authorize upstream PR creation.',
-        `Open tracking PR titled \`${prTitle}\` → \`main\`.`,
+        `Open tracking PR titled \`${prTitle}\` → \`${baseBranch}\`.`,
         'Push and return PR URL.',
       ];
     case 'phase-1-unification':
       return [
         ...common,
         'Coordinate integration changes via PRs to the cohort monorepo.',
-        `Open PR titled \`${prTitle}\` → \`main\`.`,
+        `Open PR titled \`${prTitle}\` → \`${baseBranch}\`.`,
         'Push and return PR URL.',
       ];
     default:
@@ -116,7 +120,7 @@ function workflowSteps(project: ProgramProject, handle: string, org: string): st
         'Implement or update the project to meet pass-gate requirements.',
         'Deploy to production HTTPS if this project requires a live URL.',
         'Verify fresh-clone setup when applicable (`npm install`, env example, tests).',
-        `Open submission PR titled \`${prTitle}\` → \`main\` with a complete PR body.`,
+        `Open submission PR titled \`${prTitle}\` → \`${baseBranch}\` with a complete PR body.`,
         'Push branch and give me the PR URL. Do not merge unless I say so.',
       ];
   }
@@ -126,13 +130,15 @@ export function buildProjectAgentPrompt(
   project: ProgramProject,
   handle: string,
   org: string,
-  stats?: CohortStats | null
+  stats?: CohortStats | null,
+  reviewTarget?: number | null
 ): string {
-  const p = (text: string) => personalizeProgramText(text, handle, org, stats);
+  const p = (text: string) => personalizeProgramText(text, handle, org, stats, reviewTarget);
   const prTitle = p(project.submission.prTitle);
   const interview = extraInterviewQuestions(project);
   const prBodyItems = project.submission.prBodyMustInclude;
-  const workflow = workflowSteps(project, handle, org);
+  const activeCohortId = resolveCohortId(stats);
+  const workflow = workflowSteps(project, handle, org, activeCohortId);
 
   const lines: string[] = [
     `You are my agent for the Hult Cohort Developer Program Summer Pilot 2026.`,
@@ -151,7 +157,8 @@ export function buildProjectAgentPrompt(
     `- GitHub handle: \`${handle}\``,
     `- Cohort repo: \`${cohortSubmissionRepo()}\` (${cohortRepoUrl()})`,
     `- PR title: \`${prTitle}\``,
-    `- Branch: \`${branchName(project.slug, handle)}\``,
+    `- Branch: \`${participantBranch(activeCohortId, project.slug, handle)}\``,
+    `- Target base branch: \`${projectBranch(activeCohortId, project.slug)}\``,
     ``,
     `## Required details — ask me for each, then record in the PR body`,
     ...interview.map((q, i) => `${i + 1}. ${q}`),
@@ -160,21 +167,26 @@ export function buildProjectAgentPrompt(
     `## PR body must include these sections`,
     ...prBodyItems.map((item) => `- ${item}`),
     ``,
-    `## Pass gate (submission must satisfy)`,
+    `## Merge bar (do not invent extra gates)`,
+    `- A submission is eligible when: exact PR title, every required PR body section filled, Production URL works if required, and the PR is merged by the deadline.`,
+    `- Do NOT tell me to collect N real user signups (or “30 accounts”) before merging. Cohort-sized multi-user support is a product capacity requirement — peers sign up on the live deploy during review week.`,
+    `- Pass-gate metrics (e.g. Phase 2 user counts) belong in the required PR body / platform snapshot evidence — they are not a reason to block opening the PR.`,
+    ``,
+    `## Pass gate (program criteria — evidence goes in the PR template)`,
     ...project.passGate.map((item) => `- ${p(item)}`),
   ];
 
   if (project.reviews) {
     const reviewCount =
-      stats && stats.enrolledCount > 0
-        ? `${stats.peerReviewCount} written GitHub reviews + ${stats.peerReviewCount} private votes`
-        : 'Review every peer on GitHub, then cast a private vote on the platform';
+      typeof reviewTarget === 'number' && reviewTarget > 0
+        ? `${reviewTarget} written GitHub reviews — one per merged peer submission (optional Vote: up each, or abstain)`
+        : 'Review every peer with a merged submission on GitHub; optionally upvote with Vote: up or abstain';
     lines.push(
       ``,
       `## Peer review and voting (review week)`,
       `- ${reviewCount}`,
-      `- Order: evaluate deployment → read pull request → file GitHub issue "Review by @${handle}" → cast private vote here`,
-      `- Votes are private; the submission with the most votes is selected`,
+      `- Order: evaluate deployment → read pull request → file GitHub issue "${reviewIssueTitle(handle, 'peer-handle')}" (optional Vote: up in body)`,
+      `- Upvotes are public on GitHub; the site shows personal status only (no cohort tallies)`,
       `- Due: ${project.reviews.dueNote}`
     );
   }
@@ -183,9 +195,9 @@ export function buildProjectAgentPrompt(
     lines.push(
       ``,
       `## Selection criteria`,
-      `- The submission with the most votes after review closes is selected.`,
-      `- Written reviews are public on GitHub; private votes remain confidential until results are announced.`,
-      `- I cannot vote on my own submission.`
+      `- Staff select the submission with the most GitHub upvotes after review closes.`,
+      `- Written reviews and optional Vote: up lines are public on GitHub.`,
+      `- I cannot review or upvote my own submission.`
     );
   }
 

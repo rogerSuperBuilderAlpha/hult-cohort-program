@@ -2,15 +2,34 @@ import { logApi } from '@/lib/api-log';
 import {
   ADMISSION_EMAIL_SUBJECT,
   APPLICATION_EMAIL_SUBJECT,
+  APPLICATION_NOTIFICATION_SUBJECT,
   buildAdmissionConfirmationHtml,
   buildApplicationConfirmationHtml,
+  buildApplicationNotificationHtml,
 } from '@/lib/email-templates.mjs';
-import { getEmailConfig, sendMailgunEmail } from '@/lib/mailgun.mjs';
+import { getMailerConfig, sendEmail } from '@/lib/mailer.mjs';
+
+/** Staff address(es) notified on each new application. Comma-separated env override. */
+const ADMISSIONS_NOTIFY_EMAIL =
+  process.env.ADMISSIONS_NOTIFY_EMAIL?.trim() || 'cohort@hult.edu';
 
 type ApplicationEmailParams = {
   email: string;
   firstName: string;
   takeHomeRepoUrl: string;
+};
+
+type ApplicationNotificationParams = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  githubHandle: string;
+  githubUrl: string;
+  campus: string;
+  timezone: string;
+  referralSource: string;
+  motivation: string;
+  project1Idea: string;
 };
 
 type AdmissionEmailParams = {
@@ -19,11 +38,13 @@ type AdmissionEmailParams = {
   githubHandle: string;
 };
 
-function requireMailgun() {
-  const config = getEmailConfig();
+/** Resolve the active provider config (mailgun or ses); null if unconfigured. */
+function requireMailer() {
+  const config = getMailerConfig();
   if (!config) {
-    logApi('email', 'info', 'Email not configured — skipping send', {
-      hint: 'Set EMAIL_API_KEY, EMAIL_PROVIDER=mailgun, EMAIL_DOMAIN, EMAIL_FROM, EMAIL_FROM_NAME',
+    logApi('email', 'warn', 'Email not configured — skipping send', {
+      provider: process.env.EMAIL_PROVIDER?.trim() || 'mailgun',
+      hint: 'Set EMAIL_PROVIDER (mailgun|ses) and its provider env (see lib/mailer.mjs / lib/ses.mjs)',
     });
     return null;
   }
@@ -34,10 +55,10 @@ function requireMailgun() {
 export async function sendApplicationConfirmationEmail(
   params: ApplicationEmailParams
 ): Promise<void> {
-  const config = requireMailgun();
+  const config = requireMailer();
   if (!config) return;
 
-  await sendMailgunEmail({
+  await sendEmail({
     to: params.email,
     subject: APPLICATION_EMAIL_SUBJECT,
     html: buildApplicationConfirmationHtml({
@@ -45,7 +66,20 @@ export async function sendApplicationConfirmationEmail(
       takeHomeRepoUrl: params.takeHomeRepoUrl,
       fromName: config.fromName,
     }),
-    config,
+  });
+}
+
+/** Staff notification — sent to admissions team on each new application. */
+export async function sendApplicationNotificationEmail(
+  params: ApplicationNotificationParams
+): Promise<void> {
+  const config = requireMailer();
+  if (!config) return;
+
+  await sendEmail({
+    to: ADMISSIONS_NOTIFY_EMAIL,
+    subject: `${APPLICATION_NOTIFICATION_SUBJECT} — ${params.firstName} ${params.lastName}`,
+    html: buildApplicationNotificationHtml(params),
   });
 }
 
@@ -53,10 +87,10 @@ export async function sendApplicationConfirmationEmail(
 export async function sendAdmissionConfirmationEmail(
   params: AdmissionEmailParams
 ): Promise<void> {
-  const config = requireMailgun();
+  const config = requireMailer();
   if (!config) return;
 
-  await sendMailgunEmail({
+  await sendEmail({
     to: params.email,
     subject: ADMISSION_EMAIL_SUBJECT,
     html: buildAdmissionConfirmationHtml({
@@ -64,6 +98,5 @@ export async function sendAdmissionConfirmationEmail(
       githubHandle: params.githubHandle,
       fromName: config.fromName,
     }),
-    config,
   });
 }

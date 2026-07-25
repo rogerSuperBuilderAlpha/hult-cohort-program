@@ -30,10 +30,12 @@ Submit 1-paragraph topic to PM platform by Wed for staff visibility (not approva
 
 | Day | Action |
 |-----|--------|
-| Tue | Kickoff + Ludwitt/Hult app registration |
-| Wed–Thu | Build + integrate JWT/events |
-| Fri | User push; metrics snapshot at 17:00 ET |
-| Fri 17:00 | Proof PR merged with snapshot |
+| Mon | Kickoff + Ludwitt/Hult app registration |
+| Tue–Thu | Build + integrate JWT/events |
+| Fri–Sat | User push; metrics snapshot |
+| Sun 17:00 ET | Proof PR merged with snapshot |
+
+No review window this week (`voteWeek: false`) — the pass gate is the merged proof PR and the platform-verified metrics snapshot, not peer votes.
 
 See [promotion-playbook.md](promotion-playbook.md) for user-acquisition tactics compressed to one week.
 

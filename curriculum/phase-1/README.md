@@ -1,13 +1,15 @@
-# Phase 1: Internal (Weeks 2–8)
+# Phase 1: Internal (Weeks 1–3)
 
 The cohort builds the software it runs on. Three projects, one repeating loop, escalating stakes. Each cohort ends up owning its entire tool stack — nothing inherited from the program or a prior cohort.
+
+Summer Pilot 2026 compresses each project into a single Monday-anchored week — present Friday 17:00 ET, merge Sunday 17:00 ET, reviews close Monday 17:00 ET.
 
 ## Structure
 
 - [the-loop.md](the-loop.md) — the build → review → operate cycle every project follows
-- [project-1-pm-platform/](project-1-pm-platform/) — weeks 2–4
-- [project-2-comms-platform/](project-2-comms-platform/) — weeks 5–6
-- [project-3-public-showcase/](project-3-public-showcase/) — weeks 7–8
+- [project-1-pm-platform/](project-1-pm-platform/) — week 1 (Jul 13–20)
+- [project-2-comms-platform/](project-2-comms-platform/) — week 2 (Jul 20–27)
+- [project-3-public-showcase/](project-3-public-showcase/) — week 3 (Jul 27 – Aug 3)
 - [ecosystem-unification.md](ecosystem-unification.md) — the three winners merge their platforms
 
 ## What Phase 1 trains

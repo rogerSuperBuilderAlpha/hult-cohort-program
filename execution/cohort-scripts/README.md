@@ -16,12 +16,15 @@ Use real roster from admissions spreadsheet export before each review week.
 
 ## vote-tally.js (deprecated)
 
-**Legacy ranked-choice instant runoff** from ballot CSV. The live platform uses private 👍/👎 in Firestore — use the site tally script instead:
+**Legacy ranked-choice instant runoff** from ballot CSV. Do not use for live cohorts.
+
+**Canonical tally** (GitHub `Vote: up` discovery):
 
 ```bash
 cd execution/marketing/site
-node scripts/tally-votes.mjs --project=phase-1-project-1
-node scripts/tally-votes.mjs --all --json
+npx tsx scripts/tally-votes.ts --project=phase-1-project-1
+npx tsx scripts/tally-votes.ts --all --json
+npx tsx scripts/tally-votes.ts --all --publish --confirm   # write projectOutcomes
 ```
 
 The old CSV script is kept for historical exports only:
@@ -48,7 +51,7 @@ Run from `execution/marketing/site`:
 node scripts/seed-demo-cohort.mjs --count=45
 node scripts/seed-peer-reviews.mjs          # demo written reviews + votes
 node scripts/backfill-roster-submissions.mjs   # existing real roster members
-node scripts/tally-votes.mjs --all          # staff thumbs-up tally
+npx tsx scripts/tally-votes.ts --all       # staff upvote tally (GitHub)
 node scripts/seed-demo-cohort.mjs --dry-run    # preview only
 ```
 

@@ -94,6 +94,11 @@ export function validateApplication(
   };
 }
 
+/** Deterministic Firestore doc id — prevents duplicate applications under concurrent posts. */
+export function applicationDocId(cohort: string, githubHandle: string): string {
+  return `${cohort}_${githubHandle.toLowerCase()}`;
+}
+
 export function buildApplicationRecord(input: ApplicationInput, id: string): ApplicationRecord {
   const handle = parseGithubUrlHandle(input.githubUrl);
   if (!handle) throw new Error('Invalid GitHub URL');
@@ -107,9 +112,27 @@ export function buildApplicationRecord(input: ApplicationInput, id: string): App
   };
 }
 
+export const DEFAULT_TAKE_HOME_REPO_URL =
+  'https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26';
+
 export function takeHomeRepoUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_TAKE_HOME_REPO_URL ||
-    'https://github.com/rogerSuperBuilderAlpha/admissions-task-board-fall26'
-  );
+  return process.env.NEXT_PUBLIC_TAKE_HOME_REPO_URL?.trim() || DEFAULT_TAKE_HOME_REPO_URL;
+}
+
+/** `owner/repo` for the take-home admissions repository. */
+export function takeHomeRepoFullName(): string {
+  const url = takeHomeRepoUrl();
+  try {
+    const u = new URL(url);
+    const match = u.pathname.match(/^\/([^/]+\/[^/]+)\/?$/);
+    if (match) return match[1]!;
+  } catch {
+    // fall through
+  }
+  return 'rogerSuperBuilderAlpha/admissions-task-board-fall26';
+}
+
+/** Participant-facing label — repo slug may say fall26 while active cohort is summer26. */
+export function takeHomeDisplayLabel(): string {
+  return 'Summer Pilot admissions take-home (GitHub)';
 }

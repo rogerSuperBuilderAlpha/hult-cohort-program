@@ -7,12 +7,15 @@
 ## Overview
 
 ```
-BUILD (one week per contest project)
-  → REVIEW (Fri, same week)
-  → VOTE (Fri 16:00)
+BUILD (Mon → Fri 17:00 ET present)
+  → MERGE (Sun 17:00 ET — submission PRs merged; review window opens)
+  → REVIEW + VOTE (Sun 17:00 → Mon 17:00 ET)
+  → WINNER (Mon 18:00 ET live session)
   → OPERATE (through pilot end)
   → DEVELOPER/USER (everyone else, continuous)
 ```
+
+**The weekly clock, every contest week:** Friday 17:00 ET present · Sunday 17:00 ET submissions merged and voting opens · Monday 17:00 ET reviews finished · Monday 18:00 ET winner announced.
 
 Calendar dates: [operations/calendar.md](../../operations/calendar.md) · ISO timestamps: [content/program.ts](../../execution/marketing/site/content/program.ts)
 
@@ -20,25 +23,29 @@ Calendar dates: [operations/calendar.md](../../operations/calendar.md) · ISO ti
 
 ## Step 1: Build
 
-### Kickoff (Tuesday 10:00)
+### Kickoff (Monday)
 
 Program director delivers:
 - Project brief (from project folder `requirements.md`)
 - Review rubric preview
-- Deployment deadline (Thursday 17:00 ET)
+- Merge deadline (Sunday 17:00 ET)
 - "Eligible build" checklist
+
+### Present (Friday 17:00 ET)
+
+Builders demo the platform and make the case for it — what it does, why the cohort should run on it. Presenting is not a merge gate; it is where opinions form before reviews open.
 
 ### Build window (Summer Pilot — compressed)
 
-| Project | Week | Deploy deadline |
-|---------|------|-----------------|
-| Project 1 (PM) | 2 | Thu Jul 22, 17:00 ET |
-| Project 2 (comms) | 3 | Thu Jul 29, 17:00 ET |
-| Project 3 (showcase) | 4 | Thu Aug 5, 17:00 ET |
+| Project | Week | Present | Merge deadline | Reviews close |
+|---------|------|---------|----------------|---------------|
+| Project 1 (PM) | 1 | Fri Jul 17, 17:00 ET | Sun Jul 19, 17:00 ET | Mon Jul 20, 17:00 ET |
+| Project 2 (comms) | 2 | Fri Jul 24, 17:00 ET | Sun Jul 26, 17:00 ET | Mon Jul 27, 17:00 ET |
+| Project 3 (showcase) | 3 | Fri Jul 31, 17:00 ET | Sun Aug 2, 17:00 ET | Mon Aug 3, 17:00 ET |
 
 ### Eligible build checklist
 
-To appear on the peer review/vote list, student's **submission PR must be merged to `main`** by deploy deadline. The PR body is the proof-of-work record — no separate link submission form.
+To appear on the peer review/vote list, student's **submission PR must be merged** to the project branch by the Sunday 17:00 ET merge deadline. The PR body (filled template) is the proof-of-work record — no separate link submission form, and **no real cohort signup quota before merge**.
 
 Merged PR must include:
 
@@ -66,14 +73,14 @@ Unmerged PRs may still receive peer reviews but **cannot appear on the eligible 
 
 ### Mechanics
 
-1. **Thu 17:00:** Submission PRs due; review window opens. Platform lists all **merged submission PRs** (interim Discord weeks 1–2; cohort PM platform after week 2 cutover).
-2. Each student assigned **3 mandatory deep reviews** (different peers) via round-robin; must complete **all peers** by deadline.
-3. Reviews filed per [peer-review-system.md](../../assessment/peer-review-system.md).
-4. **Fri 14:00:** All reviews due.
+1. **Sun 17:00 ET:** Submission PRs merged; review window opens. Platform lists all **merged submission PRs** (interim Discord weeks 1–2; cohort PM platform after week 2 cutover).
+2. Each student must review **every merged submission except their own** by deadline. The count is dynamic — it follows how many peers actually shipped, not roster size. Someone enrolled who never merges a PR is not reviewable and does not count against anyone's total. Primary deep reviews (≥300 words) may still use a staff round-robin of 3 for quality sampling; pass gate is coverage of every merged submission.
+3. Reviews filed as GitHub issues `Review by @{you}: @{peer}` on the peer’s app repo per [peer-review-system.md](../../assessment/peer-review-system.md) and [winner-selection.md](../../governance/winner-selection.md).
+4. **Mon 17:00 ET:** All reviews due — the window runs a full 24 hours from open to close.
 
 ### Time budget
 
-At cohort 30: 29 reviews × ~45 min = ~22 hrs. Agents reduce repo archaeology time; human must still judge product and write feedback. Expected: 25–30 hrs that week — plan accordingly.
+Budget ~45 min per review, so the week's load scales with how many peers shipped: 10 merged submissions is ~7 hrs, 20 is ~15 hrs. Agents reduce repo archaeology time; the human still has to judge the product and write the feedback. Your live count is on `/program/{slug}` — plan against that number, not the roster.
 
 ---
 
@@ -81,16 +88,16 @@ At cohort 30: 29 reviews × ~45 min = ~22 hrs. Agents reduce repo archaeology ti
 
 See [governance/winner-selection.md](../../governance/winner-selection.md).
 
-- **Method:** Private 👍/👎 per eligible peer **after** written GitHub review is saved on platform
+- **Method:** Optional public `Vote: up` in the written review issue body (or abstain — no downvotes)
 - **Self-votes:** Cannot review or vote on own submission
-- **Privacy:** Individual votes private; live tallies never shown during review week
-- **Platform:** `/program/{slug}` → review & vote panel; `POST /api/program/{slug}/ratings`
-- **Closes:** Fri 16:00 ET (see `content/program.ts` schedule per project)
-- **Winner announced:** Following Mon 10:00 kickoff
+- **Visibility:** Reviews and upvotes are public on GitHub; live tallies are never shown on the site
+- **Platform:** `/program/{slug}` → progress panel (personal status only); staff tally via CLI
+- **Closes:** Mon 17:00 ET, with the reviews (upvotes live in the review issues — see `content/program.ts` schedule per project)
+- **Winner announced:** Mon 18:00 ET live session, one hour after the window closes
 
 ### Tie-break
 
-Most thumbs up wins. If tied: higher median rubric score across written reviews. If still tied: program director selects based on production readiness.
+Most upvotes wins. If tied: earliest submission `mergedAt`, then handle sort. Persistent ties: rubric median / staff judgment per [winner-selection.md](../../governance/winner-selection.md).
 
 ---
 

@@ -12,7 +12,7 @@
 >
 > **Ecosystem dynamics:** You're not building a todo app for yourself. You're building infrastructure others will file bugs against, submit PRs to, and blame when it goes down before a deadline. Design for that.
 >
-> **Constraints:** Public repo in the cohort org. Production HTTPS URL. Must handle ≥ 30 accounts. Stack is your choice.
+> **Constraints:** Public repo in the cohort org. Production HTTPS URL. Multi-user auth sized for the enrolled cohort (capacity — merge when the PR template is complete; you do not need real signups first). Stack is your choice.
 >
 > **Differentiation:** What makes your platform better for *this* cohort than Linear, Notion, or GitHub Projects? If the answer is nothing, rethink.
 
@@ -22,12 +22,12 @@
 
 | Day | Phase | Deliverable |
 |-----|-------|-------------|
-| Tue | Kickoff | Repo created, data model started |
-| Wed–Thu | Build | Projects + tasks + assignments; stable deploy |
-| Thu 17:00 | Submit | Deploy frozen; submission PR merged |
-| Fri 14:00 | Review | Written reviews due |
-| Fri 16:00 | Vote | Private vote closes |
-| Mon | Cutover | Winner live before week 3 kickoff |
+| Mon | Kickoff | Repo created, data model started |
+| Tue–Thu | Build | Projects + tasks + assignments; stable deploy |
+| Fri 17:00 ET | Present | Demo the build and make the case for it |
+| Sun 17:00 ET | Submit | Submission PR **merged**; review window opens |
+| Mon 17:00 ET | Review | Written reviews due; public `Vote: up` closes with them |
+| Mon 18:00 ET | Winner | Announced live; cutover before next kickoff |
 
 See [operations/calendar.md](../../../operations/calendar.md) and [content/program.ts](../../../execution/marketing/site/content/program.ts) for exact dates.
 

@@ -1,11 +1,7 @@
-import { getAdminDb, isAdminConfigured } from '@/lib/firebase/admin';
-import { cohortId } from '@/lib/cohort-config';
-import { getCohortStats } from '@/lib/cohort-stats-server';
-import { resolveEnrollment } from '@/lib/enrollment-server';
-import { rosterMemberRef } from '@/lib/firestore-paths';
-import { getParticipantSubmissions } from '@/lib/submissions-server';
+import { buildParticipantMe } from '@/lib/participant-me-server';
 import { deleteParticipantAccount } from '@/lib/account-server';
-import type { ApplicationStatus, ParticipantMe } from '@/lib/participant-status';
+import { cohortId } from '@/lib/cohort-config';
+import { rosterMemberRef } from '@/lib/firestore-paths';
 import { logApiError } from '@/lib/api-log';
 import { requireGithubSession } from '@/lib/require-enrolled';
 
@@ -18,54 +14,11 @@ export async function GET(request: Request) {
   if (!guard.ok) return guard.response;
 
   const githubHandle = guard.session.githubHandle;
+  const includeSubmissions =
+    new URL(request.url).searchParams.get('include')?.split(',').includes('submissions') === true;
 
   try {
-    const db = getAdminDb();
-    const id = cohortId();
-
-    const [appSnap, rosterDoc, cohortStats, submissions] = await Promise.all([
-      db.collection('applications').where('githubHandle', '==', githubHandle).limit(5).get(),
-      rosterMemberRef(id, githubHandle).get(),
-      getCohortStats(id),
-      getParticipantSubmissions(id, githubHandle),
-    ]);
-
-    const applicationDoc = appSnap.docs.find((d) => d.data().cohort === id);
-    const appData = applicationDoc?.data();
-    const rosterData = rosterDoc.exists ? rosterDoc.data() : null;
-
-    const enrollment = resolveEnrollment({
-      applicationStatus: (appData?.status as ApplicationStatus) ?? null,
-      rosterActive: rosterData ? rosterData.active !== false : null,
-    });
-
-    const payload: ParticipantMe = {
-      githubHandle,
-      cohortStats,
-      submissions,
-      enrollment,
-      application: appData
-        ? {
-            id: applicationDoc!.id,
-            status: appData.status as ApplicationStatus,
-            firstName: appData.firstName,
-            lastName: appData.lastName,
-            email: appData.email,
-            takeHomeRepoUrl: appData.takeHomeRepoUrl,
-            campus: appData.campus,
-            cohort: appData.cohort,
-          }
-        : null,
-      roster: rosterData
-        ? {
-            displayName: rosterData.displayName,
-            campus: rosterData.campus,
-            roles: rosterData.roles ?? ['participant'],
-            active: rosterData.active !== false,
-          }
-        : null,
-    };
-
+    const payload = await buildParticipantMe(githubHandle, { includeSubmissions });
     return Response.json(payload);
   } catch (err) {
     logApiError(`${ROUTE} GET`, err);
@@ -83,6 +36,17 @@ export async function DELETE(request: Request) {
   const { githubHandle, firebaseUid } = guard.session;
 
   try {
+    const rosterDoc = await rosterMemberRef(cohortId(), githubHandle).get();
+    if (rosterDoc.exists && rosterDoc.data()?.active !== false) {
+      return Response.json(
+        {
+          error:
+            'Enrolled participants cannot delete their account here. Email cohort@hult.edu for help.',
+        },
+        { status: 403 }
+      );
+    }
+
     const result = await deleteParticipantAccount({ githubHandle, firebaseUid });
     return Response.json({ ok: true, deleted: result });
   } catch (err) {

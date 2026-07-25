@@ -42,9 +42,19 @@ export function getApp(app_id) {
 }
 
 export function isBlockedUser(user_id, student_handle) {
-  if (blockedUserIds.has(user_id)) return true;
-  if (user_id.includes(student_handle)) return true;
-  return false;
+  const normalizedUser = String(user_id ?? '').trim().toLowerCase();
+  if (!normalizedUser) return false;
+  if (blockedUserIds.has(normalizedUser)) return true;
+
+  const normalizedHandle = String(student_handle ?? '').trim().toLowerCase();
+  if (!normalizedHandle) return false;
+  return normalizedUser === normalizedHandle;
+}
+
+function csvCell(value) {
+  const s = String(value ?? '');
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
 }
 
 const QUALIFYING_EVENTS = new Set(['lesson_started', 'lesson_completed', 'quiz_submitted']);
@@ -78,7 +88,11 @@ getMetrics.exportSnapshot = function exportSnapshot() {
   const rows = [header];
   for (const app of apps.values()) {
     const m = getMetrics(app.app_id);
-    rows.push(`${app.app_id},${app.student_handle},${m.unique_users},${m.qualified_users}`);
+    rows.push(
+      [app.app_id, app.student_handle, m.unique_users, m.qualified_users]
+        .map(csvCell)
+        .join(',')
+    );
   }
   return rows;
 };

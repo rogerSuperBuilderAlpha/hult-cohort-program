@@ -1,3 +1,4 @@
+participants/summer26/phase-1-project-2/mitchelldante99-create
 # dependencies
 /node_modules
 /.pnpm-store/
@@ -21,8 +22,14 @@
 !.env.example
 
 # vercel
+node_modules/
+.env
+.env.local
+.env.vercel*
+.DS_Store
+*.log
+dist/
 .vercel
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts

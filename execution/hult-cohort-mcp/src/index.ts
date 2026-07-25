@@ -263,15 +263,15 @@ server.registerTool(
         steps: [
           '1. Open deployUrl and test their app',
           '2. Read prUrl (submission PR)',
-          '3. Open issueTemplateUrl, file issue titled Review by @{you}',
-          '4. Call save_written_review with the issue URL',
-          '5. Call cast_peer_vote with up or down',
+          '3. Open issueTemplateUrl; file issue titled Review by @{you}: @{peer}',
+          '4. Optionally keep Vote: up in the issue body (or delete that section to abstain)',
+          '5. Call get_project_progress to refresh personal status (no platform POST)',
         ],
         deployUrl: peer.deployUrl,
         prUrl: peer.prUrl,
         repo: peer.repo,
-        issueTemplateUrl: newReviewIssueUrl(peer.repo, me.githubHandle),
-        issueTitleRequired: `Review by @${me.githubHandle}`,
+        issueTemplateUrl: newReviewIssueUrl(peer.repo, me.githubHandle, peer.handle),
+        issueTitleRequired: `Review by @${me.githubHandle}: @${peer.handle}`,
       });
     } catch (err) {
       return toolError(err);
@@ -283,56 +283,38 @@ server.registerTool(
   'save_written_review',
   {
     description:
-      'Save GitHub issue URL after filing written review on peer repo (unlocks voting).',
+      'RETIRED — platform no longer accepts review URLs. File the GitHub issue; progress is discovered on refresh.',
     inputSchema: {
       projectSlug: z.string(),
       revieweeHandle: z.string(),
-      issueUrl: z.string().url().describe('URL of the GitHub issue you filed on their repo'),
+      issueUrl: z.string().url().describe('Ignored — kept for client compatibility'),
     },
   },
-  async ({ projectSlug, revieweeHandle, issueUrl }) => {
-    try {
-      const result = await client.json(
-        `/api/program/${encodeURIComponent(projectSlug)}/written-reviews`,
-        {
-          method: 'POST',
-          auth: true,
-          jsonBody: { revieweeHandle, issueUrl },
-        }
-      );
-      return text(result);
-    } catch (err) {
-      return toolError(err);
-    }
-  }
+  async () =>
+    text({
+      retired: true,
+      message:
+        'Written reviews are GitHub-native. File issue "Review by @{you}: @{peer}" on the peer app repo, then call get_project_progress (or refresh the site). POST /written-reviews returns 410.',
+    })
 );
 
 server.registerTool(
   'cast_peer_vote',
   {
     description:
-      'Cast private thumbs up or down on a peer build (requires save_written_review first).',
+      'RETIRED — votes are public optional Vote: up in the GitHub review issue body (or abstain).',
     inputSchema: {
       projectSlug: z.string(),
       revieweeHandle: z.string(),
-      rating: z.enum(['up', 'down']).describe('up = thumbs up, down = thumbs down'),
+      rating: z.enum(['up', 'down']).describe('Ignored — kept for client compatibility'),
     },
   },
-  async ({ projectSlug, revieweeHandle, rating }) => {
-    try {
-      const result = await client.json(
-        `/api/program/${encodeURIComponent(projectSlug)}/ratings`,
-        {
-          method: 'POST',
-          auth: true,
-          jsonBody: { revieweeHandle, rating },
-        }
-      );
-      return text(result);
-    } catch (err) {
-      return toolError(err);
-    }
-  }
+  async () =>
+    text({
+      retired: true,
+      message:
+        'Upvotes are public on GitHub: keep "Vote: up" in the review issue body, or delete that section to abstain. No downvotes. POST /ratings returns 410. Staff tallies after review week.',
+    })
 );
 
 server.registerPrompt(
@@ -354,11 +336,11 @@ server.registerPrompt(
 
 1. Call prepare_review_issue with projectSlug and revieweeHandle
 2. Open deployUrl, test the app; read prUrl
-3. Open issueTemplateUrl on GitHub and file the review issue
-4. Call save_written_review with the issue URL
-5. Call cast_peer_vote with rating "up" or "down"
+3. Open issueTemplateUrl on GitHub and file the review issue (title Review by @{you}: @{peer})
+4. Optionally keep Vote: up in the issue body, or delete that section to abstain
+5. Call get_project_progress to refresh personal status
 
-Use get_project_progress to see remaining peers. Votes are private.`,
+Do not call save_written_review or cast_peer_vote — those tools are retired (GitHub-native).`,
         },
       },
     ],

@@ -24,14 +24,18 @@ import { getCohortStats } from '@/lib/cohort-stats-server';
 
 ## Peer review (implemented)
 
-1. Written review: GitHub issue `Review by @{voter}` → `POST .../written-reviews`
-2. Vote: `POST .../ratings` with `'up'|'down'` — 403 if no written review
-3. UI: collapsed accordion in `PeerReviewCard.tsx`
-4. Staff tally (post review week): `node scripts/tally-votes.mjs --project=<slug>`
+1. Written review: GitHub issue `Review by @{voter}: @{reviewee}` (discovered via `fetchContestState`)
+2. Optional upvote: `Vote: up` in that issue body (or abstain — no downvotes)
+3. UI: collapsed accordion in `PeerReviewCard.tsx` — personal status only; refresh after filing
+4. Staff tally (post review week): `npx tsx scripts/tally-votes.ts --project=<slug>`
 
 ## Program text
 
 Edit `content/program.ts`; personalize with `personalizeProgramText()` for `{peerCount}`, `{org}`, `{handle}`.
+
+## Branding
+
+Hult 2025 web palette in `app/globals.css`: cream `#fffae7`, magenta `#cc164c`, ink `#2b2b2b`, EF Circular + Libre Baskerville.
 
 ## Env
 

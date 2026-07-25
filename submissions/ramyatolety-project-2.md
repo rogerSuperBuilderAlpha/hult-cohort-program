@@ -100,16 +100,15 @@ Stated plainly rather than left for a reviewer to find:
   structural change.
 - **No unread badges or push notifications** — real-time updates require the tab open; no service
   worker or email digest yet.
-- **A full authenticated end-to-end walkthrough (send a message, DM, search, Warden post) has not
-  yet been independently re-verified by me post-deploy.** Google and GitHub OAuth are both
-  confirmed correctly configured (verified via Firebase's own public REST endpoints, not just
-  console clicks) and the sign-in redirect reaches a real provider picker in-browser, but the
-  account owner hit an environment-specific failure completing sign-in that wasn't reproducible
-  from here after several rounds of fixes (popup→redirect switch, an authorized-domain
-  misconfiguration, cache-vs-deploy verification). Anonymous guest sign-in was added specifically
-  as a working fallback path while that's tracked down, since it needs no OAuth redirect at all.
-  I'll update this line once a full logged-in pass — via any of the three sign-in paths — is
-  confirmed.
+- **The account owner's own Google/GitHub sign-in hit an environment-specific failure** that
+  wasn't reproducible from here after several rounds of fixes (popup→redirect switch, an
+  authorized-domain misconfiguration). Both providers are confirmed correctly configured
+  server-side (verified via Firebase's own public REST endpoints), and the redirect reaches a
+  real provider picker in-browser, but a from-scratch OAuth login by the account owner is still
+  unconfirmed. Anonymous guest sign-in — added as a fallback specifically because it needs no
+  OAuth redirect — **is fully verified end-to-end** (see Test plan): two distinct guest identities
+  messaging each other live in production, so the app itself is confirmed working regardless of
+  the one open OAuth question.
 
 ## Agent usage summary
 
@@ -125,12 +124,25 @@ Stated plainly rather than left for a reviewer to find:
   auth switch, Firebase authorized-domain fix, cache-vs-deploy verification via direct inspection
   of the served JS bundle) rather than guessing at a fix.
 - **QA:** `tsc --noEmit`, `eslint`, and `next build` all clean; visual verification in-browser at
-  both desktop and 375px mobile widths on the deployed production URL; verified Firestore rules
-  actually behave as intended and that the Google/GitHub OAuth providers are genuinely configured,
-  using Firebase's own public REST endpoints (`accounts:createAuthUri`) rather than assuming
-  console clicks landed correctly; confirmed the production JS bundle actually contains each fix
-  before declaring a deploy done, after a stale-cache report from the account owner turned out to
-  be a real (if confusing) client-side caching issue rather than a bad deploy.
+  both desktop and 375px mobile widths; verified Firestore rules and OAuth provider config via
+  Firebase's own public REST endpoints rather than assuming console clicks landed correctly;
+  confirmed the production JS bundle actually contains each fix before declaring a deploy done.
+  Then did a real live walkthrough as two distinct guest identities in production (not a local
+  dev server), which surfaced three genuine bugs invisible to static checks — all found, root-
+  caused, fixed, and re-verified live in the same pass:
+  1. Search failed completely silently (a missing `.catch()` swallowed the error) — added error
+     surfacing, which is what revealed the next two.
+  2. Search then returned `permission-denied`: Firestore security rules scoped to a specific
+     nested path (`channels/{id}/messages/{id}`) don't automatically extend to `collectionGroup()`
+     queries — root-caused precisely (not just retried), confirmed via the exact Firebase error
+     code, and fixed with an explicit `{path=**}` rule.
+  3. Starting any new whisper failed the same way: the `dms/{id}` read rule dereferenced
+     `resource.data` unconditionally, which errors — and Firestore rules treat a rule error as a
+     denial — on the very first existence-check read of a not-yet-created thread. Confirmed via a
+     direct authenticated REST call against Firestore (isolating the rule from any UI/browser
+     variable), then fixed with a `resource == null` guard.
+  Re-verified after each fix: search returns real results; two separately-authenticated guest
+  identities created a whisper and exchanged a message that appeared instantly on both sides.
 
 Separately, and not part of this submission: filed
 [CodingWCal/forth#40](https://github.com/CodingWCal/forth/issues/40), a Ticket-claim issue for a
@@ -155,12 +167,14 @@ once that lands.
       `npm run seed:channels`
 - [x] Visual QA on production at desktop and 375px mobile widths, both the pre- and
       post-authentication shell
-- [x] Guest sign-in (Firebase Anonymous Auth) added and deployed as a fallback path; production
-      bundle verified to contain it by direct inspection of the served JS
-- [ ] Anonymous Auth provider enabled in the Firebase console — pending the account owner (a
-      deliberate boundary: I only use the project's service-account key for the two actions
-      explicitly authorized, seeding channels and Warden promotion, so I asked rather than doing
-      it myself with that key)
-- [ ] Full logged-in walkthrough (send message, create/rename/archive a beacon, DM another
-      member, keyword search, Warden-only War Horn post) — pending final confirmation from the
-      account owner post-sign-in; see Known limitations
+- [x] Guest sign-in (Firebase Anonymous Auth) added, deployed, and enabled — verified live
+- [x] Full logged-in walkthrough, done live in production as two distinct guest identities:
+      send + persist a channel message; create, rename, and archive a beacon; War Horn correctly
+      blocks a non-Warden poster and shows the disabled reason; keyword search returns real
+      results; start a whisper between two separate users and exchange a message that appears
+      instantly on both sides
+- [x] Two real bugs in Firestore security rules found via that live walkthrough (not caught by
+      any static check), root-caused via direct REST calls, fixed, and re-verified — see Agent
+      usage
+- [ ] The account owner's own Google/GitHub OAuth sign-in specifically — still unconfirmed (see
+      Known limitations); everything else about the app is independently verified working

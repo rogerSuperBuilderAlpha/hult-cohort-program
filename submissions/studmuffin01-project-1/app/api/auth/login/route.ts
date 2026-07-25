@@ -18,7 +18,10 @@ export async function POST(request: Request) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 401 });
+      const message = error.message.toLowerCase().includes("fetch failed")
+        ? "Cannot reach Supabase from the server. Open /api/health — if supabaseReachable is false, restore your Supabase project (Dashboard → Project Settings) or fix NEXT_PUBLIC_SUPABASE_URL, then redeploy."
+        : error.message;
+      return NextResponse.json({ error: message }, { status: 401 });
     }
 
     return NextResponse.json({ ok: true });

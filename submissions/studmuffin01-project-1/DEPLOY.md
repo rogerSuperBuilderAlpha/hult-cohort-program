@@ -69,7 +69,7 @@ npm run dev
 | “Email not confirmed” on login | Confirm via inbox link (on dev machine) or resend from login page |
 | Confirmation link “can’t connect” | Link points to localhost — use same PC with dev server running, or use production URL |
 | Data not in Supabase | Ensure `schema.sql` was run and you are signed in (logged-out mode uses localStorage only) |
-| “Failed to fetch” on login | Open `/api/health` after deploy — if `ok` is false, fix `NEXT_PUBLIC_SUPABASE_URL` (full `https://xxx.supabase.co`), add anon key, **Redeploy**. Also set env vars for **Preview** if using a preview URL. |
+| “Failed to fetch” / “fetch failed” on login | Open **`/api/health`** after deploy. If `configOk` is true but **`supabaseReachable` is false**, the server cannot reach Supabase — usually a **paused** project (Supabase Dashboard → **Restore project**) or wrong project URL. If `configOk` is false, fix env vars and **Redeploy** (enable **Preview + Production**). After env changes, redeploy **without build cache**. |
 | Sign Out shows “Log in” while logged in | Hard refresh; check Vercel env matches Supabase project |
 
 ## 5. Fork workflow (no upstream main access)

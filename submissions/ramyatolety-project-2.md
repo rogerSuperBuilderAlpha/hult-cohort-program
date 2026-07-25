@@ -16,8 +16,10 @@ of one another.
 https://beacon-ramyatolety.vercel.app
 
 No seeded reviewer credentials needed — sign in with your own Google or GitHub account (the same
-providers Forth itself offers). Every enrolled cohort member can join on first sign-in; there's no
-invite step.
+providers Forth itself offers), or use **Continue as guest** on the login page (Firebase Anonymous
+Auth) if OAuth is inconvenient for a quick review pass. Guests join the real workspace under a
+temporary `Guest-XXXX` identity — it is not a sandboxed demo, messages are visible to everyone.
+Every enrolled cohort member can join on first sign-in; there's no invite step.
 
 ## PM platform integration notes
 
@@ -81,6 +83,8 @@ Hosted on Vercel.
 - **Search:** keyword search across every beacon's messages (collection-group query on a
   `searchTokens` array); intentionally does not index whispers (see Known limitations)
 - **Real-time:** Firestore `onSnapshot`, not polling — strictly better than the 5s-polling bar
+- **Guest access:** Firebase Anonymous Auth sign-in for reviewers/newcomers who'd rather not use
+  OAuth — a real account in the real workspace, not a separate sandboxed demo
 
 ## Known limitations
 
@@ -97,12 +101,15 @@ Stated plainly rather than left for a reviewer to find:
 - **No unread badges or push notifications** — real-time updates require the tab open; no service
   worker or email digest yet.
 - **A full authenticated end-to-end walkthrough (send a message, DM, search, Warden post) has not
-  yet been independently re-verified by me post-deploy** — auth was debugged live against
-  production during this build (redirect-flow switch, Firebase authorized-domain fix), and I
-  confirmed the sign-in redirect itself reaches a real Google account picker for
-  `communication-app-cohort.firebaseapp.com`, but completing an actual login requires the account
-  owner's credentials, which I don't have and won't attempt to obtain. I'll update this line once
-  a full logged-in pass is confirmed.
+  yet been independently re-verified by me post-deploy.** Google and GitHub OAuth are both
+  confirmed correctly configured (verified via Firebase's own public REST endpoints, not just
+  console clicks) and the sign-in redirect reaches a real provider picker in-browser, but the
+  account owner hit an environment-specific failure completing sign-in that wasn't reproducible
+  from here after several rounds of fixes (popup→redirect switch, an authorized-domain
+  misconfiguration, cache-vs-deploy verification). Anonymous guest sign-in was added specifically
+  as a working fallback path while that's tracked down, since it needs no OAuth redirect at all.
+  I'll update this line once a full logged-in pass — via any of the three sign-in paths — is
+  confirmed.
 
 ## Agent usage summary
 
@@ -129,8 +136,9 @@ Separately, and not part of this submission: filed
 [CodingWCal/forth#40](https://github.com/CodingWCal/forth/issues/40), a Ticket-claim issue for a
 genuine, unclaimed accessibility bug found by reading Forth's source (the capacity progressbar's
 `aria-valuenow` isn't clamped when a user goes over capacity, an invalid ARIA state). Per Forth's
-own `CONTRIBUTING.md`, implementation is paused until a maintainer replies "scope confirmed" — the
-fix and PR will follow once that lands.
+own `CONTRIBUTING.md`, implementation is paused until a maintainer replies "scope confirmed" — as
+of this update the issue is still open with no maintainer reply yet; the fix and PR will follow
+once that lands.
 
 ## Test plan
 
@@ -147,6 +155,12 @@ fix and PR will follow once that lands.
       `npm run seed:channels`
 - [x] Visual QA on production at desktop and 375px mobile widths, both the pre- and
       post-authentication shell
+- [x] Guest sign-in (Firebase Anonymous Auth) added and deployed as a fallback path; production
+      bundle verified to contain it by direct inspection of the served JS
+- [ ] Anonymous Auth provider enabled in the Firebase console — pending the account owner (a
+      deliberate boundary: I only use the project's service-account key for the two actions
+      explicitly authorized, seeding channels and Warden promotion, so I asked rather than doing
+      it myself with that key)
 - [ ] Full logged-in walkthrough (send message, create/rename/archive a beacon, DM another
       member, keyword search, Warden-only War Horn post) — pending final confirmation from the
       account owner post-sign-in; see Known limitations

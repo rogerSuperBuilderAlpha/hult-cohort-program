@@ -130,9 +130,10 @@ export function buildProjectAgentPrompt(
   project: ProgramProject,
   handle: string,
   org: string,
-  stats?: CohortStats | null
+  stats?: CohortStats | null,
+  reviewTarget?: number | null
 ): string {
-  const p = (text: string) => personalizeProgramText(text, handle, org, stats);
+  const p = (text: string) => personalizeProgramText(text, handle, org, stats, reviewTarget);
   const prTitle = p(project.submission.prTitle);
   const interview = extraInterviewQuestions(project);
   const prBodyItems = project.submission.prBodyMustInclude;
@@ -177,9 +178,9 @@ export function buildProjectAgentPrompt(
 
   if (project.reviews) {
     const reviewCount =
-      stats && stats.enrolledCount > 0
-        ? `${stats.peerReviewCount} written GitHub reviews (optional Vote: up each, or abstain)`
-        : 'Review every peer on GitHub; optionally upvote with Vote: up or abstain';
+      typeof reviewTarget === 'number' && reviewTarget > 0
+        ? `${reviewTarget} written GitHub reviews — one per merged peer submission (optional Vote: up each, or abstain)`
+        : 'Review every peer with a merged submission on GitHub; optionally upvote with Vote: up or abstain';
     lines.push(
       ``,
       `## Peer review and voting (review week)`,

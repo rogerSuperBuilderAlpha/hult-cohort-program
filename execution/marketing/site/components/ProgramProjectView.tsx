@@ -125,14 +125,19 @@ function EnrolledView({
   descriptionText: string;
 }) {
   const org = cohortOrg();
-  const p = (text: string) => personalizeProgramText(text, handle, org, stats);
-  const agentPrompt = buildProjectAgentPrompt(project, handle, org, stats);
   const { survey, loading: surveyLoading } = useSurveyState(getIdToken, true);
   const gate = projectSurveyGate(project.slug, survey);
   const surveyReady = !surveyLoading;
   const progressEnabled = surveyReady && !gate.locked;
   const { progress, loading: progressLoading, error: progressError, refresh: refreshProgress } =
     useProjectProgress(project.slug, getIdToken, progressEnabled);
+
+  // Review load comes from merged submissions for THIS project (minus your own),
+  // not roster size — peers who never shipped can't be reviewed. Null until
+  // contest state loads, which renders {peerCount} as prose rather than a number.
+  const reviewTarget = progress?.reviews?.required ?? null;
+  const p = (text: string) => personalizeProgramText(text, handle, org, stats, reviewTarget);
+  const agentPrompt = buildProjectAgentPrompt(project, handle, org, stats, reviewTarget);
 
   // Hold a single loading shell until survey + (when unlocked) first progress fetch settle.
   // Covers the frame between progressEnabled flipping true and useAuthedFetch setting loading.
@@ -143,7 +148,7 @@ function EnrolledView({
   }
 
   const reviewAgentPrompt = project.reviews
-    ? buildPeerReviewAgentPrompt(project, handle, org, stats)
+    ? buildPeerReviewAgentPrompt(project, handle, org, stats, reviewTarget)
     : undefined;
 
   const peerReviewShell = project.reviews ? (
@@ -159,7 +164,7 @@ function EnrolledView({
       <ProjectPeerReviewSection
         project={project}
         p={p}
-        stats={stats}
+        reviewTarget={reviewTarget}
         variant="enrolled"
         lockNotice={
           gate.locked
@@ -244,9 +249,11 @@ function EnrolledView({
           {project.voteWeek ? (
             <>
               <strong>{project.phaseLabel}</strong> — contest week with peer review. Build
-              individually, file written reviews on every other participant
-              {stats && stats.peerReviewCount > 0 ? ` (${stats.peerReviewCount} reviews)` : ''},
-              and submit a merged pull request before the deadline.
+              individually, file written reviews on every peer who merged a submission
+              {typeof reviewTarget === 'number' && reviewTarget > 0
+                ? ` (${reviewTarget} so far)`
+                : ''}
+              , and submit a merged pull request before the deadline.
             </>
           ) : (
             <>
@@ -302,11 +309,12 @@ function PublicView({
             {stats && stats.enrolledCount > 0 ? (
               <>
                 {' '}
-                Current cohort: <strong>{stats.enrolledCount}</strong> enrolled (
-                {stats.peerReviewCount} peer reviews per Phase 1 project).
+                Current cohort: <strong>{stats.enrolledCount}</strong> enrolled. You review one
+                merged submission per peer who ships — the count is set by submissions, not
+                roster size.
               </>
             ) : (
-              <> Peer review counts update as the cohort roster is finalized.</>
+              <> You review one merged submission per peer who ships.</>
             )}
             {applicantInFlight ? (
               <>
@@ -359,7 +367,7 @@ function PublicView({
         <ProjectPeerReviewSection
           project={project}
           p={p}
-          stats={stats}
+          reviewTarget={null}
           variant="public"
           lockNotice="Sign in as an enrolled participant to load your peer list and cast votes. Until then, this section explains the review flow only."
         />

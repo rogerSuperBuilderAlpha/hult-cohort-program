@@ -154,23 +154,27 @@ export function ProjectRequirementsSections({
   );
 }
 
-function peerReviewLabel(stats: CohortStats | null | undefined): string {
-  if (!stats || stats.enrolledCount === 0) {
-    return 'One required review per other enrolled participant (count updates as the cohort fills)';
+function peerReviewLabel(reviewTarget?: number | null): string {
+  if (typeof reviewTarget !== 'number') {
+    return 'One required review per peer who merged a submission (count is set by how many peers ship)';
   }
-  return `${stats.peerReviewCount} required reviews (cohort size ${stats.enrolledCount})`;
+  if (reviewTarget <= 0) {
+    return 'No reviews due yet — no peer has merged a submission for this project';
+  }
+  return `${reviewTarget} required reviews (one per merged peer submission)`;
 }
 
 export function ProjectPeerReviewSection({
   project,
   p,
-  stats,
+  reviewTarget,
   variant,
   lockNotice,
 }: {
   project: ProgramProject;
   p: (text: string) => string;
-  stats: CohortStats | null;
+  /** Merged submissions for this project excluding your own; null until loaded. */
+  reviewTarget?: number | null;
   variant: 'enrolled' | 'public';
   /** When set, section is visible but peer list / votes are not loaded yet. */
   lockNotice?: string;
@@ -190,7 +194,7 @@ export function ProjectPeerReviewSection({
         </div>
       ) : null}
       <p>
-        <strong>{peerReviewLabel(stats)}.</strong> Deliverable: {p(project.reviews.artifact)}. Due:{' '}
+        <strong>{peerReviewLabel(reviewTarget)}.</strong> Deliverable: {p(project.reviews.artifact)}. Due:{' '}
         {project.reviews.dueNote}.
       </p>
       <p className={styles.formNote} style={{ marginBottom: 0 }}>

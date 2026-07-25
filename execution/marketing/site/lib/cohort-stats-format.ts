@@ -1,13 +1,18 @@
 import type { CohortStats } from './cohort-stats-types';
 
-export function formatPeerReviewRequirement(stats: CohortStats | null | undefined): string {
-  if (!stats || stats.enrolledCount === 0) {
-    return 'one review per other enrolled participant (count updates as the cohort fills)';
+/**
+ * Review load is set by how many peers actually merged a submission for this
+ * project — not by roster size. `reviewTarget` is that per-project count
+ * (merged submissions excluding your own); pass null when it isn't known yet.
+ */
+export function formatPeerReviewRequirement(reviewTarget?: number | null): string {
+  if (typeof reviewTarget !== 'number') {
+    return 'one review per merged peer submission (count is set by how many peers ship)';
   }
-  if (stats.peerReviewCount === 0) {
-    return 'peer reviews apply once more participants are enrolled';
+  if (reviewTarget <= 0) {
+    return 'no reviews due yet — no peer has merged a submission for this project';
   }
-  return `${stats.peerReviewCount}/${stats.peerReviewCount}`;
+  return `${reviewTarget}/${reviewTarget}`;
 }
 
 /** ~10% drafted per winning platform × 3 winners */
@@ -16,11 +21,8 @@ export function operatorRoleCount(enrolledCount: number): number {
   return Math.round(enrolledCount * 0.1) * 3;
 }
 
-export function formatPeerReviewsPerProject(stats: CohortStats): string {
-  if (stats.enrolledCount <= 1) {
-    return 'one review per other participant once the cohort is finalized';
-  }
-  return `${stats.peerReviewCount} reviews per project (every other enrolled participant)`;
+export function formatPeerReviewsPerProject(): string {
+  return 'one written review per merged submission — you review the peers who actually shipped, not the whole roster';
 }
 
 export function formatCohortSizeLine(stats: CohortStats): string {

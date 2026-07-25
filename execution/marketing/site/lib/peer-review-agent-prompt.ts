@@ -18,15 +18,16 @@ export function buildPeerReviewAgentPrompt(
   project: ProgramProject,
   handle: string,
   _org: string,
-  stats?: CohortStats | null
+  stats?: CohortStats | null,
+  reviewTarget?: number | null
 ): string {
   const repo = cohortSubmissionRepo();
   const activeCohortId = resolveCohortId(stats);
   const baseBranch = projectBranch(activeCohortId, project.slug);
   const titleExample = reviewIssueTitle(handle, 'peer-handle');
   const reviewCount =
-    stats && stats.enrolledCount > 0
-      ? `${stats.peerReviewCount} peers (everyone with a merged submission except you)`
+    typeof reviewTarget === 'number' && reviewTarget > 0
+      ? `${reviewTarget} peers (everyone with a merged submission except you)`
       : 'every peer with a merged submission (not yourself)';
 
   const lines: string[] = [

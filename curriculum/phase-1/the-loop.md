@@ -74,13 +74,13 @@ Unmerged PRs may still receive peer reviews but **cannot appear on the eligible 
 ### Mechanics
 
 1. **Sun 17:00 ET:** Submission PRs merged; review window opens. Platform lists all **merged submission PRs** (interim Discord weeks 1–2; cohort PM platform after week 2 cutover).
-2. Each student must review **every eligible peer** (active roster + merged submission) by deadline. Primary deep reviews (≥300 words) may still use a staff round-robin of 3 for quality sampling; pass gate is all-peers coverage.
+2. Each student must review **every merged submission except their own** by deadline. The count is dynamic — it follows how many peers actually shipped, not roster size. Someone enrolled who never merges a PR is not reviewable and does not count against anyone's total. Primary deep reviews (≥300 words) may still use a staff round-robin of 3 for quality sampling; pass gate is coverage of every merged submission.
 3. Reviews filed as GitHub issues `Review by @{you}: @{peer}` on the peer’s app repo per [peer-review-system.md](../../assessment/peer-review-system.md) and [winner-selection.md](../../governance/winner-selection.md).
 4. **Mon 17:00 ET:** All reviews due — the window runs a full 24 hours from open to close.
 
 ### Time budget
 
-At cohort 30: 29 reviews × ~45 min = ~22 hrs. Agents reduce repo archaeology time; human must still judge product and write feedback. Expected: 25–30 hrs that week — plan accordingly.
+Budget ~45 min per review, so the week's load scales with how many peers shipped: 10 merged submissions is ~7 hrs, 20 is ~15 hrs. Agents reduce repo archaeology time; the human still has to judge the product and write the feedback. Your live count is on `/program/{slug}` — plan against that number, not the roster.
 
 ---
 

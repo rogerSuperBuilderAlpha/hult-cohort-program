@@ -6,13 +6,15 @@
 
 ## Scale
 
+Review load is **dynamic** — it is set by how many peers actually merged a submission for that project, not by roster size. If 10 people ship, each of them owes 9 reviews and each non-shipper owes 10. Enrolled participants who never merge a submission are not reviewable and do not count against anyone's total.
+
 | | Count |
 |---|-------|
-| Students per cohort | 30 |
-| Reviews per student per project | 29 |
+| Reviews per student per project | merged submissions for that project, minus your own |
 | Phase 1 projects | 3 |
-| **Total reviews per student** | **87** |
-| **Total reviews per cohort per project** | **870** |
+| **Total reviews per student** | sum of the three project counts |
+
+Computed live in [`project-progress-server.ts`](../execution/marketing/site/lib/project-progress-server.ts) as `required = peers.length`, where `peers` is every merged submission except your own. The site shows each participant their own number; `{peerCount}` in [`content/program.ts`](../execution/marketing/site/content/program.ts) resolves against it.
 
 Agents assist repo archaeology; **human writes the judgment.**
 
@@ -99,7 +101,7 @@ The review window is **24 hours**, not a week — it opens the moment submission
 
 ### Round-robin deep-review assignments
 
-Staff assigns 3 "primary" reviews per student (must exceed 300 words, full rubric). Other 26 may be slightly shorter (≥ 150 words) but must include rubric + citation.
+Staff assigns 3 "primary" reviews per student (must exceed 300 words, full rubric). The remainder may be slightly shorter (≥ 150 words) but must include rubric + citation.
 
 Assignment matrix generated via script: `scripts/review-assignments.py` in org — no student reviews own repo.
 
@@ -122,7 +124,7 @@ Assignment matrix generated via script: `scripts/review-assignments.py` in org �
 
 ## Tie-break input
 
-When votes tie, **median total rubric score** across all 29 reviews for each tied candidate breaks the tie. Computed by staff script exporting GitHub issue labels.
+When votes tie, **median total rubric score** across every review filed on each tied candidate breaks the tie. Computed by staff script exporting GitHub issue labels.
 
 ---
 

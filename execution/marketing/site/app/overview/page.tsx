@@ -14,7 +14,7 @@ export const revalidate = 60;
 
 export default async function OverviewPage() {
   const cohortStats = await getCohortStats();
-  const peerReviewLine = formatPeerReviewsPerProject(cohortStats);
+  const peerReviewLine = formatPeerReviewsPerProject();
   const operators =
     cohortStats.enrolledCount > 0
       ? `${operatorRoleCount(cohortStats.enrolledCount)} of ${cohortStats.enrolledCount} students`

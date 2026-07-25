@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 
 interface LogoutButtonProps {
   compact?: boolean;
@@ -19,12 +18,12 @@ export default function LogoutButton({ compact = false }: LogoutButtonProps) {
     setMessage('');
 
     try {
-      const supabase = createClient();
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
 
-      const { error } = await supabase.auth.signOut();
+      const data = (await response.json()) as { error?: string };
 
-      if (error) {
-        setMessage(error.message);
+      if (!response.ok) {
+        setMessage(data.error ?? 'Sign out failed.');
         setLoading(false);
         return;
       }

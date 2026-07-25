@@ -3,12 +3,9 @@
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
-import { getAuthCallbackUrl } from '@/lib/supabase/authRedirect';
 
 export default function SignupPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,32 +20,37 @@ export default function SignupPage() {
     setMessage('');
     setIsSuccess(false);
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: getAuthCallbackUrl(),
-      },
-    });
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    setLoading(false);
+      const data = (await response.json()) as { error?: string; hasSession?: boolean };
 
-    if (error) {
-      setMessage(error.message);
+      if (!response.ok) {
+        setMessage(data.error ?? 'Signup failed.');
+        setIsSuccess(false);
+        return;
+      }
+
+      if (data.hasSession) {
+        router.push('/');
+        router.refresh();
+        return;
+      }
+
+      setMessage(
+        'Account created. Check your email for a confirmation link, then return here to log in.'
+      );
+      setIsSuccess(true);
+    } catch {
+      setMessage('Signup request failed. Please try again.');
       setIsSuccess(false);
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    if (data.session) {
-      router.push('/');
-      router.refresh();
-      return;
-    }
-
-    setMessage(
-      'Account created. Check your email for a confirmation link, then return here to log in. Open the link on this same computer while npm run dev is running (phone links to localhost will not work).'
-    );
-    setIsSuccess(true);
   }
 
   return (

@@ -3,13 +3,10 @@
 import { FormEvent, useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
-import { getAuthCallbackUrl } from '@/lib/supabase/authRedirect';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,38 +38,31 @@ function LoginForm() {
     setNeedsEmailConfirmation(false);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (error) {
-        if (error.message.toLowerCase().includes('email not confirmed')) {
+      const data = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        const errorMessage = data.error ?? 'Login failed.';
+        if (errorMessage.toLowerCase().includes('email not confirmed')) {
           setNeedsEmailConfirmation(true);
           setMessage(
             'Your email is not confirmed yet. Check your inbox and spam folder for the confirmation link, or resend it below.'
           );
         } else {
-          setMessage(error.message);
+          setMessage(errorMessage);
         }
         return;
       }
 
       router.push('/');
       router.refresh();
-    } catch (err) {
-      const detail = err instanceof Error ? err.message : 'Unknown error';
-      if (detail.toLowerCase().includes('fetch')) {
-        setMessage(
-          'Cannot reach Supabase. On Vercel, set NEXT_PUBLIC_SUPABASE_URL to https://YOUR-PROJECT.supabase.co (full URL), add the anon key, redeploy, then open /api/health on this site to verify.'
-        );
-      } else if (detail.includes('Missing Supabase environment variables')) {
-        setMessage(
-          'Supabase env vars are missing in this deployment. Add them in Vercel → Settings → Environment Variables → Production, then redeploy.'
-        );
-      } else {
-        setMessage(detail);
-      }
+    } catch {
+      setMessage('Login request failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -87,23 +77,27 @@ function LoginForm() {
     setResending(true);
     setMessage('');
 
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email: email.trim(),
-      options: {
-        emailRedirectTo: getAuthCallbackUrl(),
-      },
-    });
+    try {
+      const response = await fetch('/api/auth/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
 
-    setResending(false);
+      const data = (await response.json()) as { error?: string };
 
-    if (error) {
-      setMessage(error.message);
-      return;
+      if (!response.ok) {
+        setMessage(data.error ?? 'Could not resend confirmation email.');
+        return;
+      }
+
+      setNeedsEmailConfirmation(true);
+      setMessage('Confirmation email sent. Check your inbox, then log in again.');
+    } catch {
+      setMessage('Could not resend confirmation email. Please try again.');
+    } finally {
+      setResending(false);
     }
-
-    setNeedsEmailConfirmation(true);
-    setMessage('Confirmation email sent. Check your inbox, then log in again.');
   }
 
   return (

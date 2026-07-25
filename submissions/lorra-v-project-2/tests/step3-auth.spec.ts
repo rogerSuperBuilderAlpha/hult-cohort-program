@@ -9,14 +9,16 @@ test.describe("Phase A Step 3 — auth", () => {
     await expect(page).toHaveURL(/\/login/);
     await expect(page.getByTestId("login-page")).toBeVisible();
     await expect(page.getByTestId("google-signin")).toBeVisible();
+    await expect(page.getByTestId("github-signin")).toBeVisible();
     await expect(page.getByTestId("magic-link-submit")).toBeVisible();
   });
 
-  test("login page shows Continue with Google as primary CTA", async ({ page }) => {
+  test("login page shows Google and GitHub SSO CTAs", async ({ page }) => {
     await page.goto("/login");
-    const google = page.getByTestId("google-signin");
-    await expect(google).toBeVisible();
-    await expect(google).toHaveText(/Continue with Google/i);
+    await expect(page.getByTestId("google-signin")).toHaveText(/Continue with Google/i);
+    await expect(page.getByTestId("github-signin")).toHaveText(/Continue with GitHub/i);
+    await expect(page.getByTestId("login-page")).not.toContainText(/roster allowlist/i);
+    await expect(page.getByTestId("login-page")).toContainText(/no invite required/i);
   });
 
   test("seed admin password login reaches home and shows profile", async ({ page }) => {
@@ -42,14 +44,7 @@ test.describe("Phase A Step 3 — auth", () => {
     await expect(page.getByTestId("login-error")).toBeVisible();
   });
 
-  test("not_allowlisted error copy matches PRD", async ({ page }) => {
-    await page.goto("/login?error=not_allowlisted");
-    await expect(page.getByTestId("login-error")).toHaveText(
-      /Ask your facilitator for access/i,
-    );
-  });
-
-  test("admin can open roster allowlist page", async ({ page }) => {
+  test("admin can open cohort directory page", async ({ page }) => {
     await page.goto("/login");
     await page.getByTestId("dev-email").fill(SEED_EMAIL);
     await page.getByTestId("dev-password").fill(SEED_PASSWORD);
@@ -57,9 +52,11 @@ test.describe("Phase A Step 3 — auth", () => {
       page.waitForURL((url) => url.pathname === "/"),
       page.getByTestId("dev-login-submit").click(),
     ]);
-    await page.getByTestId("nav-roster").click();
+    await expect(page.getByTestId("nav-roster")).toBeVisible();
+    await page.goto("/admin/roster");
     await expect(page).toHaveURL(/\/admin\/roster/);
     await expect(page.getByTestId("roster-admin")).toBeVisible();
     await expect(page.getByTestId("roster-upload")).toBeVisible();
+    await expect(page.getByTestId("roster-admin")).toContainText(/does not gate access/i);
   });
 });

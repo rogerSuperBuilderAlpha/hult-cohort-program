@@ -1,18 +1,19 @@
 import {
   signInWithDevPassword,
+  signInWithGitHub,
   signInWithGoogle,
   signInWithMagicLink,
 } from "./actions";
 import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 
 const ERROR_COPY: Record<string, string> = {
-  not_allowlisted: "Ask your facilitator for access.",
-  deactivated: "This account has been deactivated. Contact your facilitator.",
+  deactivated: "This account has been deactivated. Contact an admin.",
   missing_email: "Your sign-in provider did not return an email.",
   missing_code: "Sign-in link was incomplete. Try again.",
   invalid_credentials: "Email or password is incorrect.",
   dev_login_disabled: "Local demo login is disabled.",
-  google_failed: "Google sign-in failed. Try the magic link fallback.",
+  google_failed: "Google sign-in failed. Try GitHub or the magic link fallback.",
+  github_failed: "GitHub sign-in failed. Try Google or the magic link fallback.",
 };
 
 function friendlyError(code: string | undefined) {
@@ -59,8 +60,8 @@ export default async function LoginPage({
         </div>
 
         <p className="mb-6 text-sm leading-relaxed text-[var(--color-secondary)]">
-          Sign in with your school Google account. Access is limited to the cohort
-          roster allowlist.
+          Sign in with Google or GitHub to join the cohort workspace. New accounts
+          start as members — no invite required.
         </p>
 
         {error ? (
@@ -82,17 +83,31 @@ export default async function LoginPage({
           </p>
         ) : null}
 
-        <form action={signInWithGoogle}>
-          <input type="hidden" name="next" value={next} />
-          <button
-            type="submit"
-            data-testid="google-signin"
-            className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white transition hover:brightness-95"
-          >
-            Continue with Google
-            <span aria-hidden>→</span>
-          </button>
-        </form>
+        <div className="space-y-3">
+          <form action={signInWithGoogle}>
+            <input type="hidden" name="next" value={next} />
+            <button
+              type="submit"
+              data-testid="google-signin"
+              className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white transition hover:brightness-95"
+            >
+              Continue with Google
+              <span aria-hidden>→</span>
+            </button>
+          </form>
+
+          <form action={signInWithGitHub}>
+            <input type="hidden" name="next" value={next} />
+            <button
+              type="submit"
+              data-testid="github-signin"
+              className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--color-dark)] px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+            >
+              Continue with GitHub
+              <span aria-hidden>→</span>
+            </button>
+          </form>
+        </div>
 
         <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wide text-[var(--color-secondary)]">
           <div className="h-px flex-1 bg-[color-mix(in_srgb,var(--color-secondary)_25%,transparent)]" />
@@ -129,7 +144,8 @@ export default async function LoginPage({
               Local demo login
             </p>
             <p className="mb-3 text-xs text-[var(--color-secondary)]">
-              Seeded cohort accounts (no Google required). Default admin: {devEmail}
+              Seeded cohort accounts (no Google/GitHub required). Default admin:{" "}
+              {devEmail}
             </p>
             <form action={signInWithDevPassword} className="space-y-3">
               <input type="hidden" name="next" value={next} />

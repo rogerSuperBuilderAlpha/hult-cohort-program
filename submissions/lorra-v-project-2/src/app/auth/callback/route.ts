@@ -34,13 +34,7 @@ export async function GET(request: Request) {
 
   if (!result.ok) {
     await supabase.auth.signOut();
-    const reason =
-      result.reason === "deactivated"
-        ? "deactivated"
-        : result.reason === "missing_email"
-          ? "missing_email"
-          : "not_allowlisted";
-    return NextResponse.redirect(`${appOrigin}/login?error=${reason}`);
+    return NextResponse.redirect(`${appOrigin}/login?error=${result.reason}`);
   }
 
   return NextResponse.redirect(`${appOrigin}${next}`);

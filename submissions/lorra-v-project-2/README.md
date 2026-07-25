@@ -46,13 +46,14 @@ Fill `.env.local` with your **Supabase dev** values:
 - `NEXT_PUBLIC_ENABLE_DEV_LOGIN=true` — shows localhost seed password login
 - `DEV_ADMIN_EMAIL` / `DEV_ADMIN_PASSWORD` — defaults to seed admin
 
-**Supabase Auth setup (Google):**
-1. Auth → Providers → Google: enable with Client ID/Secret from Google Cloud.
-2. Google Cloud authorized redirect URI: `{SUPABASE_URL}/auth/v1/callback`
-3. Auth → URL Configuration:
-   - **Site URL:** `http://localhost:3000` (must NOT include `/**` — that caused post-login 404s)
-   - **Redirect URLs:** `http://localhost:3000/**`
-4. Auth → Providers → Email: enable (needed for magic link + seed password login)
+**Supabase Auth setup (open self-serve — Google + GitHub + magic link):**
+1. Auth → Providers → **Google**: enable with Client ID/Secret from Google Cloud.
+2. Auth → Providers → **GitHub**: enable with a GitHub OAuth App (callback `{SUPABASE_URL}/auth/v1/callback`).
+3. Auth → Providers → **Email**: enable (magic link + local seed password login).
+4. Auth → URL Configuration:
+   - **Site URL:** `http://localhost:3000` locally (must NOT include `/**`)
+   - **Redirect URLs:** `http://localhost:3000/**` and `https://conexus-rust.vercel.app/**`
+5. Signup is open: any Google/GitHub/magic-link user becomes a **member** on first login (no allowlist).
 
 Then:
 

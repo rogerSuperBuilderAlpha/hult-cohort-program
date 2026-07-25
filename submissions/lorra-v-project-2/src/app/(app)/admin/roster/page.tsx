@@ -37,10 +37,10 @@ export default async function RosterAdminPage({
       data-testid="roster-admin"
       className="mx-auto max-w-3xl rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 md:p-8"
     >
-      <h1 className="text-2xl font-semibold text-[var(--color-dark)]">Roster allowlist</h1>
+      <h1 className="text-2xl font-semibold text-[var(--color-dark)]">Cohort directory</h1>
       <p className="mt-2 text-sm text-[var(--color-secondary)]">
-        Upload a CSV with columns <code>name, email</code>. Only allowlisted emails can complete
-        Google or magic-link sign-in (PRD §2).
+        Optional CSV (<code>name, email</code>) for a facilitator-maintained directory.
+        Signup is open self-serve — this list does not gate access (PRD §2).
       </p>
 
       {okCount ? (
@@ -73,7 +73,7 @@ export default async function RosterAdminPage({
       </form>
 
       <h2 className="mt-10 text-sm font-semibold uppercase tracking-wide text-[var(--color-secondary)]">
-        Current allowlist ({roster?.length ?? 0})
+        Directory ({roster?.length ?? 0})
       </h2>
       <ul className="mt-3 divide-y divide-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)]">
         {(roster ?? []).map((row) => (

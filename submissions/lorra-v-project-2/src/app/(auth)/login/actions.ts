@@ -28,6 +28,21 @@ export async function signInWithGoogle(formData: FormData) {
   redirect(data.url);
 }
 
+export async function signInWithGitHub(formData: FormData) {
+  const next = safeRedirectPath(String(formData.get("next") || "/"));
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "github",
+    options: {
+      redirectTo: `${appUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
+    },
+  });
+  if (error || !data.url) {
+    redirect(`/login?error=${encodeURIComponent(error?.message || "github_failed")}`);
+  }
+  redirect(data.url);
+}
+
 export async function signInWithMagicLink(formData: FormData) {
   const email = String(formData.get("email") || "")
     .trim()

@@ -3,16 +3,12 @@ import { createServiceClient } from "@/lib/supabase/admin";
 
 export type EnsureProfileResult =
   | { ok: true; profileId: string; isNew: boolean }
-  | { ok: false; reason: "not_allowlisted" | "deactivated" | "missing_email" };
-
-function normalizeEmail(email: string) {
-  return email.trim().toLowerCase();
-}
+  | { ok: false; reason: "deactivated" | "missing_email" };
 
 /**
  * First-login bootstrap (PRD §2):
- * - enforce roster allowlist (plus optional AUTH_ALLOWLIST_FALLBACK)
- * - upsert profiles row
+ * - open self-serve signup — any authenticated user becomes a member
+ * - default role is member; admin is only via ADMIN_EMAILS or prior admin profile
  * - join default public channels
  * - block deactivated users
  */
@@ -22,7 +18,7 @@ export async function ensureProfileForUser(input: {
   fullName?: string | null;
   avatarUrl?: string | null;
 }): Promise<EnsureProfileResult> {
-  const email = input.email ? normalizeEmail(input.email) : "";
+  const email = input.email?.trim().toLowerCase() || "";
   if (!email) return { ok: false, reason: "missing_email" };
 
   const admin = createServiceClient();
@@ -37,30 +33,14 @@ export async function ensureProfileForUser(input: {
     return { ok: false, reason: "deactivated" };
   }
 
-  const fallback = (process.env.AUTH_ALLOWLIST_FALLBACK ?? "")
-    .split(",")
-    .map((e) => normalizeEmail(e))
-    .filter(Boolean);
-
-  const { data: roster } = await admin
-    .from("roster_allowlist")
-    .select("email, display_name")
-    .eq("email", email)
-    .maybeSingle();
-
-  const allowlisted = Boolean(roster) || fallback.includes(email) || existing?.role === "admin";
-
-  if (!allowlisted) {
-    return { ok: false, reason: "not_allowlisted" };
-  }
-
   const displayName =
-    roster?.display_name ||
     input.fullName?.trim() ||
     existing?.display_name ||
     email.split("@")[0];
 
-  const role = isAdminEmail(email) ? "admin" : (existing?.role ?? "member");
+  // Self-serve signup → member. Admin is not granted by signup.
+  const role =
+    existing?.role === "admin" || isAdminEmail(email) ? "admin" : "member";
 
   const { error: upsertErr } = await admin.from("profiles").upsert(
     {
@@ -74,12 +54,6 @@ export async function ensureProfileForUser(input: {
     { onConflict: "id" },
   );
   if (upsertErr) throw upsertErr;
-
-  // Ensure email is on roster for future sign-ins (Google/magic-link)
-  await admin.from("roster_allowlist").upsert(
-    { email, display_name: displayName },
-    { onConflict: "email" },
-  );
 
   const { data: publicChannels } = await admin
     .from("channels")

@@ -31,22 +31,23 @@ Conexus is a team communications workspace that turns conversations into coordin
 ## 2. Users, roles, and shared authentication (SSO)
 
 ### SSO design
-Both Conexus and Forth are cohort-built apps, so "SSO" practically means **both apps delegate authentication to the same external identity provider**, with **email as the shared identity key**:
+Both Conexus and Forth are cohort-built apps, so "SSO" practically means **both apps delegate authentication to external identity providers**, with **email as the shared identity key**:
 
-- **Provider:** Google OAuth, restricted to the school domain (or, if participants use mixed domains, restricted to the roster allowlist).
-- **Conexus side:** Supabase Auth with the Google provider; sign-in screen shows only "Continue with Google."
-- **Allowlist:** admin uploads the roster CSV (`name, email`) → only allowlisted emails can complete sign-in; anyone else sees "Ask your facilitator for access."
+- **Open self-serve signup:** any authenticated user becomes a Conexus **member** on first login. There is **no roster allowlist gate** and no “ask your facilitator” access screen — peers sign up themselves on the live deploy (including during review week).
+- **Providers (Conexus):** Supabase Auth with **Google** and **GitHub** OAuth on the login page, plus **email magic link** as a fallback when OAuth fails.
+- **Default role:** `member` on first login. **Admin is separate from access** — granted manually (seed admin, hardcoded admin emails, or admin tooling), never by self-serve signup alone.
 - **Cross-app identity:** a user's email is the join key between Conexus users and Forth users. `User.forth_user_ref` stores the Forth-side identifier once resolved (§7.2).
-- **Coordination needed:** confirm the Forth team also uses (or will add) Google OAuth. If both apps trust the same Google accounts, participants get true one-identity SSO. *(This is item 1 of the integration contract, §7.0.)*
-- **Fallback:** email magic link for any participant whose Google login fails — same allowlist applies.
+- **Coordination needed:** confirm the Forth team also uses (or will add) Google and/or GitHub OAuth. Shared providers + email as join key give one-identity SSO. *(This is item 1 of the integration contract, §7.0.)*
+- **Optional directory:** admins may still upload a CSV (`name, email`) for a facilitator-maintained directory; it does **not** control who can sign in.
 
 ### Roles
 | Role | Capabilities |
 |---|---|
-| **Admin** | Everything below, plus: create/archive channels, manage roster/allowlist, deactivate users, manage integration settings, pin messages |
+| **Admin** | Everything below, plus: create/archive channels, manage optional directory, deactivate users, manage integration settings, pin messages |
 | **Member** | Join public channels, create private channels & group DMs, send messages, create threads, react, upload files, link/create Forth tickets |
 
 - **Deactivation:** messages remain (attributed, greyed avatar); sign-in blocked.
+- **Self-serve applies to signup, not admin privileges.**
 
 ---
 
@@ -221,7 +222,7 @@ Pasting a Forth ticket URL into any message auto-converts it to a TicketLink car
 ## 9. Scope: MVP vs. stretch
 
 ### MVP (build in this order)
-1. SSO auth (Google via Supabase) + roster allowlist + roles
+1. SSO auth (Google + GitHub via Supabase) + open self-serve signup + roles
 2. Channels + realtime messaging + unread state
 3. DMs (1:1 + group)
 4. Threads + Threads view
@@ -245,7 +246,7 @@ One prompt per step; verify each before proceeding; keep this file at `docs/PRD.
 
 1. **Scaffold:** Next.js + Supabase, §8 design tokens, app shell with §5 sidebar, Manrope.
 2. **Schema + RLS:** §3 tables with row-level security; seed script with fake users.
-3. **Auth:** Google SSO via Supabase, roster CSV allowlist (admin), magic-link fallback, first-login profile.
+3. **Auth:** Google + GitHub SSO via Supabase, open self-serve member signup, magic-link fallback, first-login profile (admin role separate).
 4. **Channel messaging:** channel CRUD, realtime message list, composer with mentions/reactions/attachments.
 5. **DMs:** conversation entity, DM UI reusing message components.
 6. **Threads:** panel, subscription logic, Threads view.
@@ -261,5 +262,5 @@ One prompt per step; verify each before proceeding; keep this file at `docs/PRD.
 
 ## Remaining coordination items (not Cursor work — human work)
 1. Get the §7.0 contract agreed with the Forth team **in week 1** — it's your only external dependency and your critical path.
-2. Confirm with the facilitator that Google OAuth on school accounts satisfies the "shared authentication" requirement.
+2. Confirm with the facilitator that Google/GitHub OAuth (open self-serve) satisfies the "shared authentication" requirement.
 3. Confirm Forth's actual ticket URL pattern and whether their auth is (or can become) Google SSO.

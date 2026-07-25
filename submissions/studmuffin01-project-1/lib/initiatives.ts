@@ -200,6 +200,11 @@ export function getAllInitiativeSlugs(customInitiatives?: Initiative[]): Set<str
   return new Set(getAllInitiatives(customInitiatives).map((initiative) => initiative.slug));
 }
 
+/** Validates slug keys in persisted JSON (custom slugs are not always in localStorage). */
+export function isInitiativeSlugKey(slug: string): boolean {
+  return slug.length > 0 && slug.length <= 80 && /^[a-z0-9-]+$/.test(slug);
+}
+
 export function getInitiativeBySlug(
   slug: string,
   allInitiatives?: Initiative[]

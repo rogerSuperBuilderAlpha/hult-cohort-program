@@ -2,7 +2,7 @@
  * Cohort submission types and calculations for initiative summary tables.
  */
 
-import { getAllInitiativeSlugs } from "@/lib/initiatives";
+import { isInitiativeSlugKey } from "@/lib/initiatives";
 
 export const COHORT_ROW_COUNT = 67;
 export const COHORT_NAME_MAX_LENGTH = 30;
@@ -123,10 +123,8 @@ export function parseCohortSubmissions(raw: unknown): AllSubmissions {
 
   const parsed: AllSubmissions = {};
 
-  const validSlugs = getAllInitiativeSlugs();
-
   for (const [slug, initiativeData] of Object.entries(raw)) {
-    if (!validSlugs.has(slug)) {
+    if (!isInitiativeSlugKey(slug)) {
       continue;
     }
 

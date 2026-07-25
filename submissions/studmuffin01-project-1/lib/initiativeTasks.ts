@@ -2,7 +2,7 @@
  * Per-initiative task table types, defaults, and localStorage helpers.
  */
 
-import { getAllInitiativeSlugs } from "@/lib/initiatives";
+import { isInitiativeSlugKey } from "@/lib/initiatives";
 
 export const INITIAL_TASK_ROW_COUNT = 3;
 export const INITIATIVE_TASKS_STORAGE_KEY = "initiara-initiative-tasks";
@@ -295,11 +295,10 @@ export function parseInitiativeTasks(raw: unknown): AllInitiativeTasks {
     return {};
   }
 
-  const validSlugs = getAllInitiativeSlugs();
   const parsed: AllInitiativeTasks = {};
 
   for (const [slug, taskRows] of Object.entries(raw)) {
-    if (!validSlugs.has(slug) || !Array.isArray(taskRows)) {
+    if (!isInitiativeSlugKey(slug) || !Array.isArray(taskRows)) {
       continue;
     }
 
@@ -354,4 +353,41 @@ export function getInitiativeTasks(
   initiativeSlug: string
 ): InitiativeTasks {
   return allTasks[initiativeSlug] ?? createDefaultTaskRows();
+}
+
+/** Prefer remote slugs; fill gaps from local backup. */
+export function mergeInitiativeTaskSources(
+  remote: AllInitiativeTasks,
+  local: AllInitiativeTasks
+): AllInitiativeTasks {
+  return { ...local, ...remote };
+}
+
+/**
+ * Moves task rows stored under orphaned slugs onto the current initiative slugs
+ * when the initiative slug changed but task data still exists in storage.
+ */
+export function alignTasksToInitiativeSlugs(
+  initiativeSlugs: string[],
+  tasks: AllInitiativeTasks
+): AllInitiativeTasks {
+  const result: AllInitiativeTasks = { ...tasks };
+  const slugSet = new Set(initiativeSlugs);
+
+  for (const slug of initiativeSlugs) {
+    if (result[slug]?.length) {
+      continue;
+    }
+
+    const orphanSlug = Object.keys(result).find(
+      (key) => !slugSet.has(key) && (result[key]?.length ?? 0) > 0
+    );
+
+    if (orphanSlug) {
+      result[slug] = result[orphanSlug];
+      delete result[orphanSlug];
+    }
+  }
+
+  return result;
 }

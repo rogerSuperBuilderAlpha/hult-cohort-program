@@ -3,33 +3,61 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AllInitiativeTasks,
+  alignTasksToInitiativeSlugs,
   appendTopLevelTask,
   createDefaultTaskRows,
   deleteTaskByNumber,
-  getInitiativeTasks,
   insertSubTask,
   loadInitiativeTasks,
-  parseInitiativeTasks,
+  mergeInitiativeTaskSources,
   saveInitiativeTasks,
   sanitizeTaskField,
   TaskField,
   taskNumberExists,
 } from "@/lib/initiativeTasks";
-import { createClient } from "@/lib/supabase/client";
-import {
-  fetchUserAppData,
-  upsertUserAppData,
-  USER_DATA_KEYS,
-} from "@/lib/supabase/userDataRepository";
 import { useSupabaseUser } from "@/hooks/useSupabaseUser";
 
 const SAVE_DEBOUNCE_MS = 400;
 
-export function useInitiativeTasks() {
+interface UseInitiativeTasksOptions {
+  initiativesReady: boolean;
+  initiativeSlugs: string[];
+}
+
+async function fetchTasksFromApi(): Promise<AllInitiativeTasks | null> {
+  const response = await fetch("/api/dashboard/tasks", { cache: "no-store" });
+
+  if (response.status === 401) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error("Failed to load tasks from server.");
+  }
+
+  const data = (await response.json()) as { tasks?: AllInitiativeTasks };
+  return data.tasks ?? {};
+}
+
+async function saveTasksToApi(tasks: AllInitiativeTasks): Promise<void> {
+  const response = await fetch("/api/dashboard/tasks", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(tasks),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to save tasks to server.");
+  }
+}
+
+export function useInitiativeTasks(options: UseInitiativeTasksOptions) {
+  const { initiativesReady, initiativeSlugs } = options;
   const { userId, isAuthLoaded } = useSupabaseUser();
   const [tasksByInitiative, setTasksByInitiative] = useState<AllInitiativeTasks>({});
   const [isLoaded, setIsLoaded] = useState(false);
   const skipNextSave = useRef(true);
+  const canSaveRef = useRef(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tasksRef = useRef(tasksByInitiative);
   const userIdRef = useRef(userId);
@@ -38,58 +66,53 @@ export function useInitiativeTasks() {
   userIdRef.current = userId;
 
   useEffect(() => {
-    if (!isAuthLoaded) {
+    if (!isAuthLoaded || !initiativesReady) {
       return;
     }
 
     let cancelled = false;
 
     async function loadTasks() {
+      canSaveRef.current = false;
       setIsLoaded(false);
+
+      const local = loadInitiativeTasks();
 
       if (userId) {
         try {
-          const supabase = createClient();
-          const remote = await fetchUserAppData(
-            supabase,
-            userId,
-            USER_DATA_KEYS.initiativeTasks,
-            parseInitiativeTasks
-          );
+          const remote = await fetchTasksFromApi();
 
-          if (remote && Object.keys(remote).length > 0) {
+          if (remote !== null) {
+            let merged = mergeInitiativeTaskSources(remote, local);
+
+            if (initiativeSlugs.length > 0) {
+              const beforeAlign = JSON.stringify(merged);
+              merged = alignTasksToInitiativeSlugs(initiativeSlugs, merged);
+              if (JSON.stringify(merged) !== beforeAlign) {
+                saveInitiativeTasks(merged);
+                void saveTasksToApi(merged).catch((error) => {
+                  console.error("Failed to realign task slugs on server:", error);
+                });
+              }
+            }
+
             if (!cancelled) {
-              setTasksByInitiative(remote);
+              setTasksByInitiative(merged);
               skipNextSave.current = true;
+              canSaveRef.current = true;
               setIsLoaded(true);
             }
             return;
           }
-
-          const local = loadInitiativeTasks();
-          if (Object.keys(local).length > 0) {
-            await upsertUserAppData(
-              supabase,
-              userId,
-              USER_DATA_KEYS.initiativeTasks,
-              local
-            );
-          }
-
-          if (!cancelled) {
-            setTasksByInitiative(local);
-            skipNextSave.current = true;
-            setIsLoaded(true);
-          }
-          return;
         } catch (error) {
-          console.error("Failed to load initiative tasks from Supabase:", error);
+          console.error("Failed to load initiative tasks from API:", error);
         }
       }
 
       if (!cancelled) {
-        setTasksByInitiative(loadInitiativeTasks());
+        setTasksByInitiative(local);
         skipNextSave.current = true;
+        canSaveRef.current = true;
         setIsLoaded(true);
       }
     }
@@ -99,26 +122,23 @@ export function useInitiativeTasks() {
     return () => {
       cancelled = true;
     };
-  }, [userId, isAuthLoaded]);
+  }, [userId, isAuthLoaded, initiativesReady, initiativeSlugs.join("|")]);
 
   const flushSave = useCallback(() => {
-    const currentUserId = userIdRef.current;
-    const payload = tasksRef.current;
-
-    if (currentUserId) {
-      const supabase = createClient();
-      void upsertUserAppData(
-        supabase,
-        currentUserId,
-        USER_DATA_KEYS.initiativeTasks,
-        payload
-      ).catch((error) => {
-        console.error("Failed to save initiative tasks to Supabase:", error);
-      });
+    if (!canSaveRef.current) {
       return;
     }
 
+    const currentUserId = userIdRef.current;
+    const payload = tasksRef.current;
+
     saveInitiativeTasks(payload);
+
+    if (currentUserId) {
+      void saveTasksToApi(payload).catch((error) => {
+        console.error("Failed to save initiative tasks to API:", error);
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -143,27 +163,35 @@ export function useInitiativeTasks() {
   }, [tasksByInitiative, isLoaded, flushSave]);
 
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const handlePageHide = () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
       flushSave();
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        handlePageHide();
+      }
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [flushSave]);
 
-  const getTasks = useCallback(
-    (initiativeSlug: string) => getInitiativeTasks(tasksByInitiative, initiativeSlug),
-    [tasksByInitiative]
-  );
-
-  const ensureInitiativeTasks = useCallback((initiativeSlug: string) => {
+  const seedInitiativeTasks = useCallback((initiativeSlug: string) => {
     setTasksByInitiative((current) => {
       if (current[initiativeSlug]) {
         return current;
       }
+
+      skipNextSave.current = true;
 
       return {
         ...current,
@@ -177,7 +205,11 @@ export function useInitiativeTasks() {
       const sanitizedValue = sanitizeTaskField(field, value);
 
       setTasksByInitiative((current) => {
-        const rows = getInitiativeTasks(current, initiativeSlug);
+        if (!current[initiativeSlug]) {
+          return current;
+        }
+
+        const rows = current[initiativeSlug];
         const rowIndex = rows.findIndex((row) => row.id === rowId);
         if (rowIndex === -1) {
           return current;
@@ -205,7 +237,7 @@ export function useInitiativeTasks() {
 
   const addTaskRow = useCallback((initiativeSlug: string) => {
     setTasksByInitiative((current) => {
-      const rows = getInitiativeTasks(current, initiativeSlug);
+      const rows = current[initiativeSlug] ?? createDefaultTaskRows();
 
       return {
         ...current,
@@ -216,8 +248,8 @@ export function useInitiativeTasks() {
 
   const addSubTaskRow = useCallback((initiativeSlug: string, parentTaskNumber: string) => {
     setTasksByInitiative((current) => {
-      const rows = getInitiativeTasks(current, initiativeSlug);
-      if (!taskNumberExists(rows, parentTaskNumber)) {
+      const rows = current[initiativeSlug];
+      if (!rows || !taskNumberExists(rows, parentTaskNumber)) {
         return current;
       }
 
@@ -237,7 +269,11 @@ export function useInitiativeTasks() {
     let deleted = false;
 
     setTasksByInitiative((current) => {
-      const rows = getInitiativeTasks(current, initiativeSlug);
+      const rows = current[initiativeSlug];
+      if (!rows) {
+        return current;
+      }
+
       const nextRows = deleteTaskByNumber(rows, trimmedTaskNumber);
       if (!nextRows) {
         return current;
@@ -268,19 +304,13 @@ export function useInitiativeTasks() {
     delete next[trimmedSlug];
     setTasksByInitiative(next);
 
+    saveInitiativeTasks(next);
+
     const currentUserId = userIdRef.current;
     if (currentUserId) {
-      const supabase = createClient();
-      void upsertUserAppData(
-        supabase,
-        currentUserId,
-        USER_DATA_KEYS.initiativeTasks,
-        next
-      ).catch((error) => {
-        console.error("Failed to save initiative tasks to Supabase:", error);
+      void saveTasksToApi(next).catch((error) => {
+        console.error("Failed to save initiative tasks to API:", error);
       });
-    } else {
-      saveInitiativeTasks(next);
     }
 
     return true;
@@ -288,9 +318,8 @@ export function useInitiativeTasks() {
 
   return {
     tasksByInitiative,
-    isLoaded: isLoaded && isAuthLoaded,
-    getTasks,
-    ensureInitiativeTasks,
+    isLoaded: isLoaded && isAuthLoaded && initiativesReady,
+    seedInitiativeTasks,
     updateTaskField,
     addTaskRow,
     addSubTaskRow,

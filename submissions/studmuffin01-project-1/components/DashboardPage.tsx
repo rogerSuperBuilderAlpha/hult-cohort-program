@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import CommandCenterRow from "@/components/CommandCenterRow";
 import Dashboard from "@/components/Dashboard";
 import InitiativeSummary from "@/components/InitiativeSummary";
@@ -10,18 +10,38 @@ import { useInitiativeTasks } from "@/hooks/useInitiativeTasks";
 import { useInitiatives } from "@/hooks/useInitiatives";
 
 export default function DashboardPage() {
+  const { customInitiatives, deleteInitiative, isLoaded: initiativesLoaded } = useInitiatives();
   const {
     tasksByInitiative,
     isLoaded: tasksLoaded,
-    getTasks,
-    ensureInitiativeTasks,
+    seedInitiativeTasks,
     updateTaskField,
     addTaskRow,
     addSubTaskRow,
     deleteTaskRow,
     removeInitiativeTasks,
-  } = useInitiativeTasks();
-  const { customInitiatives, deleteInitiative, isLoaded: initiativesLoaded } = useInitiatives();
+  } = useInitiativeTasks({
+    initiativesReady: initiativesLoaded,
+    initiativeSlugs: customInitiatives.map((initiative) => initiative.slug),
+  });
+
+  useEffect(() => {
+    if (!tasksLoaded || !initiativesLoaded) {
+      return;
+    }
+
+    for (const initiative of customInitiatives) {
+      if (!tasksByInitiative[initiative.slug]) {
+        seedInitiativeTasks(initiative.slug);
+      }
+    }
+  }, [
+    customInitiatives,
+    initiativesLoaded,
+    seedInitiativeTasks,
+    tasksByInitiative,
+    tasksLoaded,
+  ]);
 
   const handleDeleteInitiative = useCallback(
     (slug: string) => {
@@ -72,8 +92,7 @@ export default function DashboardPage() {
           <div className="mx-auto w-full max-w-5xl">
             <InitiativeSummary
               initiatives={customInitiatives}
-              getTasks={getTasks}
-              onEnsureTasks={ensureInitiativeTasks}
+              tasksByInitiative={tasksByInitiative}
               onUpdateField={updateTaskField}
               onAddRow={addTaskRow}
               onAddSubTask={addSubTaskRow}

@@ -7,12 +7,35 @@ export const USER_DATA_KEYS = {
 
 export type UserDataKey = (typeof USER_DATA_KEYS)[keyof typeof USER_DATA_KEYS];
 
+function normalizeJsonPayload(raw: unknown): unknown {
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw) as unknown;
+    } catch {
+      return raw;
+    }
+  }
+
+  return raw;
+}
+
 export async function fetchUserAppData<T>(
   supabase: SupabaseClient,
   userId: string,
   dataKey: UserDataKey,
   parse: (raw: unknown) => T
 ): Promise<T | null> {
+  const record = await fetchUserAppDataRecord(supabase, userId, dataKey, parse);
+  return record?.parsed ?? null;
+}
+
+/** Returns parsed payload plus whether a DB row exists (even if payload is empty). */
+export async function fetchUserAppDataRecord<T>(
+  supabase: SupabaseClient,
+  userId: string,
+  dataKey: UserDataKey,
+  parse: (raw: unknown) => T
+): Promise<{ parsed: T; raw: unknown; hasRow: true } | null> {
   const { data, error } = await supabase
     .from("user_app_data")
     .select("payload")
@@ -28,7 +51,9 @@ export async function fetchUserAppData<T>(
     return null;
   }
 
-  return parse(data.payload);
+  const raw = normalizeJsonPayload(data.payload);
+
+  return { parsed: parse(raw), raw, hasRow: true };
 }
 
 export async function upsertUserAppData<T>(

@@ -3,7 +3,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import GoToNav from "@/components/GoToNav";
 import InitiativeTaskRow from "@/components/InitiativeTaskRow";
-import { InitiativeTasks, TaskField, taskNumberExists } from "@/lib/initiativeTasks";
+import { AllInitiativeTasks, InitiativeTasks, TaskField, taskNumberExists } from "@/lib/initiativeTasks";
 import { initiativeTaskNumberHeaderClass, initiativeThClass } from "@/lib/tableStyles";
 import { getInitiativeAnchorId, type Initiative } from "@/lib/initiatives";
 
@@ -26,8 +26,7 @@ interface InitiativeTaskTableProps {
   initiative: Initiative;
   displayLabel: string;
   allInitiatives: Initiative[];
-  tasks: InitiativeTasks;
-  onEnsureTasks: (initiativeSlug: string) => void;
+  tasks: InitiativeTasks | undefined;
   onUpdateField: (initiativeSlug: string, rowId: string, field: TaskField, value: string) => void;
   onAddRow: (initiativeSlug: string) => void;
   onAddSubTask: (initiativeSlug: string, parentTaskNumber: string) => void;
@@ -39,7 +38,6 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
   displayLabel,
   allInitiatives,
   tasks,
-  onEnsureTasks,
   onUpdateField,
   onAddRow,
   onAddSubTask,
@@ -51,9 +49,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
   const deleteInputId = `${initiative.slug}-delete-task-number`;
   const deleteControlsRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    onEnsureTasks(initiative.slug);
-  }, [initiative.slug, onEnsureTasks]);
+  const taskRows = tasks ?? [];
 
   const closeDeleteMode = useCallback(() => {
     setIsChoosingDelete(false);
@@ -77,10 +73,10 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
   }, [isChoosingDelete, closeDeleteMode]);
 
   useEffect(() => {
-    if (isChoosingDelete && tasks.length <= 1) {
+    if (isChoosingDelete && taskRows.length <= 1) {
       closeDeleteMode();
     }
-  }, [closeDeleteMode, isChoosingDelete, tasks.length]);
+  }, [closeDeleteMode, isChoosingDelete, taskRows.length]);
 
   const handleUpdateField = useCallback(
     (rowId: string, field: TaskField, value: string) => {
@@ -101,7 +97,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
   );
 
   const toggleDeleteMode = useCallback(() => {
-    if (tasks.length <= 1) {
+    if (taskRows.length <= 1) {
       return;
     }
 
@@ -112,7 +108,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
       }
       return !current;
     });
-  }, [tasks.length]);
+  }, [taskRows.length]);
 
   const confirmDelete = useCallback(() => {
     const trimmedTaskNumber = deleteTaskNumber.trim();
@@ -122,7 +118,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
       return;
     }
 
-    if (!taskNumberExists(tasks, trimmedTaskNumber)) {
+    if (!taskNumberExists(taskRows, trimmedTaskNumber)) {
       setDeleteError(`Task ${trimmedTaskNumber} does not exist.`);
       return;
     }
@@ -131,7 +127,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
     if (deleted) {
       closeDeleteMode();
     }
-  }, [closeDeleteMode, deleteTaskNumber, initiative.slug, onDeleteRow, tasks]);
+  }, [closeDeleteMode, deleteTaskNumber, initiative.slug, onDeleteRow, taskRows]);
 
   return (
     <div id={getInitiativeAnchorId(initiative.slug)} className="scroll-mt-8 space-y-3">
@@ -161,7 +157,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
             </tr>
           </thead>
           <tbody>
-            {tasks.map((row) => (
+            {taskRows.map((row) => (
               <InitiativeTaskRow
                 key={row.id}
                 row={row}
@@ -182,7 +178,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
           <button
             type="button"
             onClick={toggleDeleteMode}
-            disabled={tasks.length <= 1}
+            disabled={taskRows.length <= 1}
             aria-expanded={isChoosingDelete}
             aria-haspopup="dialog"
             className={deleteButtonClassName}
@@ -256,16 +252,14 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
 
 export default function InitiativeSummary({
   initiatives,
-  getTasks,
-  onEnsureTasks,
+  tasksByInitiative,
   onUpdateField,
   onAddRow,
   onAddSubTask,
   onDeleteRow,
 }: {
   initiatives: Initiative[];
-  getTasks: (initiativeSlug: string) => InitiativeTasks;
-  onEnsureTasks: (initiativeSlug: string) => void;
+  tasksByInitiative: AllInitiativeTasks;
   onUpdateField: (initiativeSlug: string, rowId: string, field: TaskField, value: string) => void;
   onAddRow: (initiativeSlug: string) => void;
   onAddSubTask: (initiativeSlug: string, parentTaskNumber: string) => void;
@@ -286,8 +280,7 @@ export default function InitiativeSummary({
             initiative={initiative}
             displayLabel={initiative.title}
             allInitiatives={initiatives}
-            tasks={getTasks(initiative.slug)}
-            onEnsureTasks={onEnsureTasks}
+            tasks={tasksByInitiative[initiative.slug]}
             onUpdateField={onUpdateField}
             onAddRow={onAddRow}
             onAddSubTask={onAddSubTask}

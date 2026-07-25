@@ -5,6 +5,9 @@ import {
   getSupabaseUrl,
 } from "@/lib/supabase/env";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function GET() {
   const supabaseUrl = getSupabaseUrl();
   const supabaseKey = getSupabaseAnonKey();
@@ -33,12 +36,17 @@ export async function GET() {
       const response = await fetch(`${supabaseUrl}/auth/v1/health`, {
         headers: { apikey: supabaseKey },
         cache: "no-store",
-        signal: AbortSignal.timeout(8000),
       });
       supabasePingStatus = response.status;
-      supabaseReachable = response.ok;
+      // Any HTTP response means the host is reachable (401/500 still prove DNS + TLS work).
+      supabaseReachable = true;
     } catch (err) {
-      supabasePingError = err instanceof Error ? err.message : "Ping failed.";
+      const error = err instanceof Error ? err : new Error("Ping failed.");
+      const cause =
+        error.cause instanceof Error ? error.cause.message : null;
+      supabasePingError = cause
+        ? `${error.message} (${cause})`
+        : error.message;
     }
   }
 

@@ -100,15 +100,12 @@ Stated plainly rather than left for a reviewer to find:
   structural change.
 - **No unread badges or push notifications** — real-time updates require the tab open; no service
   worker or email digest yet.
-- **The account owner's own Google/GitHub sign-in hit an environment-specific failure** that
-  wasn't reproducible from here after several rounds of fixes (popup→redirect switch, an
-  authorized-domain misconfiguration). Both providers are confirmed correctly configured
-  server-side (verified via Firebase's own public REST endpoints), and the redirect reaches a
-  real provider picker in-browser, but a from-scratch OAuth login by the account owner is still
-  unconfirmed. Anonymous guest sign-in — added as a fallback specifically because it needs no
-  OAuth redirect — **is fully verified end-to-end** (see Test plan): two distinct guest identities
-  messaging each other live in production, so the app itself is confirmed working regardless of
-  the one open OAuth question.
+- **Resolved:** Google sign-in initially failed silently for the account owner (no error, just
+  back to the login page) — root cause was `signInWithRedirect`'s dependency on browser storage
+  surviving a round trip across two origins (the app domain and the Firebase authDomain), which
+  Safari/Chrome privacy features increasingly block. Switched to popup as the primary method
+  (redirect remains a fallback for the rare case a popup can't open); confirmed working by the
+  account owner directly. Anonymous guest sign-in remains available as a no-OAuth fallback.
 
 ## Agent usage summary
 
@@ -176,5 +173,5 @@ once that lands.
 - [x] Two real bugs in Firestore security rules found via that live walkthrough (not caught by
       any static check), root-caused via direct REST calls, fixed, and re-verified — see Agent
       usage
-- [ ] The account owner's own Google/GitHub OAuth sign-in specifically — still unconfirmed (see
-      Known limitations); everything else about the app is independently verified working
+- [x] The account owner's own Google sign-in confirmed working end-to-end after the popup switch
+      (see Known limitations for the root cause), and promoted to Warden via `promote:warden`

@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* Conexus design tokens — PRD §8 */
+:root {
+  --color-primary: #3cbbb1;
+  --color-dark: #16324f;
+  --color-secondary: #5b6b7a;
+  --color-bg: #f3f5f7;
+  --color-surface: #ffffff;
+  --color-accent: #f4b942;
+  --color-danger: #e5484d;
+  --font-family: var(--font-manrope), "Manrope", sans-serif;
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-input: 24px;
+}
+
+@theme inline {
+  --color-primary: var(--color-primary);
+  --color-dark: var(--color-dark);
+  --color-secondary: var(--color-secondary);
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-accent: var(--color-accent);
+  --color-danger: var(--color-danger);
+  --font-sans: var(--font-manrope), "Manrope", sans-serif;
+  --radius-card: var(--radius-card);
+  --radius-button: var(--radius-button);
+  --radius-input: var(--radius-input);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-dark);
+  font-family: var(--font-family);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}

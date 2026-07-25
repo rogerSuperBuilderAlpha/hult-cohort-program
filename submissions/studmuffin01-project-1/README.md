@@ -2,20 +2,20 @@
 
 **The Gateway to Project Success**
 
-Initiara is a web-based initiative tracking and engagement platform designed to help users create, manage, and monitor personal and cohort-based initiatives. The application combines progress tracking, accountability, peer recognition, and motivational features to encourage sustained participation and goal completion.
+Initiara is a web-based initiative tracking and engagement platform for the Hult Cohort Program. It combines an Executive Summary health dashboard, per-initiative task tables, multi-user authentication, and Supabase-backed persistence so each participant can create projects, assign work to team members, and monitor progress over time.
 
 ## Overview
 
 Initiara provides a centralized space for users to:
 
-- Start and manage initiatives
-- Monitor personal progress
-- View cohort performance
-- Track action items
-- Recognize high performers
-- Encourage peer participation through motivation-focused features
+- Start and manage initiatives (projects) with create, rename, archive, and restore
+- Track tasks with status, due dates, assignees, and comments
+- Maintain a personal team roster and assign tasks from a dropdown
+- Filter tasks by status, assignee, and project
+- Monitor initiative health at a glance in the Executive Summary
+- Sign in so data persists across browsers and sessions via Supabase
 
-The platform is designed around visibility, accountability, and engagement, helping users stay focused on their goals while fostering participation within a larger cohort community.
+The main dashboard (`/`) is the operational hub: **Team Members**, **Executive Summary**, and **Initiative Summary** task tables. Sidebar routes for cohort engagement (motivators, performers, action items) are scaffolded placeholders for future phases.
 
 ---
 
@@ -23,35 +23,52 @@ The platform is designed around visibility, accountability, and engagement, help
 
 ### Initiative Management
 
-- Create new initiatives
-- View initiative details
-- Track initiative progress
-- Access initiative-specific information
+- Create new initiatives from **Start New Initiative**
+- Rename initiatives inline from the Executive Summary (**Edit**)
+- Archive initiatives by row number (tasks preserved; hidden from active views)
+- Restore or permanently delete archived initiatives
+- Jump from Executive Summary rows to matching task tables
+
+### Task Management
+
+- Per-initiative task tables with sub-task support
+- Three status values: **To Do**, **In Progress**, **Done**
+- Fields: description, status, date due, assignee, comments
+- Add and delete tasks (minimum one row per initiative)
+- Filter tasks by **status**, **assignee**, and **project** (initiative)
+
+### Team Members & Assignment
+
+- **Team Members** panel on the main dashboard
+- Add and remove names from a personal roster
+- Assign tasks via assignee dropdown (roster-driven, not free text)
+
+### Executive Summary & Health
+
+- Progress bars and overall health indicators per initiative
+- Colour-coded health legend (red → green by completion %)
+- Row count grows with the number of active initiatives
 
 ### Personal Progress Tracking
 
-- Monitor individual status and performance
-- Review personal initiative progress
-- Stay aligned with goals and commitments
+- Monitor individual status and performance (placeholder route)
+- Review personal initiative progress on the main dashboard when signed in
 
 ### Cohort Visibility
 
-- View overall cohort status
-- Compare progress across participants
-- Promote transparency and accountability
+- View overall cohort status (placeholder route)
+- Compare progress across participants (future shared workspace)
 
 ### Action Planning
 
-- Review action items
-- Focus on next steps
-- Support execution and follow-through
+- Review action items (placeholder route)
+- Focus on next steps via Initiative Summary task tables
 
 ### Engagement & Motivation
 
-- Motivate fellow participants
-- Recognize top performers
-- Highlight top motivators
-- Encourage positive peer engagement
+- Motivate fellow participants (placeholder route)
+- Recognize top performers and top motivators (placeholder routes)
+- Encourage positive peer engagement (future phase)
 
 ---
 
@@ -72,12 +89,14 @@ The platform is designed around visibility, accountability, and engagement, help
 ### Backend & Auth
 
 - Supabase (PostgreSQL + Auth)
-- Per-user persistence when signed in
+- Server API routes for auth and dashboard data (`/api/auth/*`, `/api/dashboard/*`)
+- Per-user persistence when signed in (Row Level Security)
 - Email signup with confirmation
+- Debounced sync (400ms) for tasks, initiatives, and team members
 
 ### Deployment
 
-- Vercel — see [DEPLOY.md](./DEPLOY.md) for env vars and Supabase URL configuration
+- Vercel — see [DEPLOY.md](./DEPLOY.md) for env vars, Supabase URL configuration, and fork push workflow
 
 ---
 
@@ -87,38 +106,58 @@ The platform is designed around visibility, accountability, and engagement, help
 app/
 ├── globals.css
 ├── layout.tsx
-├── page.tsx
+├── page.tsx                    # Main dashboard entry
 │
 ├── auth/
 │   ├── login/page.tsx
 │   ├── signup/page.tsx
 │   └── callback/route.ts
 │
-├── action-items/
-│   └── page.tsx
-│
-├── cohorts-status/
-│   └── page.tsx
-│
-├── initiatives/
-│   └── [slug]/
-│       ├── page.tsx
-│       └── not-found.tsx
-│
-├── motivate-a-friend/
-│   └── page.tsx
-│
-├── my-status/
-│   └── page.tsx
+├── api/
+│   ├── auth/                   # login, signup, logout, resend
+│   ├── dashboard/
+│   │   ├── initiatives/        # GET + PATCH (title, archive)
+│   │   ├── tasks/              # GET + PUT initiative_tasks
+│   │   └── members/            # GET + PUT team_members
+│   └── health/                 # Supabase connectivity check
 │
 ├── start-new-initiative/
 │   └── page.tsx
 │
-├── top-ten-motivators/
-│   └── page.tsx
+├── initiatives/[slug]/
+│   ├── page.tsx
+│   └── not-found.tsx
 │
-└── top-ten-performers/
-    └── page.tsx
+├── my-status/                  # placeholder
+├── cohorts-status/             # placeholder
+├── action-items/               # placeholder
+├── motivate-a-friend/          # placeholder
+├── top-ten-performers/         # placeholder
+└── top-ten-motivators/         # placeholder
+
+components/
+├── DashboardPage.tsx           # Shell: team roster + executive + initiative summary
+├── Dashboard.tsx               # Executive Summary (edit, archive)
+├── InitiativeSummary.tsx       # Task tables + filters
+├── TeamMembersPanel.tsx
+├── TaskFilterBar.tsx
+└── ...
+
+hooks/
+├── useInitiatives.ts
+├── useInitiativeTasks.ts
+├── useTeamMembers.ts
+└── useCohortSubmissions.ts
+
+lib/
+├── initiatives.ts
+├── initiativeTasks.ts
+├── teamMembers.ts
+├── taskFilters.ts
+└── supabase/                   # clients, repositories, middleware
+
+supabase/
+└── schema.sql                  # Tables + RLS (run in Supabase SQL Editor)
 ```
 
 ---
@@ -127,17 +166,17 @@ app/
 
 | Route | Description |
 |---------|------------|
-| `/` | Main dashboard (Executive Summary + task tables) |
+| `/` | Main dashboard (Team Members, Executive Summary, Initiative Summary) |
 | `/auth/login` | Sign in |
 | `/auth/signup` | Create account |
 | `/start-new-initiative` | Create a new initiative |
 | `/initiatives/[slug]` | View initiative details |
-| `/my-status` | Personal progress dashboard |
-| `/cohorts-status` | Cohort performance overview |
-| `/action-items` | Action item management |
-| `/motivate-a-friend` | Peer encouragement and engagement |
-| `/top-ten-performers` | Top performer leaderboard |
-| `/top-ten-motivators` | Top motivator leaderboard |
+| `/my-status` | Personal progress dashboard *(placeholder)* |
+| `/cohorts-status` | Cohort performance overview *(placeholder)* |
+| `/action-items` | Action item management *(placeholder)* |
+| `/motivate-a-friend` | Peer encouragement and engagement *(placeholder)* |
+| `/top-ten-performers` | Top performer leaderboard *(placeholder)* |
+| `/top-ten-motivators` | Top motivator leaderboard *(placeholder)* |
 
 ---
 
@@ -145,9 +184,11 @@ app/
 
 ### Clone the Repository
 
+This submission lives in the Hult cohort monorepo. Clone your fork and open the submission directory:
+
 ```bash
-git clone https://github.com/Studmuffin01/initiara.git
-cd initiara
+git clone https://github.com/Studmuffin01/hult-cohort-program.git
+cd hult-cohort-program/submissions/studmuffin01-project-1
 ```
 
 ### Install Dependencies
@@ -162,7 +203,7 @@ npm install
 cp .env.example .env.local
 ```
 
-Fill in Supabase values (see [DEPLOY.md](./DEPLOY.md)), then run the SQL in `supabase/schema.sql` in your Supabase project.
+Fill in Supabase values (see [DEPLOY.md](./DEPLOY.md)), then run the full contents of `supabase/schema.sql` in your Supabase **SQL Editor** (safe to re-run; includes Phase B migrations for `archived` and `team_members`).
 
 ---
 
@@ -187,25 +228,35 @@ npm run build
 npm run start
 ```
 
+### Lint
+
+```bash
+npm run lint
+```
+
 ---
 
 ## Fresh Clone Verification
 
-The application setup was verified using a fresh repository clone.
+The application setup was verified using a fresh clone of the submission directory within the cohort fork.
 
-Commands executed
+Commands executed:
 
 ```bash
-git clone https://github.com/Studmuffin01/initiara.git
-cd initiara
+git clone https://github.com/Studmuffin01/hult-cohort-program.git
+cd hult-cohort-program/submissions/studmuffin01-project-1
 npm install
+cp .env.example .env.local
+# configure Supabase + run schema.sql
+npm run build
 ```
 
 Results:
 
 - Repository cloned successfully.
 - Dependencies installed successfully.
-- No blocking installation issues encountered.
+- Production build succeeds when Supabase env vars are set.
+- No blocking installation issues encountered when `schema.sql` has been applied.
 
 Note: Production builds may encounter certificate-related issues in environments that restrict external font downloads from Google Fonts.
 
@@ -214,12 +265,24 @@ Note: Production builds may encounter certificate-related issues in environments
 ## Authentication & persistence
 
 - **Sign up** at `/auth/signup` — confirmation email required (see [DEPLOY.md](./DEPLOY.md) for redirect URLs).
-- **Sign in** at `/auth/login` — redirects to `/` after success.
-- **Sign out** — header button on all main pages when authenticated.
-- **Logged in:** initiatives, tasks, and cohort data sync to Supabase (per user).
-- **Logged out:** same features use browser `localStorage` only.
+- **Sign in** at `/auth/login` — server-side auth routes; redirects to `/` after success.
+- **Sign out** — header button on main pages when authenticated.
+- **Logged in:** initiatives, tasks, team members, and cohort row data sync to Supabase (scoped per user id).
+- **Logged out:** the same features fall back to browser `localStorage`.
+- **First login:** local data migrates to Supabase when the remote account has no existing rows.
 
-Task tables use status values **To Do**, **In Progress**, and **Done**, with an **Assignee** column (free text until member roster is added in Phase B).
+### Supabase tables
+
+| Table / key | Purpose |
+|-------------|---------|
+| `custom_initiatives` | User-created initiatives (`slug`, `title`, `deadline`, `archived`) |
+| `user_app_data` → `initiative_tasks` | Task rows keyed by initiative slug |
+| `user_app_data` → `team_members` | Assignee roster |
+| `user_app_data` → `cohort_submissions` | Cohort checkbox + name rows |
+
+Executive Summary and Initiative Summary stay linked by **initiative `slug`** (not a separate foreign key).
+
+Task tables use **To Do**, **In Progress**, and **Done**, with assignees chosen from the **Team Members** roster dropdown.
 
 ---
 
@@ -229,32 +292,32 @@ Initiara was built around several key principles:
 
 ### Visibility
 
-Users should be able to quickly understand progress, status, and priorities.
+Users should be able to quickly understand progress, status, and priorities — Executive Summary health colours and progress bars surface initiative status at a glance.
 
 ### Accountability
 
-Making progress visible encourages follow-through and commitment.
+Making progress visible encourages follow-through; task assignees and due dates support ownership.
 
 ### Recognition
 
-Highlighting top performers and top motivators reinforces positive behaviors.
+Highlighting top performers and top motivators reinforces positive behaviors *(leaderboard routes planned)*.
 
 ### Community Engagement
 
-Motivation and peer support features encourage participants to actively support one another.
+Motivation and peer support features encourage participants to actively support one another *(placeholder routes)*.
 
 ### Simplicity
 
-Information is organized into focused sections so users can quickly access what they need without unnecessary complexity.
+Information is organized into focused sections — one dashboard for daily work, sidebar for future engagement features.
 
 ---
 
 ## Known Limitations
 
-- Assignee is free text; no team member roster or assignee filter yet (Phase B).
-- No initiative archive or inline title edit yet (Phase B).
-- Data is per authenticated user, not a shared cohort workspace.
-- Sidebar routes (`/my-status`, `/action-items`, etc.) are placeholders.
+- Data is **per authenticated user**, not a shared cohort workspace (two users do not see each other's initiatives).
+- Sidebar routes (`/my-status`, `/action-items`, `/top-ten-performers`, etc.) are placeholders without full functionality.
+- Initiative **deadline** is stored but not editable in the UI (defaults to `TBD`).
+- Cohort completion % counts rows with any checkbox ticked or a non-empty name (see `lib/cohortSubmissions.ts`).
 - Limited automated testing coverage.
 - Production builds may be affected by environments that block font CDN downloads.
 
@@ -262,21 +325,32 @@ Information is organized into focused sections so users can quickly access what 
 
 ## Future Enhancements
 
-- Team members + assignee picker
-- Task filters (status, assignee, project)
-- Initiative archive and title edit
-- Shared cohort workspace
+- Shared cohort workspace (collaborative projects and roster)
+- Full implementation of sidebar engagement routes
+- Editable initiative deadlines
 - Expanded leaderboard and collaboration features
+- Automated test coverage for persistence and auth flows
 
 ---
 
 ## Deployment
 
-The application is deployed on Vercel. Configure Supabase env vars and auth redirect URLs using [DEPLOY.md](./DEPLOY.md).
+The application is deployed on Vercel from the cohort fork. Configure Supabase env vars and auth redirect URLs using [DEPLOY.md](./DEPLOY.md).
+
+Push updates to your fork:
+
+```bash
+scripts/push-to-fork.bat      # general submission push
+scripts/push-phase-b.bat      # same flow with Phase B commit message (if needed)
+```
 
 **Production URL:**
 
 https://initiara-git-participants-summer26phase-1-project-b9933f-rawle.vercel.app
+
+**Fork branch:**
+
+`participants/summer26/phase-1-project-1/studmuffin01`
 
 ---
 

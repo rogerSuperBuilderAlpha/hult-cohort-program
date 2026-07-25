@@ -1,9 +1,11 @@
 "use client";
 
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import GoToNav from "@/components/GoToNav";
 import InitiativeTaskRow from "@/components/InitiativeTaskRow";
+import TaskFilterBar from "@/components/TaskFilterBar";
 import { AllInitiativeTasks, InitiativeTasks, TaskField, taskNumberExists } from "@/lib/initiativeTasks";
+import { EMPTY_TASK_FILTERS, filterTaskRows, type TaskFilters } from "@/lib/taskFilters";
 import { initiativeTaskNumberHeaderClass, initiativeThClass } from "@/lib/tableStyles";
 import { getInitiativeAnchorId, type Initiative } from "@/lib/initiatives";
 
@@ -27,6 +29,8 @@ interface InitiativeTaskTableProps {
   displayLabel: string;
   allInitiatives: Initiative[];
   tasks: InitiativeTasks | undefined;
+  rowFilters: Pick<TaskFilters, "status" | "assignee">;
+  assigneeOptions: string[];
   onUpdateField: (initiativeSlug: string, rowId: string, field: TaskField, value: string) => void;
   onAddRow: (initiativeSlug: string) => void;
   onAddSubTask: (initiativeSlug: string, parentTaskNumber: string) => void;
@@ -38,6 +42,8 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
   displayLabel,
   allInitiatives,
   tasks,
+  rowFilters,
+  assigneeOptions,
   onUpdateField,
   onAddRow,
   onAddSubTask,
@@ -50,7 +56,10 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
   const deleteControlsRef = useRef<HTMLDivElement>(null);
 
   const taskRows = tasks ?? [];
-
+  const visibleTaskRows = useMemo(
+    () => filterTaskRows(taskRows, { ...EMPTY_TASK_FILTERS, ...rowFilters }),
+    [rowFilters, taskRows]
+  );
   const closeDeleteMode = useCallback(() => {
     setIsChoosingDelete(false);
     setDeleteTaskNumber("");
@@ -157,14 +166,23 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
             </tr>
           </thead>
           <tbody>
-            {taskRows.map((row) => (
-              <InitiativeTaskRow
-                key={row.id}
-                row={row}
-                onUpdateField={handleUpdateField}
-                onAddSubTask={handleAddSubTask}
-              />
-            ))}
+            {visibleTaskRows.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-3 py-4 text-center text-sm text-slate-500 dark:text-surface-secondary">
+                  No tasks match the current filters.
+                </td>
+              </tr>
+            ) : (
+              visibleTaskRows.map((row) => (
+                <InitiativeTaskRow
+                  key={row.id}
+                  row={row}
+                  assigneeOptions={assigneeOptions}
+                  onUpdateField={handleUpdateField}
+                  onAddSubTask={handleAddSubTask}
+                />
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -253,6 +271,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
 export default function InitiativeSummary({
   initiatives,
   tasksByInitiative,
+  assigneeOptions,
   onUpdateField,
   onAddRow,
   onAddSubTask,
@@ -260,27 +279,58 @@ export default function InitiativeSummary({
 }: {
   initiatives: Initiative[];
   tasksByInitiative: AllInitiativeTasks;
+  assigneeOptions: string[];
   onUpdateField: (initiativeSlug: string, rowId: string, field: TaskField, value: string) => void;
   onAddRow: (initiativeSlug: string) => void;
   onAddSubTask: (initiativeSlug: string, parentTaskNumber: string) => void;
   onDeleteRow: (initiativeSlug: string, taskNumber: string) => boolean;
 }) {
+  const [filters, setFilters] = useState<TaskFilters>(EMPTY_TASK_FILTERS);
+
+  const visibleInitiatives = useMemo(() => {
+    if (!filters.initiativeSlug) {
+      return initiatives;
+    }
+
+    return initiatives.filter((initiative) => initiative.slug === filters.initiativeSlug);
+  }, [filters.initiativeSlug, initiatives]);
+
+  const rowFilters = useMemo(
+    () => ({ status: filters.status, assignee: filters.assignee }),
+    [filters.assignee, filters.status]
+  );
+
   return (
     <section aria-label="Initiative summary" className="space-y-8">
       <h2 className="section-heading">Initiative Summary</h2>
+
+      {initiatives.length > 0 && (
+        <TaskFilterBar
+          filters={filters}
+          initiatives={initiatives}
+          assigneeOptions={assigneeOptions}
+          onChange={setFilters}
+        />
+      )}
 
       {initiatives.length === 0 ? (
         <p className="text-sm text-slate-500 dark:text-surface-secondary">
           Task tables appear here after you add initiatives from Start New Initiative.
         </p>
+      ) : visibleInitiatives.length === 0 ? (
+        <p className="text-sm text-slate-500 dark:text-surface-secondary">
+          No initiatives match the selected project filter.
+        </p>
       ) : (
-        initiatives.map((initiative) => (
+        visibleInitiatives.map((initiative) => (
           <InitiativeTaskTable
             key={initiative.slug}
             initiative={initiative}
             displayLabel={initiative.title}
             allInitiatives={initiatives}
             tasks={tasksByInitiative[initiative.slug]}
+            rowFilters={rowFilters}
+            assigneeOptions={assigneeOptions}
             onUpdateField={onUpdateField}
             onAddRow={onAddRow}
             onAddSubTask={onAddSubTask}

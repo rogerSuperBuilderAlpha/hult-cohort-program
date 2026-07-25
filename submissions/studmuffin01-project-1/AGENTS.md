@@ -25,12 +25,17 @@ Copy `.env.example` → `.env.local` and set Supabase values before using auth o
 - `components/Dashboard.tsx` — Executive Summary table
 - `components/InitiativeSummary.tsx` — initiative task tables
 - `components/PageHeader.tsx` — Sign Out / Log in + theme toggle
-- `hooks/useInitiatives.ts` — initiatives; Supabase when logged in, localStorage fallback
+- `hooks/useInitiatives.ts` — initiatives (edit, archive, CRUD); Supabase when logged in
+- `hooks/useTeamMembers.ts` — roster for assignee picker; debounced sync (400ms)
 - `hooks/useInitiativeTasks.ts` — tasks; debounced Supabase/localStorage sync (400ms)
 - `hooks/useCohortSubmissions.ts` — cohort rows; debounced Supabase/localStorage sync (400ms)
 - `hooks/useSupabaseUser.ts` — re-exports `useAuth()` from `AuthProvider`
 - `lib/supabase/` — browser/server clients, repositories, auth redirect helpers
-- `supabase/schema.sql` — run in Supabase SQL Editor to create tables + RLS
+- `components/TaskFilterBar.tsx` — filter tasks by status, assignee, project
+- `components/TeamMembersPanel.tsx` — roster management for assignee picker
+- `app/api/dashboard/initiatives/route.ts` — GET + PATCH (title, archive)
+- `app/api/dashboard/members/route.ts` — GET/PUT team member roster
+- `supabase/schema.sql` — tables + RLS; re-run Phase B migration block after pull
 - `lib/cohortSubmissions.ts` — parse/validate cohort row storage
 - `lib/initiativeTasks.ts` — task types, status options, storage helpers
 - `lib/health.ts` — overall health colors (inline hex — Tailwind classes in `lib/` are not scanned)
@@ -47,6 +52,7 @@ Copy `.env.example` → `.env.local` and set Supabase values before using auth o
 
 - `initiara-custom-initiatives` — user-created initiatives
 - `initiara-initiative-tasks` — task tables per initiative
+- `initiara-team-members` — assignee roster
 - `initiara-cohort-submissions` — checkbox + name data per initiative
 - `initiara-theme` — dark/light preference
 
@@ -57,11 +63,8 @@ Copy `.env.example` → `.env.local` and set Supabase values before using auth o
 - Use duplicate `GoToNav` menu IDs — pass unique `menuIdSuffix` per initiative table
 - “Fix” health colors with Tailwind utility classes inside `lib/health.ts` without updating `tailwind.config.ts` content paths
 
-## Known product gaps (Phase B/C)
+## Known product gaps (Phase C)
 
 - No shared cohort workspace (data is per authenticated user, not collaborative)
-- Initiative archive and inline title edit not implemented
-- Assignee column is free text (no member roster or picker yet)
-- No task filtering by assignee, status, or project
 - Sidebar routes (`/my-status`, `/action-items`, etc.) are placeholders
 - Cohort % counts rows with any checkbox ticked or a non-empty name (see `lib/cohortSubmissions.ts`)

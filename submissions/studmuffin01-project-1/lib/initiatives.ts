@@ -6,12 +6,13 @@ export interface Initiative {
   slug: string;
   title: string;
   deadline: string;
+  archived?: boolean;
 }
 
 export const INITIATIVE_TITLE_MAX_LENGTH = 120;
 export const EXECUTIVE_SUMMARY_MIN_ROW_COUNT = 3;
 export const CUSTOM_INITIATIVES_STORAGE_KEY = "initiara-custom-initiatives";
-export const CUSTOM_INITIATIVES_SCHEMA_VERSION = 2;
+export const CUSTOM_INITIATIVES_SCHEMA_VERSION = 3;
 export const CUSTOM_INITIATIVES_VERSION_KEY = "initiara-custom-initiatives-version";
 export const MAX_CUSTOM_INITIATIVES_STORAGE_BYTES = 100_000;
 
@@ -102,10 +103,20 @@ function parseCustomInitiatives(raw: unknown): Initiative[] {
       continue;
     }
 
-    parsed.push({ slug, title, deadline });
+    const archived = record.archived === true;
+
+    parsed.push({ slug, title, deadline, archived: archived || undefined });
   }
 
   return parsed;
+}
+
+export function filterActiveInitiatives(initiatives: Initiative[]): Initiative[] {
+  return initiatives.filter((initiative) => !initiative.archived);
+}
+
+export function filterArchivedInitiatives(initiatives: Initiative[]): Initiative[] {
+  return initiatives.filter((initiative) => initiative.archived);
 }
 
 const DEFAULT_INITIATIVE_SLUGS = new Set(DEFAULT_INITIATIVES.map((initiative) => initiative.slug));
@@ -149,9 +160,7 @@ export function loadCustomInitiatives(): Initiative[] {
   try {
     const storedVersion = readCustomInitiativesSchemaVersion();
     if (storedVersion !== CUSTOM_INITIATIVES_SCHEMA_VERSION) {
-      localStorage.removeItem(CUSTOM_INITIATIVES_STORAGE_KEY);
       writeCustomInitiativesSchemaVersion(CUSTOM_INITIATIVES_SCHEMA_VERSION);
-      return [];
     }
 
     const raw = localStorage.getItem(CUSTOM_INITIATIVES_STORAGE_KEY);

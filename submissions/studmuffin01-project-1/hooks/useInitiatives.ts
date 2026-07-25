@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createInitiative,
+  filterActiveInitiatives,
+  filterArchivedInitiatives,
   Initiative,
   loadCustomInitiatives,
   mergeInitiatives,
@@ -18,6 +20,21 @@ import {
   replaceCustomInitiatives,
 } from "@/lib/supabase/initiativesRepository";
 import { useSupabaseUser } from "@/hooks/useSupabaseUser";
+
+async function patchInitiativeOnApi(
+  slug: string,
+  updates: { title?: string; archived?: boolean }
+): Promise<void> {
+  const response = await fetch("/api/dashboard/initiatives", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ slug, ...updates }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update initiative on server.");
+  }
+}
 
 export function useInitiatives() {
   const { userId, isAuthLoaded } = useSupabaseUser();
@@ -47,6 +64,7 @@ export function useInitiatives() {
           if (remote.length > 0) {
             if (!cancelled) {
               setCustomInitiatives(remote);
+              saveCustomInitiatives(remote);
               setIsLoaded(true);
             }
             return;
@@ -81,9 +99,36 @@ export function useInitiatives() {
     };
   }, [userId, isAuthLoaded]);
 
-  const initiatives = useMemo(
-    () => mergeInitiatives(customInitiatives),
+  const activeCustomInitiatives = useMemo(
+    () => filterActiveInitiatives(customInitiatives),
     [customInitiatives]
+  );
+
+  const archivedCustomInitiatives = useMemo(
+    () => filterArchivedInitiatives(customInitiatives),
+    [customInitiatives]
+  );
+
+  const initiatives = useMemo(
+    () => mergeInitiatives(activeCustomInitiatives),
+    [activeCustomInitiatives]
+  );
+
+  const persistInitiatives = useCallback(
+    (next: Initiative[]) => {
+      const normalized = normalizeCustomInitiatives(next);
+      setCustomInitiatives(normalized);
+
+      if (userId) {
+        const supabase = createClient();
+        void replaceCustomInitiatives(supabase, userId, normalized).catch((error) => {
+          console.error("Failed to replace initiatives in Supabase:", error);
+        });
+      } else {
+        saveCustomInitiatives(normalized);
+      }
+    },
+    [userId]
   );
 
   const addInitiative = useCallback(
@@ -114,19 +159,84 @@ export function useInitiatives() {
 
   const replaceCustomInitiativesState = useCallback(
     (nextCustomInitiatives: Initiative[]) => {
-      const normalized = normalizeCustomInitiatives(nextCustomInitiatives);
-      setCustomInitiatives(normalized);
+      persistInitiatives(nextCustomInitiatives);
+    },
+    [persistInitiatives]
+  );
+
+  const updateInitiativeTitle = useCallback(
+    (slug: string, title: string) => {
+      const trimmedSlug = slug.trim();
+      const sanitizedTitle = sanitizeInitiativeTitle(title);
+      if (!trimmedSlug || !sanitizedTitle) {
+        return false;
+      }
+
+      const current = customInitiativesRef.current;
+      const index = current.findIndex((initiative) => initiative.slug === trimmedSlug);
+      if (index === -1) {
+        return false;
+      }
+
+      const next = current.map((initiative) =>
+        initiative.slug === trimmedSlug ? { ...initiative, title: sanitizedTitle } : initiative
+      );
+      setCustomInitiatives(next);
 
       if (userId) {
-        const supabase = createClient();
-        void replaceCustomInitiatives(supabase, userId, normalized).catch((error) => {
-          console.error("Failed to replace initiatives in Supabase:", error);
+        void patchInitiativeOnApi(trimmedSlug, { title: sanitizedTitle }).catch((error) => {
+          console.error("Failed to update initiative title in Supabase:", error);
         });
       } else {
-        saveCustomInitiatives(normalized);
+        saveCustomInitiatives(next);
       }
+
+      return true;
     },
     [userId]
+  );
+
+  const setInitiativeArchived = useCallback(
+    (slug: string, archived: boolean) => {
+      const trimmedSlug = slug.trim();
+      if (!trimmedSlug) {
+        return false;
+      }
+
+      const current = customInitiativesRef.current;
+      const index = current.findIndex((initiative) => initiative.slug === trimmedSlug);
+      if (index === -1) {
+        return false;
+      }
+
+      const next = current.map((initiative) =>
+        initiative.slug === trimmedSlug
+          ? { ...initiative, archived: archived || undefined }
+          : initiative
+      );
+      setCustomInitiatives(next);
+
+      if (userId) {
+        void patchInitiativeOnApi(trimmedSlug, { archived }).catch((error) => {
+          console.error("Failed to archive initiative in Supabase:", error);
+        });
+      } else {
+        saveCustomInitiatives(next);
+      }
+
+      return true;
+    },
+    [userId]
+  );
+
+  const archiveInitiative = useCallback(
+    (slug: string) => setInitiativeArchived(slug, true),
+    [setInitiativeArchived]
+  );
+
+  const unarchiveInitiative = useCallback(
+    (slug: string) => setInitiativeArchived(slug, false),
+    [setInitiativeArchived]
   );
 
   const deleteInitiative = useCallback(
@@ -161,8 +271,13 @@ export function useInitiatives() {
   return {
     initiatives,
     customInitiatives,
+    activeCustomInitiatives,
+    archivedCustomInitiatives,
     isLoaded: isLoaded && isAuthLoaded,
     addInitiative,
+    updateInitiativeTitle,
+    archiveInitiative,
+    unarchiveInitiative,
     deleteInitiative,
     replaceCustomInitiatives: replaceCustomInitiativesState,
   };

@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const USER_DATA_KEYS = {
   cohortSubmissions: "cohort_submissions",
   initiativeTasks: "initiative_tasks",
+  teamMembers: "team_members",
 } as const;
 
 export type UserDataKey = (typeof USER_DATA_KEYS)[keyof typeof USER_DATA_KEYS];

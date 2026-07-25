@@ -6,11 +6,23 @@ import Dashboard from "@/components/Dashboard";
 import InitiativeSummary from "@/components/InitiativeSummary";
 import PageHeader from "@/components/PageHeader";
 import PageShell, { CommandCenterSpacer } from "@/components/PageShell";
+import TeamMembersPanel from "@/components/TeamMembersPanel";
 import { useInitiativeTasks } from "@/hooks/useInitiativeTasks";
 import { useInitiatives } from "@/hooks/useInitiatives";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 export default function DashboardPage() {
-  const { customInitiatives, deleteInitiative, isLoaded: initiativesLoaded } = useInitiatives();
+  const {
+    activeCustomInitiatives,
+    archivedCustomInitiatives,
+    updateInitiativeTitle,
+    archiveInitiative,
+    unarchiveInitiative,
+    deleteInitiative,
+    isLoaded: initiativesLoaded,
+  } = useInitiatives();
+  const { memberNames, members, addMember, removeMember, isLoaded: membersLoaded } =
+    useTeamMembers();
   const {
     tasksByInitiative,
     isLoaded: tasksLoaded,
@@ -22,7 +34,7 @@ export default function DashboardPage() {
     removeInitiativeTasks,
   } = useInitiativeTasks({
     initiativesReady: initiativesLoaded,
-    initiativeSlugs: customInitiatives.map((initiative) => initiative.slug),
+    initiativeSlugs: activeCustomInitiatives.map((initiative) => initiative.slug),
   });
 
   useEffect(() => {
@@ -30,13 +42,13 @@ export default function DashboardPage() {
       return;
     }
 
-    for (const initiative of customInitiatives) {
+    for (const initiative of activeCustomInitiatives) {
       if (!tasksByInitiative[initiative.slug]) {
         seedInitiativeTasks(initiative.slug);
       }
     }
   }, [
-    customInitiatives,
+    activeCustomInitiatives,
     initiativesLoaded,
     seedInitiativeTasks,
     tasksByInitiative,
@@ -52,7 +64,14 @@ export default function DashboardPage() {
     [deleteInitiative, removeInitiativeTasks]
   );
 
-  if (!tasksLoaded || !initiativesLoaded) {
+  const handleArchiveInitiative = useCallback(
+    (slug: string) => {
+      archiveInitiative(slug);
+    },
+    [archiveInitiative]
+  );
+
+  if (!tasksLoaded || !initiativesLoaded || !membersLoaded) {
     return (
       <PageShell header={<PageHeader id="top" />}>
         <CommandCenterRow>
@@ -77,10 +96,15 @@ export default function DashboardPage() {
       }
     >
       <CommandCenterRow>
-        <div className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-5xl space-y-8 px-4 pb-8 sm:px-6 lg:px-8">
+          <TeamMembersPanel members={members} onAddMember={addMember} onRemoveMember={removeMember} />
           <Dashboard
-            initiatives={customInitiatives}
+            initiatives={activeCustomInitiatives}
+            archivedInitiatives={archivedCustomInitiatives}
             tasksByInitiative={tasksByInitiative}
+            onUpdateInitiativeTitle={updateInitiativeTitle}
+            onArchiveInitiative={handleArchiveInitiative}
+            onUnarchiveInitiative={unarchiveInitiative}
             onDeleteInitiative={handleDeleteInitiative}
           />
         </div>
@@ -91,8 +115,9 @@ export default function DashboardPage() {
         <div className="min-w-0 flex-1 space-y-12 px-4 pb-8 sm:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-5xl">
             <InitiativeSummary
-              initiatives={customInitiatives}
+              initiatives={activeCustomInitiatives}
               tasksByInitiative={tasksByInitiative}
+              assigneeOptions={memberNames}
               onUpdateField={updateTaskField}
               onAddRow={addTaskRow}
               onAddSubTask={addSubTaskRow}

@@ -7,7 +7,7 @@ export async function fetchCustomInitiatives(
 ): Promise<Initiative[]> {
   const { data, error } = await supabase
     .from("custom_initiatives")
-    .select("slug, title, deadline")
+    .select("slug, title, deadline, archived")
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
 
@@ -19,7 +19,25 @@ export async function fetchCustomInitiatives(
     slug: row.slug,
     title: row.title,
     deadline: row.deadline,
+    archived: row.archived === true || undefined,
   }));
+}
+
+export async function updateCustomInitiative(
+  supabase: SupabaseClient,
+  userId: string,
+  slug: string,
+  updates: { title?: string; deadline?: string; archived?: boolean }
+): Promise<void> {
+  const { error } = await supabase
+    .from("custom_initiatives")
+    .update(updates)
+    .eq("user_id", userId)
+    .eq("slug", slug);
+
+  if (error) {
+    throw error;
+  }
 }
 
 export async function insertCustomInitiative(
@@ -32,6 +50,7 @@ export async function insertCustomInitiative(
     slug: initiative.slug,
     title: initiative.title,
     deadline: initiative.deadline,
+    archived: initiative.archived ?? false,
   });
 
   if (error) {
@@ -79,6 +98,7 @@ export async function replaceCustomInitiatives(
       slug: initiative.slug,
       title: initiative.title,
       deadline: initiative.deadline,
+      archived: initiative.archived ?? false,
     }))
   );
 

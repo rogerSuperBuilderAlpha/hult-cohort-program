@@ -15,13 +15,18 @@ const subTaskButtonClassName =
 
 interface InitiativeTaskRowProps {
   row: TaskRow;
+  assigneeOptions: string[];
   onUpdateField: (rowId: string, field: TaskField, value: string) => void;
   onAddSubTask: (parentTaskNumber: string) => void;
 }
 
-function InitiativeTaskRow({ row, onUpdateField, onAddSubTask }: InitiativeTaskRowProps) {
+function InitiativeTaskRow({ row, assigneeOptions, onUpdateField, onAddSubTask }: InitiativeTaskRowProps) {
   const taskDepth = getTaskNumberDepth(row.taskNumber);
   const taskNumberIndentRem = 0.5 + taskDepth * 0.75;
+  const assigneeValue = row.responsibility;
+  const hasCustomAssignee =
+    assigneeValue.length > 0 &&
+    !assigneeOptions.some((name) => name.toLowerCase() === assigneeValue.toLowerCase());
 
   return (
     <tr className="align-middle">
@@ -83,17 +88,23 @@ function InitiativeTaskRow({ row, onUpdateField, onAddSubTask }: InitiativeTaskR
         />
       </td>
       <td className={initiativeTdClass}>
-        <label htmlFor={`${row.id}-assignee`} className="sr-only">
-          Task {row.taskNumber} assignee
-        </label>
-        <input
+        <select
           id={`${row.id}-assignee`}
-          type="text"
-          value={row.responsibility}
-          placeholder="Assignee"
+          value={assigneeValue}
           onChange={(event) => onUpdateField(row.id, "responsibility", event.target.value)}
           className={selectClassName}
-        />
+          aria-label={`Task ${row.taskNumber} assignee`}
+        >
+          <option value="">Unassigned</option>
+          {hasCustomAssignee && (
+            <option value={assigneeValue}>{assigneeValue}</option>
+          )}
+          {assigneeOptions.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
       </td>
       <td className={initiativeTdClass}>
         <label htmlFor={`${row.id}-comments`} className="sr-only">

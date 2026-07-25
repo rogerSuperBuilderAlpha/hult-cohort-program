@@ -1,0 +1,29 @@
+{
+  "name": "@cohort/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared core for the Hult cohort apps (Pulse + Rally): Firebase init, cohort roster, rate limiting, Firestore rule helpers, and shared types. UI-free and dependency-light so both apps can merge into one surface later.",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./firebase": { "types": "./dist/firebase.d.ts", "default": "./dist/firebase.js" },
+    "./cohort": { "types": "./dist/cohort.d.ts", "default": "./dist/cohort.js" },
+    "./rate-limit": { "types": "./dist/rate-limit.d.ts", "default": "./dist/rate-limit.js" },
+    "./github-repo": { "types": "./dist/github-repo.d.ts", "default": "./dist/github-repo.js" },
+    "./shared-context": { "types": "./dist/shared-context.d.ts", "default": "./dist/shared-context.js" },
+    "./types": { "types": "./dist/types.d.ts", "default": "./dist/types.js" }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "firebase": "^12.16.0"
+  },
+  "devDependencies": {
+    "firebase": "^12.16.0",
+    "typescript": "^5"
+  }
+}

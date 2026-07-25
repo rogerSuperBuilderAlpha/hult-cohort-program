@@ -1,0 +1,16 @@
+{
+  "name": "relay65",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Async-first realtime communications for the Hult Developer Cohort.",
+  "scripts": {
+    "test": "node scripts/validate.mjs && node --test tests/*.test.mjs",
+    "validate": "node scripts/validate.mjs",
+    "serve": "python3 -m http.server 4173"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

@@ -23,7 +23,7 @@ echo.
 echo --- Remotes ---
 git remote -v
 
-git remote | findstr /x "fork" >nul
+git remote get-url fork >nul 2>&1
 if errorlevel 1 (
   echo Adding remote fork -^> %FORK_URL%
   git remote add fork %FORK_URL%

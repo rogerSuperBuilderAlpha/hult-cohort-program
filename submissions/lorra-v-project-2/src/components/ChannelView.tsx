@@ -15,6 +15,7 @@ import { MessageItem } from "@/components/MessageItem";
 import { ThreadPanel } from "@/components/ThreadPanel";
 import { ChannelNotificationLevel } from "@/components/ChannelNotificationLevel";
 import { PresenceDot } from "@/components/PresenceProvider";
+import { AdminBadge } from "@/components/AdminBadge";
 import Link from "next/link";
 
 type MemberRow = {
@@ -256,6 +257,7 @@ export function ChannelView({
                   />
                 </span>
                 <span className="truncate">{m.profiles?.display_name || m.user_id}</span>
+                {m.profiles?.role === "admin" ? <AdminBadge /> : null}
               </li>
             ))}
           </ul>

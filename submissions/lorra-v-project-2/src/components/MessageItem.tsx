@@ -11,6 +11,7 @@ import {
 } from "@/app/(app)/messaging/actions";
 import { CreateForthTicketModal } from "@/components/CreateForthTicketModal";
 import { TicketLinkCard } from "@/components/TicketLinkCard";
+import { AdminBadge } from "@/components/AdminBadge";
 
 type UserLike = { id: string; role: string };
 
@@ -133,6 +134,7 @@ export function MessageItem({
             <span className="text-sm font-semibold text-[var(--color-dark)]">
               {author?.display_name || "Unknown"}
             </span>
+            {author?.role === "admin" ? <AdminBadge /> : null}
             <span className="text-xs text-[var(--color-secondary)]">{time}</span>
             {message.edited_at ? (
               <span className="text-xs text-[var(--color-secondary)]">(edited)</span>

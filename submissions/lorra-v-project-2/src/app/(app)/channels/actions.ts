@@ -113,7 +113,7 @@ export async function sendChannelMessage(input: {
     .select(
       `
       *,
-      profiles:author_id ( id, display_name, avatar_url, email )
+      profiles:author_id ( id, display_name, avatar_url, email, role )
     `,
     )
     .single();

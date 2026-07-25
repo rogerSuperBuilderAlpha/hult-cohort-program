@@ -13,6 +13,7 @@ import {
   PresenceProvider,
 } from "@/components/PresenceProvider";
 import { ToastProvider } from "@/components/ToastProvider";
+import { AdminBadge } from "@/components/AdminBadge";
 
 export type ShellUser = {
   id: string;
@@ -119,22 +120,6 @@ export function AppShell({
               </Link>
             );
           })}
-          {isAdmin ? (
-            <Link
-              href="/admin/roster"
-              data-testid="nav-roster"
-              onClick={() => setSidebarOpen(false)}
-              className={[
-                "flex items-center gap-3 rounded-[var(--radius-button)] px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive("/admin/roster")
-                  ? "bg-[color-mix(in_srgb,var(--color-primary)_28%,transparent)] text-white"
-                  : "text-white/80 hover:bg-white/10 hover:text-white",
-              ].join(" ")}
-            >
-              <NavIcon label="Roster" />
-              Roster
-            </Link>
-          ) : null}
         </nav>
 
         <div className="mt-6 flex-1 overflow-y-auto px-3 pb-4">
@@ -205,6 +190,7 @@ export function AppShell({
             <p data-testid="shell-user-name" className="truncate text-sm font-medium text-white/90">
               {user.displayName}
             </p>
+            {isAdmin ? <AdminBadge /> : null}
           </div>
           <p className="truncate text-xs text-white/50">{user.email}</p>
           <form action="/auth/signout" method="post" className="mt-3">

@@ -8,6 +8,7 @@ import { uploadAttachment, type MessageParentType } from "@/app/(app)/messaging/
 import { MessageItem } from "@/components/MessageItem";
 import { SkeletonBlock } from "@/components/EmptyState";
 import { useToast } from "@/components/ToastProvider";
+import { AdminBadge } from "@/components/AdminBadge";
 import { formatMessageHtml } from "@/lib/format";
 
 type Member = { id: string; display_name: string };
@@ -153,10 +154,11 @@ export function ThreadPanel({
             data-testid="thread-root"
             className="rounded-[var(--radius-card)] bg-[var(--color-bg)] px-3 py-3"
           >
-            <div className="flex items-baseline gap-2">
+            <div className="flex flex-wrap items-baseline gap-2">
               <span className="text-sm font-semibold text-[var(--color-dark)]">
                 {rootAuthor?.display_name || "Unknown"}
               </span>
+              {rootAuthor?.role === "admin" ? <AdminBadge /> : null}
               <span className="text-xs text-[var(--color-secondary)]">
                 {new Date(root.created_at).toLocaleString([], {
                   month: "short",

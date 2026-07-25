@@ -149,7 +149,7 @@ export async function getMessageById(messageId: string): Promise<Message | null>
     .select(
       `
       *,
-      profiles:author_id ( id, display_name, avatar_url, email ),
+      profiles:author_id ( id, display_name, avatar_url, email, role ),
       reactions ( message_id, user_id, emoji ),
       attachments ( id, message_id, file_url, file_name, mime_type, size_bytes ),
       mentions ( message_id, mentioned_user_id )
@@ -170,7 +170,7 @@ export async function listThreadReplies(threadRootId: string): Promise<Message[]
     .select(
       `
       *,
-      profiles:author_id ( id, display_name, avatar_url, email ),
+      profiles:author_id ( id, display_name, avatar_url, email, role ),
       reactions ( message_id, user_id, emoji ),
       attachments ( id, message_id, file_url, file_name, mime_type, size_bytes ),
       mentions ( message_id, mentioned_user_id )
@@ -280,7 +280,7 @@ export async function sendThreadReply(input: {
     .select(
       `
       *,
-      profiles:author_id ( id, display_name, avatar_url, email )
+      profiles:author_id ( id, display_name, avatar_url, email, role )
     `,
     )
     .single();
@@ -437,7 +437,7 @@ export async function listSubscribedThreads(): Promise<ThreadSummary[]> {
     .select(
       `
       *,
-      profiles:author_id ( id, display_name, avatar_url, email ),
+      profiles:author_id ( id, display_name, avatar_url, email, role ),
       reactions ( message_id, user_id, emoji ),
       attachments ( id, message_id, file_url, file_name, mime_type, size_bytes ),
       mentions ( message_id, mentioned_user_id )
@@ -456,7 +456,7 @@ export async function listSubscribedThreads(): Promise<ThreadSummary[]> {
       thread_root_id,
       author_id,
       created_at,
-      profiles:author_id ( id, display_name, avatar_url )
+      profiles:author_id ( id, display_name, avatar_url, role )
     `,
     )
     .in("thread_root_id", rootIds)

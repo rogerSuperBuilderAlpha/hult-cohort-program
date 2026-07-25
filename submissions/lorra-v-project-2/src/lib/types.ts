@@ -62,7 +62,7 @@ export type Message = {
   created_at: string;
   edited_at: string | null;
   deleted_at: string | null;
-  profiles?: Pick<Profile, "id" | "display_name" | "avatar_url" | "email">;
+  profiles?: Pick<Profile, "id" | "display_name" | "avatar_url" | "email" | "role">;
   reactions?: Reaction[];
   attachments?: Attachment[];
   mentions?: Mention[];

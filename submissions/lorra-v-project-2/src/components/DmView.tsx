@@ -13,6 +13,7 @@ import {
 import { MessageComposer } from "@/components/MessageComposer";
 import { MessageItem } from "@/components/MessageItem";
 import { ThreadPanel } from "@/components/ThreadPanel";
+import { AdminBadge } from "@/components/AdminBadge";
 
 type MemberRow = {
   user_id: string;
@@ -209,6 +210,7 @@ export function DmView({
                   {(m.profiles?.display_name || "?").charAt(0).toUpperCase()}
                 </span>
                 <span className="truncate">{m.profiles?.display_name || m.user_id}</span>
+                {m.profiles?.role === "admin" ? <AdminBadge /> : null}
               </li>
             ))}
           </ul>

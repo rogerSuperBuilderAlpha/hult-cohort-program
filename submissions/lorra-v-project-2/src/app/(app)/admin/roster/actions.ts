@@ -40,18 +40,18 @@ export async function uploadRosterCsv(formData: FormData) {
     .maybeSingle();
 
   if (profile?.role !== "admin") {
-    redirect("/admin/roster?error=forbidden");
+    redirect("/cohort?error=forbidden");
   }
 
   const file = formData.get("roster");
   if (!(file instanceof File) || file.size === 0) {
-    redirect("/admin/roster?error=missing_file");
+    redirect("/cohort?error=missing_file");
   }
 
   const text = await file.text();
   const rows = parseRosterCsv(text);
   if (rows.length === 0) {
-    redirect("/admin/roster?error=empty_csv");
+    redirect("/cohort?error=empty_csv");
   }
 
   const admin = createServiceClient();
@@ -59,9 +59,9 @@ export async function uploadRosterCsv(formData: FormData) {
     onConflict: "email",
   });
   if (error) {
-    redirect(`/admin/roster?error=${encodeURIComponent(error.message)}`);
+    redirect(`/cohort?error=${encodeURIComponent(error.message)}`);
   }
 
-  revalidatePath("/admin/roster");
-  redirect(`/admin/roster?ok=${rows.length}`);
+  revalidatePath("/cohort");
+  redirect(`/cohort?ok=${rows.length}`);
 }

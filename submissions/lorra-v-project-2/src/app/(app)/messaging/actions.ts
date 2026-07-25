@@ -44,7 +44,7 @@ export async function listParentMessages(
     .select(
       `
       *,
-      profiles:author_id ( id, display_name, avatar_url, email ),
+      profiles:author_id ( id, display_name, avatar_url, email, role ),
       reactions ( message_id, user_id, emoji ),
       attachments ( id, message_id, file_url, file_name, mime_type, size_bytes ),
       mentions ( message_id, mentioned_user_id )
@@ -70,7 +70,7 @@ export async function listParentMessages(
       thread_root_id,
       author_id,
       created_at,
-      profiles:author_id ( id, display_name, avatar_url )
+      profiles:author_id ( id, display_name, avatar_url, role )
     `,
     )
     .in("thread_root_id", rootIds)
@@ -170,7 +170,7 @@ export async function sendParentMessage(input: {
     .select(
       `
       *,
-      profiles:author_id ( id, display_name, avatar_url, email )
+      profiles:author_id ( id, display_name, avatar_url, email, role )
     `,
     )
     .single();

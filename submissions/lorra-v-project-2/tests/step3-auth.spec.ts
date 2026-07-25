@@ -32,7 +32,8 @@ test.describe("Phase A Step 3 — auth", () => {
     ]);
     await expect(page.getByTestId("home-digest")).toBeVisible();
     await expect(page.getByTestId("shell-user-name")).toBeVisible();
-    await expect(page.getByTestId("nav-roster")).toBeVisible();
+    await expect(page.getByTestId("nav-cohort")).toBeVisible();
+    await expect(page.getByTestId("admin-badge").first()).toBeVisible();
   });
 
   test("invalid seed password shows error", async ({ page }) => {
@@ -44,7 +45,10 @@ test.describe("Phase A Step 3 — auth", () => {
     await expect(page.getByTestId("login-error")).toBeVisible();
   });
 
-  test("admin can open cohort directory page", async ({ page }) => {
+  test("cohort directory lists members and settings has link controls", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
     await page.goto("/login");
     await page.getByTestId("dev-email").fill(SEED_EMAIL);
     await page.getByTestId("dev-password").fill(SEED_PASSWORD);
@@ -52,11 +56,15 @@ test.describe("Phase A Step 3 — auth", () => {
       page.waitForURL((url) => url.pathname === "/"),
       page.getByTestId("dev-login-submit").click(),
     ]);
-    await expect(page.getByTestId("nav-roster")).toBeVisible();
-    await page.goto("/admin/roster");
-    await expect(page).toHaveURL(/\/admin\/roster/);
-    await expect(page.getByTestId("roster-admin")).toBeVisible();
+    await expect(page.getByTestId("nav-cohort")).toBeVisible();
+    await page.goto("/cohort", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("cohort-page")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("cohort-member-list")).toBeVisible();
+    await expect(page.getByTestId("cohort-page")).toContainText(/not an access allowlist/i);
     await expect(page.getByTestId("roster-upload")).toBeVisible();
-    await expect(page.getByTestId("roster-admin")).toContainText(/does not gate access/i);
+
+    await page.goto("/settings", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("settings-page")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("linked-accounts")).toBeVisible();
   });
 });

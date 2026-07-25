@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pulse — the board that updates itself</title>
+<meta name="description" content="Do the work — Pulse senses what you shipped, moves your card, writes your week, and tells your team. Open source. Point it at your own repo and deploy." />
+<meta property="og:title" content="Pulse — the board that updates itself" />
+<meta property="og:description" content="A project board that reads your team's work and keeps itself current. Nobody types a status update. Open source — use it for your own project." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='7' fill='%2334d399'/%3E%3C/svg%3E" />
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  :root {
+    --bg: #09090b; --bg2: #111113; --card: #17171a; --line: #26262b;
+    --fg: #f4f4f5; --muted: #a1a1aa; --dim: #71717a; --em: #34d399; --em-dim: #10b981; --sky: #38bdf8;
+    --voice: Georgia, 'Times New Roman', serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  .nav {
+    position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px);
+    background: rgba(9,9,11,0.72); border-bottom: 1px solid var(--line);
+  }
+  .nav .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; letter-spacing: -0.01em; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--em); box-shadow: 0 0 0 4px rgba(52,211,153,0.15); }
+  .nav a.link { color: var(--muted); text-decoration: none; font-size: 14px; }
+  .nav a.link:hover { color: var(--fg); }
+  .spacer { flex: 1; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 500; font-size: 14px;
+    padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); transition: .15s;
+  }
+  .btn:hover { border-color: #3f3f46; background: var(--bg2); }
+  .btn.primary { background: var(--em); color: #052e1c; border-color: var(--em); }
+  .btn.primary:hover { background: #2fd39a; }
+
+  section { padding: 96px 0; }
+  .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--em); font-weight: 600; }
+  h1 { font-size: clamp(38px, 6vw, 66px); line-height: 1.04; letter-spacing: -0.03em; margin: 18px 0 0; font-weight: 600; }
+  h2 { font-size: clamp(26px, 4vw, 38px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 14px; font-weight: 600; }
+  h3 { font-size: 18px; margin: 0 0 8px; font-weight: 600; letter-spacing: -0.01em; }
+  .lead { font-size: clamp(17px, 2.4vw, 21px); color: var(--muted); max-width: 620px; margin: 22px 0 0; }
+  .sub { color: var(--muted); max-width: 640px; }
+  .voice { font-family: var(--voice); font-style: italic; }
+
+  .hero { padding: 84px 0 60px; }
+  .hero .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 34px; }
+  .tagline { color: var(--em); font-weight: 600; }
+
+  /* the product mock */
+  .mock { margin-top: 64px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg2); overflow: hidden; }
+  .mock-top { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .mock-top .d { width: 11px; height: 11px; border-radius: 50%; background: #3f3f46; }
+  .mock-body { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; padding: 22px; }
+  .mock-momentum { }
+  .mock-momentum .row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .pill { font-size: 11px; padding: 3px 9px; border-radius: 999px; background: rgba(52,211,153,0.12); color: #6ee7b7; }
+  .voiceline { font-family: var(--voice); font-size: 15px; color: #e4e4e7; margin-top: 14px; display: flex; gap: 10px; }
+  .pfp { width: 22px; height: 22px; border-radius: 50%; background: var(--em); color: #052e1c; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .agent { border: 1px solid var(--line); border-radius: 12px; background: var(--card); display: flex; flex-direction: column; }
+  .agent .head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .agent .head .lbl { color: var(--dim); }
+  .agent .thread { padding: 12px; display: flex; flex-direction: column; gap: 12px; min-height: 120px; }
+  .bubble-you { align-self: flex-end; background: #27272a; border-radius: 14px 14px 4px 14px; padding: 6px 11px; font-size: 12.5px; max-width: 85%; }
+  .bubble-p { display: flex; gap: 8px; font-size: 12.5px; color: #d4d4d8; }
+  .agent .composer { border-top: 1px solid var(--line); padding: 10px 12px; }
+  .agent .composer .box { display: flex; align-items: center; gap: 8px; border: 1px solid #3f3f46; border-radius: 999px; padding: 6px 6px 6px 12px; font-size: 12.5px; color: var(--dim); }
+  .agent .composer .send { margin-left: auto; background: var(--em); color: #052e1c; border-radius: 999px; padding: 4px 10px; font-weight: 600; }
+
+  .grid { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); margin-top: 44px; }
+  .feature { border: 1px solid var(--line); border-radius: 14px; padding: 22px; background: var(--bg2); }
+  .feature .ic { width: 34px; height: 34px; border-radius: 9px; background: rgba(52,211,153,0.1); color: var(--em); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+  .feature p { color: var(--muted); margin: 0; font-size: 14.5px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 44px; counter-reset: s; }
+  .step { }
+  .step .n { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+  .step p { color: var(--muted); font-size: 14.5px; margin: 0; }
+
+  .use { border: 1px solid var(--line); border-radius: 16px; background: var(--bg2); padding: 40px; }
+  .use ol { margin: 22px 0 0; padding-left: 20px; color: var(--muted); }
+  .use li { margin-bottom: 12px; }
+  .use code { background: #000; border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; font-size: 13px; color: #a7f3d0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  .ethics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 40px; }
+  .ethic { border-left: 2px solid var(--em-dim); padding: 4px 0 4px 16px; }
+  .ethic h3 { margin-bottom: 6px; }
+  .ethic p { color: var(--muted); margin: 0; font-size: 14.5px; }
+
+  .cta-band { text-align: center; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(180deg, rgba(52,211,153,0.06), transparent); padding: 60px 24px; }
+
+  footer { border-top: 1px solid var(--line); padding: 40px 0; color: var(--dim); font-size: 13px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--fg); }
+
+  /* Entrance animation is a pure-CSS enhancement that ALWAYS ends visible (animation-fill:
+     both), scoped under .js so a no-JS render shows everything immediately. No scroll
+     observer gates visibility, so content can never get stuck hidden. */
+  @keyframes fadeup { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .js .reveal { animation: fadeup .6s ease both; }
+  @media (prefers-reduced-motion: reduce) { .js .reveal { animation: none; } html { scroll-behavior: auto; } }
+
+  @media (max-width: 820px) {
+    section { padding: 64px 0; }
+    .grid, .steps, .ethics { grid-template-columns: 1fr; }
+    .mock-body { grid-template-columns: 1fr; }
+    .nav a.link { display: none; }
+    .use { padding: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <span class="brand"><span class="dot"></span> Pulse</span>
+    <span class="spacer"></span>
+    <a class="link" href="#how">How it works</a>
+    <a class="link" href="#features">Features</a>
+    <a class="link" href="#use">Use it</a>
+    <a class="btn" href="https://github.com/nikjain15/pulse" target="_blank" rel="noopener">GitHub</a>
+    <a class="btn primary" href="https://pulsecohort.vercel.app" target="_blank" rel="noopener">Live demo</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow reveal">Open-source AI project board</p>
+    <h1 class="reveal">It reads the work.<br />You just ship.</h1>
+    <p class="lead reveal">
+      Pulse is <span class="tagline">the board that updates itself</span>. It senses what your team ships from
+      GitHub, moves the cards, writes the week in plain language, and connects people working on the same thing —
+      so nobody types a status update again.
+    </p>
+    <div class="cta reveal">
+      <a class="btn primary" href="https://pulsecohort.vercel.app" target="_blank" rel="noopener">Try the live demo</a>
+      <a class="btn" href="#use">Use it for your project</a>
+    </div>
+
+    <div class="mock reveal" aria-hidden="true">
+      <div class="mock-top"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <div class="mock-body">
+        <div class="mock-momentum">
+          <div class="row">the cohort's momentum <span class="pill">current</span></div>
+          <svg viewBox="0 0 460 70" width="100%" height="70">
+            <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#34d399" stop-opacity="0.3" /><stop offset="1" stop-color="#34d399" stop-opacity="0" />
+            </linearGradient></defs>
+            <path d="M6,56 C80,52 110,50 150,50 C210,50 210,40 260,38 C320,36 340,22 400,16 L454,10 L454,66 L6,66 Z" fill="url(#g)" />
+            <path d="M6,56 C80,52 110,50 150,50 C210,50 210,40 260,38 C320,36 340,22 400,16 L454,10" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" />
+            <circle cx="454" cy="10" r="4.5" fill="#34d399" />
+          </svg>
+          <div class="voiceline"><span class="pfp">P</span><span>i moved two of your cards to shipped this week. still open: the frontend build and the launch.</span></div>
+        </div>
+        <div class="agent">
+          <div class="head"><span class="dot"></span> Pulse <span class="lbl">agent · remembers your context</span></div>
+          <div class="thread">
+            <div class="bubble-you">move the auth card to done</div>
+            <div class="bubble-p"><span class="pfp">P</span><span>Moved “Auth flow” → done. Told the team.</span></div>
+            <div class="bubble-you">what should I focus on?</div>
+            <div class="bubble-p"><span class="pfp">P</span><span>The frontend build — it's blocking the launch, and it's your oldest open card.</span></div>
+          </div>
+          <div class="composer"><div class="box">tell Pulse what to do… <span class="send">↑</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="problem">
+  <div class="wrap reveal">
+    <h2>Standups, status docs, “what did you get done?”</h2>
+    <p class="sub">
+      Every team burns hours keeping a board honest — dragging cards, writing updates, chasing who's working on what.
+      Pulse does it from the work itself. The board is a byproduct of shipping, not a second job.
+    </p>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <p class="eyebrow reveal">What it does</p>
+    <h2 class="reveal">An AI teammate that keeps the board true</h2>
+    <div class="grid">
+      <div class="feature reveal"><div class="ic">◑</div><h3>Senses your work</h3><p>Reads your public commits and PRs and moves cards through to do → in progress → done on its own. No dragging.</p></div>
+      <div class="feature reveal"><div class="ic">✎</div><h3>Writes your week</h3><p>A model-written brief in plain language — what you shipped, where the team stands — posted the moment it happens.</p></div>
+      <div class="feature reveal"><div class="ic">◆</div><h3>An agent you talk to</h3><p>“Move the login card to done.” “Plan my week.” Do or ask, in plain English — and it remembers your context across visits.</p></div>
+      <div class="feature reveal"><div class="ic">⇌</div><h3>Connects the team</h3><p>Spots when two people are working on the same thing — from public work — and suggests they compare notes.</p></div>
+      <div class="feature reveal"><div class="ic">◇</div><h3>Momentum, not a scoreboard</h3><p>Collective momentum you can feel — shipping streaks, help passed on. Never a leaderboard, never a rank.</p></div>
+      <div class="feature reveal"><div class="ic">⛨</div><h3>Consent by design</h3><p>Facts are public; a sentence written about you needs your yes. Turn it off, make it ask first, or delete anything it posted — any time.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <p class="eyebrow reveal">How it works</p>
+    <h2 class="reveal">Three steps, then it runs itself</h2>
+    <div class="steps">
+      <div class="step reveal"><div class="n">1</div><h3>Connect GitHub</h3><p>Point Pulse at your team's public repo. It reads commits and PRs — never your private code.</p></div>
+      <div class="step reveal"><div class="n">2</div><h3>It writes your week</h3><p>Pulse moves your cards and posts what you shipped, on its own, before you switch tabs.</p></div>
+      <div class="step reveal"><div class="n">3</div><h3>Your team sees it</h3><p>The board stays current for everyone. Nobody types a status update, least of all you.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="use">
+  <div class="wrap">
+    <p class="eyebrow reveal">Use it for your own project</p>
+    <h2 class="reveal">Pulse is open source — make it yours</h2>
+    <div class="use reveal">
+      <p class="sub">Pulse runs on Next.js and Firebase and deploys to Vercel. To point it at your own team's project:</p>
+      <ol>
+        <li>Fork the repo: <a href="https://github.com/nikjain15/pulse" target="_blank" rel="noopener" style="color:#a7f3d0">github.com/nikjain15/pulse</a></li>
+        <li>Create a Firebase project and drop your web config into the app's env.</li>
+        <li>Set the public GitHub repo Pulse should read — that's your team's work source.</li>
+        <li>Add an <code>ANTHROPIC_API_KEY</code> so Pulse can write your week and answer in the agent panel.</li>
+        <li>Deploy to Vercel. Your team signs in, and the board starts keeping itself current.</li>
+      </ol>
+      <div class="cta" style="margin-top:26px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn primary" href="https://github.com/nikjain15/pulse" target="_blank" rel="noopener">Get the code</a>
+        <a class="btn" href="https://pulsecohort.vercel.app" target="_blank" rel="noopener">See it running first</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ethics">
+  <div class="wrap">
+    <p class="eyebrow reveal">The design that matters</p>
+    <h2 class="reveal">It knows who's quiet — and it never tells</h2>
+    <p class="sub reveal">Pulse can see everything about a team. What it chooses <em>not</em> to do is the point.</p>
+    <div class="ethics">
+      <div class="ethic reveal"><h3>No leaderboard, ever</h3><p>Kudos are recognition, not a score. Nothing here ranks people by output.</p></div>
+      <div class="ethic reveal"><h3>Never punish the quiet</h3><p>No streaks, no “N days inactive”, no absence counts shown to the team. When in doubt, it says nothing.</p></div>
+      <div class="ethic reveal"><h3>Facts vs. narrative</h3><p>Merged PRs are public record. A model-written sentence <em>about a person</em> needs their opt-in — no exceptions.</p></div>
+      <div class="ethic reveal"><h3>Degrade loudly, never fake</h3><p>An empty week says so. A stale board is never dressed up as live. Seven real people beat sixty invented ones.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cta-band reveal">
+      <h2 style="margin-bottom:10px">See the board update itself</h2>
+      <p class="sub" style="margin:0 auto 26px">Explore the live demo, then fork it for your own team.</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn primary" href="https://pulsecohort.vercel.app" target="_blank" rel="noopener">Open the live demo</a>
+        <a class="btn" href="https://github.com/nikjain15/pulse" target="_blank" rel="noopener">View source</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="brand"><span class="dot"></span> Pulse</span>
+    <span class="voice" style="color:var(--dim)">the board that updates itself</span>
+    <span class="spacer"></span>
+    <a href="https://pulsecohort.vercel.app" target="_blank" rel="noopener">Live demo</a>
+    <a href="https://github.com/nikjain15/pulse" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>

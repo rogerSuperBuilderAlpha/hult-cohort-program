@@ -22,12 +22,12 @@
 
 | Day | Phase | Deliverable |
 |-----|-------|-------------|
-| Tue | Kickoff | Repo created, data model started |
-| Wed–Thu | Build | Projects + tasks + assignments; stable deploy |
-| Thu 17:00 | Submit | Deploy frozen; submission PR merged |
-| Fri 14:00 | Review | Written reviews due |
-| Fri 16:00 | Vote | Private vote closes |
-| Mon | Cutover | Winner live before week 3 kickoff |
+| Mon | Kickoff | Repo created, data model started |
+| Tue–Thu | Build | Projects + tasks + assignments; stable deploy |
+| Fri 17:00 ET | Present | Demo the build and make the case for it |
+| Sun 17:00 ET | Submit | Submission PR **merged**; review window opens |
+| Mon 17:00 ET | Review | Written reviews due; public `Vote: up` closes with them |
+| Mon 18:00 ET | Winner | Announced live; cutover before next kickoff |
 
 See [operations/calendar.md](../../../operations/calendar.md) and [content/program.ts](../../../execution/marketing/site/content/program.ts) for exact dates.
 

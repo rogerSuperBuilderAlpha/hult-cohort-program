@@ -22,11 +22,11 @@
 
 | Day | Action |
 |-----|--------|
-| Tue | Kickoff |
-| Thu 17:00 | Submission PR due |
-| Fri 14:00 | Reviews due |
-| Fri 16:00 | Vote closes |
-| Mon | Winner announced; Discord archived within 48 hrs |
+| Mon | Kickoff |
+| Fri 17:00 ET | Present — demo the build and make the case for it |
+| Sun 17:00 ET | Submission PR **merged**; review window opens |
+| Mon 17:00 ET | Reviews due; public `Vote: up` closes with them |
+| Mon 18:00 ET | Winner announced; Discord archived within 48 hrs |
 
 ---
 

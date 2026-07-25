@@ -88,12 +88,14 @@ Reviews are themselves graded. **Low-quality reviews hurt the reviewer's pass.**
 
 ## Review week logistics
 
+The review window is **24 hours**, not a week — it opens the moment submissions close and shuts the following evening. Start when it opens; there is no midweek checkpoint to coast toward.
+
 | Day | Milestone |
 |-----|-----------|
-| Mon | Window opens; repo list published |
-| Wed 14:00 | ≥ 10/29 reviews due |
-| Fri 14:00 | 29/29 reviews due |
-| Fri 16:00 | Votes due ([winner-selection.md](../governance/winner-selection.md)) |
+| Fri 17:00 ET | Builders present; reviewers can start reading early |
+| Sun 17:00 ET | Submissions close; window opens; merged submission list published |
+| Mon 17:00 ET | All reviews due — one per merged peer submission — with the optional public `Vote: up` in each ([winner-selection.md](../governance/winner-selection.md)) |
+| Mon 18:00 ET | Winner announced live |
 
 ### Round-robin deep-review assignments
 

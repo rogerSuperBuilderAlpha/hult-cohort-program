@@ -5,9 +5,9 @@
 **Cohort 1 start:** **Monday, July 13, 2026**<br>
 **Pilot end:** **Sunday, August 23, 2026** (week 6 submission close + end-of-pilot showcase)
 
-> ⚠️ **Cadence redesign needed:** Start moved from Thu Jul 9 → **Mon Jul 13** (+4 days). The week-by-week dates and the Thursday-kickoff / Wednesday-submission / Thursday-review rhythm below still reflect the old Thursday anchor. A straight +4-day shift lands build days on the weekend and submissions on Sunday, so program directors should choose the new Monday-anchored weekly cadence rather than mechanically shift. The applicant-facing site + emails and the app's schedule engine (`program-schedule.ts`, `program.ts`) are already updated to the Jul 13 anchor.
+The pilot is **Monday-anchored**: each contest week opens Monday, presents Friday 17:00 ET, merges Sunday 17:00 ET, and closes reviews Monday 17:00 ET. Dates below are derived from [content/program.ts](../execution/marketing/site/content/program.ts), which stays canonical — if the two disagree, `program.ts` wins.
 
-Firestore cohort id remains `fall26`; public name is **Summer Pilot 2026**.
+Firestore cohort id is `summer26`; public name is **Summer Pilot 2026**.
 
 ---
 
@@ -17,12 +17,12 @@ Eight tracked deliverables across six weeks. Phase 1 contest weeks (2–4) compr
 
 | Week | Dates (2026) | Phase | Unit | Hard deadline |
 |------|--------------|-------|------|---------------|
-| 1 | Jul 9–15 | Onboarding | Agent setup, GitHub workflow, tooling | Wed Jul 15, 17:00 ET: refund deadline; roster locked |
-| 2 | Jul 16–22 | Phase 1 | PM platform (build + review + vote) | Wed 17:00: submission PR merged; Thu 14:00 reviews; Thu 16:00 votes |
-| 3 | Jul 23–29 | Phase 1 | Comms platform (build + review + vote) | Same rhythm as week 2 |
-| 4 | Jul 30 – Aug 5 | Phase 1 | Showcase platform (build + review + vote) | Same rhythm as week 2 |
-| 5 | Aug 6–12 | Phase 1 | Ecosystem unification | Wed Aug 12, 17:00: unified demo |
-| 6 | Aug 13–19 | Phase 2 | Learning app, venture, open source + finale | Wed Aug 19, 17:00: user snapshot, venture proof, OSS merge; hiring partner showcase |
+| 1 | Jul 13–20 | Phase 1 | PM platform (build + review + vote) | Sun Jul 19, 17:00 ET: PR merged · Mon Jul 20, 17:00 ET: reviews + upvotes |
+| 2 | Jul 20–27 | Phase 1 | Comms platform (build + review + vote) | Sun Jul 26, 17:00 ET: PR merged · Mon Jul 27, 17:00 ET: reviews + upvotes |
+| 3 | Jul 27 – Aug 3 | Phase 1 | Vibe marketing platform (build + review + vote) | Sun Aug 2, 17:00 ET: PR merged · Mon Aug 3, 17:00 ET: reviews + upvotes |
+| 4 | Aug 3–9 | Phase 2 | Ludwitt learning app | Sun Aug 9, 17:00 ET: proof PR merged with metrics snapshot |
+| 5 | Aug 10–16 | Phase 2 | Venture | Sun Aug 16, 17:00 ET: venture proof merged |
+| 6 | Aug 17–23 | Phase 2 | Open source swarm + finale | Sun Aug 23, 17:00 ET: upstream PR merged; hiring partner showcase |
 
 Open source work may begin earlier, but the pass gate is one merged upstream PR by pilot end.
 
@@ -36,26 +36,24 @@ All times in **Eastern Time** for the Summer Pilot. Online students join the Bos
 
 | Day | Event | Duration | Attendance |
 |-----|-------|----------|------------|
-| **Thursday 10:00** | Kickoff / lecture (when applicable) | 60 min | Required |
-| **Thursday 11:00** | Office hours (program staff) | 60 min | Optional |
-| **Monday–Tuesday** | Async build days | — | — |
-| **Wednesday 10:00** | Demo prep / peer Q&A | 45 min | Required during build weeks |
-| **Wednesday 17:00** | Submission PR due (Phase 1 contest weeks) | — | Required |
-| **Thursday 14:00** | Written reviews due (Phase 1) | — | Required during review weeks |
-| **Thursday 16:00** | Private vote closes (Phase 1) | — | Required during vote weeks |
-| **Thursday 16:30** | Week retro (async post in cohort comms) | 15 min | Required |
+| **Monday** | Kickoff / lecture; new project brief opens | 60 min | Required |
+| **Monday 18:00** | Live session — prior week's winner announced, next brief opened | 60 min | Required |
+| **Tuesday–Thursday** | Async build days | — | — |
+| **Friday 17:00** | Present — demo your build and make the case for it | — | Required during contest weeks |
+| **Sunday 17:00** | Submission PR **merged**; review window opens | — | Required |
+| **Monday 17:00** | Written reviews due; optional public `Vote: up` closes with them | — | Required during review weeks |
+| **Monday 17:30** | Week retro (async post in cohort comms) | 15 min | Required |
 
-**Reasoning:** Thursday kickoffs match the July 9 start; Wednesday submission and Thursday review/vote create a weekly cadence. Phase 1 is intentionally compressed — one week per platform.
+**Reasoning:** A Monday anchor matches the Jul 13 start. Building runs Monday to Friday, the weekend absorbs polish and the merge, and the 24-hour review window closes an hour before the Monday session where the winner is announced. Phase 1 is intentionally compressed — one week per platform.
 
-### Phase 1 review week micro-schedule (example: week 2, PM platform)
+### Phase 1 review week micro-schedule (example: week 2, comms platform)
 
 | Day | Action |
 |-----|--------|
-| Wed Jul 22, 17:00 | Submission PRs due; review window opens |
-| Wed Jul 22 | Deploy URLs published on platform |
-| Thu Jul 23, 14:00 | All peer written reviews submitted |
-| Thu Jul 23, 16:00 | Optional `Vote: up` finalized in review issues |
-| Fri Jul 24, 10:00 | Winner announced; cutover begins |
+| Fri Jul 24, 17:00 | Builders present; reviewers may start reading early |
+| Sun Jul 26, 17:00 | Submission PRs merged; review window opens; deploy URLs published |
+| Mon Jul 27, 17:00 | All peer written reviews submitted; optional `Vote: up` finalized in each issue |
+| Mon Jul 27, 18:00 | Winner announced live; cutover begins |
 
 ---
 
@@ -92,7 +90,7 @@ The Summer Pilot runs contiguously — no Thanksgiving or winter-break pauses. I
 1. **Build not deployed by review deadline:** Build is ineligible for votes; student may still review others (counts toward pass); may re-enroll next cohort to compete.
 2. **Reviews incomplete:** Automatic fail for that project unit; may re-enroll.
 3. **Vote tie:** Most 👍 wins; staff breaks ties using written-review quality (see [governance/winner-selection.md](../governance/winner-selection.md)).
-4. **Winner can't cutover before next kickoff:** Interim operator = runner-up by vote count; original winner has until Thursday to finish or loses operator role.
+4. **Winner can't cutover before next kickoff:** Interim operator = runner-up by vote count; original winner has until the following Monday to finish or loses operator role.
 
 ---
 
@@ -105,11 +103,12 @@ The Summer Pilot runs contiguously — no Thanksgiving or winter-break pauses. I
 | Jul 12 | Admissions complete; cohort ≥ 20 confirmed |
 | Jul 13 | Week 1 start; tuition charged |
 | Jul 19 | Refund window closes; final roster locked |
-| Jul 28 | PM platform live (week 2 winner) |
-| Aug 4 | Comms platform live |
-| Aug 11 | Showcase platform live |
-| Aug 16 | Unified ecosystem demo |
-| Aug 23 | Final metrics freeze; learning app, venture, OSS gates close; hiring partner showcase |
+| Jul 20 | PM platform winner announced (week 1); cutover begins |
+| Jul 27 | Comms platform winner announced (week 2); cutover begins |
+| Aug 3 | Vibe marketing winner announced (week 3); cutover begins |
+| Aug 9 | Learning app user snapshot due |
+| Aug 16 | Venture proof due |
+| Aug 23 | Final metrics freeze; OSS gate closes; hiring partner showcase |
 | Aug 24 | Pass/fail computed; placement window opens |
 
 ---

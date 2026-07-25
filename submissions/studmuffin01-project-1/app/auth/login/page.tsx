@@ -40,27 +40,42 @@ function LoginForm() {
     setMessage('');
     setNeedsEmailConfirmation(false);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    setLoading(false);
+      if (error) {
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          setNeedsEmailConfirmation(true);
+          setMessage(
+            'Your email is not confirmed yet. Check your inbox and spam folder for the confirmation link, or resend it below.'
+          );
+        } else {
+          setMessage(error.message);
+        }
+        return;
+      }
 
-    if (error) {
-      if (error.message.toLowerCase().includes('email not confirmed')) {
-        setNeedsEmailConfirmation(true);
+      router.push('/');
+      router.refresh();
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : 'Unknown error';
+      if (detail.toLowerCase().includes('fetch')) {
         setMessage(
-          'Your email is not confirmed yet. Check your inbox and spam folder for the confirmation link, or resend it below.'
+          'Cannot reach Supabase. On Vercel, set NEXT_PUBLIC_SUPABASE_URL to https://YOUR-PROJECT.supabase.co (full URL), add the anon key, redeploy, then open /api/health on this site to verify.'
+        );
+      } else if (detail.includes('Missing Supabase environment variables')) {
+        setMessage(
+          'Supabase env vars are missing in this deployment. Add them in Vercel → Settings → Environment Variables → Production, then redeploy.'
         );
       } else {
-        setMessage(error.message);
+        setMessage(detail);
       }
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    router.push('/');
-    router.refresh();
   }
 
   async function handleResendConfirmation() {
@@ -88,9 +103,7 @@ function LoginForm() {
     }
 
     setNeedsEmailConfirmation(true);
-    setMessage(
-      'Confirmation email sent. Open it on this same computer with npm run dev running, then log in here.'
-    );
+    setMessage('Confirmation email sent. Check your inbox, then log in again.');
   }
 
   return (

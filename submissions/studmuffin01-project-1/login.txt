@@ -1,0 +1,85 @@
+'use client';
+
+import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
+
+export default function LoginPage() {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setLoading(true);
+    setMessage('');
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    router.push('/dashboard');
+    router.refresh();
+  }
+
+  return (
+    <main className="mx-auto max-w-md p-8">
+      <h1 className="mb-6 text-2xl font-bold">Login</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full rounded border p-3"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full rounded border p-3"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded bg-blue-600 p-3 text-white"
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
+
+      {message && (
+        <p className="mt-4 text-sm">
+          {message}
+        </p>
+      )}
+
+      <p className="mt-6 text-sm">
+        Don't have an account?{' '}
+        /auth/signup
+          Sign up
+        </Link>
+      </p>
+    </main>
+  );
+}

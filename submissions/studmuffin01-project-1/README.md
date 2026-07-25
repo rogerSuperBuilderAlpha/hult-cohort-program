@@ -2,200 +2,286 @@
 
 **The Gateway to Project Success**
 
-A cohort progress dashboard built with Next.js and Tailwind CSS. INITIARA tracks six weekly initiatives, summarizes cohort submission rates, and provides detailed per-participant tracking tables — with all progress saved locally in your browser.
+Initiara is a web-based initiative tracking and engagement platform designed to help users create, manage, and monitor personal and cohort-based initiatives. The application combines progress tracking, accountability, peer recognition, and motivational features to encourage sustained participation and goal completion.
 
----
+## Overview
 
-## Project Overview
+Initiara provides a centralized space for users to:
 
-INITIARA is a single-page executive dashboard for monitoring initiative health across a 67-person cohort. The app is divided into two main sections:
+- Start and manage initiatives
+- Monitor personal progress
+- View cohort performance
+- Track action items
+- Recognize high performers
+- Encourage peer participation through motivation-focused features
 
-1. **Executive Summary** — A high-level table showing all six initiatives with cohort submission percentage, deadline, and overall health indicator.
-2. **Initiative Summary** — Six detailed tracking tables (one per initiative) with 67 rows each for cohort member submissions.
-
-There is no server or database. Cohort checkbox progress is stored in your browser's **localStorage**, so data persists between visits until you clear site data.
+The platform is designed around visibility, accountability, and engagement, helping users stay focused on their goals while fostering participation within a larger cohort community.
 
 ---
 
 ## Features
 
-### Executive Summary
+### Initiative Management
 
-- **Initiative links** — Click any initiative to scroll to its detailed table below
-- **Cohort Submissions** — Live percentage based on rows with at least one checkbox ticked (out of 67)
-- **Deadline** — Placeholder dates per initiative (currently `TBD`)
-- **Overall Health** — Color-coded indicator (green / yellow / red) derived from cohort submission progress
+- Create new initiatives
+- View initiative details
+- Track initiative progress
+- Access initiative-specific information
 
-### Initiative Summary
+### Personal Progress Tracking
 
-- **Six initiative tables** — Week 1 through Week 6 curriculum tracks
-- **67 rows per table** — One row per cohort member slot
-- **Submission tracking** — Toggle checkboxes for:
-  - Pull Request Merged
-  - 1st Review Submitted
-  - 2nd Review Submitted
-  - 1st Vote Submitted
-  - 2nd Vote Submitted
-- **Row status** — Auto-calculated percentage per row (0%, 20%, 40%, 60%, 80%, 100%)
-- **Gamification** — Row background colors change by status tier; 100% rows show a trophy
-- **Status legend** — Colour key displayed below the section heading
+- Monitor individual status and performance
+- Review personal initiative progress
+- Stay aligned with goals and commitments
 
-### General
+### Cohort Visibility
 
-- **Dark mode** — Toggle in the header; preference saved to localStorage
-- **Go To navigation** — Jump to the top of the page or any initiative table
-- **Responsive design** — Works on mobile, tablet, and desktop
-- **Placeholder initiative pages** — Routes at `/initiatives/[slug]` for future detail views
+- View overall cohort status
+- Compare progress across participants
+- Promote transparency and accountability
+
+### Action Planning
+
+- Review action items
+- Focus on next steps
+- Support execution and follow-through
+
+### Engagement & Motivation
+
+- Motivate fellow participants
+- Recognize top performers
+- Highlight top motivators
+- Encourage positive peer engagement
 
 ---
 
-## The Six Initiatives
+## Technology Stack
 
-| Week | Initiative |
-|------|------------|
-| 1 | Project Management Platform |
-| 2 | Internal Communications Platform |
-| 3 | Vibe Marketing Platform |
-| 4 | Learning Engineer Integration To Ludwitt |
-| 5 | Startup/Entrepreneurship |
-| 6 | Open Source Swarm |
+### Frontend
+
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+
+### Development Tools
+
+- ESLint
+- PostCSS
+
+### Backend & Auth
+
+- Supabase (PostgreSQL + Auth)
+- Per-user persistence when signed in
+- Email signup with confirmation
+
+### Deployment
+
+- Vercel — see [DEPLOY.md](./DEPLOY.md) for env vars and Supabase URL configuration
+
+---
+
+## Application Structure
+
+```text
+app/
+├── globals.css
+├── layout.tsx
+├── page.tsx
+│
+├── auth/
+│   ├── login/page.tsx
+│   ├── signup/page.tsx
+│   └── callback/route.ts
+│
+├── action-items/
+│   └── page.tsx
+│
+├── cohorts-status/
+│   └── page.tsx
+│
+├── initiatives/
+│   └── [slug]/
+│       ├── page.tsx
+│       └── not-found.tsx
+│
+├── motivate-a-friend/
+│   └── page.tsx
+│
+├── my-status/
+│   └── page.tsx
+│
+├── start-new-initiative/
+│   └── page.tsx
+│
+├── top-ten-motivators/
+│   └── page.tsx
+│
+└── top-ten-performers/
+    └── page.tsx
+```
+
+---
+
+## Available Routes
+
+| Route | Description |
+|---------|------------|
+| `/` | Main dashboard (Executive Summary + task tables) |
+| `/auth/login` | Sign in |
+| `/auth/signup` | Create account |
+| `/start-new-initiative` | Create a new initiative |
+| `/initiatives/[slug]` | View initiative details |
+| `/my-status` | Personal progress dashboard |
+| `/cohorts-status` | Cohort performance overview |
+| `/action-items` | Action item management |
+| `/motivate-a-friend` | Peer encouragement and engagement |
+| `/top-ten-performers` | Top performer leaderboard |
+| `/top-ten-motivators` | Top motivator leaderboard |
 
 ---
 
 ## Installation
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) 18.17 or later
-- npm (included with Node.js)
-
-### Steps
-
-1. **Clone or download the project**
-
-   ```bash
-   git clone <your-repo-url>
-   cd Project-Management-Build
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server**
-
-   ```bash
-   npm run dev
-   ```
-
-4. **Open the app**
-
-   Visit [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Other Commands
+### Clone the Repository
 
 ```bash
-npm run build   # Create a production build
-npm run start   # Run the production server (after build)
-npm run lint    # Check code for linting issues
+git clone https://github.com/Studmuffin01/initiara.git
+cd initiara
+```
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Environment variables
+
+```bash
+cp .env.example .env.local
+```
+
+Fill in Supabase values (see [DEPLOY.md](./DEPLOY.md)), then run the SQL in `supabase/schema.sql` in your Supabase project.
+
+---
+
+## Running the Application
+
+### Development Server
+
+```bash
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+### Production Build
+
+```bash
+npm run build
+npm run start
 ```
 
 ---
 
-## Usage
+## Fresh Clone Verification
 
-### Executive Summary
+The application setup was verified using a fresh repository clone.
 
-When the app loads, the **Executive Summary** table shows all six initiatives. The **Cohort Submissions** column displays a progress bar and percentage that updates automatically as you tick checkboxes in the Initiative Summary tables below.
+Commands executed
 
-**Cohort Submissions formula:** (rows with at least one tick ÷ 67) × 100
-
-Example: 12 rows with any checkbox ticked → **17.9%**
-
-Click an initiative name to scroll directly to its detailed table.
-
-### Initiative Summary
-
-Each initiative table has 67 numbered rows. For each row:
-
-1. Tick checkboxes to record submissions (empty = no, ticked = yes).
-2. The **Status** column calculates completion: each of the 5 checkboxes counts as 20%.
-3. The row background colour updates based on status:
-
-| Status | Colour |
-|--------|--------|
-| 0% | Default (no fill) |
-| 20% | Gray |
-| 40% | Blue |
-| 60% | Orange |
-| 80% | Green |
-| 100% | Purple + trophy |
-
-### Go To Navigation
-
-Use the **Go To** button at the bottom of the page to jump to:
-
-- **Top** — Page header
-- Any of the six initiative tables
-
-### Dark Mode
-
-Click the sun/moon icon in the header to switch themes. Your preference is saved automatically.
-
-### Data Persistence
-
-Cohort submission data is saved under the localStorage key `initiara-cohort-submissions`. Theme preference uses `initiara-theme`. Data persists after closing the browser unless you clear site data.
-
----
-
-## Technologies Used
-
-| Technology | Purpose |
-|------------|---------|
-| [Next.js 15](https://nextjs.org/) | React framework, routing, and static generation |
-| [React 19](https://react.dev/) | UI library for interactive components |
-| [TypeScript](https://www.typescriptlang.org/) | Static typing for safer, maintainable code |
-| [Tailwind CSS 3](https://tailwindcss.com/) | Utility-first CSS with custom dark-mode tokens |
-| [Syne](https://fonts.google.com/specimen/Syne) | Display font for the INITIARA brand and section headings |
-| [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) | Client-side persistence for cohort data and theme |
-| [ESLint](https://eslint.org/) | Code linting and quality checks |
-
----
-
-## Project Structure
-
-```
-├── app/
-│   ├── globals.css              # Global styles, Tailwind, section headings
-│   ├── layout.tsx               # Root layout, fonts, theme provider
-│   ├── page.tsx                 # Main dashboard page
-│   └── initiatives/
-│       └── [slug]/
-│           ├── page.tsx         # Placeholder initiative detail page
-│           └── not-found.tsx    # Branded 404 for invalid slugs
-├── components/
-│   ├── CohortRow.tsx            # Memoized table row with gamification
-│   ├── Dashboard.tsx            # Executive Summary table
-│   ├── GoToNav.tsx              # Go To dropdown navigation
-│   ├── InitiativeSummary.tsx    # Initiative Summary section and tables
-│   ├── PageHeader.tsx           # Shared header with theme toggle
-│   ├── ThemeProvider.tsx        # Dark/light theme context
-│   └── ThemeToggle.tsx          # Theme switch button
-├── hooks/
-│   └── useCohortSubmissions.ts  # Cohort state and localStorage sync
-├── lib/
-│   ├── cohortSubmissions.ts     # Types, calculations, storage helpers
-│   ├── health.ts                # Overall health indicator logic
-│   ├── initiatives.ts           # Initiative definitions and anchors
-│   ├── rowTiers.ts              # Status tier colours and legend config
-│   └── tableStyles.ts           # Shared table CSS class strings
-└── package.json
+```bash
+git clone https://github.com/Studmuffin01/initiara.git
+cd initiara
+npm install
 ```
 
+Results:
+
+- Repository cloned successfully.
+- Dependencies installed successfully.
+- No blocking installation issues encountered.
+
+Note: Production builds may encounter certificate-related issues in environments that restrict external font downloads from Google Fonts.
+
 ---
 
-## License
+## Authentication & persistence
 
-MIT
+- **Sign up** at `/auth/signup` — confirmation email required (see [DEPLOY.md](./DEPLOY.md) for redirect URLs).
+- **Sign in** at `/auth/login` — redirects to `/` after success.
+- **Sign out** — header button on all main pages when authenticated.
+- **Logged in:** initiatives, tasks, and cohort data sync to Supabase (per user).
+- **Logged out:** same features use browser `localStorage` only.
+
+Task tables use status values **To Do**, **In Progress**, and **Done**, with an **Assignee** column (free text until member roster is added in Phase B).
+
+---
+
+## Design Philosophy
+
+Initiara was built around several key principles:
+
+### Visibility
+
+Users should be able to quickly understand progress, status, and priorities.
+
+### Accountability
+
+Making progress visible encourages follow-through and commitment.
+
+### Recognition
+
+Highlighting top performers and top motivators reinforces positive behaviors.
+
+### Community Engagement
+
+Motivation and peer support features encourage participants to actively support one another.
+
+### Simplicity
+
+Information is organized into focused sections so users can quickly access what they need without unnecessary complexity.
+
+---
+
+## Known Limitations
+
+- Assignee is free text; no team member roster or assignee filter yet (Phase B).
+- No initiative archive or inline title edit yet (Phase B).
+- Data is per authenticated user, not a shared cohort workspace.
+- Sidebar routes (`/my-status`, `/action-items`, etc.) are placeholders.
+- Limited automated testing coverage.
+- Production builds may be affected by environments that block font CDN downloads.
+
+---
+
+## Future Enhancements
+
+- Team members + assignee picker
+- Task filters (status, assignee, project)
+- Initiative archive and title edit
+- Shared cohort workspace
+- Expanded leaderboard and collaboration features
+
+---
+
+## Deployment
+
+The application is deployed on Vercel. Configure Supabase env vars and auth redirect URLs using [DEPLOY.md](./DEPLOY.md).
+
+**Production URL:**
+
+https://initiara-git-participants-summer26phase-1-project-b9933f-rawle.vercel.app
+
+---
+
+## Author
+
+**Rawle Arneaud**
+
+Project Submission for the Hult Cohort Program.

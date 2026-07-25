@@ -4,7 +4,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import GoToNav from "@/components/GoToNav";
 import InitiativeTaskRow from "@/components/InitiativeTaskRow";
 import { InitiativeTasks, TaskField, taskNumberExists } from "@/lib/initiativeTasks";
-import { initiativeTaskNumberClass, initiativeTaskNumberHeaderClass, initiativeThClass } from "@/lib/tableStyles";
+import { initiativeTaskNumberHeaderClass, initiativeThClass } from "@/lib/tableStyles";
 import { getInitiativeAnchorId, type Initiative } from "@/lib/initiatives";
 
 const actionButtonClassName =
@@ -156,7 +156,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
               <th className={initiativeThClass}>Description</th>
               <th className={initiativeThClass}>Status</th>
               <th className={initiativeThClass}>Date Due</th>
-              <th className={initiativeThClass}>Responsibility</th>
+              <th className={initiativeThClass}>Assignee</th>
               <th className={initiativeThClass}>Comments</th>
             </tr>
           </thead>

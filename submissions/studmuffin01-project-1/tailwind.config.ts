@@ -11,7 +11,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["var(--font-syne)", "sans-serif"],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Syne', 'sans-serif'],
       },
       colors: {
         surface: {

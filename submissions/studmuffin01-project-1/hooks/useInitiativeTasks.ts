@@ -9,30 +9,116 @@ import {
   getInitiativeTasks,
   insertSubTask,
   loadInitiativeTasks,
+  parseInitiativeTasks,
   saveInitiativeTasks,
   sanitizeTaskField,
   TaskField,
   taskNumberExists,
 } from "@/lib/initiativeTasks";
+import { createClient } from "@/lib/supabase/client";
+import {
+  fetchUserAppData,
+  upsertUserAppData,
+  USER_DATA_KEYS,
+} from "@/lib/supabase/userDataRepository";
+import { useSupabaseUser } from "@/hooks/useSupabaseUser";
 
 const SAVE_DEBOUNCE_MS = 400;
 
 export function useInitiativeTasks() {
+  const { userId, isAuthLoaded } = useSupabaseUser();
   const [tasksByInitiative, setTasksByInitiative] = useState<AllInitiativeTasks>({});
   const [isLoaded, setIsLoaded] = useState(false);
   const skipNextSave = useRef(true);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tasksRef = useRef(tasksByInitiative);
+  const userIdRef = useRef(userId);
 
   tasksRef.current = tasksByInitiative;
+  userIdRef.current = userId;
 
   useEffect(() => {
-    setTasksByInitiative(loadInitiativeTasks());
-    setIsLoaded(true);
-  }, []);
+    if (!isAuthLoaded) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadTasks() {
+      setIsLoaded(false);
+
+      if (userId) {
+        try {
+          const supabase = createClient();
+          const remote = await fetchUserAppData(
+            supabase,
+            userId,
+            USER_DATA_KEYS.initiativeTasks,
+            parseInitiativeTasks
+          );
+
+          if (remote && Object.keys(remote).length > 0) {
+            if (!cancelled) {
+              setTasksByInitiative(remote);
+              skipNextSave.current = true;
+              setIsLoaded(true);
+            }
+            return;
+          }
+
+          const local = loadInitiativeTasks();
+          if (Object.keys(local).length > 0) {
+            await upsertUserAppData(
+              supabase,
+              userId,
+              USER_DATA_KEYS.initiativeTasks,
+              local
+            );
+          }
+
+          if (!cancelled) {
+            setTasksByInitiative(local);
+            skipNextSave.current = true;
+            setIsLoaded(true);
+          }
+          return;
+        } catch (error) {
+          console.error("Failed to load initiative tasks from Supabase:", error);
+        }
+      }
+
+      if (!cancelled) {
+        setTasksByInitiative(loadInitiativeTasks());
+        skipNextSave.current = true;
+        setIsLoaded(true);
+      }
+    }
+
+    void loadTasks();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, isAuthLoaded]);
 
   const flushSave = useCallback(() => {
-    saveInitiativeTasks(tasksRef.current);
+    const currentUserId = userIdRef.current;
+    const payload = tasksRef.current;
+
+    if (currentUserId) {
+      const supabase = createClient();
+      void upsertUserAppData(
+        supabase,
+        currentUserId,
+        USER_DATA_KEYS.initiativeTasks,
+        payload
+      ).catch((error) => {
+        console.error("Failed to save initiative tasks to Supabase:", error);
+      });
+      return;
+    }
+
+    saveInitiativeTasks(payload);
   }, []);
 
   useEffect(() => {
@@ -180,14 +266,29 @@ export function useInitiativeTasks() {
 
     const next = { ...current };
     delete next[trimmedSlug];
-    saveInitiativeTasks(next);
     setTasksByInitiative(next);
+
+    const currentUserId = userIdRef.current;
+    if (currentUserId) {
+      const supabase = createClient();
+      void upsertUserAppData(
+        supabase,
+        currentUserId,
+        USER_DATA_KEYS.initiativeTasks,
+        next
+      ).catch((error) => {
+        console.error("Failed to save initiative tasks to Supabase:", error);
+      });
+    } else {
+      saveInitiativeTasks(next);
+    }
+
     return true;
   }, []);
 
   return {
     tasksByInitiative,
-    isLoaded,
+    isLoaded: isLoaded && isAuthLoaded,
     getTasks,
     ensureInitiativeTasks,
     updateTaskField,

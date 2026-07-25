@@ -83,13 +83,14 @@ function InitiativeTaskRow({ row, onUpdateField, onAddSubTask }: InitiativeTaskR
         />
       </td>
       <td className={initiativeTdClass}>
-        <label htmlFor={`${row.id}-responsibility`} className="sr-only">
-          Task {row.taskNumber} responsibility
+        <label htmlFor={`${row.id}-assignee`} className="sr-only">
+          Task {row.taskNumber} assignee
         </label>
         <input
-          id={`${row.id}-responsibility`}
+          id={`${row.id}-assignee`}
           type="text"
           value={row.responsibility}
+          placeholder="Assignee"
           onChange={(event) => onUpdateField(row.id, "responsibility", event.target.value)}
           className={selectClassName}
         />

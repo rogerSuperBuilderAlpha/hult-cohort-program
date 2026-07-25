@@ -116,7 +116,7 @@ function parseRowSubmission(value: unknown): RowSubmission {
   };
 }
 
-function parseCohortSubmissions(raw: unknown): AllSubmissions {
+export function parseCohortSubmissions(raw: unknown): AllSubmissions {
   if (typeof raw !== "object" || raw === null) {
     return {};
   }

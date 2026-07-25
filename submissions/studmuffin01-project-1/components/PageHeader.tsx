@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import LogoutButton from "@/components/auth/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useSupabaseUser } from "@/hooks/useSupabaseUser";
 
 interface PageHeaderProps {
   id?: string;
@@ -18,6 +20,8 @@ export default function PageHeader({
   title = "INITIARA",
   subtitle = "The Gateway to Project Success",
 }: PageHeaderProps) {
+  const { userId, isAuthLoaded } = useSupabaseUser();
+
   return (
     <header
       id={id}
@@ -44,7 +48,19 @@ export default function PageHeader({
             <p className="mt-1 text-brand-100 dark:text-surface-secondary">{subtitle}</p>
           )}
         </div>
-        <ThemeToggle />
+        <div className="flex shrink-0 items-start gap-2">
+          {isAuthLoaded && userId ? (
+            <LogoutButton compact />
+          ) : isAuthLoaded ? (
+            <Link
+              href="/auth/login"
+              className="rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20 dark:border-surface-border dark:bg-surface-card dark:text-surface-primary dark:hover:bg-surface-border/60"
+            >
+              Log in
+            </Link>
+          ) : null}
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

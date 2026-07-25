@@ -10,8 +10,17 @@ import {
   saveCustomInitiatives,
   sanitizeInitiativeTitle,
 } from "@/lib/initiatives";
+import { createClient } from "@/lib/supabase/client";
+import {
+  deleteCustomInitiative,
+  fetchCustomInitiatives,
+  insertCustomInitiative,
+  replaceCustomInitiatives,
+} from "@/lib/supabase/initiativesRepository";
+import { useSupabaseUser } from "@/hooks/useSupabaseUser";
 
 export function useInitiatives() {
+  const { userId, isAuthLoaded } = useSupabaseUser();
   const [customInitiatives, setCustomInitiatives] = useState<Initiative[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const customInitiativesRef = useRef<Initiative[]>([]);
@@ -19,60 +28,142 @@ export function useInitiatives() {
   customInitiativesRef.current = customInitiatives;
 
   useEffect(() => {
-    const loaded = normalizeCustomInitiatives(loadCustomInitiatives());
-    setCustomInitiatives(loaded);
-    setIsLoaded(true);
-  }, []);
+    if (!isAuthLoaded) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadInitiatives() {
+      setIsLoaded(false);
+
+      if (userId) {
+        try {
+          const supabase = createClient();
+          const remote = normalizeCustomInitiatives(
+            await fetchCustomInitiatives(supabase, userId)
+          );
+
+          if (remote.length > 0) {
+            if (!cancelled) {
+              setCustomInitiatives(remote);
+              setIsLoaded(true);
+            }
+            return;
+          }
+
+          const local = normalizeCustomInitiatives(loadCustomInitiatives());
+          if (local.length > 0) {
+            await replaceCustomInitiatives(supabase, userId, local);
+          }
+
+          if (!cancelled) {
+            setCustomInitiatives(local);
+            setIsLoaded(true);
+          }
+          return;
+        } catch (error) {
+          console.error("Failed to load initiatives from Supabase:", error);
+        }
+      }
+
+      const loaded = normalizeCustomInitiatives(loadCustomInitiatives());
+      if (!cancelled) {
+        setCustomInitiatives(loaded);
+        setIsLoaded(true);
+      }
+    }
+
+    void loadInitiatives();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, isAuthLoaded]);
 
   const initiatives = useMemo(
     () => mergeInitiatives(customInitiatives),
     [customInitiatives]
   );
 
-  const addInitiative = useCallback((title: string) => {
-    const sanitizedTitle = sanitizeInitiativeTitle(title);
-    if (!sanitizedTitle) {
-      return null;
-    }
+  const addInitiative = useCallback(
+    (title: string) => {
+      const sanitizedTitle = sanitizeInitiativeTitle(title);
+      if (!sanitizedTitle) {
+        return null;
+      }
 
-    const current = customInitiativesRef.current;
-    const newInitiative = createInitiative(sanitizedTitle);
-    const next = [...current, newInitiative];
-    saveCustomInitiatives(next);
-    setCustomInitiatives(next);
+      const current = customInitiativesRef.current;
+      const newInitiative = createInitiative(sanitizedTitle);
+      const next = [...current, newInitiative];
+      setCustomInitiatives(next);
 
-    return newInitiative;
-  }, []);
+      if (userId) {
+        const supabase = createClient();
+        void insertCustomInitiative(supabase, userId, newInitiative).catch((error) => {
+          console.error("Failed to save initiative to Supabase:", error);
+        });
+      } else {
+        saveCustomInitiatives(next);
+      }
 
-  const replaceCustomInitiatives = useCallback((nextCustomInitiatives: Initiative[]) => {
-    const normalized = normalizeCustomInitiatives(nextCustomInitiatives);
-    setCustomInitiatives(normalized);
-    saveCustomInitiatives(normalized);
-  }, []);
+      return newInitiative;
+    },
+    [userId]
+  );
 
-  const deleteInitiative = useCallback((slug: string) => {
-    const trimmedSlug = slug.trim();
-    if (!trimmedSlug) {
-      return false;
-    }
+  const replaceCustomInitiativesState = useCallback(
+    (nextCustomInitiatives: Initiative[]) => {
+      const normalized = normalizeCustomInitiatives(nextCustomInitiatives);
+      setCustomInitiatives(normalized);
 
-    const current = customInitiativesRef.current;
-    const next = current.filter((initiative) => initiative.slug !== trimmedSlug);
-    if (next.length === current.length) {
-      return false;
-    }
+      if (userId) {
+        const supabase = createClient();
+        void replaceCustomInitiatives(supabase, userId, normalized).catch((error) => {
+          console.error("Failed to replace initiatives in Supabase:", error);
+        });
+      } else {
+        saveCustomInitiatives(normalized);
+      }
+    },
+    [userId]
+  );
 
-    saveCustomInitiatives(next);
-    setCustomInitiatives(next);
-    return true;
-  }, []);
+  const deleteInitiative = useCallback(
+    (slug: string) => {
+      const trimmedSlug = slug.trim();
+      if (!trimmedSlug) {
+        return false;
+      }
+
+      const current = customInitiativesRef.current;
+      const next = current.filter((initiative) => initiative.slug !== trimmedSlug);
+      if (next.length === current.length) {
+        return false;
+      }
+
+      setCustomInitiatives(next);
+
+      if (userId) {
+        const supabase = createClient();
+        void deleteCustomInitiative(supabase, userId, trimmedSlug).catch((error) => {
+          console.error("Failed to delete initiative from Supabase:", error);
+        });
+      } else {
+        saveCustomInitiatives(next);
+      }
+
+      return true;
+    },
+    [userId]
+  );
 
   return {
     initiatives,
     customInitiatives,
-    isLoaded,
+    isLoaded: isLoaded && isAuthLoaded,
     addInitiative,
     deleteInitiative,
-    replaceCustomInitiatives,
+    replaceCustomInitiatives: replaceCustomInitiativesState,
   };
 }

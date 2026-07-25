@@ -15,6 +15,7 @@ export const TASK_FIELD_MAX_LENGTH = {
   description: 500,
   status: 120,
   dateDue: 32,
+  /** Stored as `responsibility`; shown in UI as Assignee until member picker (Phase B). */
   responsibility: 120,
   comments: 500,
 } as const;
@@ -172,7 +173,7 @@ export function findInsertIndexForSubTask(parentTaskNumber: string, rows: Initia
     return parentIndex;
   }
 
-  const lastDirectChild = [...directChildren].sort(compareTaskNumbers).at(-1)!;
+  const lastDirectChild = [...directChildren].sort((a, b) => compareTaskNumbers(a.taskNumber, b.taskNumber)).at(-1)!;
   return findLastIndexInSubtree(lastDirectChild.taskNumber, rows);
 }
 
@@ -289,7 +290,7 @@ function parseTaskRow(value: unknown, fallbackTaskNumber: string): TaskRow | nul
   };
 }
 
-function parseInitiativeTasks(raw: unknown): AllInitiativeTasks {
+export function parseInitiativeTasks(raw: unknown): AllInitiativeTasks {
   if (typeof raw !== "object" || raw === null) {
     return {};
   }

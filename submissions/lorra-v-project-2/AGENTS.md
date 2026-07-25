@@ -6,7 +6,7 @@ Internal communications platform for the Hult Cohort Summer Pilot 2026.
 
 ## Agent rules
 
-1. Phase A is complete. Phase B = Vercel deploy + production posture on the **shared** Supabase project.
+1. Phase A is complete. Phase B production URL: **https://conexus-rust.vercel.app** (do not invent alternates).
 2. Do not invent production URLs, metrics, credentials, or Forth contract details.
 3. Match PRD §8 design tokens exactly — no generic theme substitution.
 4. Split server-only secrets; never commit `.env.local`.

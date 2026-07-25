@@ -9,14 +9,14 @@ Product requirements: [`docs/PRD.md`](docs/PRD.md) (single source of truth).
 - Next.js (App Router) + TypeScript + Tailwind CSS 4
 - Supabase (Postgres, Auth, Realtime, Storage)
 - Playwright smoke tests per build step
-- Vercel deploy in **Phase B** (production HTTPS URL set when deployed — never invent one)
+- **Production:** [https://conexus-rust.vercel.app](https://conexus-rust.vercel.app) (Vercel project `conexus`)
 
 ## Phase status
 
 | Phase | Status |
 |-------|--------|
 | A — Build Steps 1–11 | ✅ complete (local) |
-| B — Vercel deploy + shared Supabase production posture | ⏳ in progress |
+| B — Vercel deploy + shared Supabase production posture | ✅ live at production URL above |
 | C — Submission PR | not started |
 
 **Supabase:** one project doubles as local/dev and production. There is no separate staging DB.
@@ -121,14 +121,27 @@ Target: a teammate can run Conexus locally (or redeploy later on Vercel) without
 
 ### Phase B — Vercel (shared Supabase)
 
-1. Import `submissions/lorra-v-project-2` as the Vercel root (or set Root Directory to that path).
-2. Copy the same Supabase env vars from `.env.local` into the Vercel project (never commit secrets).
-3. Set `NEXT_PUBLIC_APP_URL` to the real Vercel HTTPS URL once it exists.
-4. Set `NEXT_PUBLIC_ENABLE_DEV_LOGIN=false` (or omit) in Vercel production so seed-password login stays local-only.
-5. In Supabase Auth → URL Configuration, add the Vercel origin to **Redirect URLs** (keep localhost for local work).
-6. Redeploy after env changes; confirm `/api/health` on the deployed host.
+| Item | Value |
+|------|--------|
+| Production URL | https://conexus-rust.vercel.app |
+| Vercel project | `conexus` (team `lorraine-villaroels-projects`) |
+| App root | `submissions/lorra-v-project-2` (deploy from this directory) |
+| Health | https://conexus-rust.vercel.app/api/health |
+| Forth status | https://conexus-rust.vercel.app/api/forth/status |
 
-**Do not invent production URLs or credentials** — paste the real Vercel URL into env/docs only after deploy.
+**Env on Vercel (production + preview):** `NEXT_PUBLIC_SUPABASE_*`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_FORTH_BASE_URL`, `FORTH_USE_FIXTURES`, `NEXT_PUBLIC_APP_URL=https://conexus-rust.vercel.app`, `NEXT_PUBLIC_ENABLE_DEV_LOGIN=false`. Seed-password login stays local-only.
+
+**Push / refresh env from `.env.local` (values never printed):**
+
+```bash
+node scripts/push-vercel-env.mjs --production --preview --app-url=https://conexus-rust.vercel.app
+npx vercel deploy --prod --yes
+```
+
+**Supabase Auth (required for Google SSO on the deployed host):**
+
+1. Auth → URL Configuration → **Redirect URLs** — add `https://conexus-rust.vercel.app/**` (keep `http://localhost:3000/**` for local).
+2. Optionally set Site URL to `https://conexus-rust.vercel.app` for production-first OAuth (or leave localhost if you mostly develop locally).
 
 ## Design tokens (PRD §8)
 

@@ -69,10 +69,13 @@ export async function signInWithMagicLink(formData: FormData) {
 
 /**
  * Localhost / demo password login (PRD Step 3) — uses seeded admin or DEV_ADMIN_* env.
- * Disabled unless NEXT_PUBLIC_ENABLE_DEV_LOGIN=true.
+ * Never available in production builds; locally also requires NEXT_PUBLIC_ENABLE_DEV_LOGIN=true.
  */
 export async function signInWithDevPassword(formData: FormData) {
-  if (process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== "true") {
+  if (
+    process.env.NODE_ENV === "production" ||
+    process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== "true"
+  ) {
     redirect("/login?error=dev_login_disabled");
   }
 

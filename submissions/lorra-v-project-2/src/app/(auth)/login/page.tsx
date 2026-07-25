@@ -35,7 +35,10 @@ export default async function LoginPage({
   const next = safeRedirectPath(
     typeof params.next === "string" ? params.next : "/",
   );
-  const enableDevLogin = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === "true";
+  // Never show seed login on production builds (Vercel), even if env is mis-set.
+  const enableDevLogin =
+    process.env.NODE_ENV !== "production" &&
+    process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === "true";
   const devEmail = process.env.DEV_ADMIN_EMAIL || "admin@conexus.local";
 
   return (

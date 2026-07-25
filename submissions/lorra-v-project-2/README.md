@@ -9,25 +9,25 @@ Product requirements: [`docs/PRD.md`](docs/PRD.md) (single source of truth).
 - Next.js (App Router) + TypeScript + Tailwind CSS 4
 - Supabase (Postgres, Auth, Realtime, Storage)
 - Playwright smoke tests per build step
-- Vercel deploy in **Phase B** (no production URL yet)
+- Vercel deploy in **Phase B** (production HTTPS URL set when deployed — never invent one)
 
-## Phase A status
+## Phase status
 
-| Step | Status |
-|------|--------|
-| 1. Scaffold (tokens, shell, Manrope, Supabase clients) | ✅ |
-| 2. Schema + RLS + seed | ✅ |
-| 3. Auth (Google SSO, allowlist, magic link, local demo login) | ✅ |
-| 4. Channel messaging | ✅ |
-| 5. DMs (1:1 + group) | ✅ |
-| 6. Threads | ✅ |
-| 7. Notifications | ✅ |
-| 8. Forth adapter | ✅ |
-| 9. Create ticket + TicketLink cards + unfurl | ✅ |
-| 10. Home digest, Tasks, Files, search, presence | ✅ |
-| 11. Polish (empty states, skeletons, toasts, README) | ✅ |
+| Phase | Status |
+|-------|--------|
+| A — Build Steps 1–11 | ✅ complete (local) |
+| B — Vercel deploy + shared Supabase production posture | ⏳ in progress |
+| C — Submission PR | not started |
 
-Phase A complete for local demo. **Do not push** until Phase B/C go-ahead.
+**Supabase:** one project doubles as local/dev and production. There is no separate staging DB.
+
+### Seed safety
+
+`npm run db:seed` **refuses** unless you pass an explicit CLI flag (env vars alone are not enough):
+
+```bash
+npm run db:seed -- --confirm
+```
 
 ## Local setup (fresh clone)
 
@@ -57,7 +57,7 @@ Fill `.env.local` with your **Supabase dev** values:
 Then:
 
 ```bash
-npm run db:seed   # if not already seeded
+npm run db:seed -- --confirm   # required flag — shared Supabase project
 npm run dev
 ```
 
@@ -75,7 +75,7 @@ In the Supabase SQL Editor, run in order:
 4. `supabase/migrations/004_thread_subscriptions.sql` (Threads unread)
 5. `supabase/migrations/005_search_fts.sql` (optional ranked FTS; search falls back to `ilike`)
 
-Then `npm run db:seed`.
+Then `npm run db:seed -- --confirm`.
 
 ### Smoke tests
 
@@ -113,15 +113,22 @@ Target: a teammate can run Conexus locally (or redeploy later on Vercel) without
 1. **Clone + install** — `cd submissions/lorra-v-project-2 && npm install`
 2. **Env** — copy `.env.example` → `.env.local`; fill Supabase URL, anon key, service role. Keep Forth on fixtures unless the §7.0 contract is live.
 3. **Schema** — apply migrations `001`–`004` (and `005` if you want FTS) in the SQL Editor, or `npm run db:apply` when `DATABASE_URL` is set.
-4. **Seed** — `npm run db:seed` (creates ~10 users + `#general` / `#announcements` / `#random`).
-5. **Auth** — enable Email + Google in Supabase; set Site URL to the app origin (no trailing `/**` on Site URL).
-6. **Run** — `npm run dev` → login as `admin@conexus.local` / `ConexusSeed!2026`.
+4. **Seed** — `npm run db:seed -- --confirm` (creates ~10 users + `#general` / `#announcements` / `#random`). Always confirm deliberately — same DB as production.
+5. **Auth** — enable Email + Google in Supabase; set Site URL to the app origin (no trailing `/**` on Site URL). After Vercel deploy, add the production origin to Redirect URLs.
+6. **Run locally** — `npm run dev` → login as `admin@conexus.local` / `ConexusSeed!2026` when `NEXT_PUBLIC_ENABLE_DEV_LOGIN=true`.
 7. **Health** — `GET /api/health` and `GET /api/forth/status` should return `ok: true`.
-8. **Verify** — `npm run build` then `npm run test:e2e:step3` (or a later step) before handing off.
+8. **Verify** — `npm run build` then a Playwright smoke before handing off.
 
-**Vercel (Phase B):** import this app directory, set the same env vars (never commit secrets), point production redirect URLs at the Vercel domain, disable `NEXT_PUBLIC_ENABLE_DEV_LOGIN` in production.
+### Phase B — Vercel (shared Supabase)
 
-**Do not invent production URLs or credentials** — use the project’s real Supabase/Vercel projects when Phase B starts.
+1. Import `submissions/lorra-v-project-2` as the Vercel root (or set Root Directory to that path).
+2. Copy the same Supabase env vars from `.env.local` into the Vercel project (never commit secrets).
+3. Set `NEXT_PUBLIC_APP_URL` to the real Vercel HTTPS URL once it exists.
+4. Set `NEXT_PUBLIC_ENABLE_DEV_LOGIN=false` (or omit) in Vercel production so seed-password login stays local-only.
+5. In Supabase Auth → URL Configuration, add the Vercel origin to **Redirect URLs** (keep localhost for local work).
+6. Redeploy after env changes; confirm `/api/health` on the deployed host.
+
+**Do not invent production URLs or credentials** — paste the real Vercel URL into env/docs only after deploy.
 
 ## Design tokens (PRD §8)
 

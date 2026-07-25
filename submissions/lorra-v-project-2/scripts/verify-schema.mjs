@@ -60,7 +60,7 @@ if (failed.length) {
   for (const f of failed) {
     console.error(`  ${f.table}: ${f.error}`);
   }
-  console.error("\nRun: npm run db:apply && npm run db:seed");
+  console.error("\nRun: npm run db:apply && npm run db:seed -- --confirm");
   process.exit(1);
 }
 
@@ -69,15 +69,19 @@ const channels = results.find((r) => r.table === "channels");
 const workspaces = results.find((r) => r.table === "workspaces");
 
 if ((profiles?.count ?? 0) < 10) {
-  console.error(`Expected ≥10 profiles, found ${profiles?.count ?? 0}. Run npm run db:seed`);
+  console.error(
+    `Expected ≥10 profiles, found ${profiles?.count ?? 0}. Run: npm run db:seed -- --confirm`,
+  );
   process.exit(1);
 }
 if ((channels?.count ?? 0) < 3) {
-  console.error(`Expected ≥3 channels, found ${channels?.count ?? 0}. Run npm run db:seed`);
+  console.error(
+    `Expected ≥3 channels, found ${channels?.count ?? 0}. Run: npm run db:seed -- --confirm`,
+  );
   process.exit(1);
 }
 if ((workspaces?.count ?? 0) < 1) {
-  console.error("Expected ≥1 workspace. Run npm run db:seed");
+  console.error("Expected ≥1 workspace. Run: npm run db:seed -- --confirm");
   process.exit(1);
 }
 

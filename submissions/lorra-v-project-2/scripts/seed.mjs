@@ -5,6 +5,12 @@
  *
  * Auth Admin calls use the REST API with the secret on `apikey` (and Bearer) so
  * new-format `sb_secret_…` keys work reliably with hosted GoTrue.
+ *
+ * Safety (Phase B): one shared Supabase project is both local/dev and production.
+ * There is no separate "dev" env to gate on — this script requires an explicit
+ * `--confirm` CLI flag before it mutates Auth/DB. An env var alone is not enough.
+ *
+ *   npm run db:seed -- --confirm
  */
 import { createClient } from "@supabase/supabase-js";
 import { loadEnvLocal } from "./load-env.mjs";
@@ -23,6 +29,30 @@ if (!url || !serviceKey) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
   process.exit(1);
 }
+
+/** Explicit CLI confirm only — do not accept ALLOW_SEED / NODE_ENV substitutes. */
+function requireConfirmFlag(argv = process.argv.slice(2)) {
+  if (argv.includes("--confirm")) return;
+  let host = url;
+  try {
+    host = new URL(url).host;
+  } catch {
+    /* keep raw url */
+  }
+  console.error(`
+Refusing to seed without --confirm.
+
+Conexus uses a single Supabase project for local and production (${host}).
+Seeding creates/updates Auth users, profiles, roster, channels, and sample data.
+
+Re-run only when you intend to mutate that project:
+
+  npm run db:seed -- --confirm
+`);
+  process.exit(1);
+}
+
+requireConfirmFlag();
 
 const admin = createClient(url, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -130,7 +160,14 @@ async function upsertAuthUser(existingByEmail, { email, display_name, role }) {
 }
 
 async function main() {
-  console.log("Seeding Conexus cohort…");
+  let host = url;
+  try {
+    host = new URL(url).host;
+  } catch {
+    /* keep raw */
+  }
+  console.log(`Seeding Conexus cohort on shared Supabase project: ${host}`);
+  console.log("(--confirm acknowledged; this mutates Auth + DB)\n");
 
   const existingUsers = await listAllAuthUsers();
   const existingByEmail = new Map(

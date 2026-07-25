@@ -48,7 +48,7 @@ export type ProgramProject = {
 
 /**
  * Six sequential weeks. Cohort start Mon Jul 13, 2026 (ET).
- * Vote weeks: merge by Sunday 17:00 ET; review window through Monday 14:00 ET.
+ * Vote weeks: merge by Sunday 17:00 ET; review window through Monday 17:00 ET.
  */
 export const programProjects: ProgramProject[] = [
   {
@@ -120,7 +120,8 @@ export const programProjects: ProgramProject[] = [
       submissionOpens: '2026-07-20T13:00:00.000Z',
       submissionCloses: '2026-07-26T21:00:00.000Z',
       reviewOpens: '2026-07-26T21:00:00.000Z',
-      reviewCloses: '2026-07-27T18:00:00.000Z',
+      /** Mon Jul 27, 2026 · 17:00 Eastern — reviews close 17:00 ET, not 14:00 (matches Project 1). */
+      reviewCloses: '2026-07-27T21:00:00.000Z',
     },
     expectations: [
       'Build and deploy a communications platform; integrate with the winning PM platform where appropriate',
@@ -140,7 +141,7 @@ export const programProjects: ProgramProject[] = [
     reviews: {
       artifact:
         'Written technical review per peer (GitHub issue); optional Vote: up or abstain',
-      dueNote: 'Monday week 3, 14:00 Eastern Time (review window closes)',
+      dueNote: 'Monday week 3, 17:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Merged submission pull request',
@@ -163,7 +164,7 @@ export const programProjects: ProgramProject[] = [
       submissionOpens: '2026-07-27T13:00:00.000Z',
       submissionCloses: '2026-08-02T21:00:00.000Z',
       reviewOpens: '2026-08-02T21:00:00.000Z',
-      reviewCloses: '2026-08-03T18:00:00.000Z',
+      reviewCloses: '2026-08-03T21:00:00.000Z',
     },
     expectations: [
       'Ship a production marketing site with strong visual and narrative vibe',
@@ -188,7 +189,7 @@ export const programProjects: ProgramProject[] = [
     reviews: {
       artifact:
         'Written technical review per peer (GitHub issue); optional Vote: up or abstain',
-      dueNote: 'Monday week 4, 14:00 Eastern Time (review window closes)',
+      dueNote: 'Monday week 4, 17:00 Eastern Time (review window closes)',
     },
     passGate: [
       'Merged submission pull request',

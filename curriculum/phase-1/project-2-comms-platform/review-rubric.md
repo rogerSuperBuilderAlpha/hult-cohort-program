@@ -26,7 +26,7 @@ Uses standard format from [peer-review-system.md](../../../assessment/peer-revie
 
 ## Review logistics (2-day window)
 
-- Mon 14:00: reviews due (29/29)
+- Mon 17:00 ET: reviews due (review window closes)
 - Tue 16:00: vote closes
 - Shorter depth acceptable on non-assigned reviews (≥ 120 words min this project only)
 

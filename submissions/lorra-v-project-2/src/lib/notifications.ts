@@ -47,7 +47,7 @@ export function hrefForEntityRef(entityRef: string): string {
       "https://forth-bice.vercel.app";
     return `${base}/t/${parts[1]}`;
   }
-  return "/";
+  return "/home";
 }
 
 export function labelForNotification(n: AppNotification): string {

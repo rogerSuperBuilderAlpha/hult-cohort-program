@@ -4,8 +4,8 @@ const SEED_EMAIL = process.env.DEV_ADMIN_EMAIL || "admin@conexus.local";
 const SEED_PASSWORD = process.env.DEV_ADMIN_PASSWORD || "ConexusSeed!2026";
 
 test.describe("Phase A Step 3 — auth", () => {
-  test("unauthenticated / redirects to login", async ({ page }) => {
-    await page.goto("/");
+  test("unauthenticated /messages redirects to login", async ({ page }) => {
+    await page.goto("/messages");
     await expect(page).toHaveURL(/\/login/);
     await expect(page.getByTestId("login-page")).toBeVisible();
     await expect(page.getByTestId("google-signin")).toBeVisible();
@@ -27,7 +27,7 @@ test.describe("Phase A Step 3 — auth", () => {
     await page.getByTestId("dev-email").fill(SEED_EMAIL);
     await page.getByTestId("dev-password").fill(SEED_PASSWORD);
     await Promise.all([
-      page.waitForURL((url) => url.pathname === "/"),
+      page.waitForURL((url) => url.pathname === "/home"),
       page.getByTestId("dev-login-submit").click(),
     ]);
     await expect(page.getByTestId("home-digest")).toBeVisible();
@@ -53,7 +53,7 @@ test.describe("Phase A Step 3 — auth", () => {
     await page.getByTestId("dev-email").fill(SEED_EMAIL);
     await page.getByTestId("dev-password").fill(SEED_PASSWORD);
     await Promise.all([
-      page.waitForURL((url) => url.pathname === "/"),
+      page.waitForURL((url) => url.pathname === "/home"),
       page.getByTestId("dev-login-submit").click(),
     ]);
     await expect(page.getByTestId("nav-cohort")).toBeVisible();

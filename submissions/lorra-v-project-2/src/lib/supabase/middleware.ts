@@ -34,6 +34,7 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isPublic =
+    pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/api/health") ||
@@ -52,9 +53,17 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Signed-in visitors skip the marketing landing and go into the app.
+  if (user && pathname === "/") {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/home";
+    redirectUrl.search = "";
+    return NextResponse.redirect(redirectUrl);
+  }
+
   if (user && pathname.startsWith("/login")) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/";
+    redirectUrl.pathname = "/home";
     redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }

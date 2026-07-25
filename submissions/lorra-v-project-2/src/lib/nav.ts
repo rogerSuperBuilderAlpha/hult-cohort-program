@@ -6,7 +6,7 @@ export type NavItem = {
 };
 
 export const PRIMARY_NAV: NavItem[] = [
-  { href: "/", label: "Home" },
+  { href: "/home", label: "Home" },
   { href: "/messages", label: "Messages" },
   { href: "/threads", label: "Threads" },
   { href: "/cohort", label: "Cohort" },

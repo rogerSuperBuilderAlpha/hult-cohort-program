@@ -18,7 +18,7 @@ test.describe.configure({ mode: "serial", timeout: 120_000 });
 test.describe("Phase A Step 10 — Home, Tasks, Files, search, presence", () => {
   test("home digest, tasks, and files pages render", async ({ page }) => {
     await login(page);
-    await page.goto("/");
+    await page.goto("/home");
     await expect(page.getByTestId("home-digest")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("home-unread-channels")).toBeVisible();
     await expect(page.getByTestId("home-mentions")).toBeVisible();
@@ -62,7 +62,7 @@ test.describe("Phase A Step 10 — Home, Tasks, Files, search, presence", () => 
 
   test("presence dot marks the signed-in user online", async ({ page }) => {
     await login(page);
-    await page.goto("/");
+    await page.goto("/home");
     await expect(page.getByTestId("home-digest")).toBeVisible({ timeout: 30_000 });
     const selfDot = page.locator('[data-testid="presence-dot"][data-online="true"]').first();
     await expect(selfDot).toBeVisible({ timeout: 20_000 });

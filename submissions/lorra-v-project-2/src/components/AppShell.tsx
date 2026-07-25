@@ -62,7 +62,6 @@ export function AppShell({
   const isAdmin = user.role === "admin";
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 

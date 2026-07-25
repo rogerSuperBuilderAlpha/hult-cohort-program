@@ -33,7 +33,7 @@ export default async function LoginPage({
   const sent = params.sent === "1";
   const emailHint = typeof params.email === "string" ? params.email : "";
   const next = safeRedirectPath(
-    typeof params.next === "string" ? params.next : "/",
+    typeof params.next === "string" ? params.next : "/home",
   );
   // Never show seed login on production builds (Vercel), even if env is mis-set.
   const enableDevLogin =

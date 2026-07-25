@@ -10,7 +10,7 @@ function appUrl() {
 }
 
 export async function signInWithGoogle(formData: FormData) {
-  const next = safeRedirectPath(String(formData.get("next") || "/"));
+  const next = safeRedirectPath(String(formData.get("next") || "/home"));
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -29,7 +29,7 @@ export async function signInWithGoogle(formData: FormData) {
 }
 
 export async function signInWithGitHub(formData: FormData) {
-  const next = safeRedirectPath(String(formData.get("next") || "/"));
+  const next = safeRedirectPath(String(formData.get("next") || "/home"));
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
@@ -47,7 +47,7 @@ export async function signInWithMagicLink(formData: FormData) {
   const email = String(formData.get("email") || "")
     .trim()
     .toLowerCase();
-  const next = safeRedirectPath(String(formData.get("next") || "/"));
+  const next = safeRedirectPath(String(formData.get("next") || "/home"));
   if (!email) {
     redirect("/login?error=missing_email");
   }
@@ -83,7 +83,7 @@ export async function signInWithDevPassword(formData: FormData) {
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") || "");
-  const next = safeRedirectPath(String(formData.get("next") || "/"));
+  const next = safeRedirectPath(String(formData.get("next") || "/home"));
 
   const expectedEmail = (
     process.env.DEV_ADMIN_EMAIL || "admin@conexus.local"

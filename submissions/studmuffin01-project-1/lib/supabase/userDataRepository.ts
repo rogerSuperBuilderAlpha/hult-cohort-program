@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const USER_DATA_KEYS = {
-  cohortSubmissions: "cohort_submissions",
   initiativeTasks: "initiative_tasks",
   teamMembers: "team_members",
 } as const;
@@ -20,17 +19,6 @@ function normalizeJsonPayload(raw: unknown): unknown {
   return raw;
 }
 
-export async function fetchUserAppData<T>(
-  supabase: SupabaseClient,
-  userId: string,
-  dataKey: UserDataKey,
-  parse: (raw: unknown) => T
-): Promise<T | null> {
-  const record = await fetchUserAppDataRecord(supabase, userId, dataKey, parse);
-  return record?.parsed ?? null;
-}
-
-/** Returns parsed payload plus whether a DB row exists (even if payload is empty). */
 export async function fetchUserAppDataRecord<T>(
   supabase: SupabaseClient,
   userId: string,

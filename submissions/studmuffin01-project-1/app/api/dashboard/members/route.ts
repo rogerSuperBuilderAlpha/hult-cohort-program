@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+import {
+  API_MEMBERS_BODY_MAX_BYTES,
+  jsonBodyErrorResponse,
+  readJsonBody,
+} from "@/lib/api/readJsonBody";
 import { parseTeamMembers, type TeamMember } from "@/lib/teamMembers";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -48,13 +53,17 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await readJsonBody(request, API_MEMBERS_BODY_MAX_BYTES);
     const members = parseTeamMembers(body);
-
     await upsertUserAppData(supabase, user.id, USER_DATA_KEYS.teamMembers, members);
 
     return NextResponse.json({ ok: true });
   } catch (err) {
+    const bodyError = jsonBodyErrorResponse(err);
+    if (bodyError) {
+      return bodyError;
+    }
+
     const message = err instanceof Error ? err.message : "Failed to save team members.";
     return NextResponse.json({ error: message }, { status: 500 });
   }

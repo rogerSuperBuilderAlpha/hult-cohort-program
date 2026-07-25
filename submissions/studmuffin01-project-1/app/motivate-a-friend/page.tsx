@@ -1,5 +1,5 @@
-import PlaceholderPage from "@/components/PlaceholderPage";
+import MotivateAFriendPage from "@/components/MotivateAFriendPage";
 
-export default function MotivateAFriendPage() {
-  return <PlaceholderPage title="Motivate A Friend" />;
+export default function Page() {
+  return <MotivateAFriendPage />;
 }

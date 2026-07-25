@@ -3,9 +3,10 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import CommandCenterPageShell from "@/components/CommandCenterPageShell";
 import CommandCenterRow from "@/components/CommandCenterRow";
 import PageHeader from "@/components/PageHeader";
-import PageShell from "@/components/PageShell";
+import { dashboardPanelClassName, dashboardPrimaryButtonClassName } from "@/lib/dashboardStyles";
 import { useInitiatives } from "@/hooks/useInitiatives";
 import { INITIATIVE_TITLE_MAX_LENGTH, sanitizeInitiativeTitle } from "@/lib/initiatives";
 
@@ -30,11 +31,11 @@ export default function StartNewInitiativePage() {
       return;
     }
 
-    router.push("/");
+    router.push(`/?initiative=${encodeURIComponent(created.slug)}`);
   };
 
   return (
-    <PageShell
+    <CommandCenterPageShell
       header={
         <PageHeader
           backHref="/"
@@ -45,8 +46,8 @@ export default function StartNewInitiativePage() {
       }
     >
       <CommandCenterRow>
-        <main className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
-          <div className="rounded-xl bg-white p-8 shadow-md ring-1 ring-slate-200 dark:bg-surface-card dark:shadow-none dark:ring-surface-border">
+        <main className="w-full px-4 pb-8 sm:px-6 lg:px-8">
+          <div className={dashboardPanelClassName}>
             <p className="text-slate-600 dark:text-surface-secondary">
               Enter a name below to add the next row in the Executive Summary. Your first entry
               appears in row 1, the second in row 2, and so on. A new row is added each time you
@@ -59,7 +60,7 @@ export default function StartNewInitiativePage() {
                   htmlFor="initiative-name"
                   className="block text-sm font-semibold text-slate-900 dark:text-surface-primary"
                 >
-                  Name Your Initiative
+                  Title of Your Initiative
                 </label>
                 <input
                   id="initiative-name"
@@ -73,7 +74,6 @@ export default function StartNewInitiativePage() {
                   autoComplete="off"
                   spellCheck={false}
                   disabled={!isLoaded}
-                  placeholder="e.g. Week 7 - Customer Feedback Portal"
                   className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 disabled:cursor-not-allowed disabled:opacity-60 dark:border-surface-border dark:bg-surface-bg dark:text-surface-primary dark:placeholder:text-surface-secondary"
                 />
                 {error && (
@@ -86,7 +86,7 @@ export default function StartNewInitiativePage() {
               <button
                 type="submit"
                 disabled={!isLoaded || !name.trim()}
-                className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-2 dark:focus:ring-brand-500 dark:focus:ring-offset-2 dark:focus:ring-offset-surface-card"
+                className={dashboardPrimaryButtonClassName}
               >
                 Add to Executive Summary
               </button>
@@ -94,13 +94,13 @@ export default function StartNewInitiativePage() {
 
             <Link
               href="/"
-              className="mt-8 inline-block text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-500 dark:hover:text-brand-400"
+              className="mt-8 inline-block text-sm font-medium text-amber-900 hover:text-amber-950 dark:text-amber-400 dark:hover:text-amber-300"
             >
-              View cohort progress on the dashboard
+              View your dashboard
             </Link>
           </div>
         </main>
       </CommandCenterRow>
-    </PageShell>
+    </CommandCenterPageShell>
   );
 }

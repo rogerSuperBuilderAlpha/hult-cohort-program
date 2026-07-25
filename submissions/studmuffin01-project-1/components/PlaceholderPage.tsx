@@ -1,7 +1,7 @@
 import Link from "next/link";
+import CommandCenterPageShell from "@/components/CommandCenterPageShell";
 import CommandCenterRow from "@/components/CommandCenterRow";
 import PageHeader from "@/components/PageHeader";
-import PageShell from "@/components/PageShell";
 
 interface PlaceholderPageProps {
   title: string;
@@ -12,10 +12,10 @@ interface PlaceholderPageProps {
 export default function PlaceholderPage({
   title,
   message = "This page is under development. Check back soon for updates.",
-  linkLabel = "View cohort progress on the dashboard",
+  linkLabel = "View your dashboard",
 }: PlaceholderPageProps) {
   return (
-    <PageShell
+    <CommandCenterPageShell
       header={
         <PageHeader
           backHref="/"
@@ -26,7 +26,7 @@ export default function PlaceholderPage({
       }
     >
       <CommandCenterRow>
-        <main className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
+        <main className="w-full px-4 pb-8 sm:px-6 lg:px-8">
           <div className="rounded-xl bg-white p-8 shadow-md ring-1 ring-slate-200 dark:bg-surface-card dark:shadow-none dark:ring-surface-border">
             <p className="text-slate-600 dark:text-surface-secondary">{message}</p>
             <Link
@@ -38,6 +38,6 @@ export default function PlaceholderPage({
           </div>
         </main>
       </CommandCenterRow>
-    </PageShell>
+    </CommandCenterPageShell>
   );
 }

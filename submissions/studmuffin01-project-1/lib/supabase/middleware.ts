@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { isAuthRequiredPath } from '@/lib/navigation';
 import { getSupabaseAnonKey, getSupabaseUrl } from '@/lib/supabase/env';
 
 export async function updateSession(request: NextRequest) {
@@ -37,7 +38,26 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+
+  const isAuthPage =
+    pathname.startsWith("/auth/login") || pathname.startsWith("/auth/signup");
+
+  if (user && isAuthPage) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  if (!user && isAuthRequiredPath(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/login";
+    return NextResponse.redirect(url);
+  }
 
   return response;
 }

@@ -10,6 +10,4 @@ export function getSupabaseAnonKey(): string {
   return trimEnv(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
 }
 
-export function getSiteUrl(): string {
-  return trimEnv(process.env.NEXT_PUBLIC_SITE_URL);
-}
+export { getConfiguredSiteUrl as getSiteUrl } from "@/lib/supabase/siteUrl";

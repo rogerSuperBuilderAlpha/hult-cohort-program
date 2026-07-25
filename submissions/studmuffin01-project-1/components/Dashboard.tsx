@@ -1,10 +1,22 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { getExecutiveSummaryRowCount, getInitiativeAnchorId, type Initiative } from "@/lib/initiatives";
-import { AllInitiativeTasks, calculateInitiativeTaskPercent, getInitiativeTasks } from "@/lib/initiativeTasks";
+import { AllInitiativeTasks, getInitiativeTasks } from "@/lib/initiativeTasks";
 import {
-  getOverallHealth,
+  getInitiativeOwnerDisplay,
+  getInitiativeTaskMetrics,
+  type InitiativeOwnerDisplay,
+} from "@/lib/executiveSummaryMetrics";
+import {
+  formatDaysToDeadline,
+  formatDeadlineCompact,
+  getDaysToDeadline,
+  getLatestTaskDueDate,
+} from "@/lib/initiativeDeadlines";
+import {
+  getInitiativeHealthFromTasks,
   HEALTH_LEGEND_DEFINITIONS,
   healthColors,
   healthIndicatorStyle,
@@ -12,7 +24,16 @@ import {
   type HealthStatus,
 } from "@/lib/health";
 import { scrollToSection } from "@/lib/scroll";
-import { tableClass, tdClass, tdPrimaryClass, thClass } from "@/lib/tableStyles";
+import { dashboardPanelCompactClassName } from "@/lib/dashboardStyles";
+import {
+  executiveSummaryTableClass,
+  executiveSummaryTdCenterClass,
+  executiveSummaryTdClass,
+  executiveSummaryTdPrimaryClass,
+  executiveSummaryThCenterClass,
+  executiveSummaryThClass,
+  executiveSummaryThWrapClass,
+} from "@/lib/tableStyles";
 
 interface DashboardProps {
   initiatives: Initiative[];
@@ -33,39 +54,45 @@ const deleteButtonClassName = `${actionButtonClassName} border border-red-300 bg
 
 const secondaryButtonClassName = `${actionButtonClassName} border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-surface-border dark:bg-surface-card dark:text-surface-secondary dark:hover:bg-surface-bg`;
 
-const panelClassName =
-  "rounded-lg border border-slate-200 bg-white p-3 shadow-md ring-1 ring-slate-200 dark:border-surface-border dark:bg-surface-card dark:ring-surface-border";
+const panelClassName = dashboardPanelCompactClassName;
 
 const rowInputClassName =
   "w-20 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm tabular-nums text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-surface-border dark:bg-surface-bg dark:text-surface-primary";
 
 const titleInputClassName =
-  "w-full min-w-[8rem] rounded border border-brand-300 bg-white px-2 py-1 text-sm text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-brand-500/40 dark:bg-surface-bg dark:text-surface-primary";
+  "w-full min-w-0 rounded border border-brand-300 bg-white px-2 py-1 text-xs text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-brand-500/40 dark:bg-surface-bg dark:text-surface-primary";
 
 const confirmArchiveClassName = `${actionButtonClassName} border border-amber-400 bg-amber-600 px-3 py-1.5 text-xs text-white hover:bg-amber-700 dark:border-amber-500/60`;
 
 const confirmDeleteClassName = `${actionButtonClassName} border border-red-400 bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-700 dark:border-red-500/60`;
 
-function ProgressCell({ percent }: { percent: number }) {
+function ProgressToDateCell({
+  doneCount,
+  activeTaskCount,
+  donePercent,
+}: {
+  doneCount: number;
+  activeTaskCount: number;
+  donePercent: number;
+}) {
+  const displayPercent =
+    donePercent % 1 === 0 ? donePercent.toFixed(0) : donePercent.toFixed(1);
+
   return (
-    <div className="flex min-w-[8rem] items-center gap-3">
-      <div
-        className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-surface-bg"
-        role="progressbar"
-        aria-valuenow={percent}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={`${percent}% complete`}
-      >
-        <div
-          className="h-full rounded-full bg-brand-500 transition-all"
-          style={{ width: `${percent}%` }}
-        />
-      </div>
-      <span className="w-12 shrink-0 text-right text-sm font-semibold tabular-nums text-slate-800 dark:text-surface-primary">
-        {percent.toFixed(1)}%
-      </span>
-    </div>
+    <span
+      className="font-semibold tabular-nums text-slate-800 dark:text-surface-primary"
+      title={`${doneCount} of ${activeTaskCount} tasks done`}
+    >
+      {displayPercent}%
+    </span>
+  );
+}
+
+function EmptyCell() {
+  return (
+    <span className="text-slate-400 dark:text-surface-secondary" aria-hidden="true">
+      —
+    </span>
   );
 }
 
@@ -75,6 +102,10 @@ function HealthLegend() {
       aria-label="Overall health colour legend"
       className="rounded border border-slate-200 bg-white px-3 py-2 shadow-sm dark:border-surface-border dark:bg-surface-card"
     >
+      <p className="mb-2 text-xs text-slate-600 dark:text-surface-secondary">
+        Open Tasks = active tasks not marked Done. Owner shows one assignee, or Multiple when open
+        work is split across people (hover for task counts per person). Deadline is the latest task due date.
+      </p>
       <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] leading-tight">
         {HEALTH_LEGEND_DEFINITIONS.map((item) => (
           <li key={item.status} className="flex items-center gap-1.5 text-slate-700 dark:text-surface-secondary">
@@ -100,7 +131,7 @@ function HealthIndicator({ status }: { status: HealthStatus }) {
   return (
     <div className="flex justify-center">
       <span
-        className="inline-block h-6 w-6 rounded-full ring-2 ring-offset-1 ring-offset-white dark:ring-offset-surface-card"
+        className="inline-block h-5 w-5 rounded-full ring-1 ring-offset-1 ring-offset-white dark:ring-offset-surface-card"
         style={healthIndicatorStyle(status)}
         role="img"
         aria-label={`Overall health: ${healthLabels[status]}`}
@@ -114,9 +145,17 @@ interface InitiativeTitleCellProps {
   initiative: Initiative;
   isArchived?: boolean;
   onUpdateTitle: (slug: string, title: string) => boolean;
+  onUnarchiveInitiative?: (slug: string) => void;
+  onDeleteInitiative?: (slug: string) => void;
 }
 
-function InitiativeTitleCell({ initiative, isArchived, onUpdateTitle }: InitiativeTitleCellProps) {
+function InitiativeTitleCell({
+  initiative,
+  isArchived,
+  onUpdateTitle,
+  onUnarchiveInitiative,
+  onDeleteInitiative,
+}: InitiativeTitleCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(initiative.title);
 
@@ -172,28 +211,57 @@ function InitiativeTitleCell({ initiative, isArchived, onUpdateTitle }: Initiati
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={() => scrollToSection(getInitiativeAnchorId(initiative.slug))}
-        aria-label={`Go to ${initiative.title}`}
-        className={`text-left transition-colors hover:underline ${
-          isArchived
-            ? "text-slate-500 line-through dark:text-surface-secondary"
-            : "text-brand-600 hover:text-brand-700 dark:text-brand-500 dark:hover:text-brand-400"
-        }`}
-      >
-        {initiative.title}
-      </button>
-      {!isArchived && (
+    <div className="min-w-0">
+      <div className="flex min-w-0 items-start gap-1">
         <button
           type="button"
-          onClick={() => setIsEditing(true)}
-          className="rounded px-1.5 py-0.5 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-surface-secondary dark:hover:bg-surface-bg dark:hover:text-surface-primary"
-          aria-label={`Edit title for ${initiative.title}`}
+          onClick={() => scrollToSection(getInitiativeAnchorId(initiative.slug))}
+          aria-label={`Go to ${initiative.title}`}
+          title={initiative.title}
+          className={`min-w-0 flex-1 truncate text-left transition-colors hover:underline ${
+            isArchived
+              ? "text-slate-500 line-through dark:text-surface-secondary"
+              : "text-brand-600 hover:text-brand-700 dark:text-brand-500 dark:hover:text-brand-400"
+          }`}
         >
-          Edit
+          {initiative.title}
         </button>
+        {!isArchived && (
+          <button
+            type="button"
+            onClick={() => setIsEditing(true)}
+            className="shrink-0 rounded px-1 py-0.5 text-[10px] font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-surface-secondary dark:hover:bg-surface-bg dark:hover:text-surface-primary"
+            aria-label={`Edit title for ${initiative.title}`}
+          >
+            Edit
+          </button>
+        )}
+      </div>
+      {isArchived && onUnarchiveInitiative && onDeleteInitiative && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          <button
+            type="button"
+            onClick={() => onUnarchiveInitiative(initiative.slug)}
+            className="rounded px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 dark:text-surface-secondary dark:ring-surface-border dark:hover:bg-surface-bg"
+          >
+            Restore
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (
+                window.confirm(
+                  `Permanently delete "${initiative.title}" and its tasks? This cannot be undone.`
+                )
+              ) {
+                onDeleteInitiative(initiative.slug);
+              }
+            }}
+            className="rounded px-1.5 py-0.5 text-[10px] font-semibold text-red-700 ring-1 ring-red-200 hover:bg-red-50 dark:text-red-400 dark:ring-red-500/30 dark:hover:bg-red-500/10"
+          >
+            Delete
+          </button>
+        </div>
       )}
     </div>
   );
@@ -227,18 +295,32 @@ function Dashboard({
       const initiative = displayedInitiatives[rowIndex];
 
       if (!initiative) {
-        return { rowIndex, initiative: null, percent: 0, health: getOverallHealth(0), isArchived: false };
+        return {
+          rowIndex,
+          initiative: null,
+          metrics: getInitiativeTaskMetrics(undefined),
+          health: getInitiativeHealthFromTasks(undefined),
+          computedDeadline: null,
+          owner: {
+            label: "—",
+            isUnassigned: true,
+            isMultiple: false,
+          } satisfies InitiativeOwnerDisplay,
+          isArchived: false,
+        };
       }
 
-      const percent = calculateInitiativeTaskPercent(
-        getInitiativeTasks(tasksByInitiative, initiative.slug)
-      );
+      const tasks = getInitiativeTasks(tasksByInitiative, initiative.slug);
+      const metrics = getInitiativeTaskMetrics(tasks);
+      const computedDeadline = getLatestTaskDueDate(tasks);
 
       return {
         rowIndex,
         initiative,
-        percent,
-        health: getOverallHealth(percent),
+        metrics,
+        health: getInitiativeHealthFromTasks(tasks),
+        computedDeadline,
+        owner: getInitiativeOwnerDisplay(tasks),
         isArchived: Boolean(initiative.archived),
       };
     });
@@ -318,104 +400,162 @@ function Dashboard({
   }, [archiveRowNumber, closeArchiveMode, initiatives, onArchiveInitiative]);
 
   return (
-    <section aria-label="Executive summary" className="space-y-6">
+    <section aria-label="Executive summary" className="min-w-0 space-y-6 overflow-x-hidden">
       <div className="space-y-3">
         <h2 className="section-heading">Executive Summary</h2>
         <HealthLegend />
+        {initiatives.length === 0 && (
+          <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 dark:border-surface-border dark:bg-surface-bg">
+            <p className="text-sm text-slate-700 dark:text-surface-secondary">
+              No initiatives yet. Create your first project to start tracking tasks and health
+              metrics.
+            </p>
+            <Link
+              href="/start-new-initiative"
+              className="mt-2 inline-flex text-sm font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300"
+            >
+              Start New Initiative →
+            </Link>
+          </div>
+        )}
       </div>
 
-      <div className="space-y-3">
-        <table className={tableClass}>
+      <div className="space-y-3 min-w-0">
+        <table className={executiveSummaryTableClass}>
           <caption className="sr-only">Executive Summary</caption>
+          <colgroup>
+            <col className="w-[28%]" />
+            <col className="w-[8%]" />
+            <col className="w-[7%]" />
+            <col className="w-[8%]" />
+            <col className="w-[11%]" />
+            <col className="w-[9%]" />
+            <col className="w-[8%]" />
+            <col className="w-[21%]" />
+          </colgroup>
           <thead>
             <tr>
-              <th className={thClass}>Initiative</th>
-              <th className={thClass}>Status</th>
-              <th className={thClass}>Deadline</th>
-              <th className={`${thClass} text-center`}>Overall Health</th>
-              {showArchived && <th className={thClass}>Actions</th>}
+              <th className={executiveSummaryThClass}>INITIATIVE</th>
+              <th className={executiveSummaryThWrapClass}>Progress To Date</th>
+              <th className={executiveSummaryThWrapClass}>Open Tasks</th>
+              <th className={executiveSummaryThWrapClass}>Overdue Tasks</th>
+              <th className={executiveSummaryThClass}>Deadline</th>
+              <th className={executiveSummaryThCenterClass}>Days Left</th>
+              <th className={executiveSummaryThWrapClass}>Overall Health</th>
+              <th className={executiveSummaryThClass}>Owner</th>
             </tr>
           </thead>
           <tbody>
-            {executiveSummaryRows.map(({ rowIndex, initiative, percent, health, isArchived }) => (
+            {executiveSummaryRows.map(
+              ({ rowIndex, initiative, metrics, health, computedDeadline, owner, isArchived }) => {
+                const daysLeft = getDaysToDeadline(computedDeadline);
+                const daysLeftLabel = formatDaysToDeadline(computedDeadline);
+
+                return (
               <tr
                 key={initiative?.slug ?? `executive-summary-row-${rowIndex}`}
                 className={isArchived ? "opacity-70" : undefined}
               >
-                <td className={tdPrimaryClass}>
+                <td className={executiveSummaryTdPrimaryClass}>
                   {initiative ? (
                     <InitiativeTitleCell
                       initiative={initiative}
                       isArchived={isArchived}
                       onUpdateTitle={onUpdateInitiativeTitle}
+                      onUnarchiveInitiative={onUnarchiveInitiative}
+                      onDeleteInitiative={onDeleteInitiative}
                     />
                   ) : (
                     <span className="sr-only">Empty initiative row {rowIndex + 1}</span>
                   )}
                 </td>
-                <td className={tdClass}>
-                  {initiative ? (
-                    <ProgressCell percent={percent} />
+                <td className={executiveSummaryTdCenterClass}>
+                  {initiative && metrics.activeTaskCount > 0 ? (
+                    <ProgressToDateCell
+                      doneCount={metrics.doneCount}
+                      activeTaskCount={metrics.activeTaskCount}
+                      donePercent={metrics.donePercent}
+                    />
+                  ) : initiative ? (
+                    <EmptyCell />
                   ) : (
-                    <span className="text-slate-400 dark:text-surface-secondary" aria-hidden="true">
-                      —
-                    </span>
+                    <EmptyCell />
                   )}
                 </td>
-                <td className={`${tdClass} whitespace-nowrap`}>
-                  {initiative ? (
-                    initiative.deadline
+                <td className={executiveSummaryTdCenterClass}>
+                  {initiative && metrics.activeTaskCount > 0 ? metrics.openCount : initiative ? (
+                    <EmptyCell />
                   ) : (
-                    <span className="text-slate-400 dark:text-surface-secondary" aria-hidden="true">
-                      —
-                    </span>
+                    <EmptyCell />
                   )}
                 </td>
-                <td className={tdClass}>
-                  {initiative ? (
-                    <HealthIndicator status={health} />
-                  ) : (
-                    <span className="text-slate-400 dark:text-surface-secondary" aria-hidden="true">
-                      —
+                <td className={executiveSummaryTdCenterClass}>
+                  {initiative && metrics.overdueCount > 0 ? (
+                    <span className="font-semibold text-red-700 dark:text-red-400">
+                      {metrics.overdueCount}
                     </span>
+                  ) : initiative && metrics.activeTaskCount > 0 ? (
+                    "0"
+                  ) : initiative ? (
+                    <EmptyCell />
+                  ) : (
+                    <EmptyCell />
                   )}
                 </td>
-                {showArchived && (
-                  <td className={tdClass}>
-                    {initiative && isArchived ? (
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => onUnarchiveInitiative(initiative.slug)}
-                          className={secondaryButtonClassName}
-                        >
-                          Restore
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (
-                              window.confirm(
-                                `Permanently delete "${initiative.title}" and its tasks? This cannot be undone.`
-                              )
-                            ) {
-                              onDeleteInitiative(initiative.slug);
-                            }
-                          }}
-                          className={deleteButtonClassName}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-slate-400 dark:text-surface-secondary" aria-hidden="true">
-                        —
-                      </span>
-                    )}
-                  </td>
-                )}
+                <td className={`${executiveSummaryTdClass} whitespace-nowrap tabular-nums`}>
+                  {initiative ? (
+                    <span title={computedDeadline ?? undefined}>
+                      {formatDeadlineCompact(computedDeadline)}
+                    </span>
+                  ) : (
+                    <EmptyCell />
+                  )}
+                </td>
+                <td className={executiveSummaryTdCenterClass}>
+                  {initiative && daysLeft !== null ? (
+                    <span
+                      className={
+                        daysLeft < 0
+                          ? "font-semibold text-red-700 dark:text-red-400"
+                          : daysLeft === 0
+                            ? "font-semibold text-amber-700 dark:text-amber-400"
+                            : undefined
+                      }
+                      title={daysLeftLabel}
+                    >
+                      {daysLeftLabel}
+                    </span>
+                  ) : initiative ? (
+                    <EmptyCell />
+                  ) : (
+                    <EmptyCell />
+                  )}
+                </td>
+                <td className={executiveSummaryTdClass}>
+                  {initiative ? <HealthIndicator status={health} /> : <EmptyCell />}
+                </td>
+                <td className={`${executiveSummaryTdClass} max-w-0`}>
+                  {initiative ? (
+                    <span
+                      className={`block whitespace-normal break-words leading-tight ${
+                        owner.isUnassigned
+                          ? "text-slate-400 italic dark:text-surface-secondary"
+                          : owner.isMultiple
+                            ? "font-medium text-slate-800 dark:text-surface-primary"
+                            : undefined
+                      }`}
+                      title={owner.detail ?? owner.label}
+                    >
+                      {owner.label}
+                    </span>
+                  ) : (
+                    <EmptyCell />
+                  )}
+                </td>
               </tr>
-            ))}
+                );
+              }
+            )}
           </tbody>
         </table>
 
@@ -440,7 +580,7 @@ function Dashboard({
 
                 <div className="mt-2 flex items-center gap-2">
                   <label htmlFor={archiveInputId} className="sr-only">
-                    Executive Summary row number to archive
+                    Executive Summary Row Number to Archive
                   </label>
                   <input
                     id={archiveInputId}

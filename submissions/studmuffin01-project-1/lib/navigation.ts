@@ -7,10 +7,26 @@ export interface SidebarNavItem {
 
 export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
   { href: "/start-new-initiative", label: "Start New Initiative" },
-  { href: "/cohorts-status", label: "Cohort's Status" },
-  { href: "/my-status", label: "My Status" },
+  { href: "/team-members", label: "Team Members" },
+  { href: "/member-status", label: "Member Status" },
   { href: "/action-items", label: "Action Items" },
   { href: "/motivate-a-friend", label: "Motivate A Friend" },
-  { href: "/top-ten-performers", label: "Top Ten Performers" },
-  { href: "/top-ten-motivators", label: "Top Ten Motivators" },
+  { href: "/top-performers", label: "Top Performers" },
 ];
+
+/** Legacy bookmarks that redirect to current routes; still require auth. */
+export const LEGACY_AUTH_PATHS = ["/my-status", "/top-ten-performers"];
+
+export const AUTH_REQUIRED_PATHS = [
+  "/",
+  ...SIDEBAR_NAV_ITEMS.map((item) => item.href),
+  ...LEGACY_AUTH_PATHS,
+];
+
+export function isAuthRequiredPath(pathname: string): boolean {
+  if (AUTH_REQUIRED_PATHS.includes(pathname)) {
+    return true;
+  }
+
+  return pathname.startsWith("/initiatives/");
+}

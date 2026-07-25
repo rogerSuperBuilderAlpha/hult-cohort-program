@@ -42,7 +42,7 @@ create table if not exists public.user_app_data (
 
   constraint user_app_data_key_check check (
 
-    data_key in ('cohort_submissions', 'initiative_tasks', 'team_members')
+    data_key in ('initiative_tasks', 'team_members')
 
   )
 
@@ -176,11 +176,21 @@ alter table public.custom_initiatives
 
 
 
+-- Phase C migrations (safe to re-run)
+
+-- Retired cohort row tracking; delete orphaned rows before tightening data_key check.
+
+delete from public.user_app_data
+
+where data_key = 'cohort_submissions';
+
+
+
 alter table public.user_app_data drop constraint if exists user_app_data_key_check;
 
 alter table public.user_app_data add constraint user_app_data_key_check check (
 
-  data_key in ('cohort_submissions', 'initiative_tasks', 'team_members')
+  data_key in ('initiative_tasks', 'team_members')
 
 );
 

@@ -45,7 +45,7 @@ export default function GoToNav({ initiatives, menuIdSuffix = "main" }: GoToNavP
   }, [open]);
 
   return (
-    <nav aria-label="Go to page section" className="flex justify-end pt-4">
+    <nav aria-label="Go to page section" className="flex justify-end pt-2">
       <div ref={containerRef} className="relative">
         <button
           type="button"
@@ -53,7 +53,7 @@ export default function GoToNav({ initiatives, menuIdSuffix = "main" }: GoToNavP
           aria-expanded={open}
           aria-haspopup="menu"
           aria-controls={menuId}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-surface-bg"
+          className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-surface-bg"
         >
           Go To
           <svg
@@ -72,7 +72,7 @@ export default function GoToNav({ initiatives, menuIdSuffix = "main" }: GoToNavP
             id={menuId}
             role="menu"
             aria-label="Go to destinations"
-            className="absolute bottom-full right-0 z-10 mb-2 w-96 rounded-lg border border-slate-200 bg-white py-1 shadow-lg ring-1 ring-slate-200 dark:border-surface-border dark:bg-surface-card dark:ring-surface-border"
+            className="absolute bottom-full right-0 z-10 mb-1.5 w-72 max-w-[calc(100vw-2rem)] rounded-md border border-slate-200 bg-white py-0.5 shadow-lg ring-1 ring-slate-200 dark:border-surface-border dark:bg-surface-card dark:ring-surface-border"
           >
             {destinations.map((item) => (
               <li key={item.id} role="none">
@@ -80,7 +80,7 @@ export default function GoToNav({ initiatives, menuIdSuffix = "main" }: GoToNavP
                   type="button"
                   role="menuitem"
                   onClick={() => scrollTo(item.id)}
-                  className="w-full px-4 py-2 text-left text-sm leading-snug text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:text-surface-secondary dark:hover:bg-surface-bg dark:hover:text-surface-primary"
+                  className="w-full px-3 py-1.5 text-left text-xs leading-snug text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:text-surface-secondary dark:hover:bg-surface-bg dark:hover:text-surface-primary"
                 >
                   {item.label}
                 </button>

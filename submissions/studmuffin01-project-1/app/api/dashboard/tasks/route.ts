@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+import {
+  API_TASKS_BODY_MAX_BYTES,
+  jsonBodyErrorResponse,
+  readJsonBody,
+} from "@/lib/api/readJsonBody";
 import { parseInitiativeTasks, type AllInitiativeTasks } from "@/lib/initiativeTasks";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -52,9 +57,8 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await readJsonBody(request, API_TASKS_BODY_MAX_BYTES);
     const tasks = parseInitiativeTasks(body);
-
     await upsertUserAppData(
       supabase,
       user.id,
@@ -64,6 +68,11 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
+    const bodyError = jsonBodyErrorResponse(err);
+    if (bodyError) {
+      return bodyError;
+    }
+
     const message = err instanceof Error ? err.message : "Failed to save tasks.";
     return NextResponse.json({ error: message }, { status: 500 });
   }

@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createTeamMember,
+  isDuplicateMember,
   loadTeamMembers,
+  mergeTeamMembers,
   parseTeamMembers,
   saveTeamMembers,
-  sanitizeMemberName,
+  type NewTeamMemberInput,
   type TeamMember,
 } from "@/lib/teamMembers";
 import { useSupabaseUser } from "@/hooks/useSupabaseUser";
@@ -45,6 +47,7 @@ export function useTeamMembers() {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const skipNextSave = useRef(true);
+  const canSaveRef = useRef(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const membersRef = useRef(members);
   const userIdRef = useRef(userId);
@@ -60,6 +63,7 @@ export function useTeamMembers() {
     let cancelled = false;
 
     async function loadMembers() {
+      canSaveRef.current = false;
       skipNextSave.current = true;
       setIsLoaded(false);
 
@@ -70,21 +74,19 @@ export function useTeamMembers() {
           const remote = await fetchMembersFromApi();
 
           if (remote !== null) {
-            if (remote.length > 0 || local.length === 0) {
-              if (!cancelled) {
-                setMembers(remote);
-                saveTeamMembers(remote);
-                setIsLoaded(true);
-              }
-              return;
-            }
+            const merged = mergeTeamMembers(local, remote);
+            saveTeamMembers(merged);
 
-            if (local.length > 0) {
-              await saveMembersToApi(local);
+            if (merged.length > remote.length) {
+              void saveMembersToApi(merged).catch((error) => {
+                console.error("Failed to sync merged team members to server:", error);
+              });
             }
 
             if (!cancelled) {
-              setMembers(local);
+              setMembers(merged);
+              skipNextSave.current = true;
+              canSaveRef.current = true;
               setIsLoaded(true);
             }
             return;
@@ -96,6 +98,8 @@ export function useTeamMembers() {
 
       if (!cancelled) {
         setMembers(local);
+        skipNextSave.current = true;
+        canSaveRef.current = true;
         setIsLoaded(true);
       }
     }
@@ -106,6 +110,23 @@ export function useTeamMembers() {
       cancelled = true;
     };
   }, [userId, isAuthLoaded]);
+
+  const flushSave = useCallback(() => {
+    if (!canSaveRef.current) {
+      return;
+    }
+
+    const current = membersRef.current;
+    const currentUserId = userIdRef.current;
+
+    saveTeamMembers(current);
+
+    if (currentUserId) {
+      void saveMembersToApi(current).catch((error) => {
+        console.error("Failed to save team members to server:", error);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (!isLoaded) {
@@ -121,38 +142,46 @@ export function useTeamMembers() {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    saveTimeoutRef.current = setTimeout(() => {
-      const current = membersRef.current;
-      const currentUserId = userIdRef.current;
-
-      if (currentUserId) {
-        void saveMembersToApi(current).catch((error) => {
-          console.error("Failed to save team members to Supabase:", error);
-        });
-      } else {
-        saveTeamMembers(current);
-      }
-    }, SAVE_DEBOUNCE_MS);
+    saveTimeoutRef.current = setTimeout(flushSave, SAVE_DEBOUNCE_MS);
 
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [members, isLoaded]);
+  }, [members, isLoaded, flushSave]);
 
-  const addMember = useCallback((name: string) => {
-    const sanitizedName = sanitizeMemberName(name);
-    if (!sanitizedName) {
-      return null;
-    }
+  useEffect(() => {
+    const handlePageHide = () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      flushSave();
+    };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        handlePageHide();
+      }
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [flushSave]);
+
+  const addMember = useCallback((input: NewTeamMemberInput) => {
     const current = membersRef.current;
-    if (current.some((member) => member.name.toLowerCase() === sanitizedName.toLowerCase())) {
+
+    if (isDuplicateMember(current, input)) {
       return null;
     }
 
-    const newMember = createTeamMember(sanitizedName);
+    const newMember = createTeamMember(input);
     if (!newMember) {
       return null;
     }

@@ -1,10 +1,36 @@
-node_modules/
-.env
-.env.local
-.DS_Store
-*.log
-dist/
+# dependencies
+/node_modules
+/.pnpm-store/
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+/playwright-report/
+/test-results/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# local environment files
+.env*
+!.env.example
+
+# vercel
 .vercel
-.next/
-**/secrets/
-**/*firebase-adminsdk*.json
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+pnpm-debug.log*
+firestore-debug.log
+.claude/

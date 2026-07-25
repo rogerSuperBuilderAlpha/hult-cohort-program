@@ -1,39 +1,25 @@
-# Security policy
-
-## Supported versions
-
-| Component | Path | Notes |
-|-----------|------|-------|
-| Cohort platform site | `execution/marketing/site/` | Deployed via Vercel; patch security issues on `main` |
-| Ludwitt/Hult API | `execution/ludwitt-hult-api/` | Reference implementation |
-| Admissions take-home | `execution/admissions-take-home/` | Public starter repo for applicants |
+# Security Policy
 
 ## Reporting a vulnerability
 
-**Do not open a public GitHub issue for security vulnerabilities.**
+Please do not open a public issue containing an exploitable vulnerability, credentials, private workspace data, OAuth tokens, or Supabase/Vercel secrets.
 
-Please report security issues privately:
-
-1. Use [GitHub private vulnerability reporting](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/security/advisories/new) if enabled, **or**
-2. Contact the repository owner via GitHub (see repo profile).
+Use GitHub's **Security** tab for private vulnerability reporting when it is available. If private reporting is unavailable, contact `@CodingWCal` privately and share only the minimum evidence needed to reproduce the concern.
 
 Include:
 
-- Description of the issue and potential impact
-- Steps to reproduce
-- Affected paths or deployment (site, API, docs only, etc.)
+- the affected route, feature, or file;
+- the practical impact;
+- safe reproduction steps;
+- whether the issue involves real user data;
+- any temporary mitigation you recommend.
 
-We aim to acknowledge reports within **72 hours** and provide a remediation timeline when possible.
+Do not test against another person's workspace, attempt persistence beyond what is needed to demonstrate the issue, or access data you are not authorized to view.
 
-## Secrets and credentials
+## Supported version
 
-This repository must **never** contain:
+Forth is currently a private-beta application. Security fixes target the latest code on `main`; older commits and preview deployments are not independently supported releases.
 
-- Firebase service account JSON or private keys
-- `GITHUB_TOKEN` / webhook secrets with write access
-- Production `.env` or `.env.local` files
-- Student PII or live cohort roster exports
+## Maintainer response
 
-All secrets belong in Vercel environment variables or local gitignored files (`execution/marketing/site/secrets/`, `.env.local`). See [execution/marketing/FIREBASE.md](execution/marketing/FIREBASE.md).
-
-If you accidentally commit a secret, rotate it immediately and notify maintainers — do not rely on git history rewrite alone.
+The maintainer will confirm receipt, assess severity and affected data, coordinate a fix and validation plan, and disclose the issue only after users are protected. Reporters will receive attribution when desired and safe.

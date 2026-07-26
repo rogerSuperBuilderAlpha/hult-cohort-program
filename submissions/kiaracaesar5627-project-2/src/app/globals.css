@@ -319,21 +319,6 @@ button,
   margin-top: 1.25rem;
 }
 
-.feature-list {
-  display: grid;
-  gap: 0.55rem;
-  margin: 1.2rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.feature-list li {
-  padding: 0.7rem 0.8rem;
-  border-radius: 12px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-}
-
 .error {
   color: var(--danger);
   font-weight: 600;

@@ -17,12 +17,6 @@ export default async function HomePage() {
           Cohort communications in one place — channels, direct messages, staff
           announcements, search, and live updates without a manual refresh.
         </p>
-        <ul className="feature-list">
-          <li>Public channels with create / rename / archive</li>
-          <li>1:1 DMs between any two members</li>
-          <li>Admin-only #announcements</li>
-          <li>Keyword search across 30+ days of history</li>
-        </ul>
         <div className="cta-row">
           <Link className="btn" href="/register">
             Create account

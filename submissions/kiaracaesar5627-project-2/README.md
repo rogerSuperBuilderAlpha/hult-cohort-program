@@ -1,4 +1,4 @@
-# Relay — Internal communications (Project 2)
+# Comms — Internal communications (Project 2)
 
 Focused cohort chat for the Hult Cohort Developer Program Summer Pilot 2026.
 Replaces Discord with channels, DMs, staff announcements, search, and live updates.
@@ -12,7 +12,7 @@ _Pending first Vercel deploy — will be added here and on the submission PR._
 ## Stack
 
 - **Next.js 15** (App Router) + **React 19** + **TypeScript** on **Vercel**
-- **Supabase** Postgres (service-role server access; `relay_*` tables)
+- **Supabase** Postgres (service-role server access; `comms_*` tables)
 - Email + password auth (bcrypt + signed HTTP-only JWT cookies via `jose`)
 - Real-time MVP via **4s polling** (`GET /api/messages`)
 
@@ -37,7 +37,7 @@ cp .env.example .env
 # Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, AUTH_SECRET
 # Optional: NEXT_PUBLIC_PM_URL=https://pilot-hult-pm.vercel.app
 # Apply migration in Supabase SQL editor:
-#   supabase/migrations/20260726_relay_init.sql
+#   supabase/migrations/20260726_comms_init.sql
 npm install
 npm run db:seed
 npm run build
@@ -63,7 +63,7 @@ Browser → Next.js (Vercel)
             ├─ Server Actions (auth, channels, messages, DMs)
             ├─ JWT session cookie (AUTH_SECRET)
             ├─ GET /api/messages (polling)
-            └─ @supabase/supabase-js (service role) → relay_* tables
+            └─ @supabase/supabase-js (service role) → comms_* tables
 ```
 
 ## Known limitations

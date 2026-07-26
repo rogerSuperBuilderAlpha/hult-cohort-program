@@ -29,7 +29,7 @@ export function AppShell({
       <aside className="sidebar" aria-label="Workspace navigation">
         <div className="brand-block">
           <Link href="/app" className="brand">
-            Relay
+            Comms
           </Link>
           <p className="muted">Cohort communications</p>
         </div>

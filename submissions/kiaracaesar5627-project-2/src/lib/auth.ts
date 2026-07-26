@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { findUserById } from "./db";
 export { hashPassword, verifyPassword } from "./password";
 
-const COOKIE = "relay_session";
+const COOKIE = "comms_session";
 
 export type SessionUser = {
   id: string;

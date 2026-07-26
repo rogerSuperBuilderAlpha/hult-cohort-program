@@ -13,7 +13,7 @@ export default function RegisterPage() {
     <main className="hero-auth">
       <div className="auth-card">
         <p className="muted">Join the cohort chat</p>
-        <h1>Create your Relay account</h1>
+        <h1>Create your Comms account</h1>
         <p className="lead">
           Prefer the same email as FlexiFlow so staff can match accounts across
           platforms.

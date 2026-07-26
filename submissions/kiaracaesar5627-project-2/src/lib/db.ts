@@ -39,14 +39,14 @@ export function slugifyChannel(name: string) {
 
 // Users
 export async function findUserById(id: string): Promise<User | null> {
-  const { data, error } = await db().from("relay_users").select("*").eq("id", id).maybeSingle();
+  const { data, error } = await db().from("comms_users").select("*").eq("id", id).maybeSingle();
   throwIfError(error);
   return data as User | null;
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
   const { data, error } = await db()
-    .from("relay_users")
+    .from("comms_users")
     .select("*")
     .eq("email", email.toLowerCase())
     .maybeSingle();
@@ -56,7 +56,7 @@ export async function findUserByEmail(email: string): Promise<User | null> {
 
 export async function findUserByUsername(username: string): Promise<User | null> {
   const { data, error } = await db()
-    .from("relay_users")
+    .from("comms_users")
     .select("*")
     .eq("username", username)
     .maybeSingle();
@@ -76,7 +76,7 @@ export async function createUser(input: {
   role?: UserRole;
 }): Promise<User> {
   const { data, error } = await db()
-    .from("relay_users")
+    .from("comms_users")
     .insert({
       name: input.name,
       email: input.email.toLowerCase(),
@@ -92,7 +92,7 @@ export async function createUser(input: {
 
 export async function listUsersPublic(): Promise<UserPublic[]> {
   const { data, error } = await db()
-    .from("relay_users")
+    .from("comms_users")
     .select("id,email,username,name,role")
     .order("username", { ascending: true });
   throwIfError(error);
@@ -101,7 +101,7 @@ export async function listUsersPublic(): Promise<UserPublic[]> {
 
 // Channels
 export async function listChannels(opts?: { includeArchived?: boolean }): Promise<Channel[]> {
-  let query = db().from("relay_channels").select("*").order("name", { ascending: true });
+  let query = db().from("comms_channels").select("*").order("name", { ascending: true });
   if (!opts?.includeArchived) query = query.eq("archived", false);
   const { data, error } = await query;
   throwIfError(error);
@@ -109,14 +109,14 @@ export async function listChannels(opts?: { includeArchived?: boolean }): Promis
 }
 
 export async function getChannelById(id: string): Promise<Channel | null> {
-  const { data, error } = await db().from("relay_channels").select("*").eq("id", id).maybeSingle();
+  const { data, error } = await db().from("comms_channels").select("*").eq("id", id).maybeSingle();
   throwIfError(error);
   return data as Channel | null;
 }
 
 export async function getChannelBySlug(slug: string): Promise<Channel | null> {
   const { data, error } = await db()
-    .from("relay_channels")
+    .from("comms_channels")
     .select("*")
     .eq("slug", slug)
     .maybeSingle();
@@ -132,7 +132,7 @@ export async function createChannel(input: {
   created_by_id: string;
 }): Promise<Channel> {
   const { data, error } = await db()
-    .from("relay_channels")
+    .from("comms_channels")
     .insert({
       name: input.name,
       slug: input.slug,
@@ -151,7 +151,7 @@ export async function updateChannel(
   input: Partial<Pick<Channel, "name" | "slug" | "description" | "archived">>,
 ): Promise<Channel> {
   const { data, error } = await db()
-    .from("relay_channels")
+    .from("comms_channels")
     .update({ ...input, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select("*")
@@ -165,7 +165,7 @@ export async function getOrCreateDm(userA: string, userB: string): Promise<Conve
   if (userA === userB) throw new Error("INVALID_DM");
   const key = dmKeyFor(userA, userB);
   const existing = await db()
-    .from("relay_conversations")
+    .from("comms_conversations")
     .select("*")
     .eq("dm_key", key)
     .maybeSingle();
@@ -173,12 +173,12 @@ export async function getOrCreateDm(userA: string, userB: string): Promise<Conve
   if (existing.data) return existing.data as Conversation;
 
   const { data: conversation, error } = await db()
-    .from("relay_conversations")
+    .from("comms_conversations")
     .insert({ kind: "dm", dm_key: key })
     .select("*")
     .single();
   throwIfError(error);
-  const { error: membersError } = await db().from("relay_conversation_members").insert([
+  const { error: membersError } = await db().from("comms_conversation_members").insert([
     { conversation_id: conversation.id, user_id: userA },
     { conversation_id: conversation.id, user_id: userB },
   ]);
@@ -188,7 +188,7 @@ export async function getOrCreateDm(userA: string, userB: string): Promise<Conve
 
 export async function listDmConversations(userId: string) {
   const { data: memberships, error } = await db()
-    .from("relay_conversation_members")
+    .from("comms_conversation_members")
     .select("conversation_id")
     .eq("user_id", userId);
   throwIfError(error);
@@ -199,7 +199,7 @@ export async function listDmConversations(userId: string) {
   }>;
 
   const { data: conversations, error: convError } = await db()
-    .from("relay_conversations")
+    .from("comms_conversations")
     .select("*")
     .in("id", ids)
     .order("created_at", { ascending: false });
@@ -208,8 +208,8 @@ export async function listDmConversations(userId: string) {
   const results: Array<{ conversation: Conversation; peer: UserPublic }> = [];
   for (const conversation of (conversations ?? []) as Conversation[]) {
     const { data: members, error: memError } = await db()
-      .from("relay_conversation_members")
-      .select("user_id, user:relay_users!user_id(id,email,username,name,role)")
+      .from("comms_conversation_members")
+      .select("user_id, user:comms_users!user_id(id,email,username,name,role)")
       .eq("conversation_id", conversation.id);
     throwIfError(memError);
     type Row = { user_id: string; user: UserPublic };
@@ -221,7 +221,7 @@ export async function listDmConversations(userId: string) {
 
 export async function getConversationForUser(conversationId: string, userId: string) {
   const { data: membership, error } = await db()
-    .from("relay_conversation_members")
+    .from("comms_conversation_members")
     .select("conversation_id")
     .eq("conversation_id", conversationId)
     .eq("user_id", userId)
@@ -229,7 +229,7 @@ export async function getConversationForUser(conversationId: string, userId: str
   throwIfError(error);
   if (!membership) return null;
   const { data, error: convError } = await db()
-    .from("relay_conversations")
+    .from("comms_conversations")
     .select("*")
     .eq("id", conversationId)
     .maybeSingle();
@@ -243,8 +243,8 @@ export async function listChannelMessages(
   opts?: { since?: string; limit?: number },
 ): Promise<Message[]> {
   let query = db()
-    .from("relay_messages")
-    .select("*, author:relay_users!author_id(id,email,username,name,role)")
+    .from("comms_messages")
+    .select("*, author:comms_users!author_id(id,email,username,name,role)")
     .eq("channel_id", channelId)
     .gte("created_at", historyCutoffIso())
     .order("created_at", { ascending: true })
@@ -260,8 +260,8 @@ export async function listConversationMessages(
   opts?: { since?: string; limit?: number },
 ): Promise<Message[]> {
   let query = db()
-    .from("relay_messages")
-    .select("*, author:relay_users!author_id(id,email,username,name,role)")
+    .from("comms_messages")
+    .select("*, author:comms_users!author_id(id,email,username,name,role)")
     .eq("conversation_id", conversationId)
     .gte("created_at", historyCutoffIso())
     .order("created_at", { ascending: true })
@@ -279,14 +279,14 @@ export async function createMessage(input: {
   body: string;
 }): Promise<Message> {
   const { data, error } = await db()
-    .from("relay_messages")
+    .from("comms_messages")
     .insert({
       channel_id: input.channel_id ?? null,
       conversation_id: input.conversation_id ?? null,
       author_id: input.author_id,
       body: input.body,
     })
-    .select("*, author:relay_users!author_id(id,email,username,name,role)")
+    .select("*, author:comms_users!author_id(id,email,username,name,role)")
     .single();
   throwIfError(error);
   return data as unknown as Message;
@@ -296,8 +296,8 @@ export async function searchMessages(queryText: string, limit = 40): Promise<Mes
   const q = queryText.trim();
   if (!q) return [];
   const { data, error } = await db()
-    .from("relay_messages")
-    .select("*, author:relay_users!author_id(id,email,username,name,role)")
+    .from("comms_messages")
+    .select("*, author:comms_users!author_id(id,email,username,name,role)")
     .gte("created_at", historyCutoffIso())
     .ilike("body", `%${q}%`)
     .order("created_at", { ascending: false })
@@ -313,14 +313,14 @@ export async function createNotification(input: {
   link?: string;
 }): Promise<void> {
   const { error } = await db()
-    .from("relay_notifications")
+    .from("comms_notifications")
     .insert({ link: "", ...input });
   throwIfError(error);
 }
 
 export async function listNotifications(userId: string, limit = 30): Promise<Notification[]> {
   const { data, error } = await db()
-    .from("relay_notifications")
+    .from("comms_notifications")
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
@@ -331,7 +331,7 @@ export async function listNotifications(userId: string, limit = 30): Promise<Not
 
 export async function countUnreadNotifications(userId: string): Promise<number> {
   const { count, error } = await db()
-    .from("relay_notifications")
+    .from("comms_notifications")
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
     .eq("read", false);
@@ -341,7 +341,7 @@ export async function countUnreadNotifications(userId: string): Promise<number> 
 
 export async function markNotificationsRead(userId: string): Promise<void> {
   const { error } = await db()
-    .from("relay_notifications")
+    .from("comms_notifications")
     .update({ read: true })
     .eq("user_id", userId)
     .eq("read", false);

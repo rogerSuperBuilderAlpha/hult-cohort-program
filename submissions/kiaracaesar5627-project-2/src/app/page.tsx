@@ -10,7 +10,7 @@ export default async function HomePage() {
     <main className="landing">
       <div className="landing-card">
         <p className="muted">Hult Cohort · Project 2</p>
-        <h1>Relay</h1>
+        <h1>Comms</h1>
         <p className="lead">
           A focused communications platform for the cohort — channels, direct
           messages, staff announcements, search, and live updates without a

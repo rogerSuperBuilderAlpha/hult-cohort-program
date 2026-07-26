@@ -21,13 +21,13 @@ async function upsertUser(input: {
 }) {
   const password_hash = await hashPassword(input.password);
   const { data: existing } = await sb
-    .from("relay_users")
+    .from("comms_users")
     .select("*")
     .eq("email", input.email)
     .maybeSingle();
   if (existing) {
     const { data, error } = await sb
-      .from("relay_users")
+      .from("comms_users")
       .update({
         username: input.username,
         name: input.name,
@@ -41,7 +41,7 @@ async function upsertUser(input: {
     return data!;
   }
   const { data, error } = await sb
-    .from("relay_users")
+    .from("comms_users")
     .insert({
       email: input.email,
       username: input.username,
@@ -63,13 +63,13 @@ async function ensureChannel(input: {
   created_by_id: string;
 }) {
   const { data: existing } = await sb
-    .from("relay_channels")
+    .from("comms_channels")
     .select("*")
     .eq("slug", input.slug)
     .maybeSingle();
   if (existing) return existing;
   const { data, error } = await sb
-    .from("relay_channels")
+    .from("comms_channels")
     .insert(input)
     .select("*")
     .single();
@@ -124,15 +124,15 @@ async function main() {
 
   // Seed a few messages if channel is empty
   const { count } = await sb
-    .from("relay_messages")
+    .from("comms_messages")
     .select("*", { count: "exact", head: true })
     .eq("channel_id", general.id);
   if (!count) {
-    await sb.from("relay_messages").insert([
+    await sb.from("comms_messages").insert([
       {
         channel_id: general.id,
         author_id: adminUser.id,
-        body: "Welcome to Relay — the cohort communications layer.",
+        body: "Welcome to Comms — the cohort communications layer.",
       },
       {
         channel_id: general.id,
@@ -152,7 +152,7 @@ async function main() {
     ]);
   }
 
-  console.log("Seeded Relay users + channels:");
+  console.log("Seeded Comms users + channels:");
   console.log("- demo@flexiflow.test / DemoPass1! (ADMIN)");
   console.log("- sam@flexiflow.test / SamPass1!");
   console.log("- guest@flexiflow.test / GuestPass1!");

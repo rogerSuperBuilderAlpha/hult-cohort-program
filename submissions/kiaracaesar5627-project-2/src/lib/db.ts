@@ -56,6 +56,35 @@ export async function findUserById(id: string): Promise<User | null> {
   return store.users.get(id) ?? null;
 }
 
+/**
+ * Rehydrate a user row from JWT session claims when the process-local store
+ * was wiped (Vercel cold start). Keeps requireUser / mutations working for
+ * users who still have a valid session cookie.
+ */
+export async function ensureUserFromSession(session: {
+  id: string;
+  email: string;
+  username: string;
+  name: string;
+  role: UserRole;
+}): Promise<User> {
+  const store = await ready();
+  const existing = store.users.get(session.id);
+  if (existing) return existing;
+  const user: User = {
+    id: session.id,
+    email: session.email.toLowerCase(),
+    username: session.username,
+    name: session.name,
+    password_hash: "",
+    github_id: null,
+    role: session.role,
+    created_at: nowIso(),
+  };
+  store.users.set(user.id, user);
+  return user;
+}
+
 export async function findUserByEmail(email: string): Promise<User | null> {
   const store = await ready();
   const needle = email.toLowerCase();

@@ -1,17 +1,16 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "@/components/ProfileForm";
-import { requireUser } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth";
 import { withShell } from "@/lib/shell";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 export default async function ProfilePage() {
-  let user;
-  try {
-    user = await requireUser();
-  } catch {
-    redirect("/login");
-  }
+  // Same JWT-only session path as other /app/* pages. Do not use requireUser()
+  // here: that looks up the user in the in-memory store, which is empty on
+  // Vercel cold starts even when the session cookie is still valid.
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
 
   const jar = await cookies();
   const theme = parseTheme(jar.get(THEME_COOKIE)?.value);

@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { findUserById } from "./db";
+import { ensureUserFromSession } from "./db";
 export { hashPassword, verifyPassword } from "./password";
 
 export const SESSION_COOKIE = "comms_session";
@@ -88,8 +88,9 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 export async function requireUser() {
   const user = await getSessionUser();
   if (!user) throw new Error("UNAUTHORIZED");
-  const dbUser = await findUserById(user.id);
-  if (!dbUser) throw new Error("UNAUTHORIZED");
+  // Prefer store row when present; otherwise rehydrate from JWT so serverless
+  // cold starts do not treat a valid session as logged out.
+  const dbUser = await ensureUserFromSession(user);
   return {
     id: dbUser.id,
     email: dbUser.email,

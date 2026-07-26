@@ -98,7 +98,7 @@ export async function seedComms() {
     await createMessage({
       channel_id: general.id,
       author_id: adminUser.id,
-      body: "Welcome to Comms — the cohort communications layer.",
+      body: "Welcome to Chorus — the cohort communications layer.",
     });
     await createMessage({
       channel_id: general.id,

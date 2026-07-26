@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Comms — Cohort communications",
+  title: "Chorus — Cohort communications",
   description:
-    "Focused team chat for the Hult Cohort: channels, DMs, announcements, search, and real-time updates.",
+    "Chorus is focused team chat for the Hult Cohort: channels, DMs, announcements, search, and live updates.",
 };
 
 export default function RootLayout({

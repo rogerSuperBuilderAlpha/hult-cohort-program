@@ -13,7 +13,7 @@ export default function LoginPage() {
     <main className="hero-auth">
       <div className="auth-card">
         <p className="muted">Welcome back</p>
-        <h1>Sign in to Comms</h1>
+        <h1>Sign in to Chorus</h1>
         <p className="lead">Use the same email you registered on FlexiFlow when possible.</p>
         <form
           className="form"

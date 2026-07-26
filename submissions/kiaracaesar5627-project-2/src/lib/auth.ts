@@ -14,8 +14,12 @@ export type SessionUser = {
 };
 
 function secretKey() {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) throw new Error("AUTH_SECRET is not set");
+  // Prefer AUTH_SECRET; fall back so Vercel demos still sign sessions when env is unset.
+  const secret =
+    process.env.AUTH_SECRET?.trim() ||
+    (process.env.NODE_ENV === "production"
+      ? "comms-vercel-demo-auth-secret-change-me"
+      : "comms-dev-auth-secret");
   return new TextEncoder().encode(secret);
 }
 

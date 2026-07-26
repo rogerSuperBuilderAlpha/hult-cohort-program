@@ -1,8 +1,8 @@
-# AGENTS.md — Comms (Project 2)
+# AGENTS.md — Chorus (Project 2 Comms)
 
 ## Goal
 
-Ship a production cohort communications platform: public channels, 1:1 DMs,
+Ship a production cohort communications platform (**Chorus**): public channels, 1:1 DMs,
 admin announcements, keyword search, 30-day history, in-app notifications, and
 ≤5s polling for new messages. **Do not use Supabase.**
 

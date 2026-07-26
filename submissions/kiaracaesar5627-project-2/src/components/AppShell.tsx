@@ -28,8 +28,8 @@ export function AppShell({
       </a>
       <aside className="sidebar" aria-label="Workspace navigation">
         <div className="brand-block">
-          <Link href="/app" className="brand">
-            Comms
+          <Link href="/app" className="brand" aria-label="Chorus home">
+            Chorus
           </Link>
           <p className="muted">Cohort communications</p>
         </div>

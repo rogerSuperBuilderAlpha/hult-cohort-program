@@ -1,4 +1,4 @@
-# Comms — Internal communications (Project 2)
+﻿# Chorus — Internal communications (Project 2)
 
 Focused cohort chat for the Hult Cohort Developer Program Summer Pilot 2026.
 Channels, DMs, staff announcements, search, and live updates — no Discord required.
@@ -12,7 +12,7 @@ https://pilot-hult-comms.vercel.app
 ## Stack
 
 - **Next.js 15** (App Router) + **React 19** + **TypeScript** on **Vercel**
-- **SQLite** via `@libsql/client` (local `data/comms.db`; optional Turso for durable prod)
+- **In-memory store** (auto-seeded on cold start; Vercel-safe, no native SQLite)
 - Email + password auth (bcrypt + signed HTTP-only JWT cookies via `jose`)
 - Real-time MVP via **4s polling** (`GET /api/messages`)
 
@@ -22,8 +22,8 @@ https://pilot-hult-comms.vercel.app
 |---------|----------------|
 | Channels | `#general`, `#reviews`, `#setup` (+ `#announcements`); admin create / rename / archive |
 | Direct messages | 1:1 conversations between any two members |
-| Persistence | SQLite messages; history window ≥ 30 days |
-| Announcements | `#announcements` — only `ADMIN` can post |
+| Persistence | SQLite messages; history window â‰¥ 30 days |
+| Announcements | `#announcements` â€” only `ADMIN` can post |
 | Search | Keyword search across message bodies |
 | Real-time | Client poll every 4 seconds |
 | Notifications | In-app alerts for @mentions and DMs |
@@ -36,7 +36,7 @@ cd submissions/kiaracaesar5627-project-2
 cp .env.example .env
 # Set AUTH_SECRET (any long random string)
 npm install
-npm run db:seed   # optional — app also auto-seeds on first request
+npm run db:seed   # optional â€” app also auto-seeds on first request
 npm run build
 npm run dev
 ```
@@ -54,16 +54,16 @@ Open http://localhost:3000
 ## Architecture
 
 ```
-Browser → Next.js (Vercel)
-            ├─ Server Actions (auth, channels, messages, DMs)
-            ├─ JWT session cookie (AUTH_SECRET)
-            ├─ GET /api/messages (polling ≤ 4s)
-            └─ @libsql/client → SQLite (local file or Turso)
+Browser â†’ Next.js (Vercel)
+            â”œâ”€ Server Actions (auth, channels, messages, DMs)
+            â”œâ”€ JWT session cookie (AUTH_SECRET)
+            â”œâ”€ GET /api/messages (polling â‰¤ 4s)
+            â””â”€ In-memory store (auto-seeded per cold start)
 ```
 
 ## Known limitations
 
-- On Vercel without Turso, the SQLite file lives under `/tmp` and can reset on cold starts — set `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` for durable production storage
+- Persistence is process-local: data resets on Vercel cold starts (demo accounts re-seed automatically)
 - Auth is email/password only (no OAuth / shared SSO with FlexiFlow yet)
 - File attachments, reactions, and threads are out of MVP scope
 

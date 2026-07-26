@@ -74,14 +74,14 @@ export async function seedComms() {
   });
 
   const general = await ensureChannel({
-    name: "general",
+    name: "General",
     slug: "general",
     description: "Day-to-day cohort chat",
     kind: "public",
     created_by_id: adminUser.id,
   });
   const reviews = await ensureChannel({
-    name: "reviews",
+    name: "Reviews",
     slug: "reviews",
     description: "Peer review coordination",
     kind: "public",
@@ -95,7 +95,7 @@ export async function seedComms() {
     created_by_id: adminUser.id,
   });
   await ensureChannel({
-    name: "setup",
+    name: "Setup",
     slug: "setup",
     description: "Onboarding and tooling help",
     kind: "public",

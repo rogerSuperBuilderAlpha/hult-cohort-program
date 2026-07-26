@@ -20,7 +20,7 @@ https://pilot-hult-comms.vercel.app
 
 | Feature | Implementation |
 |---------|----------------|
-| Channels | `#general`, `#reviews`, `#setup` (+ Announcements); admin create / rename / archive |
+| Channels | General, Reviews, Setup (+ Announcements); admin create / rename / archive |
 | Direct messages | 1:1 conversations between any two members |
 | Persistence | SQLite messages; history window â‰¥ 30 days |
 | Announcements | Announcements — only `ADMIN` can post |

@@ -5,6 +5,34 @@ import type { Message } from "@/lib/types";
 
 const POLL_MS = 4000;
 
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+}
+
+function formatTime(iso: string) {
+  const date = new Date(iso);
+  const now = new Date();
+  const sameDay =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate();
+  if (sameDay) {
+    return date.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 export function MessagePane({
   initialMessages,
   channelId,
@@ -63,22 +91,34 @@ export function MessagePane({
   }, [channelId, conversationId, latest]);
 
   if (messages.length === 0) {
-    return <div className="empty">No messages yet. Say hello.</div>;
+    return <div className="empty">No posts yet. Start the conversation.</div>;
   }
 
   return (
     <div className="message-list" aria-live="polite">
-      {messages.map((message) => (
-        <article key={message.id} className="message">
-          <header>
-            <strong>@{message.author?.username ?? "someone"}</strong>
-            <time dateTime={message.created_at}>
-              {new Date(message.created_at).toLocaleString()}
-            </time>
-          </header>
-          <p>{message.body}</p>
-        </article>
-      ))}
+      {messages.map((message) => {
+        const displayName = message.author?.name ?? "Someone";
+        const username = message.author?.username ?? "someone";
+        return (
+          <article key={message.id} className="message post">
+            <span className="avatar" aria-hidden="true">
+              {initials(displayName)}
+            </span>
+            <div className="post-body">
+              <header className="post-meta">
+                <span className="post-author">
+                  <strong>{displayName}</strong>
+                  <span className="muted">@{username}</span>
+                </span>
+                <time dateTime={message.created_at}>
+                  {formatTime(message.created_at)}
+                </time>
+              </header>
+              <p>{message.body}</p>
+            </div>
+          </article>
+        );
+      })}
       <div ref={bottomRef} />
     </div>
   );

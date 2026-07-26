@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
+import { channelLabel } from "@/lib/channels";
 import { getChannelById, searchMessages } from "@/lib/db";
 import { withShell } from "@/lib/shell";
 
@@ -29,22 +30,32 @@ export default async function SearchPage({
       return {
         message,
         href: channel ? `/app/c/${channel.slug}` : "/app",
-        context: channel ? `#${channel.name}` : "Channel",
+        context: channel ? channelLabel(channel) : "Channel",
       };
     }),
   );
 
-  return withShell(user, "/app/search", (
-    <section className="panel stack">
-      <div>
-        <p className="muted">Search</p>
-        <h1>Find messages</h1>
-        <p className="lead">Keyword search across the last 30 days of history.</p>
-      </div>
+  return withShell(
+    user,
+    "/app/search",
+    <section className="feed-panel feed-panel-solo stack">
+      <header className="feed-header">
+        <div>
+          <p className="muted">Search</p>
+          <h1>Find messages</h1>
+          <p className="lead">
+            Keyword search across the last 30 days of history.
+          </p>
+        </div>
+      </header>
       <form className="form" method="get">
         <label>
           Keyword
-          <input name="q" defaultValue={q} placeholder="deadline, review, standup…" />
+          <input
+            name="q"
+            defaultValue={q}
+            placeholder="deadline, review, standup…"
+          />
         </label>
         <button type="submit">Search</button>
       </form>
@@ -53,7 +64,7 @@ export default async function SearchPage({
           <div className="empty">No matches for “{q}”.</div>
         ) : null}
         {enriched.map(({ message, href, context }) => (
-          <Link key={message.id} href={href}>
+          <Link key={message.id} href={href} className="result-item">
             <div>
               <strong>
                 @{message.author?.username ?? "someone"} · {context}
@@ -66,6 +77,6 @@ export default async function SearchPage({
           </Link>
         ))}
       </div>
-    </section>
-  ));
+    </section>,
+  );
 }

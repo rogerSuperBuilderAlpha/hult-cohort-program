@@ -20,10 +20,10 @@ https://pilot-hult-comms.vercel.app
 
 | Feature | Implementation |
 |---------|----------------|
-| Channels | `#general`, `#reviews`, `#setup` (+ `#announcements`); admin create / rename / archive |
+| Channels | `#general`, `#reviews`, `#setup` (+ Announcements); admin create / rename / archive |
 | Direct messages | 1:1 conversations between any two members |
 | Persistence | SQLite messages; history window â‰¥ 30 days |
-| Announcements | `#announcements` â€” only `ADMIN` can post |
+| Announcements | Announcements — only `ADMIN` can post |
 | Search | Keyword search across message bodies |
 | Real-time | Client poll every 4 seconds |
 | Notifications | In-app alerts for @mentions and DMs |

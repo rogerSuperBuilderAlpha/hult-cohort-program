@@ -11,6 +11,7 @@ export async function withShell(
   user: SessionUser,
   activeHref: string | undefined,
   children: React.ReactNode,
+  rail?: React.ReactNode,
 ) {
   await ensureSeeded();
   const [channels, dmRows, unread] = await Promise.all([
@@ -28,6 +29,7 @@ export async function withShell(
       }))}
       unread={unread}
       activeHref={activeHref}
+      rail={rail}
     >
       {children}
     </AppShell>

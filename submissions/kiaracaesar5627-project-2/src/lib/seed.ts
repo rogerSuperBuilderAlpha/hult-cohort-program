@@ -6,6 +6,7 @@ import {
   findUserByEmail,
   getChannelBySlug,
   listChannelMessages,
+  updateChannel,
 } from "./db";
 import { ensureSchema } from "./client";
 
@@ -35,7 +36,15 @@ async function ensureChannel(input: {
   created_by_id: string;
 }) {
   const existing = await getChannelBySlug(input.slug);
-  if (existing) return existing;
+  if (existing) {
+    if (existing.name !== input.name || existing.description !== input.description) {
+      return updateChannel(existing.id, {
+        name: input.name,
+        description: input.description,
+      });
+    }
+    return existing;
+  }
   return createChannel(input);
 }
 
@@ -79,7 +88,7 @@ export async function seedComms() {
     created_by_id: adminUser.id,
   });
   const announcements = await ensureChannel({
-    name: "announcements",
+    name: "Announcements",
     slug: "announcements",
     description: "Staff posts only",
     kind: "announcements",

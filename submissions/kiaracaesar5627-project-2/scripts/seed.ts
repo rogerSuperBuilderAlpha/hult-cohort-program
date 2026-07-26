@@ -6,7 +6,7 @@ seedComms()
     console.log("- demo@flexiflow.test / DemoPass1! (ADMIN)");
     console.log("- sam@flexiflow.test / SamPass1!");
     console.log("- guest@flexiflow.test / GuestPass1!");
-    console.log("Channels: #general, #reviews, #setup, #announcements");
+    console.log("Channels: #general, #reviews, #setup, Announcements");
   })
   .catch((error) => {
     console.error(error);

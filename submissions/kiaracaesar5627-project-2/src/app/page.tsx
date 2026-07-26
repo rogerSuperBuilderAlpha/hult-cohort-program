@@ -10,12 +10,12 @@ export default async function HomePage() {
 
   return (
     <main className="landing">
-      <div className="landing-card">
+      <div className="landing-hero">
         <p className="muted">Hult Cohort · Project 2</p>
-        <h1>Huddle</h1>
+        <h1 className="landing-brand">Huddle</h1>
         <p className="lead">
-          Cohort communications in one place — channels, direct messages, staff
-          announcements, search, and live updates without a manual refresh.
+          The cohort feed — channels, DMs, staff announcements, and live updates
+          in one place.
         </p>
         <div className="cta-row">
           <Link className="btn" href="/register">

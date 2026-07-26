@@ -1,13 +1,10 @@
 import { redirect } from "next/navigation";
-import {
-  archiveChannelAction,
-  renameChannelAction,
-  sendChannelMessageAction,
-} from "@/lib/actions";
+import { sendChannelMessageAction } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
 import { channelLabel } from "@/lib/channels";
 import { getChannelBySlug, listChannelMessages } from "@/lib/db";
 import { withShell } from "@/lib/shell";
+import { ChannelSettingsMenu } from "@/components/ChannelSettingsMenu";
 import { MessagePane } from "@/components/MessagePane";
 import { SubmitButton } from "@/components/SubmitButton";
 
@@ -55,32 +52,23 @@ export default async function ChannelPage({
     `/app/c/${channel.slug}`,
     <section className="feed-panel">
       <header className="feed-header">
-        <div>
-          <p className="muted">
-            {channel.kind === "announcements" ? "Staff channel" : "Channel"}
-          </p>
-          <h1>{label}</h1>
-          <p className="lead">
-            {channel.description || "Share updates with the cohort."}
-          </p>
-        </div>
-        {user.role === "ADMIN" && channel.kind !== "announcements" ? (
-          <div className="admin-tools">
-            <form className="form" action={renameChannelAction}>
-              <input type="hidden" name="channelId" value={channel.id} />
-              <label>
-                Rename
-                <input name="name" defaultValue={channel.name} required />
-              </label>
-              <SubmitButton className="btn-secondary">Save</SubmitButton>
-            </form>
-            <form action={archiveChannelAction}>
-              <input type="hidden" name="channelId" value={channel.id} />
-              <input type="hidden" name="archived" value="true" />
-              <SubmitButton className="ghost-btn">Archive</SubmitButton>
-            </form>
+        <div className="feed-header-row">
+          <div>
+            <p className="muted">
+              {channel.kind === "announcements" ? "Staff channel" : "Channel"}
+            </p>
+            <h1>{label}</h1>
+            <p className="lead">
+              {channel.description || "Share updates with the cohort."}
+            </p>
           </div>
-        ) : null}
+          {user.role === "ADMIN" && channel.kind !== "announcements" ? (
+            <ChannelSettingsMenu
+              channelId={channel.id}
+              channelName={channel.name}
+            />
+          ) : null}
+        </div>
       </header>
 
       <MessagePane initialMessages={messages} channelId={channel.id} />

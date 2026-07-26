@@ -411,19 +411,96 @@ summary:focus-visible {
   font-size: 0.95rem;
 }
 
-.admin-tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.85rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--border-soft);
+.channel-settings {
+  position: relative;
+  flex-shrink: 0;
 }
 
-.admin-tools .form {
-  flex: 1;
-  min-width: 200px;
-  max-width: 320px;
+.channel-settings-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease), border-color var(--ease);
+}
+
+.channel-settings-trigger:hover,
+.channel-settings-trigger[aria-expanded="true"] {
+  color: var(--text);
+  background: var(--surface-2);
+  border-color: var(--border-soft);
+}
+
+.channel-settings-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 20;
+  min-width: 12.5rem;
+  padding: 0.35rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+.channel-settings-item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.channel-settings-item:hover {
+  background: var(--surface-2);
+}
+
+.channel-settings-danger {
+  color: var(--danger);
+}
+
+.channel-settings-rename {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.35rem;
+  min-width: 14rem;
+}
+
+.channel-settings-rename label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.channel-settings-rename input {
+  width: 100%;
+}
+
+.channel-settings-rename-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
 }
 
 /* —— Right rail —— */

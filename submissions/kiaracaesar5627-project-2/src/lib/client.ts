@@ -7,7 +7,7 @@ import type {
 } from "./types";
 
 /**
- * Process-local store for Chorus.
+ * Process-local store for Huddle.
  * On Vercel this lives in the serverless isolate (resets on cold start; auto-seeded).
  * Avoids native @libsql/client binaries that break Vercel serverless packaging.
  */

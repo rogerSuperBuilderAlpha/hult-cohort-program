@@ -1,4 +1,4 @@
-﻿# Chorus — Internal communications (Project 2)
+﻿# Huddle — Internal communications (Project 2)
 
 Focused cohort chat for the Hult Cohort Developer Program Summer Pilot 2026.
 Channels, DMs, staff announcements, search, and live updates — no Discord required.

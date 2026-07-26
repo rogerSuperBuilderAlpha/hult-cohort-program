@@ -19,6 +19,7 @@ import {
   findUserByEmail,
   findUserByEmailOrUsername,
   findUserById,
+  findUserByUsername,
   getChannelById,
   getChannelBySlug,
   getConversationForUser,
@@ -27,6 +28,7 @@ import {
   markNotificationsRead,
   slugifyChannel,
   updateChannel,
+  updateUser,
 } from "./db";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -259,4 +261,81 @@ export async function markNotificationsReadAction(): Promise<void> {
   const user = await requireUser();
   await markNotificationsRead(user.id);
   revalidatePath("/app/notifications");
+}
+
+const profileSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  username: z
+    .string()
+    .trim()
+    .min(2)
+    .max(32)
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username: letters, numbers, _ or -"),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8).max(72),
+});
+
+export async function updateProfileAction(formData: FormData): Promise<ActionResult> {
+  const session = await requireUser();
+  const parsed = profileSchema.safeParse({
+    name: formData.get("name"),
+    username: formData.get("username"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid profile." };
+  }
+
+  const clash = await findUserByUsername(parsed.data.username);
+  if (clash && clash.id !== session.id) {
+    return { ok: false, error: "Username already in use." };
+  }
+
+  const updated = await updateUser(session.id, {
+    name: parsed.data.name,
+    username: parsed.data.username,
+  });
+  if (!updated) return { ok: false, error: "Could not update profile." };
+
+  await createSession({
+    id: updated.id,
+    email: updated.email,
+    username: updated.username,
+    name: updated.name,
+    role: updated.role,
+  });
+  revalidatePath("/app/profile");
+  revalidatePath("/app");
+  return { ok: true };
+}
+
+export async function changePasswordAction(formData: FormData): Promise<ActionResult> {
+  const session = await requireUser();
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+  });
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid password.",
+    };
+  }
+
+  const dbUser = await findUserById(session.id);
+  if (!dbUser) return { ok: false, error: "Could not update password." };
+
+  if (!(await verifyPassword(parsed.data.currentPassword, dbUser.password_hash))) {
+    return { ok: false, error: "Current password is incorrect." };
+  }
+
+  const updated = await updateUser(session.id, {
+    password_hash: await hashPassword(parsed.data.newPassword),
+  });
+  if (!updated) return { ok: false, error: "Could not update password." };
+
+  revalidatePath("/app/profile");
+  return { ok: true };
 }

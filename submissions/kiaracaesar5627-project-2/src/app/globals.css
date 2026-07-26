@@ -362,6 +362,55 @@ summary:focus-visible {
   font-size: 0.65rem;
 }
 
+.avatar-lg {
+  width: 3.25rem;
+  height: 3.25rem;
+  font-size: 1.05rem;
+  border-radius: 14px;
+}
+
+.user-chip-link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 0.35rem 0.4rem;
+  margin: -0.35rem -0.4rem;
+  transition: background var(--ease);
+}
+
+.user-chip-link:hover,
+.user-chip-link.active {
+  background: var(--accent-soft);
+}
+
+.profile-settings {
+  gap: 1.25rem;
+  padding-bottom: 1.5rem;
+}
+
+.profile-preview {
+  padding: 0 1.15rem;
+}
+
+.profile-section-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.form input:disabled,
+.form input:read-only {
+  opacity: 0.75;
+  cursor: not-allowed;
+  background: var(--surface-2);
+}
+
+.success {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
 /* —— Center feed —— */
 
 .main-column {

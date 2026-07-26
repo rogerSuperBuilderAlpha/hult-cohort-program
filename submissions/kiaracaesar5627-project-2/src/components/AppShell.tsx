@@ -43,6 +43,7 @@ export function AppShell({
   const isDm =
     activeHref === "/app/dm" || Boolean(activeHref?.startsWith("/app/dm/"));
   const isNotifications = activeHref === "/app/notifications";
+  const isProfile = activeHref === "/app/profile";
   const activeChannel = channels.find(
     (c) => activeHref === `/app/c/${c.slug}`,
   );
@@ -91,6 +92,12 @@ export function AppShell({
             </span>
             Messages
           </Link>
+          <Link href="/app/profile" className={isProfile ? "active" : ""}>
+            <span className="nav-icon" aria-hidden="true">
+              ✎
+            </span>
+            Profile
+          </Link>
           <a href={pmUrl} target="_blank" rel="noreferrer">
             <span className="nav-icon" aria-hidden="true">
               ↗
@@ -138,7 +145,11 @@ export function AppShell({
         </div>
 
         <div className="side-foot">
-          <div className="user-chip">
+          <Link
+            href="/app/profile"
+            className={`user-chip user-chip-link${isProfile ? " active" : ""}`}
+            aria-label="Open profile settings"
+          >
             <span className="avatar" aria-hidden="true">
               {initials(user.name)}
             </span>
@@ -146,7 +157,7 @@ export function AppShell({
               <strong>{user.name}</strong>
               <div className="muted">@{user.username}</div>
             </div>
-          </div>
+          </Link>
           <div className="side-foot-actions">
             <ThemeToggle initialTheme={theme} />
             <form action={logoutAction}>
@@ -166,11 +177,15 @@ export function AppShell({
           </Link>
           <div className="mobile-topbar-actions">
             <ThemeToggle initialTheme={theme} className="theme-toggle-icon" />
-            <div className="user-chip user-chip-compact">
+            <Link
+              href="/app/profile"
+              className="user-chip user-chip-compact"
+              aria-label="Open profile settings"
+            >
               <span className="avatar avatar-sm" aria-hidden="true">
                 {initials(user.name)}
               </span>
-            </div>
+            </Link>
           </div>
         </header>
         <main id="main-content" className="main feed-enter">
@@ -201,9 +216,9 @@ export function AppShell({
         >
           Alerts{unread > 0 ? ` · ${unread}` : ""}
         </Link>
-        <a href={pmUrl} target="_blank" rel="noreferrer">
-          PM
-        </a>
+        <Link href="/app/profile" className={isProfile ? "active" : ""}>
+          Profile
+        </Link>
       </nav>
     </div>
   );

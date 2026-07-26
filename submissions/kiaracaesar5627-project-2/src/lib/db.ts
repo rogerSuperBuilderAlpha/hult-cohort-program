@@ -67,8 +67,9 @@ export async function findUserByEmail(email: string): Promise<User | null> {
 
 export async function findUserByUsername(username: string): Promise<User | null> {
   const store = await ready();
+  const needle = username.toLowerCase();
   for (const user of store.users.values()) {
-    if (user.username === username) return user;
+    if (user.username.toLowerCase() === needle) return user;
   }
   return null;
 }
@@ -96,6 +97,25 @@ export async function createUser(input: {
   };
   store.users.set(user.id, user);
   return user;
+}
+
+export async function updateUser(
+  id: string,
+  patch: { name?: string; username?: string; password_hash?: string },
+): Promise<User | null> {
+  const store = await ready();
+  const user = store.users.get(id);
+  if (!user) return null;
+  const next: User = {
+    ...user,
+    ...(patch.name !== undefined ? { name: patch.name } : {}),
+    ...(patch.username !== undefined ? { username: patch.username } : {}),
+    ...(patch.password_hash !== undefined
+      ? { password_hash: patch.password_hash }
+      : {}),
+  };
+  store.users.set(id, next);
+  return next;
 }
 
 export async function listUsersPublic(): Promise<UserPublic[]> {

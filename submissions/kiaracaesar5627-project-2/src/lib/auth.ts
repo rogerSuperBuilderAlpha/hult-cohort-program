@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { findUserById } from "./db";
 export { hashPassword, verifyPassword } from "./password";
 
-const COOKIE = "comms_session";
+export const SESSION_COOKIE = "comms_session";
 
 export type SessionUser = {
   id: string;
@@ -23,8 +23,18 @@ function secretKey() {
   return new TextEncoder().encode(secret);
 }
 
-export async function createSession(user: SessionUser) {
-  const token = await new SignJWT({
+export function sessionCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 14,
+  };
+}
+
+export async function signSessionToken(user: SessionUser): Promise<string> {
+  return new SignJWT({
     id: user.id,
     email: user.email,
     username: user.username,
@@ -35,25 +45,22 @@ export async function createSession(user: SessionUser) {
     .setIssuedAt()
     .setExpirationTime("14d")
     .sign(secretKey());
+}
 
+export async function createSession(user: SessionUser) {
+  const token = await signSessionToken(user);
   const jar = await cookies();
-  jar.set(COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 14,
-  });
+  jar.set(SESSION_COOKIE, token, sessionCookieOptions());
 }
 
 export async function destroySession() {
   const jar = await cookies();
-  jar.delete(COOKIE);
+  jar.delete(SESSION_COOKIE);
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
   const jar = await cookies();
-  const token = jar.get(COOKIE)?.value;
+  const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secretKey());

@@ -19,6 +19,7 @@ npm run build
 
 - `AUTH_SECRET` (required)
 - `NEXT_PUBLIC_PM_URL` (FlexiFlow deep link)
+- Optional GitHub OAuth: `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_CALLBACK_URL` / `NEXT_PUBLIC_APP_URL`
 - Optional durable DB: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`
 
 Never commit `.env` / `.env.local` / `data/*.db`.

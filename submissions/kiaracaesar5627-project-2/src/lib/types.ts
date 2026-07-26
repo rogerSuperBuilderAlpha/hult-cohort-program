@@ -7,6 +7,8 @@ export type User = {
   username: string;
   name: string;
   password_hash: string;
+  /** GitHub numeric user id as string; set when signed in via OAuth. */
+  github_id?: string | null;
   role: UserRole;
   created_at: string;
 };

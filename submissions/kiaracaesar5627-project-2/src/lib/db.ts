@@ -78,11 +78,20 @@ export async function findUserByEmailOrUsername(email: string, username: string)
   return (await findUserByEmail(email)) ?? (await findUserByUsername(username));
 }
 
+export async function findUserByGithubId(githubId: string): Promise<User | null> {
+  const store = await ready();
+  for (const user of store.users.values()) {
+    if (user.github_id === githubId) return user;
+  }
+  return null;
+}
+
 export async function createUser(input: {
   name: string;
   email: string;
   username: string;
   password_hash: string;
+  github_id?: string | null;
   role?: UserRole;
 }): Promise<User> {
   const store = await ready();
@@ -92,6 +101,7 @@ export async function createUser(input: {
     username: input.username,
     name: input.name,
     password_hash: input.password_hash,
+    github_id: input.github_id ?? null,
     role: input.role ?? "MEMBER",
     created_at: nowIso(),
   };
@@ -101,7 +111,12 @@ export async function createUser(input: {
 
 export async function updateUser(
   id: string,
-  patch: { name?: string; username?: string; password_hash?: string },
+  patch: {
+    name?: string;
+    username?: string;
+    password_hash?: string;
+    github_id?: string | null;
+  },
 ): Promise<User | null> {
   const store = await ready();
   const user = store.users.get(id);
@@ -113,9 +128,22 @@ export async function updateUser(
     ...(patch.password_hash !== undefined
       ? { password_hash: patch.password_hash }
       : {}),
+    ...(patch.github_id !== undefined ? { github_id: patch.github_id } : {}),
   };
   store.users.set(id, next);
   return next;
+}
+
+/** Allocate a unique username based on a preferred handle (e.g. GitHub login). */
+export async function allocateUsername(preferred: string): Promise<string> {
+  const base = preferred.slice(0, 32) || "user";
+  if (!(await findUserByUsername(base))) return base;
+  for (let i = 0; i < 20; i++) {
+    const suffix = Math.random().toString(36).slice(2, 6);
+    const candidate = `${base.slice(0, 27)}-${suffix}`;
+    if (!(await findUserByUsername(candidate))) return candidate;
+  }
+  return `${base.slice(0, 20)}-${newId().slice(0, 8)}`;
 }
 
 export async function listUsersPublic(): Promise<UserPublic[]> {

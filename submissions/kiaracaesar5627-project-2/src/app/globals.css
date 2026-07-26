@@ -1044,6 +1044,55 @@ button:hover,
   padding: 0;
 }
 
+.github-auth {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.15rem 0 0.35rem;
+}
+
+.github-btn {
+  width: 100%;
+  background: var(--text) !important;
+  color: var(--surface) !important;
+  border: 1px solid transparent !important;
+  text-decoration: none;
+}
+
+.github-btn:hover {
+  background: color-mix(in srgb, var(--text) 88%, var(--accent)) !important;
+  color: var(--surface) !important;
+}
+
+.github-auth-note {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.github-auth-note code {
+  font-size: 0.82em;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.15rem 0 0.85rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-soft);
+}
+
 /* —— Responsive —— */
 
 @media (max-width: 1100px) {

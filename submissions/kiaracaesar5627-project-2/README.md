@@ -14,6 +14,7 @@ https://pilot-hult-comms.vercel.app
 - **Next.js 15** (App Router) + **React 19** + **TypeScript** on **Vercel**
 - **In-memory store** (auto-seeded on cold start; Vercel-safe, no native SQLite)
 - Email + password auth (bcrypt + signed HTTP-only JWT cookies via `jose`)
+- Optional **Login with GitHub** (OAuth Authorization Code; same JWT session cookie)
 - Real-time MVP via **4s polling** (`GET /api/messages`)
 
 ## Baseline features
@@ -35,13 +36,28 @@ https://pilot-hult-comms.vercel.app
 cd submissions/kiaracaesar5627-project-2
 cp .env.example .env
 # Set AUTH_SECRET (any long random string)
+# Optional: set GITHUB_CLIENT_ID + GITHUB_CLIENT_SECRET for Login with GitHub
 npm install
-npm run db:seed   # optional â€” app also auto-seeds on first request
+npm run db:seed   # optional — app also auto-seeds on first request
 npm run build
 npm run dev
 ```
 
 Open http://localhost:3000
+
+### Login with GitHub (optional)
+
+1. Create a GitHub OAuth App under **Settings → Developer settings → OAuth Apps**.
+2. Set **Authorization callback URL**:
+   - Production: `https://pilot-hult-comms.vercel.app/api/auth/github/callback`
+   - Local: `http://localhost:3000/api/auth/github/callback`
+3. Copy the Client ID and Client Secret into `.env` / Vercel env:
+   - `GITHUB_CLIENT_ID`
+   - `GITHUB_CLIENT_SECRET`
+   - Optional: `GITHUB_CALLBACK_URL` or `NEXT_PUBLIC_APP_URL` if the callback must not be derived from the request origin
+4. Restart the app. Login and register show **Continue with GitHub** when both vars are set; otherwise the button is omitted with a short note (email/password still works).
+
+Routes: `GET /api/auth/github` (start) → GitHub → `GET /api/auth/github/callback` (session cookie → `/app`).
 
 ### Seed accounts
 
@@ -54,17 +70,18 @@ Open http://localhost:3000
 ## Architecture
 
 ```
-Browser â†’ Next.js (Vercel)
-            â”œâ”€ Server Actions (auth, channels, messages, DMs)
-            â”œâ”€ JWT session cookie (AUTH_SECRET)
-            â”œâ”€ GET /api/messages (polling â‰¤ 4s)
-            â””â”€ In-memory store (auto-seeded per cold start)
+Browser → Next.js (Vercel)
+            ├─ Server Actions (auth, channels, messages, DMs)
+            ├─ GET /api/auth/github (+ /callback) → JWT session cookie
+            ├─ JWT session cookie (AUTH_SECRET)
+            ├─ GET /api/messages (polling ≤ 4s)
+            └─ In-memory store (auto-seeded per cold start)
 ```
 
 ## Known limitations
 
 - Persistence is process-local: data resets on Vercel cold starts (demo accounts re-seed automatically)
-- Auth is email/password only (no OAuth / shared SSO with FlexiFlow yet)
+- GitHub OAuth is optional and gated on env vars; no shared SSO with FlexiFlow yet
 - File attachments, reactions, and threads are out of MVP scope
 
 ## License

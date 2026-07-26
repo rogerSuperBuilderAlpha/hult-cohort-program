@@ -27,6 +27,7 @@ export default async function OverviewPage() {
           { href: '/', label: 'Home' },
           { href: '/start', label: 'Visual intro' },
           { href: '/program', label: 'Program' },
+          { href: '/winning-guide', label: 'Winning guide' },
         ]}
       />
 

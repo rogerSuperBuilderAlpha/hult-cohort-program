@@ -18,6 +18,7 @@ export default function StartPage() {
         links={[
           { href: '/', label: 'Home' },
           { href: '/program', label: 'Program' },
+          { href: '/winning-guide', label: 'Winning guide' },
         ]}
       />
 

@@ -22,6 +22,7 @@ export function SiteFooter() {
           </div>
           <nav className={styles.footerLinks} aria-label="Site">
             <Link href="/program">Program</Link>
+            <Link href="/winning-guide">Winning guide</Link>
             <Link href={hub.href}>{hub.loading ? '…' : hub.enrolled ? 'Dashboard' : 'Apply'}</Link>
             {hub.signedIn ? <Link href="/history">History</Link> : null}
             <Link href="/privacy">Privacy</Link>

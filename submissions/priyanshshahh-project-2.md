@@ -98,6 +98,24 @@ on Vercel — the serverless filesystem is ephemeral and not shared between
 instances, so messages would silently vanish on cold starts. Postgres is what
 actually satisfies the ≥30-day history requirement.
 
+
+## Threading
+
+Replies are first-class, not a flat re-post. A reply carries `parent_id` and
+inherits its root's channel or DM, so:
+
+- The channel lists **root messages only** — a busy thread never buries the room.
+- Each root shows a live reply count (`1 reply`, `4 replies`).
+- Opening a thread slides in a side panel; the transcript stays put.
+- Replies stay inside the same conversation, so they remain searchable and DM
+  replies stay private to the two participants.
+- Nesting is capped at one level, so threads cannot become unreadable trees.
+
+Only one right-hand panel is open at a time — opening a thread closes the Forth
+board and vice versa. Without that arbitration, sidebar + channel + thread +
+board squeezed the message column until URLs broke mid-word. Caught by looking
+at it, not by a test.
+
 ## Measured quality bar
 
 Lighthouse on the live demo page, desktop, navigation mode — **55 audits passed, 0 failed**:
@@ -143,6 +161,8 @@ and the following were found and fixed:
 | Announcements | Admin-only, enforced in the API **and** the UI |
 | Search | Global keyword search across channels + your own DMs, click-through to source |
 | Real-time feel | SWR polling, 2s conversation / 5s sidebar |
+| Threaded replies | Reply to any message; replies open in a side panel and never clutter the channel |
+| Command palette | ⌘K / Ctrl-K to jump to any channel, person, or message |
 | Emoji reactions | 6-emoji palette, toggle on/off, per-user state |
 | Light + dark mode | Semantic design tokens, persisted, no flash on load |
 | PM integration | Inbound webhook + embedded board + deep-link cards + shared identity |

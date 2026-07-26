@@ -19,6 +19,7 @@ Open http://localhost:3000
 | `/` | Landing |
 | `/start` | Visual intro for newcomers |
 | `/overview` | Stakeholder summary |
+| `/winning-guide` | Maintainer guide for future winning repos |
 | `/apply` | Application form → Firestore via API |
 | `/program` | All phases and projects |
 | `/dashboard` | Enrolled participant home + cross-project progress |

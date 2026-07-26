@@ -2,9 +2,11 @@ import Link from "next/link";
 import { logoutAction } from "@/lib/actions";
 import type { SessionUser } from "@/lib/auth";
 import { channelLabel } from "@/lib/channels";
+import type { Theme } from "@/lib/theme";
 import type { Channel, UserPublic } from "@/lib/types";
 import { ChannelSearch } from "./ChannelSearch";
 import { SubmitButton } from "./SubmitButton";
+import { ThemeToggle } from "./ThemeToggle";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -20,6 +22,7 @@ export function AppShell({
   unread,
   activeHref,
   rail,
+  theme,
   children,
 }: {
   user: SessionUser;
@@ -28,6 +31,7 @@ export function AppShell({
   unread: number;
   activeHref?: string;
   rail?: React.ReactNode;
+  theme: Theme;
   children: React.ReactNode;
 }) {
   const pmUrl =
@@ -143,9 +147,12 @@ export function AppShell({
               <div className="muted">@{user.username}</div>
             </div>
           </div>
-          <form action={logoutAction}>
-            <SubmitButton className="ghost-btn">Sign out</SubmitButton>
-          </form>
+          <div className="side-foot-actions">
+            <ThemeToggle initialTheme={theme} />
+            <form action={logoutAction}>
+              <SubmitButton className="ghost-btn">Sign out</SubmitButton>
+            </form>
+          </div>
         </div>
       </aside>
 
@@ -157,10 +164,13 @@ export function AppShell({
             </span>
             <span className="brand-word">Huddle</span>
           </Link>
-          <div className="user-chip user-chip-compact">
-            <span className="avatar avatar-sm" aria-hidden="true">
-              {initials(user.name)}
-            </span>
+          <div className="mobile-topbar-actions">
+            <ThemeToggle initialTheme={theme} className="theme-toggle-icon" />
+            <div className="user-chip user-chip-compact">
+              <span className="avatar avatar-sm" aria-hidden="true">
+                {initials(user.name)}
+              </span>
+            </div>
           </div>
         </header>
         <main id="main-content" className="main feed-enter">

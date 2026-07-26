@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { registerAction } from "@/lib/actions";
 import { SubmitButton } from "@/components/SubmitButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
@@ -11,6 +12,9 @@ export default function RegisterPage() {
 
   return (
     <main className="hero-auth">
+      <div className="theme-toggle-corner">
+        <ThemeToggle />
+      </div>
       <div className="auth-card">
         <p className="muted">Join the cohort chat</p>
         <h1>Create your Huddle account</h1>

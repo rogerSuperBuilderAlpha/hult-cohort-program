@@ -22,6 +22,33 @@
   --font-body: "Segoe UI Variable Text", "Avenir Next", "Helvetica Neue",
     "Trebuchet MS", sans-serif;
   --ease: 180ms ease;
+  --bg-glow-1: rgba(13, 110, 99, 0.1);
+  --bg-glow-2: rgba(45, 90, 120, 0.07);
+  --bg-wash-start: #e8f0ed;
+  --bg-wash-end: #e6edf2;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0c1412;
+  --surface: #121c19;
+  --surface-raised: #16221e;
+  --surface-2: #1c2c27;
+  --border: #2d4039;
+  --border-soft: #243530;
+  --text: #e7f1ed;
+  --text-soft: #b0c4bc;
+  --muted: #849990;
+  --accent: #2aa89a;
+  --accent-strong: #3ec4b4;
+  --accent-ink: #041210;
+  --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
+  --danger: #e85a4c;
+  --bg-glow-1: rgba(42, 168, 154, 0.14);
+  --bg-glow-2: rgba(30, 90, 100, 0.12);
+  --bg-wash-start: #0a1210;
+  --bg-wash-end: #0d1618;
+  color-scheme: dark;
 }
 
 * {
@@ -36,9 +63,9 @@ body {
   color: var(--text);
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(13, 110, 99, 0.1), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 100% 10%, rgba(45, 90, 120, 0.07), transparent 50%),
-    linear-gradient(165deg, #e8f0ed 0%, var(--bg) 42%, #e6edf2 100%);
+    radial-gradient(ellipse 80% 50% at 0% 0%, var(--bg-glow-1), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 10%, var(--bg-glow-2), transparent 50%),
+    linear-gradient(165deg, var(--bg-wash-start) 0%, var(--bg) 42%, var(--bg-wash-end) 100%);
   background-attachment: fixed;
 }
 
@@ -279,11 +306,17 @@ summary:focus-visible {
 .side-foot {
   margin-top: auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 0.65rem;
   padding: 0.85rem 0.35rem 0.25rem;
   border-top: 1px solid var(--border-soft);
+}
+
+.side-foot-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .user-chip {
@@ -312,7 +345,7 @@ summary:focus-visible {
   border-radius: 11px;
   background: linear-gradient(
     145deg,
-    color-mix(in srgb, var(--accent) 22%, white),
+    color-mix(in srgb, var(--accent) 22%, var(--surface-raised)),
     color-mix(in srgb, var(--accent) 8%, var(--surface-2))
   );
   color: var(--accent-strong);
@@ -699,6 +732,7 @@ summary:focus-visible {
   border-radius: 12px;
   padding: 0.75rem 0.85rem;
   background: var(--surface-raised);
+  color: var(--text);
   transition: border-color var(--ease), box-shadow var(--ease);
 }
 
@@ -770,6 +804,7 @@ summary:focus-visible {
   border-radius: 10px;
   padding: 0.65rem 0.75rem;
   background: var(--surface-raised);
+  color: var(--text);
 }
 
 button,
@@ -808,10 +843,63 @@ button:hover,
 
 .landing,
 .hero-auth {
+  position: relative;
   min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 2rem 1rem;
+}
+
+.theme-toggle-corner {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 5;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+  color: var(--text-soft);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background var(--ease), color var(--ease), border-color var(--ease);
+}
+
+.theme-toggle:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.theme-toggle[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.theme-toggle-icon {
+  width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+}
+
+.theme-toggle-icon .theme-toggle-label {
+  display: none;
+}
+
+.mobile-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .landing-hero,

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { loginAction } from "@/lib/actions";
 import { SubmitButton } from "@/components/SubmitButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -11,6 +12,9 @@ export default function LoginPage() {
 
   return (
     <main className="hero-auth">
+      <div className="theme-toggle-corner">
+        <ThemeToggle />
+      </div>
       <div className="auth-card">
         <p className="muted">Welcome back</p>
         <h1>Sign in to Huddle</h1>

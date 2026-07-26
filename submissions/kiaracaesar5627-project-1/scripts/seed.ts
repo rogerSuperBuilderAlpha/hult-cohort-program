@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { hashPassword } from "../src/lib/password";
 
+const DEMO_SLUG = "flexiflow-demo";
+
 function admin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -10,35 +12,29 @@ function admin() {
   });
 }
 
+const sb = admin();
+
 async function upsertUser(input: {
   email: string;
   username: string;
   name: string;
   password: string;
 }) {
-  const sb = admin();
   const password_hash = await hashPassword(input.password);
   const { data: existing } = await sb
     .from("users")
     .select("*")
     .eq("email", input.email)
     .maybeSingle();
-
   if (existing) {
-    const { data, error } = await sb
+    const { data } = await sb
       .from("users")
-      .update({
-        username: input.username,
-        name: input.name,
-        password_hash,
-      })
+      .update({ username: input.username, name: input.name, password_hash })
       .eq("id", existing.id)
       .select("*")
       .single();
-    if (error) throw error;
-    return data;
+    return data!;
   }
-
   const { data, error } = await sb
     .from("users")
     .insert({
@@ -50,111 +46,177 @@ async function upsertUser(input: {
     .select("*")
     .single();
   if (error) throw error;
-  return data;
+  return data!;
 }
 
 async function main() {
-  const staff = await upsertUser({
-    email: "staff-review@hult-cohort.test",
-    username: "staff",
-    name: "Staff Reviewer",
-    password: "StaffReview1!",
-  });
-
-  const demo = await upsertUser({
-    email: "demo@hult-cohort.test",
+  const owner = await upsertUser({
+    email: "demo@flexiflow.test",
     username: "demo",
-    name: "Demo Builder",
+    name: "Demo Owner",
     password: "DemoPass1!",
   });
-
-  const peer = await upsertUser({
-    email: "peer@hult-cohort.test",
-    username: "peer",
-    name: "Peer Reviewer",
-    password: "PeerPass1!",
+  const member = await upsertUser({
+    email: "sam@flexiflow.test",
+    username: "sam",
+    name: "Sam Member",
+    password: "SamPass1!",
+  });
+  const guest = await upsertUser({
+    email: "guest@flexiflow.test",
+    username: "guest",
+    name: "Gina Guest",
+    password: "GuestPass1!",
   });
 
-  const sb = admin();
-  const { data: existingProject } = await sb
-    .from("projects")
+  // Reset the demo workspace (cascades to projects/tasks/statuses/etc.).
+  await sb.from("workspaces").delete().eq("slug", DEMO_SLUG);
+
+  const { data: ws, error: wsErr } = await sb
+    .from("workspaces")
+    .insert({
+      name: "Product Studio",
+      slug: DEMO_SLUG,
+      owner_id: owner.id,
+      accent_color: "#0d9488",
+    })
     .select("*")
-    .eq("name", "Summer Pilot 2026")
-    .eq("owner_id", demo.id)
-    .maybeSingle();
+    .single();
+  if (wsErr) throw wsErr;
 
-  let projectId = existingProject?.id as string | undefined;
-  if (!projectId) {
-    const { data, error } = await sb
-      .from("projects")
-      .insert({
-        name: "Summer Pilot 2026",
-        description: "Track cohort deliverables, deadlines, and ship momentum.",
-        owner_id: demo.id,
-      })
-      .select("*")
-      .single();
-    if (error) throw error;
-    projectId = data.id;
-  } else {
-    await sb
-      .from("projects")
-      .update({
-        description: "Track cohort deliverables, deadlines, and ship momentum.",
-        archived: false,
-      })
-      .eq("id", projectId);
-  }
+  await sb.from("workspace_members").insert([
+    { workspace_id: ws.id, user_id: owner.id, role: "OWNER" },
+    { workspace_id: ws.id, user_id: member.id, role: "MEMBER" },
+    { workspace_id: ws.id, user_id: guest.id, role: "GUEST" },
+  ]);
 
-  await sb.from("tasks").delete().eq("project_id", projectId);
+  const statusDefs = [
+    { name: "Backlog", color: "#64748b", position: 0, is_done: false },
+    { name: "In progress", color: "#2563eb", position: 1, is_done: false },
+    { name: "In review", color: "#d97706", position: 2, is_done: false },
+    { name: "Done", color: "#059669", position: 3, is_done: true },
+  ];
+  const { data: statuses } = await sb
+    .from("statuses")
+    .insert(statusDefs.map((s) => ({ ...s, workspace_id: ws.id })))
+    .select("*");
+  const S = (name: string) => statuses!.find((s) => s.name === name)!.id;
+
+  const { data: labels } = await sb
+    .from("labels")
+    .insert([
+      { workspace_id: ws.id, name: "Bug", color: "#e11d48" },
+      { workspace_id: ws.id, name: "Feature", color: "#2563eb" },
+      { workspace_id: ws.id, name: "Urgent", color: "#d97706" },
+    ])
+    .select("*");
+
+  const { data: field } = await sb
+    .from("custom_fields")
+    .insert({
+      workspace_id: ws.id,
+      name: "Priority",
+      type: "select",
+      options: ["Low", "Medium", "High"],
+      position: 0,
+    })
+    .select("*")
+    .single();
+
+  const { data: project } = await sb
+    .from("projects")
+    .insert({
+      name: "Website Revamp",
+      description: "Redesign the marketing site and ship a new pricing page.",
+      owner_id: owner.id,
+      workspace_id: ws.id,
+      color: "#0d9488",
+    })
+    .select("*")
+    .single();
 
   const soon = new Date();
-  soon.setDate(soon.getDate() + 1);
+  soon.setDate(soon.getDate() + 2);
   const later = new Date();
-  later.setDate(later.getDate() + 5);
+  later.setDate(later.getDate() + 6);
 
-  const { error: taskError } = await sb.from("tasks").insert([
-    {
-      title: "Open Project 1 submission PR",
-      description: "Push branch and open PR with production URL in the body.",
-      status: "IN_PROGRESS",
-      project_id: projectId,
-      assignee_id: demo.id,
-      created_by_id: demo.id,
-      due_date: soon.toISOString(),
-    },
-    {
-      title: "Peer review pass",
-      description: "File written GitHub reviews, then cast private votes.",
-      status: "TODO",
-      project_id: projectId,
-      assignee_id: peer.id,
-      created_by_id: staff.id,
-      due_date: later.toISOString(),
-    },
-    {
-      title: "Staff smoke-test deploy",
-      description: "Sign up, create project, assign tasks across accounts.",
-      status: "TODO",
-      project_id: projectId,
-      assignee_id: staff.id,
-      created_by_id: demo.id,
-      due_date: soon.toISOString(),
-    },
-    {
-      title: "Ship motivation dashboard polish",
-      description: "Make next actions and progress impossible to miss.",
-      status: "DONE",
-      project_id: projectId,
-      assignee_id: demo.id,
-      created_by_id: demo.id,
-    },
+  const { data: tasks } = await sb
+    .from("tasks")
+    .insert([
+      {
+        title: "Audit current site copy",
+        description: "Catalogue every page and flag stale content.",
+        status_id: S("Done"),
+        project_id: project!.id,
+        assignee_id: member.id,
+        created_by_id: owner.id,
+        position: 0,
+      },
+      {
+        title: "Design new hero section",
+        description: "Two directions for the homepage hero.",
+        status_id: S("In progress"),
+        project_id: project!.id,
+        assignee_id: owner.id,
+        created_by_id: owner.id,
+        due_date: soon.toISOString(),
+        position: 0,
+      },
+      {
+        title: "Build pricing page",
+        description: "Responsive pricing with monthly/annual toggle.",
+        status_id: S("Backlog"),
+        project_id: project!.id,
+        assignee_id: member.id,
+        created_by_id: owner.id,
+        due_date: later.toISOString(),
+        position: 0,
+      },
+      {
+        title: "Fix nav overlap on mobile",
+        description: "Header wraps awkwardly under 360px.",
+        status_id: S("In review"),
+        project_id: project!.id,
+        assignee_id: owner.id,
+        created_by_id: member.id,
+        position: 0,
+      },
+    ])
+    .select("*");
+
+  // Labels + custom field values on a couple of tasks.
+  const bug = labels!.find((l) => l.name === "Bug")!.id;
+  const feature = labels!.find((l) => l.name === "Feature")!.id;
+  const navTask = tasks!.find((t) => t.title.startsWith("Fix nav"))!.id;
+  const heroTask = tasks!.find((t) => t.title.startsWith("Design"))!.id;
+  await sb.from("task_labels").insert([
+    { task_id: navTask, label_id: bug },
+    { task_id: heroTask, label_id: feature },
   ]);
-  if (taskError) throw taskError;
+  await sb.from("task_field_values").insert([
+    { task_id: heroTask, field_id: field!.id, value: "High" },
+    { task_id: navTask, field_id: field!.id, value: "Medium" },
+  ]);
 
-  console.log("Seeded users: staff / demo / peer");
-  console.log("Demo login: demo@hult-cohort.test / DemoPass1!");
-  console.log("Staff login: staff-review@hult-cohort.test / StaffReview1!");
+  await sb.from("automation_rules").insert({
+    workspace_id: ws.id,
+    name: "Ping owner when done",
+    trigger_status_id: S("Done"),
+    action: "notify_owner",
+  });
+
+  await sb.from("activity").insert({
+    workspace_id: ws.id,
+    project_id: project!.id,
+    user_id: owner.id,
+    verb: "created project",
+    detail: "Website Revamp",
+  });
+
+  console.log("Seeded workspace 'Product Studio' (slug: %s)", DEMO_SLUG);
+  console.log("Owner  login: demo@flexiflow.test / DemoPass1!");
+  console.log("Member login: sam@flexiflow.test / SamPass1!");
+  console.log("Guest  login: guest@flexiflow.test / GuestPass1!");
 }
 
 main().catch((e) => {

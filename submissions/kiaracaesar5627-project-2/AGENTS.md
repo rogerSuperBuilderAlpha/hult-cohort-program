@@ -1,16 +1,15 @@
-# AGENTS.md — Comms (Project 2 Comms)
+# AGENTS.md — Comms (Project 2)
 
 ## Goal
 
 Ship a production cohort communications platform: public channels, 1:1 DMs,
 admin announcements, keyword search, 30-day history, in-app notifications, and
-≤5s polling for new messages.
+≤5s polling for new messages. **Do not use Supabase.**
 
 ## Commands
 
 ```bash
 npm install
-# apply supabase/migrations/20260726_comms_init.sql in Supabase SQL editor
 npm run db:seed
 npm run dev
 npm run build
@@ -18,33 +17,29 @@ npm run build
 
 ## Env
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `AUTH_SECRET`
-- `NEXT_PUBLIC_PM_URL` (FlexiFlow deep link; default production PM URL)
+- `AUTH_SECRET` (required)
+- `NEXT_PUBLIC_PM_URL` (FlexiFlow deep link)
+- Optional durable DB: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`
 
-Never commit `.env` / `.env.local`.
+Never commit `.env` / `.env.local` / `data/*.db`.
 
 ## Key paths
 
-- `src/lib/actions.ts` — auth, channels, messages, DMs, notifications
-- `src/lib/db.ts` — Supabase access (`comms_*` tables)
-- `src/lib/auth.ts` — JWT cookie session
-- `src/components/MessagePane.tsx` — polling message list
-- `src/components/AppShell.tsx` — sidebar + PM deep link
+- `src/lib/client.ts` — libsql client + schema bootstrap
+- `src/lib/db.ts` — queries/mutations
+- `src/lib/seed.ts` / `src/lib/bootstrap.ts` — demo data
+- `src/lib/actions.ts` — server actions
+- `src/components/MessagePane.tsx` — polling UI
 - `src/app/api/messages/route.ts` — poll endpoint
-- `src/app/app/c/[slug]/page.tsx` — channel chat
-- `src/app/app/dm/[id]/page.tsx` — DM thread
 
 ## Conventions
 
 - Only `ADMIN` may create/rename/archive channels or post in announcements.
-- DMs use a sorted `dm_key` for uniqueness between two users.
+- DMs use a sorted `dm_key` for uniqueness.
 - History queries filter `created_at >= now() - 30 days`.
 - Prefer the same emails as FlexiFlow for cohort account matching.
 
 ## Do not
 
-- Import `firebase-admin`; this app uses Supabase.
-- Put `SUPABASE_SERVICE_ROLE_KEY` in client bundles.
-- Write to FlexiFlow tables (`users`, `workspaces`, …) — Comms uses `comms_*`.
+- Reintroduce Supabase / `firebase-admin`.
+- Commit the SQLite database file.

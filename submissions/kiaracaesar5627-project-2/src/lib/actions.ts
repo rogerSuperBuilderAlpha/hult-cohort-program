@@ -10,6 +10,7 @@ import {
   requireUser,
   verifyPassword,
 } from "./auth";
+import { ensureSeeded } from "./bootstrap";
 import {
   createChannel,
   createMessage,
@@ -48,6 +49,7 @@ const loginSchema = z.object({
 });
 
 export async function registerAction(formData: FormData): Promise<ActionResult> {
+  await ensureSeeded();
   const parsed = registerSchema.safeParse({
     name: formData.get("name"),
     username: formData.get("username"),
@@ -75,6 +77,7 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
 }
 
 export async function loginAction(formData: FormData): Promise<ActionResult> {
+  await ensureSeeded();
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),

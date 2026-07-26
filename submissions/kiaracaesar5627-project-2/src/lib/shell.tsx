@@ -5,12 +5,14 @@ import {
 } from "@/lib/db";
 import type { SessionUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import { ensureSeeded } from "@/lib/bootstrap";
 
 export async function withShell(
   user: SessionUser,
   activeHref: string | undefined,
   children: React.ReactNode,
 ) {
+  await ensureSeeded();
   const [channels, dmRows, unread] = await Promise.all([
     listChannels(),
     listDmConversations(user.id),

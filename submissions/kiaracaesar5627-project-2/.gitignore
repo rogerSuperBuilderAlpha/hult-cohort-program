@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local sqlite
+/data/*.db
+/data/*.db-*
+
 # vercel
 .vercel
 
@@ -41,3 +45,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+
+# local sqlite / libsql
+/data/*.db
+/data/*.db-*

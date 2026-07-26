@@ -1,4 +1,4 @@
-import { getSupabaseAdmin } from "./supabase";
+import { ensureSchema, getDb, newId, nowIso } from "./client";
 import type {
   Channel,
   ChannelKind,
@@ -9,14 +9,6 @@ import type {
   UserPublic,
   UserRole,
 } from "./types";
-
-function throwIfError(error: { message: string } | null) {
-  if (error) throw new Error(error.message);
-}
-
-function db() {
-  return getSupabaseAdmin();
-}
 
 const HISTORY_DAYS = 30;
 
@@ -37,31 +29,97 @@ export function slugifyChannel(name: string) {
   return base || "channel";
 }
 
+async function ready() {
+  await ensureSchema();
+  return getDb();
+}
+
+function mapUser(row: Record<string, unknown>): User {
+  return {
+    id: String(row.id),
+    email: String(row.email),
+    username: String(row.username),
+    name: String(row.name),
+    password_hash: String(row.password_hash),
+    role: row.role as UserRole,
+    created_at: String(row.created_at),
+  };
+}
+
+function mapUserPublic(row: Record<string, unknown>): UserPublic {
+  return {
+    id: String(row.id),
+    email: String(row.email),
+    username: String(row.username),
+    name: String(row.name),
+    role: row.role as UserRole,
+  };
+}
+
+function mapChannel(row: Record<string, unknown>): Channel {
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    slug: String(row.slug),
+    description: String(row.description ?? ""),
+    kind: row.kind as ChannelKind,
+    archived: Boolean(row.archived),
+    created_by_id: String(row.created_by_id),
+    created_at: String(row.created_at),
+    updated_at: String(row.updated_at),
+  };
+}
+
+function mapMessage(row: Record<string, unknown>): Message {
+  const message: Message = {
+    id: String(row.id),
+    channel_id: row.channel_id ? String(row.channel_id) : null,
+    conversation_id: row.conversation_id ? String(row.conversation_id) : null,
+    author_id: String(row.author_id),
+    body: String(row.body),
+    created_at: String(row.created_at),
+  };
+  if (row.author_username) {
+    message.author = {
+      id: String(row.author_id),
+      email: String(row.author_email ?? ""),
+      username: String(row.author_username),
+      name: String(row.author_name ?? ""),
+      role: (row.author_role as UserRole) ?? "MEMBER",
+    };
+  }
+  return message;
+}
+
 // Users
 export async function findUserById(id: string): Promise<User | null> {
-  const { data, error } = await db().from("comms_users").select("*").eq("id", id).maybeSingle();
-  throwIfError(error);
-  return data as User | null;
+  const db = await ready();
+  const result = await db.execute({
+    sql: "SELECT * FROM users WHERE id = ?",
+    args: [id],
+  });
+  const row = result.rows[0] as Record<string, unknown> | undefined;
+  return row ? mapUser(row) : null;
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
-  const { data, error } = await db()
-    .from("comms_users")
-    .select("*")
-    .eq("email", email.toLowerCase())
-    .maybeSingle();
-  throwIfError(error);
-  return data as User | null;
+  const db = await ready();
+  const result = await db.execute({
+    sql: "SELECT * FROM users WHERE lower(email) = lower(?)",
+    args: [email],
+  });
+  const row = result.rows[0] as Record<string, unknown> | undefined;
+  return row ? mapUser(row) : null;
 }
 
 export async function findUserByUsername(username: string): Promise<User | null> {
-  const { data, error } = await db()
-    .from("comms_users")
-    .select("*")
-    .eq("username", username)
-    .maybeSingle();
-  throwIfError(error);
-  return data as User | null;
+  const db = await ready();
+  const result = await db.execute({
+    sql: "SELECT * FROM users WHERE username = ?",
+    args: [username],
+  });
+  const row = result.rows[0] as Record<string, unknown> | undefined;
+  return row ? mapUser(row) : null;
 }
 
 export async function findUserByEmailOrUsername(email: string, username: string) {
@@ -75,53 +133,69 @@ export async function createUser(input: {
   password_hash: string;
   role?: UserRole;
 }): Promise<User> {
-  const { data, error } = await db()
-    .from("comms_users")
-    .insert({
-      name: input.name,
-      email: input.email.toLowerCase(),
-      username: input.username,
-      password_hash: input.password_hash,
-      role: input.role ?? "MEMBER",
-    })
-    .select("*")
-    .single();
-  throwIfError(error);
-  return data as User;
+  const db = await ready();
+  const id = newId();
+  const created_at = nowIso();
+  const role = input.role ?? "MEMBER";
+  await db.execute({
+    sql: `INSERT INTO users (id, email, username, name, password_hash, role, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      id,
+      input.email.toLowerCase(),
+      input.username,
+      input.name,
+      input.password_hash,
+      role,
+      created_at,
+    ],
+  });
+  return {
+    id,
+    email: input.email.toLowerCase(),
+    username: input.username,
+    name: input.name,
+    password_hash: input.password_hash,
+    role,
+    created_at,
+  };
 }
 
 export async function listUsersPublic(): Promise<UserPublic[]> {
-  const { data, error } = await db()
-    .from("comms_users")
-    .select("id,email,username,name,role")
-    .order("username", { ascending: true });
-  throwIfError(error);
-  return (data ?? []) as UserPublic[];
+  const db = await ready();
+  const result = await db.execute(
+    "SELECT id, email, username, name, role FROM users ORDER BY username ASC",
+  );
+  return result.rows.map((row) => mapUserPublic(row as Record<string, unknown>));
 }
 
 // Channels
 export async function listChannels(opts?: { includeArchived?: boolean }): Promise<Channel[]> {
-  let query = db().from("comms_channels").select("*").order("name", { ascending: true });
-  if (!opts?.includeArchived) query = query.eq("archived", false);
-  const { data, error } = await query;
-  throwIfError(error);
-  return (data ?? []) as Channel[];
+  const db = await ready();
+  const result = opts?.includeArchived
+    ? await db.execute("SELECT * FROM channels ORDER BY name ASC")
+    : await db.execute("SELECT * FROM channels WHERE archived = 0 ORDER BY name ASC");
+  return result.rows.map((row) => mapChannel(row as Record<string, unknown>));
 }
 
 export async function getChannelById(id: string): Promise<Channel | null> {
-  const { data, error } = await db().from("comms_channels").select("*").eq("id", id).maybeSingle();
-  throwIfError(error);
-  return data as Channel | null;
+  const db = await ready();
+  const result = await db.execute({
+    sql: "SELECT * FROM channels WHERE id = ?",
+    args: [id],
+  });
+  const row = result.rows[0] as Record<string, unknown> | undefined;
+  return row ? mapChannel(row) : null;
 }
 
 export async function getChannelBySlug(slug: string): Promise<Channel | null> {
-  const { data, error } = await db()
-    .from("comms_channels")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
-  throwIfError(error);
-  return data as Channel | null;
+  const db = await ready();
+  const result = await db.execute({
+    sql: "SELECT * FROM channels WHERE slug = ?",
+    args: [slug],
+  });
+  const row = result.rows[0] as Record<string, unknown> | undefined;
+  return row ? mapChannel(row) : null;
 }
 
 export async function createChannel(input: {
@@ -131,145 +205,218 @@ export async function createChannel(input: {
   kind?: ChannelKind;
   created_by_id: string;
 }): Promise<Channel> {
-  const { data, error } = await db()
-    .from("comms_channels")
-    .insert({
-      name: input.name,
-      slug: input.slug,
-      description: input.description ?? "",
-      kind: input.kind ?? "public",
-      created_by_id: input.created_by_id,
-    })
-    .select("*")
-    .single();
-  throwIfError(error);
-  return data as Channel;
+  const db = await ready();
+  const id = newId();
+  const created_at = nowIso();
+  const kind = input.kind ?? "public";
+  const description = input.description ?? "";
+  await db.execute({
+    sql: `INSERT INTO channels
+      (id, name, slug, description, kind, archived, created_by_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)`,
+    args: [
+      id,
+      input.name,
+      input.slug,
+      description,
+      kind,
+      input.created_by_id,
+      created_at,
+      created_at,
+    ],
+  });
+  return {
+    id,
+    name: input.name,
+    slug: input.slug,
+    description,
+    kind,
+    archived: false,
+    created_by_id: input.created_by_id,
+    created_at,
+    updated_at: created_at,
+  };
 }
 
 export async function updateChannel(
   id: string,
   input: Partial<Pick<Channel, "name" | "slug" | "description" | "archived">>,
 ): Promise<Channel> {
-  const { data, error } = await db()
-    .from("comms_channels")
-    .update({ ...input, updated_at: new Date().toISOString() })
-    .eq("id", id)
-    .select("*")
-    .single();
-  throwIfError(error);
-  return data as Channel;
+  const existing = await getChannelById(id);
+  if (!existing) throw new Error("Channel not found");
+  const next = {
+    name: input.name ?? existing.name,
+    slug: input.slug ?? existing.slug,
+    description: input.description ?? existing.description,
+    archived: input.archived ?? existing.archived,
+    updated_at: nowIso(),
+  };
+  const db = await ready();
+  await db.execute({
+    sql: `UPDATE channels
+      SET name = ?, slug = ?, description = ?, archived = ?, updated_at = ?
+      WHERE id = ?`,
+    args: [
+      next.name,
+      next.slug,
+      next.description,
+      next.archived ? 1 : 0,
+      next.updated_at,
+      id,
+    ],
+  });
+  return { ...existing, ...next };
 }
 
 // Conversations / DMs
 export async function getOrCreateDm(userA: string, userB: string): Promise<Conversation> {
   if (userA === userB) throw new Error("INVALID_DM");
+  const db = await ready();
   const key = dmKeyFor(userA, userB);
-  const existing = await db()
-    .from("comms_conversations")
-    .select("*")
-    .eq("dm_key", key)
-    .maybeSingle();
-  throwIfError(existing.error);
-  if (existing.data) return existing.data as Conversation;
+  const existing = await db.execute({
+    sql: "SELECT * FROM conversations WHERE dm_key = ?",
+    args: [key],
+  });
+  const row = existing.rows[0] as Record<string, unknown> | undefined;
+  if (row) {
+    return {
+      id: String(row.id),
+      kind: "dm",
+      dm_key: String(row.dm_key),
+      created_at: String(row.created_at),
+    };
+  }
 
-  const { data: conversation, error } = await db()
-    .from("comms_conversations")
-    .insert({ kind: "dm", dm_key: key })
-    .select("*")
-    .single();
-  throwIfError(error);
-  const { error: membersError } = await db().from("comms_conversation_members").insert([
-    { conversation_id: conversation.id, user_id: userA },
-    { conversation_id: conversation.id, user_id: userB },
-  ]);
-  throwIfError(membersError);
-  return conversation as Conversation;
+  const id = newId();
+  const created_at = nowIso();
+  await db.execute({
+    sql: "INSERT INTO conversations (id, kind, dm_key, created_at) VALUES (?, 'dm', ?, ?)",
+    args: [id, key, created_at],
+  });
+  await db.execute({
+    sql: "INSERT INTO conversation_members (conversation_id, user_id) VALUES (?, ?), (?, ?)",
+    args: [id, userA, id, userB],
+  });
+  return { id, kind: "dm", dm_key: key, created_at };
 }
 
 export async function listDmConversations(userId: string) {
-  const { data: memberships, error } = await db()
-    .from("comms_conversation_members")
-    .select("conversation_id")
-    .eq("user_id", userId);
-  throwIfError(error);
-  const ids = (memberships ?? []).map((row) => row.conversation_id as string);
-  if (ids.length === 0) return [] as Array<{
-    conversation: Conversation;
-    peer: UserPublic;
-  }>;
-
-  const { data: conversations, error: convError } = await db()
-    .from("comms_conversations")
-    .select("*")
-    .in("id", ids)
-    .order("created_at", { ascending: false });
-  throwIfError(convError);
+  const db = await ready();
+  const memberships = await db.execute({
+    sql: "SELECT conversation_id FROM conversation_members WHERE user_id = ?",
+    args: [userId],
+  });
+  const ids = memberships.rows.map((row) => String((row as Record<string, unknown>).conversation_id));
+  if (ids.length === 0) return [] as Array<{ conversation: Conversation; peer: UserPublic }>;
 
   const results: Array<{ conversation: Conversation; peer: UserPublic }> = [];
-  for (const conversation of (conversations ?? []) as Conversation[]) {
-    const { data: members, error: memError } = await db()
-      .from("comms_conversation_members")
-      .select("user_id, user:comms_users!user_id(id,email,username,name,role)")
-      .eq("conversation_id", conversation.id);
-    throwIfError(memError);
-    type Row = { user_id: string; user: UserPublic };
-    const peer = ((members ?? []) as unknown as Row[]).find((m) => m.user_id !== userId)?.user;
-    if (peer) results.push({ conversation, peer });
+  for (const conversationId of ids) {
+    const convResult = await db.execute({
+      sql: "SELECT * FROM conversations WHERE id = ?",
+      args: [conversationId],
+    });
+    const convRow = convResult.rows[0] as Record<string, unknown> | undefined;
+    if (!convRow) continue;
+    const members = await db.execute({
+      sql: `SELECT u.id, u.email, u.username, u.name, u.role
+            FROM conversation_members cm
+            JOIN users u ON u.id = cm.user_id
+            WHERE cm.conversation_id = ?`,
+      args: [conversationId],
+    });
+    const peerRow = members.rows
+      .map((row) => mapUserPublic(row as Record<string, unknown>))
+      .find((user) => user.id !== userId);
+    if (!peerRow) continue;
+    results.push({
+      conversation: {
+        id: String(convRow.id),
+        kind: "dm",
+        dm_key: convRow.dm_key ? String(convRow.dm_key) : null,
+        created_at: String(convRow.created_at),
+      },
+      peer: peerRow,
+    });
   }
   return results;
 }
 
 export async function getConversationForUser(conversationId: string, userId: string) {
-  const { data: membership, error } = await db()
-    .from("comms_conversation_members")
-    .select("conversation_id")
-    .eq("conversation_id", conversationId)
-    .eq("user_id", userId)
-    .maybeSingle();
-  throwIfError(error);
-  if (!membership) return null;
-  const { data, error: convError } = await db()
-    .from("comms_conversations")
-    .select("*")
-    .eq("id", conversationId)
-    .maybeSingle();
-  throwIfError(convError);
-  return data as Conversation | null;
+  const db = await ready();
+  const membership = await db.execute({
+    sql: `SELECT conversation_id FROM conversation_members
+          WHERE conversation_id = ? AND user_id = ?`,
+    args: [conversationId, userId],
+  });
+  if (!membership.rows[0]) return null;
+  const conv = await db.execute({
+    sql: "SELECT * FROM conversations WHERE id = ?",
+    args: [conversationId],
+  });
+  const row = conv.rows[0] as Record<string, unknown> | undefined;
+  if (!row) return null;
+  return {
+    id: String(row.id),
+    kind: "dm" as const,
+    dm_key: row.dm_key ? String(row.dm_key) : null,
+    created_at: String(row.created_at),
+  };
 }
 
-// Messages
+const MESSAGE_SELECT = `
+  SELECT m.*,
+    u.email AS author_email,
+    u.username AS author_username,
+    u.name AS author_name,
+    u.role AS author_role
+  FROM messages m
+  JOIN users u ON u.id = m.author_id
+`;
+
 export async function listChannelMessages(
   channelId: string,
   opts?: { since?: string; limit?: number },
 ): Promise<Message[]> {
-  let query = db()
-    .from("comms_messages")
-    .select("*, author:comms_users!author_id(id,email,username,name,role)")
-    .eq("channel_id", channelId)
-    .gte("created_at", historyCutoffIso())
-    .order("created_at", { ascending: true })
-    .limit(opts?.limit ?? 200);
-  if (opts?.since) query = query.gt("created_at", opts.since);
-  const { data, error } = await query;
-  throwIfError(error);
-  return (data ?? []) as unknown as Message[];
+  const db = await ready();
+  const limit = opts?.limit ?? 200;
+  const cutoff = historyCutoffIso();
+  const result = opts?.since
+    ? await db.execute({
+        sql: `${MESSAGE_SELECT}
+              WHERE m.channel_id = ? AND m.created_at >= ? AND m.created_at > ?
+              ORDER BY m.created_at ASC LIMIT ?`,
+        args: [channelId, cutoff, opts.since, limit],
+      })
+    : await db.execute({
+        sql: `${MESSAGE_SELECT}
+              WHERE m.channel_id = ? AND m.created_at >= ?
+              ORDER BY m.created_at ASC LIMIT ?`,
+        args: [channelId, cutoff, limit],
+      });
+  return result.rows.map((row) => mapMessage(row as Record<string, unknown>));
 }
 
 export async function listConversationMessages(
   conversationId: string,
   opts?: { since?: string; limit?: number },
 ): Promise<Message[]> {
-  let query = db()
-    .from("comms_messages")
-    .select("*, author:comms_users!author_id(id,email,username,name,role)")
-    .eq("conversation_id", conversationId)
-    .gte("created_at", historyCutoffIso())
-    .order("created_at", { ascending: true })
-    .limit(opts?.limit ?? 200);
-  if (opts?.since) query = query.gt("created_at", opts.since);
-  const { data, error } = await query;
-  throwIfError(error);
-  return (data ?? []) as unknown as Message[];
+  const db = await ready();
+  const limit = opts?.limit ?? 200;
+  const cutoff = historyCutoffIso();
+  const result = opts?.since
+    ? await db.execute({
+        sql: `${MESSAGE_SELECT}
+              WHERE m.conversation_id = ? AND m.created_at >= ? AND m.created_at > ?
+              ORDER BY m.created_at ASC LIMIT ?`,
+        args: [conversationId, cutoff, opts.since, limit],
+      })
+    : await db.execute({
+        sql: `${MESSAGE_SELECT}
+              WHERE m.conversation_id = ? AND m.created_at >= ?
+              ORDER BY m.created_at ASC LIMIT ?`,
+        args: [conversationId, cutoff, limit],
+      });
+  return result.rows.map((row) => mapMessage(row as Record<string, unknown>));
 }
 
 export async function createMessage(input: {
@@ -278,32 +425,52 @@ export async function createMessage(input: {
   author_id: string;
   body: string;
 }): Promise<Message> {
-  const { data, error } = await db()
-    .from("comms_messages")
-    .insert({
-      channel_id: input.channel_id ?? null,
-      conversation_id: input.conversation_id ?? null,
-      author_id: input.author_id,
-      body: input.body,
-    })
-    .select("*, author:comms_users!author_id(id,email,username,name,role)")
-    .single();
-  throwIfError(error);
-  return data as unknown as Message;
+  const db = await ready();
+  const id = newId();
+  const created_at = nowIso();
+  await db.execute({
+    sql: `INSERT INTO messages (id, channel_id, conversation_id, author_id, body, created_at)
+          VALUES (?, ?, ?, ?, ?, ?)`,
+    args: [
+      id,
+      input.channel_id ?? null,
+      input.conversation_id ?? null,
+      input.author_id,
+      input.body,
+      created_at,
+    ],
+  });
+  const author = await findUserById(input.author_id);
+  return {
+    id,
+    channel_id: input.channel_id ?? null,
+    conversation_id: input.conversation_id ?? null,
+    author_id: input.author_id,
+    body: input.body,
+    created_at,
+    author: author
+      ? {
+          id: author.id,
+          email: author.email,
+          username: author.username,
+          name: author.name,
+          role: author.role,
+        }
+      : undefined,
+  };
 }
 
 export async function searchMessages(queryText: string, limit = 40): Promise<Message[]> {
   const q = queryText.trim();
   if (!q) return [];
-  const { data, error } = await db()
-    .from("comms_messages")
-    .select("*, author:comms_users!author_id(id,email,username,name,role)")
-    .gte("created_at", historyCutoffIso())
-    .ilike("body", `%${q}%`)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  throwIfError(error);
-  return (data ?? []) as unknown as Message[];
+  const db = await ready();
+  const result = await db.execute({
+    sql: `${MESSAGE_SELECT}
+          WHERE m.created_at >= ? AND lower(m.body) LIKE lower(?)
+          ORDER BY m.created_at DESC LIMIT ?`,
+    args: [historyCutoffIso(), `%${q}%`, limit],
+  });
+  return result.rows.map((row) => mapMessage(row as Record<string, unknown>));
 }
 
 // Notifications
@@ -312,38 +479,48 @@ export async function createNotification(input: {
   body: string;
   link?: string;
 }): Promise<void> {
-  const { error } = await db()
-    .from("comms_notifications")
-    .insert({ link: "", ...input });
-  throwIfError(error);
+  const db = await ready();
+  await db.execute({
+    sql: `INSERT INTO notifications (id, user_id, body, link, read, created_at)
+          VALUES (?, ?, ?, ?, 0, ?)`,
+    args: [newId(), input.user_id, input.body, input.link ?? "", nowIso()],
+  });
 }
 
 export async function listNotifications(userId: string, limit = 30): Promise<Notification[]> {
-  const { data, error } = await db()
-    .from("comms_notifications")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  throwIfError(error);
-  return (data ?? []) as Notification[];
+  const db = await ready();
+  const result = await db.execute({
+    sql: `SELECT * FROM notifications WHERE user_id = ?
+          ORDER BY created_at DESC LIMIT ?`,
+    args: [userId, limit],
+  });
+  return result.rows.map((row) => {
+    const r = row as Record<string, unknown>;
+    return {
+      id: String(r.id),
+      user_id: String(r.user_id),
+      body: String(r.body),
+      link: String(r.link ?? ""),
+      read: Boolean(r.read),
+      created_at: String(r.created_at),
+    };
+  });
 }
 
 export async function countUnreadNotifications(userId: string): Promise<number> {
-  const { count, error } = await db()
-    .from("comms_notifications")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("read", false);
-  throwIfError(error);
-  return count ?? 0;
+  const db = await ready();
+  const result = await db.execute({
+    sql: "SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND read = 0",
+    args: [userId],
+  });
+  const row = result.rows[0] as Record<string, unknown> | undefined;
+  return Number(row?.count ?? 0);
 }
 
 export async function markNotificationsRead(userId: string): Promise<void> {
-  const { error } = await db()
-    .from("comms_notifications")
-    .update({ read: true })
-    .eq("user_id", userId)
-    .eq("read", false);
-  throwIfError(error);
+  const db = await ready();
+  await db.execute({
+    sql: "UPDATE notifications SET read = 1 WHERE user_id = ? AND read = 0",
+    args: [userId],
+  });
 }

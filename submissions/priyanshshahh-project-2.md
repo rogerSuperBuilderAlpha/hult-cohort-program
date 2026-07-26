@@ -2,6 +2,15 @@
 
 Summer Pilot 2026, Project 2 — Internal communications platform.
 
+## Reviewers: start here (no signup)
+
+**▶ Live demo — no account needed: https://cohort-comms-phi.vercel.app/demo**
+
+The demo is the real UI on sample data. It shows channels, unread badges, DMs
+with presence, search, emoji reactions, the embedded Forth board, and a message
+posted by the Forth webhook (tagged `WEBHOOK`). To post for real, sign in at
+https://cohort-comms-phi.vercel.app.
+
 ## Summary
 
 **Cohort Comms** replaces Discord as the cohort's primary channel: channels,

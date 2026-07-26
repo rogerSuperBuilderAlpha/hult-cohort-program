@@ -4,12 +4,14 @@ Summer Pilot 2026, Project 2 — Internal communications platform.
 
 ## Reviewers: start here (no signup)
 
-**▶ Live demo — no account needed: https://cohort-comms-phi.vercel.app/demo**
+**▶ Interactive live demo — no account needed: https://cohort-comms-phi.vercel.app/demo**
 
-The demo is the real UI on sample data. It shows channels, unread badges, DMs
-with presence, search, emoji reactions, the embedded Forth board, and a message
-posted by the Forth webhook (tagged `WEBHOOK`). To post for real, sign in at
-https://cohort-comms-phi.vercel.app.
+Open `/demo` and you can **post, react, open DMs, and run a 30-second Forth tour**
+without signing up. Local-only state — nothing writes to the live cohort DB.
+The Forth board pane opens by default. Look for the message tagged `WEBHOOK` in
+`#general` — that was posted by `POST /api/webhooks/forth`, not typed by a human.
+
+Sign in at https://cohort-comms-phi.vercel.app to join the real workspace.
 
 ## Summary
 
@@ -17,12 +19,13 @@ https://cohort-comms-phi.vercel.app.
 direct messages, global search, emoji reactions, admin-only announcements,
 unread badges, presence, and light/dark themes.
 
-Two things set it apart from a standard chat app, and both are working, not
-described:
+Three things set it apart from a standard chat app — all working, not described:
 
-1. **The Forth board is embedded inside the app** as a split-pane, so you read
-   `#general` on the left and move a ticket on the right without switching tabs.
-2. **A live inbound webhook — `POST /api/webhooks/forth`.** Forth publishes no
+1. **Interactive no-signup demo** at `/demo` — reviewers post, react, DM, and
+   tour the Forth loop in under a minute without creating an account.
+2. **The Forth board is embedded inside the app** as a split-pane (open by
+   default), so you read `#general` on the left and move a ticket on the right.
+3. **A live inbound webhook — `POST /api/webhooks/forth`.** Forth publishes no
    outbound webhooks yet, so rather than stopping at "no API, cannot integrate",
    the *receiving half of the contract is built, secured, and verified*. Point
    Forth or any relay at it with the shared secret and board events post

@@ -2,11 +2,9 @@ import Link from "next/link";
 import { logoutAction } from "@/lib/actions";
 import type { SessionUser } from "@/lib/auth";
 import { channelLabel } from "@/lib/channels";
-import type { Theme } from "@/lib/theme";
 import type { Channel, UserPublic } from "@/lib/types";
 import { ChannelSearch } from "./ChannelSearch";
 import { SubmitButton } from "./SubmitButton";
-import { ThemeToggle } from "./ThemeToggle";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -22,7 +20,6 @@ export function AppShell({
   unread,
   activeHref,
   rail,
-  theme,
   children,
 }: {
   user: SessionUser;
@@ -31,7 +28,6 @@ export function AppShell({
   unread: number;
   activeHref?: string;
   rail?: React.ReactNode;
-  theme: Theme;
   children: React.ReactNode;
 }) {
   const pmUrl =
@@ -159,7 +155,6 @@ export function AppShell({
             </div>
           </Link>
           <div className="side-foot-actions">
-            <ThemeToggle initialTheme={theme} />
             <form action={logoutAction}>
               <SubmitButton className="ghost-btn">Sign out</SubmitButton>
             </form>
@@ -176,7 +171,6 @@ export function AppShell({
             <span className="brand-word">Huddle</span>
           </Link>
           <div className="mobile-topbar-actions">
-            <ThemeToggle initialTheme={theme} className="theme-toggle-icon" />
             <Link
               href="/app/profile"
               className="user-chip user-chip-compact"

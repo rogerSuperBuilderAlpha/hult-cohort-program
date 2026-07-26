@@ -1,7 +1,9 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "@/components/ProfileForm";
 import { requireUser } from "@/lib/auth";
 import { withShell } from "@/lib/shell";
+import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 export default async function ProfilePage() {
   let user;
@@ -10,6 +12,9 @@ export default async function ProfilePage() {
   } catch {
     redirect("/login");
   }
+
+  const jar = await cookies();
+  const theme = parseTheme(jar.get(THEME_COOKIE)?.value);
 
   return withShell(
     user,
@@ -24,7 +29,7 @@ export default async function ProfilePage() {
           </p>
         </div>
       </header>
-      <ProfileForm user={user} />
+      <ProfileForm user={user} theme={theme} />
     </section>,
   );
 }

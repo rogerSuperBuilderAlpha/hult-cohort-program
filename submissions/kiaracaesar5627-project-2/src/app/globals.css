@@ -399,6 +399,16 @@ summary:focus-visible {
   letter-spacing: 0.02em;
 }
 
+.profile-appearance-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.profile-appearance .theme-toggle {
+  align-self: flex-start;
+}
+
 .form input:disabled,
 .form input:read-only {
   opacity: 0.75;
@@ -899,13 +909,6 @@ button:hover,
   padding: 2rem 1rem;
 }
 
-.theme-toggle-corner {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 5;
-}
-
 .theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -933,16 +936,6 @@ button:hover,
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
   background: var(--accent-soft);
   color: var(--accent-strong);
-}
-
-.theme-toggle-icon {
-  width: 2.25rem;
-  min-height: 2.25rem;
-  padding: 0;
-}
-
-.theme-toggle-icon .theme-toggle-label {
-  display: none;
 }
 
 .mobile-topbar-actions {

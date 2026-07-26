@@ -5,7 +5,6 @@ import { useState, useTransition } from "react";
 import { registerAction } from "@/lib/actions";
 import { GitHubAuthButton } from "@/components/GitHubAuthButton";
 import { SubmitButton } from "@/components/SubmitButton";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function RegisterClient({
   githubEnabled,
@@ -19,9 +18,6 @@ export function RegisterClient({
 
   return (
     <main className="hero-auth">
-      <div className="theme-toggle-corner">
-        <ThemeToggle />
-      </div>
       <div className="auth-card">
         <p className="muted">Join the cohort chat</p>
         <h1>Create your Huddle account</h1>

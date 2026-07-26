@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { changePasswordAction, updateProfileAction } from "@/lib/actions";
 import type { SessionUser } from "@/lib/auth";
+import type { Theme } from "@/lib/theme";
 import { SubmitButton } from "./SubmitButton";
+import { ThemeToggle } from "./ThemeToggle";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -13,7 +15,13 @@ function initials(name: string) {
   return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
-export function ProfileForm({ user }: { user: SessionUser }) {
+export function ProfileForm({
+  user,
+  theme,
+}: {
+  user: SessionUser;
+  theme: Theme;
+}) {
   const router = useRouter();
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileOk, setProfileOk] = useState(false);
@@ -103,6 +111,19 @@ export function ProfileForm({ user }: { user: SessionUser }) {
           {profilePending ? "Saving…" : "Save profile"}
         </SubmitButton>
       </form>
+
+      <section
+        className="form profile-appearance"
+        aria-labelledby="appearance-heading"
+      >
+        <h2 id="appearance-heading" className="profile-section-title">
+          Appearance
+        </h2>
+        <p className="muted profile-appearance-hint">
+          Choose light or dark mode. Your preference is saved for this browser.
+        </p>
+        <ThemeToggle initialTheme={theme} />
+      </section>
 
       <form
         className="form"

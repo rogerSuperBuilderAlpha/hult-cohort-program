@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import {
   countUnreadNotifications,
   listChannels,
@@ -7,7 +6,6 @@ import {
 import type { SessionUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { ensureSeeded } from "@/lib/bootstrap";
-import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 
 export async function withShell(
   user: SessionUser,
@@ -16,8 +14,6 @@ export async function withShell(
   rail?: React.ReactNode,
 ) {
   await ensureSeeded();
-  const jar = await cookies();
-  const theme = parseTheme(jar.get(THEME_COOKIE)?.value);
   const [channels, dmRows, unread] = await Promise.all([
     listChannels(),
     listDmConversations(user.id),
@@ -34,7 +30,6 @@ export async function withShell(
       unread={unread}
       activeHref={activeHref}
       rail={rail}
-      theme={theme}
     >
       {children}
     </AppShell>

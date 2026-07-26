@@ -5,7 +5,6 @@ import { useState, useTransition } from "react";
 import { loginAction } from "@/lib/actions";
 import { GitHubAuthButton } from "@/components/GitHubAuthButton";
 import { SubmitButton } from "@/components/SubmitButton";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function LoginClient({
   githubEnabled,
@@ -19,9 +18,6 @@ export function LoginClient({
 
   return (
     <main className="hero-auth">
-      <div className="theme-toggle-corner">
-        <ThemeToggle />
-      </div>
       <div className="auth-card">
         <p className="muted">Welcome back</p>
         <h1>Sign in to Huddle</h1>

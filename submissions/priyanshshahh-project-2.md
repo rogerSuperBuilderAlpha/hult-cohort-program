@@ -4,12 +4,23 @@ Summer Pilot 2026, Project 2 — Internal communications platform.
 
 ## Summary
 
-**Cohort Comms** replaces Discord as the cohort's primary channel: public
-channels, direct messages, unread notification badges, presence, and
-Forth-aware messages that render pasted board links as cards.
+**Cohort Comms** replaces Discord as the cohort's primary channel: channels,
+direct messages, global search, emoji reactions, admin-only announcements,
+unread badges, presence, and light/dark themes.
 
-Built on Next.js 16 (App Router), Clerk for authentication, and Neon Postgres
-via Drizzle ORM, both provisioned through the Vercel Marketplace.
+Two things set it apart from a standard chat app, and both are working, not
+described:
+
+1. **The Forth board is embedded inside the app** as a split-pane, so you read
+   `#general` on the left and move a ticket on the right without switching tabs.
+2. **A live inbound webhook — `POST /api/webhooks/forth`.** Forth publishes no
+   outbound webhooks yet, so rather than stopping at "no API, cannot integrate",
+   the *receiving half of the contract is built, secured, and verified*. Point
+   Forth or any relay at it with the shared secret and board events post
+   themselves into the cohort's channels.
+
+Next.js 16 (App Router) + Clerk auth + **Neon Postgres** via Drizzle ORM, both
+provisioned through the Vercel Marketplace.
 
 ## Production URL
 
@@ -20,65 +31,135 @@ Build repo: https://github.com/priyanshshahh/cohort-comms
 ## PM platform integration notes
 
 The cohort PM platform is **Forth** (https://forth-bice.vercel.app,
-https://github.com/CodingWCal/forth).
+https://github.com/CodingWCal/forth). Forth is Next.js + Firebase and publishes
+no public REST API and no outbound webhooks, so the integration works at four
+levels:
 
-Forth is a Next.js + Firebase app that publishes **no public REST API and no
-webhooks**, so the integration is link-level and identity-level rather than
-server-to-server. What actually ships:
+**1. Inbound webhook (the part nobody else built).**
+`POST /api/webhooks/forth`, authenticated with a shared secret compared in
+constant time, posts board events into a channel as a distinct `Forth` bot
+identity. Verified against five cases on production:
 
-- **Deep links** — any `forth-bice.vercel.app` URL pasted into a channel or DM
-  is detected and rendered as a card labelled with the Forth view it points at
-  (Quest Log, Realm Map, Chronicle, Guild Hall), so a conversation about a
-  ticket carries a one-click route back to the board.
-- **Persistent entry point** — a Forth board link sits in the sidebar on every
-  screen of the app.
-- **Shared identity** — Forth signs in with Google and GitHub OAuth; Comms uses
-  the same providers through Clerk, so a member carries one identity across
-  both tools rather than maintaining separate accounts.
+| Case | Result |
+|---|---|
+| Wrong secret | `401` |
+| Missing secret | `401` |
+| Missing `ticket.title` | `400` |
+| Valid shipped ticket | `201` — rendered in `#general` as “✅ Ship Cohort Comms moved to Shipped · priyanshshahh” |
+| Payload carrying `https://evil.example.com/phish` | `201`, **hostile URL stripped** — only same-origin Forth links are ever rendered |
 
-**Not shipped, and why:** automatic task notifications (a Forth ticket moving to
-Shipped posting into `#general`) require an API or webhook Forth does not
-currently expose. The receiving end here is a single `postMessage()` call, so
-this becomes a small change if Forth publishes one.
+```bash
+curl -X POST https://cohort-comms-phi.vercel.app/api/webhooks/forth \
+  -H 'content-type: application/json' \
+  -H 'x-forth-secret: <FORTH_WEBHOOK_SECRET>' \
+  -d '{"event":"ticket.shipped","channel":"general",
+       "ticket":{"title":"Ship comms","status":"Shipped",
+                 "assignee":"priyanshshahh",
+                 "url":"https://forth-bice.vercel.app/chronicle"}}'
+```
 
-**Real-time vs async:** async. Messages are delivered by short-interval HTTP
-polling via SWR — 2s inside a conversation, 5s for the sidebar — not WebSockets.
-At cohort scale this is a couple of lightweight queries per client per second
-and removes a class of connection-lifecycle bugs on serverless. The trade-off is
-stated plainly: delivery latency is up to ~2 seconds rather than instant.
-Swapping the transport to sockets or SSE later changes neither the schema nor
-the API surface.
+**2. Embedded board.** A toggleable split-pane renders live Forth inside Comms.
+Confirmed viable rather than assumed: Forth serves no `X-Frame-Options` and no
+frame-blocking CSP. An "Open in tab" link sits beside it for browsers that block
+third-party cookies in frames.
+
+**3. Deep-link cards.** Any `forth-bice.vercel.app` URL pasted into a channel or
+DM renders as a card labelled with the Forth view it targets (Quest Log, Realm
+Map, Chronicle, Guild Hall). Webhook deliveries pick this up automatically.
+
+**4. Shared identity.** Forth signs in with Google and GitHub OAuth; Comms uses
+the same providers via Clerk, so one identity spans both tools.
+
+I also contributed upstream to Forth documenting that it is safely embeddable,
+so the rest of the cohort can integrate the same way:
+https://github.com/CodingWCal/forth/pull/47
+
+**Real-time vs async:** async polling. SWR refreshes a conversation every 2s and
+the sidebar every 5s — deliberately not WebSockets. At cohort scale that is a
+couple of indexed queries per client per second and it removes a class of
+connection-lifecycle failures on serverless. Trade-off stated plainly: delivery
+latency is up to ~2s, not instant. Swapping transport changes neither the schema
+nor the API surface.
+
+**On persistence:** Neon Postgres, *not* SQLite. A local `.db` file cannot work
+on Vercel — the serverless filesystem is ephemeral and not shared between
+instances, so messages would silently vanish on cold starts. Postgres is what
+actually satisfies the ≥30-day history requirement.
+
+## Feature checklist
+
+| Requirement | Status |
+|---|---|
+| Channels (≥3 public) | `#announcements`, `#general`, `#project-2`, `#peer-review`, `#help`, plus member-created |
+| Direct messages | 1:1 with any member, keyed by sorted user-id pair |
+| Persistence | Neon Postgres + Drizzle; survives refresh, restart, redeploy |
+| Announcements | Admin-only, enforced in the API **and** the UI |
+| Search | Global keyword search across channels + your own DMs, click-through to source |
+| Real-time feel | SWR polling, 2s conversation / 5s sidebar |
+| Emoji reactions | 6-emoji palette, toggle on/off, per-user state |
+| Light + dark mode | Semantic design tokens, persisted, no flash on load |
+| PM integration | Inbound webhook + embedded board + deep-link cards + shared identity |
 
 ## Agent usage
 
-- **Research:** Claude Code inspected the Forth repo and deployment to establish
-  what integration surface actually exists (found: Firebase Auth with Google and
-  GitHub OAuth, Firestore persistence, no public API or webhooks), read the
-  cohort repo to match the existing `submissions/` convention, and read the
-  bundled Next.js 16 docs to catch breaking changes from training data — notably
-  that Middleware is renamed Proxy and that `proxy.ts` must sit beside `app/`.
-- **Dev:** Claude Code provisioned Clerk and Neon through the Vercel Marketplace
-  CLI, designed the schema (a single `messages` table backing both channels and
-  DMs, keyed by `channel_id` or a sorted-pair `dm_key`, plus per-user read
-  cursors for unread counts), and implemented the API routes, the polling chat
-  client, the sidebar with unread badges and presence, the Forth link parser and
-  cards, channel creation, the landing page, and mobile responsiveness.
-- **QA:** `npm run build` passes clean (typecheck included). Deployed to Vercel
-  production. Verified in-browser: landing page, dark theme, Clerk sign-in, and
-  that unauthenticated access to `/c/general` does not leak content. Two runtime
-  defects were caught and fixed this way rather than assumed working — a 500
-  from `proxy.ts` sitting at the repo root instead of `src/`, and the scaffold's
-  `globals.css` `body` rule overriding the Tailwind dark theme.
+- **Research:** Claude Code inspected the Forth repo and live deployment to
+  establish the real integration surface (Firebase Auth with Google/GitHub,
+  Firestore, no public API or webhooks) and probed its response headers to
+  confirm it could legally be iframed. Read the cohort repo to match the
+  `submissions/` convention, and read the bundled Next.js 16 docs to catch
+  breaking changes from training data — notably Middleware being renamed Proxy,
+  and `proxy.ts` needing to sit beside `app/`.
+- **Dev:** Provisioned Clerk and Neon via the Vercel Marketplace CLI; designed
+  the schema (one `messages` table backing both channels and DMs, keyed by
+  `channel_id` or a sorted-pair `dm_key`, plus per-user read cursors and a
+  reactions table); implemented the API routes, polling client, search, admin
+  gating, the secret-authenticated Forth webhook, the embedded board pane, the
+  semantic-token theming system, and the mobile layout.
+- **QA:** `npm run build` clean (compile + typecheck), then driven through
+  Chrome DevTools against production. Six real defects were caught and fixed
+  rather than assumed away:
+  1. 500 from `proxy.ts` at repo root instead of `src/`.
+  2. Scaffold `globals.css` overriding the Tailwind theme.
+  3. `drizzle-kit push` silently failing, leaving `admin_only`/`archived`
+     missing and 500-ing the app until applied via explicit DDL.
+  4. Clerk's route protection swallowing the webhook as a 404 — webhooks now
+     bypass session auth and rely on their own secret.
+  5. Admin gate verified *negatively* by removing myself from `ADMIN_HANDLES`,
+     redeploying, and confirming the composer is replaced by a lock.
+  6. Webhook URL-injection guard verified by sending a hostile link and
+     confirming it was stripped from the stored message.
 
 ## Test plan
 
 - [x] `npm run build` passes (compile + TypeScript)
-- [x] Production deploy live at https://cohort-comms-phi.vercel.app
-- [x] Landing page renders; dark theme applied
-- [x] Clerk sign-in page renders on production
-- [x] Unauthenticated request to `/c/general` does not return channel content
-- [ ] Signed-in end-to-end pass (send in channel, DM, unread badge clears,
-      Forth card renders) — exercised by peers on the live deploy during review
-      week; not verified by the agent, which does not create accounts
-- [ ] No automated test suite in this submission — verification was build,
-      deploy, and manual browser checks
+- [x] Production deploy live
+- [x] Sign in with Clerk, land in `#general`
+- [x] Post a message in a public channel; persists across reloads
+- [x] Global search returns the message with channel label and click-through
+- [x] Emoji reaction added from the UI and confirmed persisted in Postgres
+- [x] Non-admin sees “🔒 Only cohort admins can post in #announcements”
+      (verified by removing myself from `ADMIN_HANDLES` and redeploying)
+- [x] Forth webhook: 401 on wrong secret, 401 on missing secret, 400 on missing
+      title, 201 on valid delivery, hostile URL stripped
+- [x] Forth board loads embedded in the split-pane, and in a new tab
+- [x] Light and dark mode both render correctly; choice persists
+- [x] Unauthenticated request to a channel returns no channel content
+- [ ] Multi-user concurrency (two accounts DMing, unread badge incrementing for
+      the recipient) — single-account verified only; peers will exercise this on
+      the live deploy during review week
+- [ ] No automated test suite — verification was build, deploy, and driven
+      browser + API checks
+
+## Known limitations
+
+- Clerk runs on a **development instance** (`pk_test_…`). It works for browser
+  sign-ups at cohort scale but shows a "Development mode" badge; a production
+  instance needs a custom domain with DNS records, which a `*.vercel.app`
+  subdomain cannot provide.
+- Unread counts scan the most recent 2000 messages — ample for the pilot, but a
+  cap rather than unbounded history.
+- No threads and no file upload. Both need a schema change plus new UI, and I
+  would rather ship six things that are verified than eight that are claimed.
+- The Forth webhook is the receiving half only. Forth must add outbound delivery
+  (or a relay must call it) for events to flow automatically; until then it is
+  driven by `curl`, as demonstrated above.

@@ -1,30 +1,16 @@
-## 1. Production URL
-[Paste Your Vercel URL Here]
+## Production URL
+https://textmeweek2cursor.vercel.app/
 
-## 2. Setup steps verified on fresh clone
-1. Clone this repository and navigate to `participants/summer26/phase-1-project-2/divyaprakash04/`.
-2. Run `npm install`.
-3. Create a Supabase project at `database.new` and run `supabase_schema.sql` (and `fix_demo.sql` to test the mock user) in your SQL editor.
-4. Set environment variables in `.env.local`:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-5. Run `npm run dev` to test locally.
+## PM platform integration notes
+- **Shared Authentication & Integration**: Since Forth (the Week 1 PM platform) currently exposes no public API, direct integration is not yet implemented. 
+- **What it would take**: If Forth exposes webhooks, HultChat's architecture already includes a `/api/forth/webhook` route placeholder that can accept POST requests from Forth when a task is updated, instantly inserting a real-time notification to the relevant user via Supabase WebSockets. Deep linking can also be implemented on the frontend by simply detecting URLs matching the Forth domain and rendering them as Task Preview Cards in the chat stream.
 
-## 3. Architecture summary
-- **Frontend**: Next.js (App Router), TailwindCSS, Shadcn UI.
+## Agent usage
+This project was rapidly bootstrapped with the help of an AI agent (Gemini 3.1 Pro via Antigravity IDE). The agent generated the Next.js scaffold, implemented the Supabase real-time WebSocket subscriptions on the `messages` table, crafted the database schema and RLS policies, structured the UI components, and automated the Git submission workflow.
+
+## Additional Architecture Details
+- **Frontend**: Next.js (App Router), TailwindCSS.
 - **Backend & Database**: Supabase (PostgreSQL) with Row Level Security (RLS) for data protection.
 - **Real-Time**: Supabase Realtime WebSocket subscriptions on the `messages` and `notifications` tables.
 - **Deployment**: Vercel Edge Network for seamless scalability.
-
-## 4. Motivation / engagement design notes
-- To support 67+ concurrent users flawlessly, I chose **Supabase** because it natively provides WebSockets out of the box for real-time messaging, removing the need for a separate WebSocket server.
-- The interface emphasizes immediate feedback, avoiding polling so that cohort members have a fast, frictionless engagement experience.
-
-## 5. Known limitations
-- E2E encryption is not currently implemented for Direct Messages.
-- Full OAuth is mocked for the demo preview to ensure immediate testing capabilities without needing sign-ups; production requires toggling the RLS policies back on.
-
-## 6. Agent usage summary
-This project was rapidly bootstrapped with the help of an AI agent (Gemini 3.1 Pro via Antigravity IDE). The agent generated the Next.js scaffold, implemented the Supabase real-time WebSocket subscriptions on the `messages` table, crafted the database schema and RLS policies, structured the UI components, and automated the Git submission workflow.
+- **Motivation**: To support 67+ concurrent users flawlessly, Supabase natively provides WebSockets out of the box for real-time messaging, removing the need for a separate WebSocket server.

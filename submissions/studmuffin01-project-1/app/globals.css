@@ -4,14 +4,15 @@
 
 /* Global styles for INITIARA */
 
-@layer components {
-  .section-heading {
-    @apply font-display text-xl font-extrabold uppercase tracking-tight text-slate-900 dark:text-surface-primary sm:text-2xl;
+@layer base {
+  body {
+    font-family: "Inter", sans-serif;
+    @apply bg-slate-100 text-slate-900 antialiased dark:bg-surface-bg dark:text-surface-primary;
   }
 }
 
-@layer base {
-  body {
-    @apply bg-slate-100 text-slate-900 antialiased dark:bg-surface-bg dark:text-surface-primary;
+@layer components {
+  .section-heading {
+    @apply border-l-4 border-amber-800/70 pl-3 font-display text-xl font-extrabold uppercase tracking-tight text-stone-900 dark:border-amber-500/50 dark:text-surface-primary sm:text-2xl;
   }
 }

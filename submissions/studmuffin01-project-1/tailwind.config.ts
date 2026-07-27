@@ -11,7 +11,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["var(--font-syne)", "sans-serif"],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Syne', 'sans-serif'],
       },
       colors: {
         surface: {
@@ -28,6 +29,19 @@ const config: Config = {
           500: "#3b82f6",
           600: "#2563eb",
           700: "#1d4ed8",
+        },
+        /** Command Center — olive / army green sidebar palette */
+        command: {
+          50: "#f4f6f0",
+          100: "#e4eadc",
+          200: "#c8d4b8",
+          600: "#5c6b52",
+          700: "#465340",
+          800: "#354030",
+          900: "#283024",
+          950: "#1a201a",
+          khaki: "#d8cfaa",
+          "khaki-dark": "#b8aa78",
         },
       },
     },

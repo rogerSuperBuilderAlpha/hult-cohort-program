@@ -1,5 +1,5 @@
-import PlaceholderPage from "@/components/PlaceholderPage";
+import ActionItemsPage from "@/components/ActionItemsPage";
 
-export default function ActionItemsPage() {
-  return <PlaceholderPage title="Action Items" />;
+export default function Page() {
+  return <ActionItemsPage />;
 }

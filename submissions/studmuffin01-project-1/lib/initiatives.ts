@@ -6,51 +6,37 @@ export interface Initiative {
   slug: string;
   title: string;
   deadline: string;
+  archived?: boolean;
 }
 
 export const INITIATIVE_TITLE_MAX_LENGTH = 120;
 export const EXECUTIVE_SUMMARY_MIN_ROW_COUNT = 3;
 export const CUSTOM_INITIATIVES_STORAGE_KEY = "initiara-custom-initiatives";
-export const CUSTOM_INITIATIVES_SCHEMA_VERSION = 2;
+export const CUSTOM_INITIATIVES_SCHEMA_VERSION = 3;
 export const CUSTOM_INITIATIVES_VERSION_KEY = "initiara-custom-initiatives-version";
 export const MAX_CUSTOM_INITIATIVES_STORAGE_BYTES = 100_000;
 
-/** Built-in Summer Pilot initiatives (fixed order after any user-created rows). */
-export const DEFAULT_INITIATIVES: Initiative[] = [
-  {
-    slug: "week-1-project-management-platform",
-    title: "Week 1 - Project Management Platform",
-    deadline: "TBD",
-  },
-  {
-    slug: "week-2-internal-communications-platform",
-    title: "Week 2 - Internal Communications Platform",
-    deadline: "TBD",
-  },
-  {
-    slug: "week-3-vibe-marketing-platform",
-    title: "Week 3 - Vibe Marketing Platform",
-    deadline: "TBD",
-  },
-  {
-    slug: "week-4-learning-engineer-integration-to-ludwitt",
-    title: "Week 4 - Learning Engineer Integration To Ludwitt",
-    deadline: "TBD",
-  },
-  {
-    slug: "week-5-startup-entrepreneurship",
-    title: "Week 5 - Startup/Entrepreneurship",
-    deadline: "TBD",
-  },
-  {
-    slug: "week-6-open-source-swarm",
-    title: "Week 6 - Open Source Swarm",
-    deadline: "TBD",
-  },
-];
+/** Legacy Summer Pilot curriculum slugs — stripped from stored custom initiatives. */
+const LEGACY_CURRICULUM_SLUGS = new Set([
+  "week-1-project-management-platform",
+  "week-2-internal-communications-platform",
+  "week-3-vibe-marketing-platform",
+  "week-4-learning-engineer-integration-to-ludwitt",
+  "week-5-startup-entrepreneurship",
+  "week-6-open-source-swarm",
+]);
 
-/** @deprecated Use DEFAULT_INITIATIVES or mergeInitiatives() for the live list. */
-export const initiatives = DEFAULT_INITIATIVES;
+/** Legacy Summer Pilot curriculum titles — stripped from stored custom initiatives. */
+const LEGACY_CURRICULUM_TITLES = new Set([
+  "Week 1 - Project Management Platform",
+  "Week 2 - Internal Communications Platform",
+  "Week 3 - Vibe Marketing Platform",
+  "Week 4 - Learning Engineer Integration To Ludwitt",
+  "Week 5 - Startup/Entrepreneurship",
+  "Week 6 - Open Source Swarm",
+]);
+
+const GENERIC_INITIATIVE_LABEL = /^INITIATIVE \d+$/i;
 
 export function sanitizeInitiativeTitle(value: string): string {
   return value.trim().replace(/\s+/g, " ").slice(0, INITIATIVE_TITLE_MAX_LENGTH);
@@ -73,7 +59,7 @@ export function createInitiative(title: string): Initiative {
   return {
     slug: slugifyTitle(sanitizedTitle),
     title: sanitizedTitle,
-    deadline: "TBD",
+    deadline: "",
   };
 }
 
@@ -93,32 +79,38 @@ function parseCustomInitiatives(raw: unknown): Initiative[] {
     const slug = typeof record.slug === "string" ? record.slug.trim() : "";
     const title =
       typeof record.title === "string" ? sanitizeInitiativeTitle(record.title) : "";
+    const rawDeadline =
+      typeof record.deadline === "string" ? record.deadline.trim() : "";
     const deadline =
-      typeof record.deadline === "string" && record.deadline.trim().length > 0
-        ? record.deadline.trim()
-        : "TBD";
+      rawDeadline.length > 0 && rawDeadline.toUpperCase() !== "TBD" ? rawDeadline : "";
 
     if (!slug || !title) {
       continue;
     }
 
-    parsed.push({ slug, title, deadline });
+    const archived = record.archived === true;
+
+    parsed.push({ slug, title, deadline, archived: archived || undefined });
   }
 
   return parsed;
 }
 
-const DEFAULT_INITIATIVE_SLUGS = new Set(DEFAULT_INITIATIVES.map((initiative) => initiative.slug));
-const DEFAULT_INITIATIVE_TITLES = new Set(DEFAULT_INITIATIVES.map((initiative) => initiative.title));
-const GENERIC_INITIATIVE_LABEL = /^INITIATIVE \d+$/i;
+export function filterActiveInitiatives(initiatives: Initiative[]): Initiative[] {
+  return initiatives.filter((initiative) => !initiative.archived);
+}
 
-/** Keep only user-created initiatives (exclude built-in curriculum rows). */
+export function filterArchivedInitiatives(initiatives: Initiative[]): Initiative[] {
+  return initiatives.filter((initiative) => initiative.archived);
+}
+
+/** Keep only user-created initiatives (exclude legacy curriculum placeholders). */
 export function normalizeCustomInitiatives(customInitiatives: Initiative[]): Initiative[] {
   return customInitiatives
     .filter(
       (initiative) =>
-        !DEFAULT_INITIATIVE_SLUGS.has(initiative.slug) &&
-        !DEFAULT_INITIATIVE_TITLES.has(initiative.title) &&
+        !LEGACY_CURRICULUM_SLUGS.has(initiative.slug) &&
+        !LEGACY_CURRICULUM_TITLES.has(initiative.title) &&
         !GENERIC_INITIATIVE_LABEL.test(initiative.title)
     );
 }
@@ -149,9 +141,7 @@ export function loadCustomInitiatives(): Initiative[] {
   try {
     const storedVersion = readCustomInitiativesSchemaVersion();
     if (storedVersion !== CUSTOM_INITIATIVES_SCHEMA_VERSION) {
-      localStorage.removeItem(CUSTOM_INITIATIVES_STORAGE_KEY);
       writeCustomInitiativesSchemaVersion(CUSTOM_INITIATIVES_SCHEMA_VERSION);
-      return [];
     }
 
     const raw = localStorage.getItem(CUSTOM_INITIATIVES_STORAGE_KEY);
@@ -185,27 +175,9 @@ export function saveCustomInitiatives(customInitiatives: Initiative[]): void {
   }
 }
 
-export function mergeInitiatives(
-  customInitiatives: Initiative[],
-  defaults: Initiative[] = DEFAULT_INITIATIVES
-): Initiative[] {
-  return [...customInitiatives, ...defaults];
-}
-
-export function getAllInitiatives(customInitiatives?: Initiative[]): Initiative[] {
-  return mergeInitiatives(customInitiatives ?? loadCustomInitiatives());
-}
-
-export function getAllInitiativeSlugs(customInitiatives?: Initiative[]): Set<string> {
-  return new Set(getAllInitiatives(customInitiatives).map((initiative) => initiative.slug));
-}
-
-export function getInitiativeBySlug(
-  slug: string,
-  allInitiatives?: Initiative[]
-): Initiative | undefined {
-  const list = allInitiatives ?? getAllInitiatives();
-  return list.find((initiative) => initiative.slug === slug);
+/** Validates slug keys in persisted JSON (custom slugs are not always in localStorage). */
+export function isInitiativeSlugKey(slug: string): boolean {
+  return slug.length > 0 && slug.length <= 80 && /^[a-z0-9-]+$/.test(slug);
 }
 
 export function getInitiativeAnchorId(slug: string): string {

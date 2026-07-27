@@ -1,0 +1,88 @@
+'use client';
+
+import { FormEvent, useState } from 'react';
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
+
+export default function SignupPage() {
+  const supabase = createClient();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setLoading(true);
+    setMessage('');
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setMessage(
+      'Account created successfully. Please check your email to confirm your account.'
+    );
+  }
+
+  return (
+    <main className="mx-auto max-w-md p-8">
+      <h1 className="mb-6 text-2xl font-bold">Create Account</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full rounded border p-3"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full rounded border p-3"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          minLength={6}
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded bg-green-600 p-3 text-white"
+        >
+          {loading ? 'Creating Account...' : 'Sign Up'}
+        </button>
+      </form>
+
+      {message && (
+        <p className="mt-4 text-sm">
+          {message}
+        </p>
+      )}
+
+      <p className="mt-6 text-sm">
+        Already have an account?{' '}
+        /auth/login
+          Login
+        </Link>
+      </p>
+    </main>
+  );
+}

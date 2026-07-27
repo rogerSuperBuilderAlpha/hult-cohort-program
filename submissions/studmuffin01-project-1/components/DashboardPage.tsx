@@ -1,27 +1,63 @@
 "use client";
 
-import { useCallback } from "react";
+import { Suspense, useCallback, useEffect } from "react";
+import CommandCenterPageShell from "@/components/CommandCenterPageShell";
 import CommandCenterRow from "@/components/CommandCenterRow";
 import Dashboard from "@/components/Dashboard";
 import InitiativeSummary from "@/components/InitiativeSummary";
 import PageHeader from "@/components/PageHeader";
-import PageShell, { CommandCenterSpacer } from "@/components/PageShell";
+import ScrollToInitiativeOnLoad from "@/components/ScrollToInitiativeOnLoad";
+import { dashboardFooterClassName } from "@/lib/dashboardStyles";
 import { useInitiativeTasks } from "@/hooks/useInitiativeTasks";
 import { useInitiatives } from "@/hooks/useInitiatives";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 export default function DashboardPage() {
   const {
+    activeCustomInitiatives,
+    archivedCustomInitiatives,
+    updateInitiativeTitle,
+    archiveInitiative,
+    unarchiveInitiative,
+    deleteInitiative,
+    isLoaded: initiativesLoaded,
+  } = useInitiatives();
+  const { memberNames, isLoaded: membersLoaded } = useTeamMembers();
+  const {
     tasksByInitiative,
+    pendingDueDateConfirmation,
     isLoaded: tasksLoaded,
-    getTasks,
-    ensureInitiativeTasks,
+    seedInitiativeTasks,
     updateTaskField,
     addTaskRow,
     addSubTaskRow,
     deleteTaskRow,
     removeInitiativeTasks,
-  } = useInitiativeTasks();
-  const { customInitiatives, deleteInitiative, isLoaded: initiativesLoaded } = useInitiatives();
+    flushFieldSave,
+    confirmDueDateRollup,
+    cancelDueDateRollup,
+  } = useInitiativeTasks({
+    initiativesReady: initiativesLoaded,
+    initiativeSlugs: activeCustomInitiatives.map((initiative) => initiative.slug),
+  });
+
+  useEffect(() => {
+    if (!tasksLoaded || !initiativesLoaded) {
+      return;
+    }
+
+    for (const initiative of activeCustomInitiatives) {
+      if (!tasksByInitiative[initiative.slug]) {
+        seedInitiativeTasks(initiative.slug);
+      }
+    }
+  }, [
+    activeCustomInitiatives,
+    initiativesLoaded,
+    seedInitiativeTasks,
+    tasksByInitiative,
+    tasksLoaded,
+  ]);
 
   const handleDeleteInitiative = useCallback(
     (slug: string) => {
@@ -32,9 +68,16 @@ export default function DashboardPage() {
     [deleteInitiative, removeInitiativeTasks]
   );
 
-  if (!tasksLoaded || !initiativesLoaded) {
+  const handleArchiveInitiative = useCallback(
+    (slug: string) => {
+      archiveInitiative(slug);
+    },
+    [archiveInitiative]
+  );
+
+  if (!tasksLoaded || !initiativesLoaded || !membersLoaded) {
     return (
-      <PageShell header={<PageHeader id="top" />}>
+      <CommandCenterPageShell header={<PageHeader id="top" />}>
         <CommandCenterRow>
           <div className="flex items-center justify-center px-4 pb-8 sm:px-6 lg:px-8">
             <div className="text-center">
@@ -43,45 +86,52 @@ export default function DashboardPage() {
             </div>
           </div>
         </CommandCenterRow>
-      </PageShell>
+      </CommandCenterPageShell>
     );
   }
 
   return (
-    <PageShell
+    <CommandCenterPageShell
       header={<PageHeader id="top" />}
       footer={
-        <footer className="border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-500 dark:border-surface-border dark:bg-surface-card dark:text-surface-secondary">
+        <footer className={dashboardFooterClassName}>
           Built with Next.js &amp; Tailwind CSS
         </footer>
       }
     >
+      <Suspense fallback={null}>
+        <ScrollToInitiativeOnLoad ready={tasksLoaded && initiativesLoaded && membersLoaded} />
+      </Suspense>
       <CommandCenterRow>
-        <div className="mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
-          <Dashboard
-            initiatives={customInitiatives}
-            tasksByInitiative={tasksByInitiative}
-            onDeleteInitiative={handleDeleteInitiative}
-          />
-        </div>
-      </CommandCenterRow>
-
-      <div className="flex">
-        <CommandCenterSpacer />
-        <div className="min-w-0 flex-1 space-y-12 px-4 pb-8 sm:px-6 lg:px-8">
+        <div className="space-y-6 px-4 pb-8 sm:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-5xl">
+            <Dashboard
+              initiatives={activeCustomInitiatives}
+              archivedInitiatives={archivedCustomInitiatives}
+              tasksByInitiative={tasksByInitiative}
+              onUpdateInitiativeTitle={updateInitiativeTitle}
+              onArchiveInitiative={handleArchiveInitiative}
+              onUnarchiveInitiative={unarchiveInitiative}
+              onDeleteInitiative={handleDeleteInitiative}
+            />
+          </div>
+          <div className="mx-auto w-full max-w-7xl">
             <InitiativeSummary
-              initiatives={customInitiatives}
-              getTasks={getTasks}
-              onEnsureTasks={ensureInitiativeTasks}
+              initiatives={activeCustomInitiatives}
+              tasksByInitiative={tasksByInitiative}
+              assigneeOptions={memberNames}
               onUpdateField={updateTaskField}
               onAddRow={addTaskRow}
               onAddSubTask={addSubTaskRow}
               onDeleteRow={deleteTaskRow}
+              onFieldBlur={flushFieldSave}
+              pendingDueDateConfirmation={pendingDueDateConfirmation}
+              onConfirmDueDateRollup={confirmDueDateRollup}
+              onCancelDueDateRollup={cancelDueDateRollup}
             />
           </div>
         </div>
-      </div>
-    </PageShell>
+      </CommandCenterRow>
+    </CommandCenterPageShell>
   );
 }

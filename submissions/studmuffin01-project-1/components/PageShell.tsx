@@ -1,3 +1,5 @@
+import { dashboardShellClassName } from "@/lib/dashboardStyles";
+
 interface PageShellProps {
   header?: React.ReactNode;
   footer?: React.ReactNode;
@@ -6,7 +8,7 @@ interface PageShellProps {
 
 export default function PageShell({ header, footer, children }: PageShellProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100 dark:bg-surface-bg">
+    <div className={dashboardShellClassName}>
       {header}
       <div className="flex min-w-0 flex-1 flex-col">
         {children}

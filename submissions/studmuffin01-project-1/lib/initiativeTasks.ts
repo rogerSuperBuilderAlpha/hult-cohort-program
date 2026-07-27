@@ -2,7 +2,8 @@
  * Per-initiative task table types, defaults, and localStorage helpers.
  */
 
-import { getAllInitiativeSlugs } from "@/lib/initiatives";
+import { isInitiativeSlugKey } from "@/lib/initiatives";
+import { toIsoDateString } from "@/lib/initiativeDeadlines";
 
 export const INITIAL_TASK_ROW_COUNT = 3;
 export const INITIATIVE_TASKS_STORAGE_KEY = "initiara-initiative-tasks";
@@ -15,6 +16,7 @@ export const TASK_FIELD_MAX_LENGTH = {
   description: 500,
   status: 120,
   dateDue: 32,
+  /** Stored as `responsibility`; shown in UI as Assignee (roster dropdown). */
   responsibility: 120,
   comments: 500,
 } as const;
@@ -42,7 +44,7 @@ function createTaskRowId(): string {
   return `task-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export function createTaskRow(taskNumber: string): TaskRow {
+function createTaskRow(taskNumber: string): TaskRow {
   return {
     id: createTaskRowId(),
     taskNumber,
@@ -63,7 +65,7 @@ export function getTaskNumberDepth(taskNumber: string): number {
   return taskNumber.split(".").length - 1;
 }
 
-export function compareTaskNumbers(a: string, b: string): number {
+function compareTaskNumbers(a: string, b: string): number {
   const aParts = a.split(".").map(Number);
   const bParts = b.split(".").map(Number);
   const length = Math.max(aParts.length, bParts.length);
@@ -79,7 +81,7 @@ export function compareTaskNumbers(a: string, b: string): number {
   return 0;
 }
 
-export function getDirectChildren(parentTaskNumber: string, rows: InitiativeTasks): TaskRow[] {
+function getDirectChildren(parentTaskNumber: string, rows: InitiativeTasks): TaskRow[] {
   const prefix = `${parentTaskNumber}.`;
 
   return rows.filter((row) => {
@@ -92,7 +94,7 @@ export function getDirectChildren(parentTaskNumber: string, rows: InitiativeTask
   });
 }
 
-export function renumberTasks(rows: InitiativeTasks): InitiativeTasks {
+function renumberTasks(rows: InitiativeTasks): InitiativeTasks {
   let topLevelCounter = 0;
   const childCounters = new Map<string, number>();
   const numberAtDepth = new Map<number, string>();
@@ -134,7 +136,7 @@ export function renumberTasks(rows: InitiativeTasks): InitiativeTasks {
   });
 }
 
-export function getNextSubTaskNumber(parentTaskNumber: string, rows: InitiativeTasks): string {
+function getNextSubTaskNumber(parentTaskNumber: string, rows: InitiativeTasks): string {
   const directChildren = getDirectChildren(parentTaskNumber, rows);
 
   if (directChildren.length === 0) {
@@ -148,7 +150,7 @@ export function getNextSubTaskNumber(parentTaskNumber: string, rows: InitiativeT
   return `${parentTaskNumber}.${maxSuffix + 1}`;
 }
 
-export function findLastIndexInSubtree(rootTaskNumber: string, rows: InitiativeTasks): number {
+function findLastIndexInSubtree(rootTaskNumber: string, rows: InitiativeTasks): number {
   let lastIndex = -1;
 
   for (let index = 0; index < rows.length; index++) {
@@ -161,7 +163,7 @@ export function findLastIndexInSubtree(rootTaskNumber: string, rows: InitiativeT
   return lastIndex;
 }
 
-export function findInsertIndexForSubTask(parentTaskNumber: string, rows: InitiativeTasks): number {
+function findInsertIndexForSubTask(parentTaskNumber: string, rows: InitiativeTasks): number {
   const parentIndex = rows.findIndex((row) => row.taskNumber === parentTaskNumber);
   if (parentIndex === -1) {
     return rows.length - 1;
@@ -172,11 +174,11 @@ export function findInsertIndexForSubTask(parentTaskNumber: string, rows: Initia
     return parentIndex;
   }
 
-  const lastDirectChild = [...directChildren].sort(compareTaskNumbers).at(-1)!;
+  const lastDirectChild = [...directChildren].sort((a, b) => compareTaskNumbers(a.taskNumber, b.taskNumber)).at(-1)!;
   return findLastIndexInSubtree(lastDirectChild.taskNumber, rows);
 }
 
-export function getNextTopLevelTaskNumber(rows: InitiativeTasks): string {
+function getNextTopLevelTaskNumber(rows: InitiativeTasks): string {
   const topLevelRows = rows.filter((row) => !row.taskNumber.includes("."));
 
   if (topLevelRows.length === 0) {
@@ -250,6 +252,106 @@ function rowHasContent(row: TaskRow): boolean {
   );
 }
 
+function taskRowContentScore(row: TaskRow): number {
+  let score = 0;
+
+  if (row.description.trim()) score += 1;
+  if (row.status.trim()) score += 1;
+  if (row.dateDue.trim()) score += 1;
+  if (row.responsibility.trim()) score += 1;
+  if (row.comments.trim()) score += 1;
+
+  return score;
+}
+
+export function allInitiativeTasksContentScore(tasks: AllInitiativeTasks): number {
+  return Object.values(tasks).reduce(
+    (total, rows) => total + rows.reduce((sum, row) => sum + taskRowContentScore(row), 0),
+    0
+  );
+}
+
+const MERGEABLE_TASK_FIELDS: TaskField[] = [
+  "description",
+  "status",
+  "dateDue",
+  "responsibility",
+  "comments",
+];
+
+function pickMergedTaskField(local: TaskRow, remote: TaskRow, field: TaskField): string {
+  const localValue = local[field].trim();
+  const remoteValue = remote[field].trim();
+
+  if (remoteValue && localValue) {
+    return remote[field];
+  }
+
+  if (remoteValue) {
+    return remote[field];
+  }
+
+  if (localValue) {
+    return local[field];
+  }
+
+  return "";
+}
+
+function mergeTaskRow(local: TaskRow, remote: TaskRow): TaskRow {
+  const merged = {
+    id: remote.id || local.id,
+    taskNumber: remote.taskNumber || local.taskNumber,
+    description: "",
+    status: "",
+    dateDue: "",
+    responsibility: "",
+    comments: "",
+  } satisfies TaskRow;
+
+  for (const field of MERGEABLE_TASK_FIELDS) {
+    merged[field] = pickMergedTaskField(local, remote, field);
+  }
+
+  return merged;
+}
+
+function mergeTaskRows(localRows: InitiativeTasks, remoteRows: InitiativeTasks): InitiativeTasks {
+  if (localRows.length === 0) {
+    return normalizeTaskNumbers(remoteRows);
+  }
+
+  if (remoteRows.length === 0) {
+    return normalizeTaskNumbers(localRows);
+  }
+
+  const localById = new Map(localRows.map((row) => [row.id, row]));
+  const localByNumber = new Map(localRows.map((row) => [row.taskNumber, row]));
+  const merged: InitiativeTasks = [];
+  const consumedLocalIds = new Set<string>();
+
+  for (const remoteRow of remoteRows) {
+    const localRow =
+      localById.get(remoteRow.id) ?? localByNumber.get(remoteRow.taskNumber) ?? null;
+
+    if (localRow) {
+      consumedLocalIds.add(localRow.id);
+      merged.push(mergeTaskRow(localRow, remoteRow));
+      continue;
+    }
+
+    merged.push(remoteRow);
+  }
+
+  for (const localRow of localRows) {
+    if (!consumedLocalIds.has(localRow.id)) {
+      merged.push(localRow);
+    }
+  }
+
+  return normalizeTaskNumbers(merged);
+}
+
 /** Share of task rows with at least one filled field (one decimal place). */
 export function calculateInitiativeTaskPercent(tasks: InitiativeTasks | undefined): number {
   if (!tasks || tasks.length === 0) {
@@ -280,7 +382,10 @@ function parseTaskRow(value: unknown, fallbackTaskNumber: string): TaskRow | nul
         ? sanitizeTaskField("description", row.description)
         : "",
     status: typeof row.status === "string" ? sanitizeTaskStatus(row.status) : "",
-    dateDue: typeof row.dateDue === "string" ? sanitizeTaskField("dateDue", row.dateDue) : "",
+    dateDue:
+      typeof row.dateDue === "string"
+        ? toIsoDateString(row.dateDue) ?? sanitizeTaskField("dateDue", row.dateDue)
+        : "",
     responsibility:
       typeof row.responsibility === "string"
         ? sanitizeTaskField("responsibility", row.responsibility)
@@ -289,16 +394,15 @@ function parseTaskRow(value: unknown, fallbackTaskNumber: string): TaskRow | nul
   };
 }
 
-function parseInitiativeTasks(raw: unknown): AllInitiativeTasks {
+export function parseInitiativeTasks(raw: unknown): AllInitiativeTasks {
   if (typeof raw !== "object" || raw === null) {
     return {};
   }
 
-  const validSlugs = getAllInitiativeSlugs();
   const parsed: AllInitiativeTasks = {};
 
   for (const [slug, taskRows] of Object.entries(raw)) {
-    if (!validSlugs.has(slug) || !Array.isArray(taskRows)) {
+    if (!isInitiativeSlugKey(slug) || !Array.isArray(taskRows)) {
       continue;
     }
 
@@ -353,4 +457,50 @@ export function getInitiativeTasks(
   initiativeSlug: string
 ): InitiativeTasks {
   return allTasks[initiativeSlug] ?? createDefaultTaskRows();
+}
+
+/** Merge remote and local task data per slug, preserving non-empty cell values. */
+export function mergeInitiativeTaskSources(
+  remote: AllInitiativeTasks,
+  local: AllInitiativeTasks
+): AllInitiativeTasks {
+  const slugs = new Set([...Object.keys(local), ...Object.keys(remote)]);
+  const merged: AllInitiativeTasks = {};
+
+  for (const slug of slugs) {
+    const localRows = local[slug] ?? [];
+    const remoteRows = remote[slug] ?? [];
+    merged[slug] = mergeTaskRows(localRows, remoteRows);
+  }
+
+  return merged;
+}
+
+/**
+ * Moves task rows stored under orphaned slugs onto the current initiative slugs
+ * when the initiative slug changed but task data still exists in storage.
+ */
+export function alignTasksToInitiativeSlugs(
+  initiativeSlugs: string[],
+  tasks: AllInitiativeTasks
+): AllInitiativeTasks {
+  const result: AllInitiativeTasks = { ...tasks };
+  const slugSet = new Set(initiativeSlugs);
+
+  for (const slug of initiativeSlugs) {
+    if (result[slug]?.length) {
+      continue;
+    }
+
+    const orphanSlug = Object.keys(result).find(
+      (key) => !slugSet.has(key) && (result[key]?.length ?? 0) > 0
+    );
+
+    if (orphanSlug) {
+      result[slug] = result[orphanSlug];
+      delete result[orphanSlug];
+    }
+  }
+
+  return result;
 }

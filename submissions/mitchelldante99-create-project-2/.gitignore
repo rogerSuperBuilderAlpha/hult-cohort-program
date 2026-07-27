@@ -1,0 +1,43 @@
+participants/summer26/phase-1-project-2/mitchelldante99-create
+# dependencies
+/node_modules
+/.pnpm-store/
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+/playwright-report/
+/test-results/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# local environment files
+.env*
+!.env.example
+
+# vercel
+node_modules/
+.env
+.env.local
+.env.vercel*
+.DS_Store
+*.log
+dist/
+.vercel
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+pnpm-debug.log*
+firestore-debug.log
+.claude/

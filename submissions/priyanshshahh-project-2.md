@@ -40,6 +40,15 @@ https://cohort-comms-phi.vercel.app
 
 Build repo: https://github.com/priyanshshahh/cohort-comms
 
+
+## Latest polish (review week)
+
+- README now matches production: live `POST /api/webhooks/forth`, SSE + SWR, full feature list, `/demo` first.
+- Demo tour dismisses on composer focus; mobile Forth starts closed.
+- Catch me up briefs + typing indicators + GitHub Actions CI (`npm test` + `tsc`).
+- Production: https://cohort-comms-phi.vercel.app · Demo: https://cohort-comms-phi.vercel.app/demo
+
+
 ## PM platform integration notes
 
 The cohort PM platform is **Forth** (https://forth-bice.vercel.app,

@@ -172,6 +172,10 @@ set "PR_BODY=%TEMP%\initiara-pr-body.md"
 
   echo.
 
+  echo ## Production URL
+  echo.
+  echo https://initiara-rawle.vercel.app
+  echo.
   echo ## Test plan
 
   echo - [ ] Map deliverables to submissions/studmuffin01-project-1/REVIEWER_RUBRIC.md
@@ -207,7 +211,10 @@ if errorlevel 1 (
 echo.
 
 echo Done.
-
+echo.
+echo Open or update your cohort PR ^(base/head must match SUBMISSION.md^):
+echo https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/compare/projects/summer26/phase-1-project-1...Studmuffin01:participants/summer26/phase-1-project-1/studmuffin01
+echo.
 echo Submission: https://github.com/Studmuffin01/hult-cohort-program/tree/%BRANCH%/%SUBMISSION%
 
 

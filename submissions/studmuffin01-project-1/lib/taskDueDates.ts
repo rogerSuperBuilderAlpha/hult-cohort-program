@@ -126,7 +126,7 @@ export function applyDueDateRollup(
     return { rows, adjustments: [], hasConflict: false };
   }
 
-  let nextRows = [...rows];
+  const nextRows = [...rows];
   const adjustments: DueDateRollupAdjustment[] = [];
   let parentNumber: string | null = immediateParentNumber;
 

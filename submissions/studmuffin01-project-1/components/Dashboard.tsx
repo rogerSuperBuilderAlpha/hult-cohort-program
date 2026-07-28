@@ -50,8 +50,6 @@ const actionButtonClassName =
 
 const archiveButtonClassName = `${actionButtonClassName} border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20`;
 
-const deleteButtonClassName = `${actionButtonClassName} border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20`;
-
 const secondaryButtonClassName = `${actionButtonClassName} border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-surface-border dark:bg-surface-card dark:text-surface-secondary dark:hover:bg-surface-bg`;
 
 const panelClassName = dashboardPanelCompactClassName;
@@ -63,8 +61,6 @@ const titleInputClassName =
   "w-full min-w-0 rounded border border-brand-300 bg-white px-2 py-1 text-xs text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-brand-500/40 dark:bg-surface-bg dark:text-surface-primary";
 
 const confirmArchiveClassName = `${actionButtonClassName} border border-amber-400 bg-amber-600 px-3 py-1.5 text-xs text-white hover:bg-amber-700 dark:border-amber-500/60`;
-
-const confirmDeleteClassName = `${actionButtonClassName} border border-red-400 bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-700 dark:border-red-500/60`;
 
 function ProgressToDateCell({
   doneCount,

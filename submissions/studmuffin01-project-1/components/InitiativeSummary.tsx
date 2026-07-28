@@ -64,7 +64,7 @@ const InitiativeTaskTable = memo(function InitiativeTaskTable({
   const deleteInputId = `${initiative.slug}-delete-task-number`;
   const deleteControlsRef = useRef<HTMLDivElement>(null);
 
-  const taskRows = tasks ?? [];
+  const taskRows = useMemo(() => tasks ?? [], [tasks]);
   const visibleTaskRows = useMemo(
     () => filterTaskRows(taskRows, { ...EMPTY_TASK_FILTERS, ...rowFilters }),
     [rowFilters, taskRows]

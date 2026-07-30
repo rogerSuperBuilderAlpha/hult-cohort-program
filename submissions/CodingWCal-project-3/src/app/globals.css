@@ -1,0 +1,50 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-vibe-bg: #F8F6F3;
+  --color-vibe-bg-dark: #1A1A1A;
+  --color-vibe-surface: #FFFFFF;
+  --color-vibe-surface-dark: #242424;
+  --color-vibe-text: #1A1A1A;
+  --color-vibe-text-dark: #E8E6E3;
+  --color-vibe-muted: #6B6B6B;
+  --color-vibe-accent: #2563EB;
+  --color-vibe-accent-hover: #1D4ED8;
+  --color-vibe-accent-light: #DBEAFE;
+  --color-vibe-border: #E5E2DC;
+  --color-vibe-border-dark: #333333;
+  --color-vibe-tag-bg: #EEEEEE;
+  --color-vibe-tag-bg-dark: #333333;
+  --color-vibe-tag-text: #555555;
+  --color-vibe-alumni: #9CA3AF;
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+}
+
+body {
+  background: var(--color-vibe-bg);
+  color: var(--color-vibe-text);
+  font-family: var(--font-sans);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+body.dark {
+  background: var(--color-vibe-bg-dark);
+  color: var(--color-vibe-text-dark);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-vibe-accent);
+  outline-offset: 2px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 400ms ease-out;
+}

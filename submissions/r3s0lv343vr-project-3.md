@@ -8,6 +8,7 @@
 
 - Build repo: https://github.com/r3s0lv343vr/vibe-marketing-platform (`main`)
 - Partner-facing README: https://github.com/r3s0lv343vr/vibe-marketing-platform/blob/main/README.md
+- Vercel project: `pixie-dust-cheesecake` (production alias live; smoke-tested 2026-07-30)
 
 ## Sample profile URLs
 
@@ -61,7 +62,7 @@ Public showcase + vibe marketing studio:
 | Partner section | Fee summary + hire pathway |
 | Request intro | `POST /api/request-intro` (logs + optional webhook) |
 | SEO | Title, description, Open Graph, sitemap, robots |
-| Deployment | Vercel HTTPS target: pixie-dust-cheesecake.vercel.app |
+| Deployment | Vercel HTTPS: https://pixie-dust-cheesecake.vercel.app |
 
 ## Setup (fresh clone)
 
@@ -83,7 +84,7 @@ npm run dev
 
 - **Research:** Project 3 curriculum (public showcase requirements, partner pipeline), prior @r3s0lv343vr submissions, peer Project 3 PR pattern
 - **Dev:** Next.js App Router platform branded Pixie Dust Cheesecake — profiles, partners, studio, PM snapshot, partner README
-- **QA:** Production build, local smoke of home/profiles/studio/partners/API; Vercel project slug `pixie-dust-cheesecake`
+- **QA:** `npm run build`; production smoke on https://pixie-dust-cheesecake.vercel.app (home, profiles, studio, partners, request-intro API)
 
 ## Known limitations
 

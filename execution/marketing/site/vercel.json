@@ -4,11 +4,5 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": ".next",
-  "crons": [
-    {
-      "path": "/api/cron/warm-contest",
-      "schedule": "*/5 * * * *"
-    }
-  ]
+  "outputDirectory": ".next"
 }

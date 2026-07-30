@@ -8,7 +8,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPages: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[0]['changeFrequency'] }[] = [
     { path: '', priority: 1, changeFrequency: 'weekly' },
-    { path: '/start', priority: 0.95, changeFrequency: 'monthly' },
+    { path: '/showcase', priority: 0.95, changeFrequency: 'weekly' },
+    { path: '/students', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/partners', priority: 0.9, changeFrequency: 'monthly' },
+    { path: '/status', priority: 0.85, changeFrequency: 'hourly' },
     { path: '/overview', priority: 0.9, changeFrequency: 'monthly' },
     { path: '/program', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/winning-guide', priority: 0.85, changeFrequency: 'monthly' },

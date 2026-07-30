@@ -18,6 +18,7 @@ export default async function Home() {
       <SiteHeader
         links={[
           { href: '/start', label: 'What is this?' },
+          { href: '/showcase', label: 'Showcase' },
           { href: '/program', label: 'Program' },
           { href: '/winning-guide', label: 'Winning guide' },
         ]}

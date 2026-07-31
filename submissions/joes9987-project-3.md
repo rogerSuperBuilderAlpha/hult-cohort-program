@@ -21,6 +21,7 @@ Reviewer SCORECARD (/25): https://github.com/joes9987/showcase-joes9987/blob/mai
 People index (search/filter): https://showcase-joes9987.vercel.app/people  
 Privacy demo (opt-out): https://showcase-joes9987.vercel.app/people/rebekah-dev  
 Partners + intro + RSVP: https://showcase-joes9987.vercel.app/partners  
+Partner evidence walkthrough: https://showcase-joes9987.vercel.app/for-partners  
 Suite deep links: https://showcase-joes9987.vercel.app/suite
 
 ## Partner-facing homepage
@@ -29,7 +30,7 @@ Homepage narrative (“Why this cohort is hireable”) is written for hiring par
 
 ## PM / Forth status
 
-PM status from a committed Forth snapshot (`data/forth-status.json`, source https://forth-bice.vercel.app) plus portfolio deep links to EudaPM / EudaChat deploys. Refresh: `npm run sync:forth`. UI badge: “Refreshed from live Forth · {timestamp}”.
+PM status from a committed Forth snapshot (`data/forth-status.json`, source https://forth-bice.vercel.app) plus portfolio deep links to EudaPM / EudaChat deploys. Operators edit the JSON from Forth, then bump `updatedAt` with `npm run sync:forth`. UI badge: “Snapshot from Forth · {timestamp}”.
 
 ## Roster / hiring story
 
@@ -55,7 +56,8 @@ PM status from a committed Forth snapshot (`data/forth-status.json`, source http
 - [x] Deploy HTTPS; public pages require no auth
 - [x] Homepage narrative ≥ 200 words (partner-friendly; no backend leak)
 - [x] Roster profiles with bios/skills + GitHub avatars + skill/project filter
-- [x] Forth / PM status strip (real snapshot, refreshed badge)
+- [x] Forth / PM status strip (manual snapshot badge; compact on profiles)
+- [x] `/for-partners` evidence walkthrough
 - [x] Partner intro + showcase RSVP APIs (DB + Resend)
 - [x] Opt-out private placeholder (`rebekah-dev`)
 - [x] SEO + sitemap/robots + Open Graph card at `/opengraph-image`

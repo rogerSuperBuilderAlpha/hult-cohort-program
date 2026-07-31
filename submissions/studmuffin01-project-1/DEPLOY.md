@@ -121,10 +121,37 @@ git push -u fork participants/summer26/phase-1-project-1/studmuffin01
 
 When the program asks for a PR, open one **from your fork branch → upstream** cohort repo. That is the submission — not a direct push to upstream `main`.
 
+**Full PR targets, bookmark URL, and title:** see [SUBMISSION.md](./SUBMISSION.md).
+
+Quick reference:
+
+| | |
+|---|---|
+| Base repo | `rogerSuperBuilderAlpha/hult-cohort-program` |
+| Base branch | `projects/summer26/phase-1-project-1` |
+| Head repo | `Studmuffin01/hult-cohort-program` |
+| Compare branch | `participants/summer26/phase-1-project-1/studmuffin01` |
+
+Compare URL: https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/compare/projects/summer26/phase-1-project-1...Studmuffin01:participants/summer26/phase-1-project-1/studmuffin01
+
 ## 6. Production URL (this submission)
 
-Document your live URL in [README.md](./README.md) after deploy. Example format:
+Use your Vercel **production domain**, not a branch preview URL.
 
-```text
-https://initiara-git-participants-summer26phase-1-project-b9933f-rawle.vercel.app
+| Use this | Avoid this |
+|----------|------------|
+| `https://initiara-rawle.vercel.app` | `https://initiara-git-participants-summer26phase-1-project-….vercel.app` |
+
+Branch URLs contain `-git-` and the branch slug. They change if the branch is renamed and stop working when the branch is deleted. Production aliases stay valid for portfolio links.
+
+**Find yours:** Vercel → project **initiara** → **Settings → Domains** → the domain marked **Production** (no branch label).
+
+Document the stable URL in [README.md](./README.md) and your PR body:
+
+```markdown
+## Production URL
+
+https://initiara-rawle.vercel.app
 ```
+
+Also set **`NEXT_PUBLIC_SITE_URL`** on Vercel to the same stable URL and add it to Supabase **Authentication → URL Configuration** (Site URL + Redirect URLs). Redeploy after changing env vars.

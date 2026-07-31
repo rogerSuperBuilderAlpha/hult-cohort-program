@@ -417,9 +417,11 @@ scripts/push-to-fork.bat
 scripts/push-phase-b.bat      # alternate commit message template
 ```
 
-**Production URL:**
+PR body and submission docs: put the HTTPS URL on the line immediately after `## Production URL` (no link label like "Live Application" in between — the cohort parser stops there).
 
-https://initiara-git-participants-summer26phase-1-project-b9933f-rawle.vercel.app
+## Production URL
+
+https://initiara-rawle.vercel.app
 
 **Fork branch:**
 

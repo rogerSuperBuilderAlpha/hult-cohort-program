@@ -34,6 +34,7 @@ PM status from a committed Forth snapshot (`data/forth-status.json`, source http
 ## Roster / hiring story
 
 - Seeded roster (`data/roster.json`) includes short bios, skills, campus where known, and portfolio repo/deploy links for known Phase 1 products
+- Every roster link was crawled for HTTP 200 before seeding — 17 of 32 profiles carry a live peer deploy (Rally, Tavern, Banter, teamwrk, Buddywire, Archivist, Conexus, Beacon, lnq, and more), and no profile links to a dead URL
 - GitHub avatar fallbacks when no custom avatar
 - Home “Featured builders” ranks richer portfolio cards first
 - Claim/edit at `/app/profile` (same email as EudaPM / EudaChat; per-host cookies)
@@ -57,7 +58,8 @@ PM status from a committed Forth snapshot (`data/forth-status.json`, source http
 - [x] Forth / PM status strip (real snapshot, refreshed badge)
 - [x] Partner intro + showcase RSVP APIs (DB + Resend)
 - [x] Opt-out private placeholder (`rebekah-dev`)
-- [x] SEO + sitemap/robots
+- [x] SEO + sitemap/robots + Open Graph card at `/opengraph-image`
+- [x] All roster portfolio links return 200
 - [x] Auth-aware header after claim
 - [x] `npm run build` + `npm test`
 

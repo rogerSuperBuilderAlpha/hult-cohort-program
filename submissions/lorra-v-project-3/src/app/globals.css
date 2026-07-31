@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+:root {
+  /* Deep navy-black with a cool blue cast */
+  --background: #0a0d14;
+  --background-elevated: #121722;
+  --background-muted: #1a2030;
+  --foreground: #f2f4f8;
+  --foreground-muted: #8b93a7;
+  --border: #2a3347;
+  --border-strong: #3d4a63;
+
+  /* Brand / default accent (projects green) */
+  --accent: #3dffb5;
+  --accent-foreground: #0a0d14;
+
+  /* Semantic section accents */
+  --accent-projects: #3dffb5;
+  --accent-builders: #e0a458;
+  --accent-partners: #a78bfa;
+
+  /* Legacy / non-section accents (kept distinct from builders amber) */
+  --accent-coral: #ff6b4a;
+  --accent-sky: #5eb7ff;
+
+  --danger: #ff5c7a;
+  --success: #3dffb5;
+  /* Near builders amber — reserved for warnings; not used for section accents */
+  --warning: #ffc857;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-elevated: var(--background-elevated);
+  --color-background-muted: var(--background-muted);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-projects: var(--accent-projects);
+  --color-accent-builders: var(--accent-builders);
+  --color-accent-partners: var(--accent-partners);
+  --color-accent-coral: var(--accent-coral);
+  --color-accent-sky: var(--accent-sky);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-sora);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sora), system-ui, sans-serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent-projects) 35%, transparent);
+  color: var(--foreground);
+}
+
+@keyframes networkPulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes nodeDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes arrowSlide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(4px);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.7s ease-out both;
+}
+
+.animate-fade-up-delay {
+  animation: fadeUp 0.7s ease-out 0.12s both;
+}
+
+.animate-fade-up-delay-2 {
+  animation: fadeUp 0.7s ease-out 0.24s both;
+}
+
+.group\/arrow:hover .arrow-icon {
+  animation: arrowSlide 0.35s ease forwards;
+}

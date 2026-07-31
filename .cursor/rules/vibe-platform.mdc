@@ -1,0 +1,30 @@
+---
+description: Hult cohort vibe marketing platform — submission constraints
+alwaysApply: true
+---
+
+# Non-negotiables
+
+- Never invent URLs, participant names, metrics, testimonials, logos, or credentials.
+  If a real value is missing, insert `TODO({field})` and stop to ask.
+- Placeholder participants are marked `status: "pending"` in the data layer and render
+  as visibly-pending cards. Never fabricate a finished profile.
+- No merging PRs. No direct pushes to `projects/*` or `cohorts/*`.
+- PR title must be exactly: [Project 3] Submission — ryanroper79-alt
+- Do not add merge preconditions absent from the brief (e.g. user signup counts).
+
+# Stack conventions
+
+- Next.js App Router, TypeScript strict, Tailwind. Server Components by default;
+  "use client" only where interaction demands it.
+- Participant data lives ONLY in data/participants.ts, typed. No fetching at runtime.
+- All profile routes statically generated via generateStaticParams.
+- `npm run build` and `tsc --noEmit` must pass before any commit.
+- Every participant surface must render at 0, 1, and 30 participants.
+
+# CEAL Green voice (Brand Guidelines v0.2)
+
+- Source: https://peteranthonygales.craft.me/s3ywHY5a1ppmyU — see `data/brand-guidelines.ts`
+- Present tense. Declarative. Caribbean always visible. Warm, not transactional.
+- Avoid: "sustainable future", "green transition", "transition", blame/diagnostic framing, defiance language, future "will" where "do" is accurate.
+- Visual palette from logo until Guidelines §5 ships; do not invent designer hex values.

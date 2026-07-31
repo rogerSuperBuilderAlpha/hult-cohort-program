@@ -1,45 +1,38 @@
 # Partner guide — Hult Cohort Showcase (Summer Pilot 2026)
 
-**Operator:** @ryanroper79-alt · **Platform:** Next.js vibe marketing extension on the cohort site
+**Operator:** Ryan R. Roper · **CEAL Green** · **Contact:** ryan@cealgreen.com
 
 ## One sentence
 
-We produce developers you can evaluate entirely on GitHub — every review, deployment, and merged PR is public — and you pay only when you hire.
+We produce Caribbean builders who ship deployable software in public — inspect the evidence on GitHub and live HTTPS before you sponsor.
 
-## What you get
+## What sponsorship funds
 
-- **Public showcase** at the production URL (see submission PR)
-- **Builder profiles** with GitHub avatars, bios, merged submission PRs, and deploy links
-- **Live PM snapshot** at `/status` — merged submission counts tied to the cohort platform
-- **Request intro** form at `/partners` — notifies placement lead within one minute when email is configured
+- A **cohort seat** for a builder shipping production software through the six-week pilot
+- Or a **named project sprint** aligned to energy and digital transformation in the Caribbean
+- Transparent scope conversation before commitment — no hidden quota gates
 
-## How to hire
+## How to engage
 
-1. Browse `/students` or featured cards on `/showcase`
-2. Inspect GitHub history and live deploys linked from each profile
-3. Submit **Request intro** with company, role context, and student handle(s)
-4. Placement lead coordinates async review → your interview loop → offer
+1. Browse **/work** (artifact index) and sample profiles **/p/{handle}**
+2. Email **ryan@cealgreen.com** with scope, timeline, and sponsorship intent
+3. CEAL Green responds with deliverables, entry cost, and structure
+4. Inspect deploys and merged PRs throughout the pilot
 
-## Commercial terms (summary)
+## Thought leader
 
-| Term | Detail |
-|------|--------|
-| Fee | ~25% of first-year base salary on successful hire |
-| Clawback | 90 days if candidate leaves early |
-| Candidate kickback | 10% (aligned incentives) |
-| Exclusivity | None — multiple partners may engage |
+**Ryan R. Roper** — 20+ years developing major energy projects; now building a native AI firm through Cursor and digital platforms.
 
-Full pipeline context: [`partnerships/hiring-partners.md`](../../../partnerships/hiring-partners.md) in the cohort monorepo.
+LinkedIn: https://www.linkedin.com/in/ryanroper1/
 
-## Week 8 showcase RSVP
+## Evidence (verified on this submission)
 
-End-of-pilot hiring showcase (Boston anchor): contact **cohort@hult.edu** to RSVP. Async portfolio review is available before the live event.
+| Item | URL |
+|------|-----|
+| Production | https://hult-cohort-program-iota.vercel.app |
+| Submission PR | https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186 |
+| Brand guidelines | https://peteranthonygales.craft.me/s3ywHY5a1ppmyU |
 
-## Technical contacts
+## Brand
 
-- **Placement / intros:** cohort@hult.edu
-- **Platform issues:** file in [hult-cohort-program](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program) or email the operator via GitHub
-
-## Privacy
-
-Students may opt out of public marketing profiles at enrollment. Opt-out pages show a private placeholder — not a data error.
+CEAL Green — mangrove green, sun yellow, white. Caribbean execution engine for green and digital solutions. Present tense. Build Now.

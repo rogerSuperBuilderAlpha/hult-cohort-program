@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hult Cohort 67 — Vibe Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF6EC;
+  --paper-warm:#F7EEDC;
+  --ink:#2B2620;
+  --coral:#FF6F5E;
+  --coral-deep:#D6473A;
+  --marigold:#FFB84D;
+  --marigold-deep:#C97F13;
+  --leaf:#6FA97C;
+  --leaf-deep:#3F7A4E;
+  --periwinkle:#8B93E8;
+  --periwinkle-deep:#5158B8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;}
+::selection{background:var(--marigold);color:var(--ink);}
+
+.wobble{animation:wobble 6s ease-in-out infinite;}
+@keyframes wobble{0%,100%{transform:rotate(-1.2deg) translateY(0px);}50%{transform:rotate(1.2deg) translateY(-4px);}}
+@media (prefers-reduced-motion:reduce){.wobble{animation:none;}}
+
+header{max-width:1100px;margin:0 auto;padding:56px 24px 24px;display:grid;grid-template-columns:1.3fr 0.7fr;gap:24px;align-items:center;}
+.header-art{height:220px;display:flex;align-items:center;justify-content:center;}
+.header-art svg{width:100%;height:100%;overflow:visible;}
+@media (max-width:820px){header{grid-template-columns:1fr;}.header-art{height:160px;order:-1;}}
+
+.eyebrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--periwinkle-deep);background:#fff;border:2px solid var(--ink);border-radius:999px;padding:6px 16px;display:inline-flex;align-items:center;gap:8px;box-shadow:3px 3px 0 var(--ink);margin-bottom:24px;}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--coral);display:inline-block;}
+h1{font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(36px,6vw,64px);line-height:1.05;margin-bottom:16px;}
+h1 .accent{color:var(--coral-deep);}
+.tagline{font-size:16px;max-width:600px;color:#4a453d;line-height:1.55;}
+
+.setup-banner{max-width:1100px;margin:0 auto;padding:0 24px;}
+.setup-banner .inner{background:#FFF3CD;border:2.5px solid #C97F13;border-radius:16px;padding:16px 20px;font-size:13.5px;color:#5c4813;margin-bottom:24px;line-height:1.5;}
+.setup-banner code{background:#00000010;padding:1px 6px;border-radius:4px;font-family:'Space Mono',monospace;font-size:12px;}
+
+.tabs{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.tab-btn{font-family:'Inter',sans-serif;font-weight:600;font-size:14px;border:2.5px solid var(--ink);background:#fff;border-radius:999px;padding:11px 22px;cursor:pointer;transition:all .12s ease;}
+.tab-btn:hover{transform:translateY(-2px);box-shadow:3px 3px 0 var(--ink);}
+.tab-btn.active{background:var(--ink);color:var(--paper);}
+
+section{max-width:1100px;margin:0 auto;padding:32px 24px 56px;}
+.view{display:none;}
+.view.active{display:block;}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:40px;}
+.stat-card{background:#fff;border:2.5px solid var(--ink);border-radius:20px 24px 20px 26px;padding:18px 20px;box-shadow:4px 4px 0 var(--ink);}
+.stat-card .num{font-family:'Fredoka',sans-serif;font-weight:600;font-size:30px;line-height:1;}
+.stat-card .label{font-size:13px;color:#6b665c;margin-top:6px;font-weight:500;}
+.stat-card.c-coral .num{color:var(--coral-deep);}
+.stat-card.c-marigold .num{color:var(--marigold-deep);}
+.stat-card.c-leaf .num{color:var(--leaf-deep);}
+.stat-card.c-peri .num{color:var(--periwinkle-deep);}
+
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px;}
+.controls input[type="text"]{flex:1;min-width:220px;border:2.5px solid var(--ink);border-radius:14px;padding:12px 18px;font-family:'Inter',sans-serif;font-size:14px;background:#fff;}
+.controls input[type="text"]:focus{outline:3px solid var(--marigold);outline-offset:1px;}
+.chip{border:2.5px solid var(--ink);background:#fff;border-radius:999px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.chip:hover{transform:translateY(-2px);box-shadow:3px 3px 0 var(--ink);}
+.chip.active{background:var(--ink);color:var(--paper);}
+
+.cluster{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px;}
+.card{background:#fff;border:2.5px solid var(--ink);padding:18px;box-shadow:5px 5px 0 var(--ink);transition:transform .15s ease, box-shadow .15s ease;}
+.card:nth-child(4n+1){border-radius:28px 18px 28px 18px;}
+.card:nth-child(4n+2){border-radius:18px 28px 18px 30px;}
+.card:nth-child(4n+3){border-radius:30px 20px 16px 28px;}
+.card:nth-child(4n+4){border-radius:16px 30px 26px 18px;}
+.card:hover{transform:translate(-3px,-5px) rotate(-1deg);box-shadow:8px 8px 0 var(--ink);}
+.avatar{width:48px;height:48px;border-radius:50%;border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:10px;}
+.avatar.coral{background:#FFD9D3;}.avatar.marigold{background:#FFE7BE;}.avatar.leaf{background:#D9EDDD;}.avatar.periwinkle{background:#DEE1FA;}.avatar.ink{background:#E4E1D8;}
+.card-name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;margin-bottom:2px;}
+.card-handle{font-family:'Space Mono',monospace;font-size:11px;color:#8a8478;margin-bottom:8px;}
+.card-project-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.card-project-tagline{font-size:12.5px;color:#6b665c;line-height:1.45;margin-bottom:8px;}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.tag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:999px;border:1.5px solid var(--ink);background:var(--paper-warm);}
+.card-link{font-size:12px;font-weight:600;color:var(--coral-deep);text-decoration:none;}
+.card-link:hover{text-decoration:underline;}
+.empty-msg{grid-column:1/-1;text-align:center;padding:48px 0;color:#8a8478;font-size:15px;}
+.flag-btn{margin-top:10px;font-size:10.5px;color:#a39c8d;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;}
+
+.form-shell{max-width:640px;margin:0 auto;background:#fff;border:2.5px solid var(--ink);border-radius:28px;padding:36px 32px;box-shadow:6px 6px 0 var(--ink);}
+.form-shell h2{font-family:'Fredoka',sans-serif;font-size:26px;margin-bottom:8px;}
+.form-shell .sub{color:#6b665c;font-size:14px;margin-bottom:28px;line-height:1.5;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+.field .hint{font-size:11.5px;color:#8a8478;margin-top:4px;}
+.field input[type="text"],.field input[type="url"],.field textarea,.field select{
+  width:100%;border:2.5px solid var(--ink);border-radius:12px;padding:11px 14px;
+  font-family:'Inter',sans-serif;font-size:14px;background:#fff;
+}
+.field textarea{resize:vertical;min-height:70px;}
+.field input:focus,.field textarea:focus,.field select:focus{outline:3px solid var(--marigold);outline-offset:1px;}
+.color-picker{display:flex;gap:10px;margin-top:6px;}
+.color-swatch{width:36px;height:36px;border-radius:50%;border:2.5px solid var(--ink);cursor:pointer;}
+.color-swatch.selected{outline:3px solid var(--ink);outline-offset:2px;}
+.color-swatch.coral{background:#FFD9D3;}.color-swatch.marigold{background:#FFE7BE;}.color-swatch.leaf{background:#D9EDDD;}.color-swatch.periwinkle{background:#DEE1FA;}.color-swatch.ink{background:#E4E1D8;}
+.submit-btn{width:100%;font-family:'Inter',sans-serif;font-weight:600;font-size:15px;background:var(--ink);color:var(--paper);border:none;border-radius:999px;padding:15px;cursor:pointer;box-shadow:4px 4px 0 var(--coral-deep);margin-top:6px;}
+.submit-btn:hover{transform:translate(-2px,-2px);}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.form-msg{margin-top:16px;padding:12px 16px;border-radius:12px;font-size:13.5px;font-weight:500;display:none;}
+.form-msg.success{background:#D9EDDD;color:var(--leaf-deep);display:block;}
+.form-msg.error{background:#FFD9D3;color:var(--coral-deep);display:block;}
+.privacy-note{font-size:12px;color:#8a8478;margin-top:18px;line-height:1.5;}
+
+footer{max-width:1100px;margin:0 auto;padding:32px 24px 48px;font-size:13px;color:#8a8478;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="eyebrow"><span class="dot"></span> Hult Cohort 67 &middot; Summer Pilot 2026</div>
+    <h1>Vibe marketing,<br>made by <span class="accent">the cohort</span>.</h1>
+    <p class="tagline">66 builders. One summer. Add your project below and it shows up on the wall instantly.</p>
+  </div>
+  <div class="header-art wobble">
+    <svg viewBox="0 0 300 300" fill="none">
+      <path d="M150 40c60 0 100 45 100 100s-45 105-105 105S45 205 45 145 90 40 150 40z" fill="#FFE7BE" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="110" cy="130" r="9" fill="var(--ink)"/>
+      <circle cx="185" cy="130" r="9" fill="var(--ink)"/>
+      <path d="M105 175c15 18 70 18 85 0" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+    </svg>
+  </div>
+</header>
+
+<div class="setup-banner" id="setup-banner" style="display:none;">
+  <div class="inner">
+    <strong>Setup needed:</strong> this page isn't connected to a database yet. Open <code>index.html</code> and fill in
+    <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> near the top of the script, then re-save and reload.
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="wall">Cohort wall</button>
+  <button class="tab-btn" data-tab="howto">How to use</button>
+  <button class="tab-btn" data-tab="form">Add my project</button>
+  <button class="tab-btn" data-tab="review">Peer review</button>
+  <button class="tab-btn" data-tab="partners">For partners</button>
+  <button class="tab-btn" data-tab="organizer" style="margin-left:auto;opacity:0.65;">Organizer</button>
+</div>
+
+<section>
+  <div class="view active" id="view-wall">
+    <div class="stats">
+      <div class="stat-card c-coral"><div class="num" id="stat-total">0</div><div class="label">Profiles submitted</div></div>
+      <div class="stat-card c-marigold"><div class="num" id="stat-shipped">0</div><div class="label">Projects shipped</div></div>
+      <div class="stat-card c-leaf"><div class="num">Week 3</div><div class="label">Contest &amp; peer review</div></div>
+      <div class="stat-card c-peri"><div class="num">150</div><div class="label">Total cohort size</div></div>
+    </div>
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search by name or project...">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="shipped">Shipped only</button>
+      <button class="chip" id="refresh-btn">Refresh</button>
+    </div>
+    <div class="cluster" id="cluster"></div>
+  </div>
+
+  <div class="view" id="view-howto">
+    <div class="form-shell" style="max-width:720px;">
+      <h2>How to use this site</h2>
+      <p class="sub">A quick walkthrough of each tab, so you know what to do and what to expect.</p>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;color:var(--coral-deep);">1. Cohort wall</h3>
+      <p style="font-size:14px;color:#4a453d;line-height:1.6;margin-bottom:10px;">This is the public view everyone sees, including partners. Search by name or project, or filter to only see projects that have shipped. Cards update live as people submit — hit "Refresh" if you want the latest without reloading the page.</p>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;color:var(--coral-deep);">2. Add my project</h3>
+      <p style="font-size:14px;color:#4a453d;line-height:1.6;margin-bottom:10px;">Fill in your name, an optional handle, and your project details. <strong>You must set a passcode</strong> — write it down somewhere, since you'll need it to edit or delete your profile later, and there's no "forgot passcode" recovery. If you haven't shipped a project yet, leave the project fields blank and your card will show "coming soon" until you update it.</p>
+      <p style="font-size:14px;color:#4a453d;line-height:1.6;margin-bottom:10px;">Below the submit form is a separate "Edit or delete your profile" box — enter your name and passcode there any time to update your info, remove yourself entirely, or <strong>add more projects</strong>. Each additional project can have a title, tagline, and up to three optional links: a live site, a GitHub repo, and a demo video. Only the title is required per project.</p>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;color:var(--coral-deep);">3. Peer review</h3>
+      <p style="font-size:14px;color:#4a453d;line-height:1.6;margin-bottom:10px;">Use this to review a peer's project. Enter your own name (reviews aren't anonymous), the exact name of the person you're reviewing, your written feedback, and an up-vote or abstain. Reviews are <strong>not posted publicly</strong> — only visible to the project owner and the organizer, via the lookup box at the bottom of the same tab.</p>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;color:var(--coral-deep);">4. For partners</h3>
+      <p style="font-size:14px;color:#4a453d;line-height:1.6;margin-bottom:10px;">This is what we send to anyone outside the cohort considering partnering, hiring, investing, or piloting a project. Worth a read so you know how your work is being framed to outsiders.</p>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;color:var(--coral-deep);">A few things worth knowing</h3>
+      <ul style="font-size:14px;color:#4a453d;line-height:1.8;padding-left:20px;margin-bottom:10px;">
+        <li>Your passcode is stored securely, but there's no recovery if you forget it — you'd need to contact the organizer.</li>
+        <li>Submitting too quickly (several times within a minute) will be blocked temporarily as a spam protection measure — this is normal, just wait a moment and try again.</li>
+        <li>Anyone can report a profile that seems inappropriate; three reports auto-hides it pending organizer review.</li>
+      </ul>
+
+      <p style="font-size:12.5px;color:#8a8478;margin-top:20px;">Still stuck? Reach out to <strong style="color:var(--ink);">@mitchelldante99-create</strong>.</p>
+    </div>
+  </div>
+
+  <div class="view" id="view-form">
+    <div class="form-shell">
+      <h2>Add your project</h2>
+      <p class="sub">Fill this in and you'll appear on the cohort wall right away. Resubmit any time with the same name to update your info.</p>
+      <form id="submit-form">
+        <div class="field">
+          <label for="f-name">Your name *</label>
+          <input type="text" id="f-name" required maxlength="60">
+        </div>
+        <div class="field">
+          <label for="f-handle">Handle or @username (optional)</label>
+          <input type="text" id="f-handle" maxlength="40" placeholder="@yourhandle">
+        </div>
+        <div class="field">
+          <label for="f-passcode">Set a passcode *</label>
+          <input type="text" id="f-passcode" required maxlength="40" placeholder="something only you know">
+          <div class="hint">You'll need this to edit or delete your profile later. Don't reuse a real password — anyone with the site can technically attempt to guess it.</div>
+        </div>
+        <div class="field">
+          <label>Avatar color</label>
+          <div class="color-picker" id="color-picker">
+            <div class="color-swatch coral selected" data-color="coral"></div>
+            <div class="color-swatch marigold" data-color="marigold"></div>
+            <div class="color-swatch leaf" data-color="leaf"></div>
+            <div class="color-swatch periwinkle" data-color="periwinkle"></div>
+            <div class="color-swatch ink" data-color="ink"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-title">Project title (leave blank if not shipped yet)</label>
+          <input type="text" id="f-title" maxlength="60">
+        </div>
+        <div class="field">
+          <label for="f-tagline">One-line project tagline</label>
+          <textarea id="f-tagline" maxlength="140"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-url">Project URL</label>
+          <input type="url" id="f-url" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="f-tags">Tags (comma separated, e.g. ai, climate, logistics)</label>
+          <input type="text" id="f-tags" maxlength="80">
+          <div class="hint">Up to 4 tags, lowercase, no special characters needed.</div>
+        </div>
+        <button type="submit" class="submit-btn" id="submit-btn">Submit to the wall</button>
+        <div class="form-msg" id="form-msg"></div>
+      </form>
+      <p class="privacy-note">This info is visible to anyone viewing the cohort wall, including potential partners. Don't include anything you wouldn't want public.</p>
+    </div>
+
+    <div class="form-shell" style="max-width:640px;margin-top:28px;">
+      <h2 style="font-size:22px;">Edit or delete your profile</h2>
+      <p class="sub">Enter your name and the passcode you set when submitting.</p>
+      <div class="field">
+        <label for="e-name">Your name *</label>
+        <input type="text" id="e-name" maxlength="60">
+      </div>
+      <div class="field">
+        <label for="e-passcode">Your passcode *</label>
+        <input type="text" id="e-passcode" maxlength="40">
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button type="button" class="submit-btn" id="load-for-edit-btn" style="box-shadow:4px 4px 0 var(--periwinkle-deep);">Load my profile</button>
+        <button type="button" class="submit-btn" id="delete-btn" style="background:var(--coral-deep);box-shadow:4px 4px 0 #8a2f26;">Delete my profile</button>
+      </div>
+      <div class="form-msg" id="edit-msg"></div>
+      <div id="edit-fields" style="display:none;margin-top:20px;padding-top:20px;border-top:1.5px dashed #d8d2c4;">
+        <p style="font-size:12px;color:#8a8478;margin-bottom:14px;">These fields control your main card summary on the wall.</p>
+        <div class="field">
+          <label for="e-title">Headline project title</label>
+          <input type="text" id="e-title" maxlength="60">
+        </div>
+        <div class="field">
+          <label for="e-tagline">One-line tagline</label>
+          <textarea id="e-tagline" maxlength="140"></textarea>
+        </div>
+        <div class="field">
+          <label for="e-url">Main project URL</label>
+          <input type="url" id="e-url" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="e-tags">Tags (comma separated)</label>
+          <input type="text" id="e-tags" maxlength="80">
+        </div>
+        <button type="button" class="submit-btn" id="save-edit-btn">Save changes</button>
+      </div>
+    </div>
+
+    <div class="form-shell" id="projects-manager" style="max-width:640px;margin-top:28px;display:none;">
+      <h2 style="font-size:20px;">Your projects</h2>
+      <p class="sub">Add as many projects as you've shipped. Only a title is required — links are optional, add whichever apply.</p>
+      <div id="projects-list"></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1.5px dashed #d8d2c4;">
+        <h3 style="font-family:'Fredoka',sans-serif;font-size:16px;margin-bottom:12px;">Add a new project</h3>
+        <div class="field">
+          <label for="np-title">Project title *</label>
+          <input type="text" id="np-title" maxlength="60">
+        </div>
+        <div class="field">
+          <label for="np-tagline">One-line tagline</label>
+          <textarea id="np-tagline" maxlength="140"></textarea>
+        </div>
+        <div class="field">
+          <label for="np-live">Live site URL</label>
+          <input type="url" id="np-live" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="np-repo">GitHub repo URL</label>
+          <input type="url" id="np-repo" placeholder="https://github.com/...">
+        </div>
+        <div class="field">
+          <label for="np-demo">Demo video URL</label>
+          <input type="url" id="np-demo" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="np-tags">Tags (comma separated)</label>
+          <input type="text" id="np-tags" maxlength="80">
+        </div>
+        <button type="button" class="submit-btn" id="add-project-btn">Add this project</button>
+        <div class="form-msg" id="add-project-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-review">
+    <div class="form-shell" style="max-width:680px;">
+      <h2>Write a peer review</h2>
+      <p class="sub">Review any submitted project. Reviews are attributed to your name and only shown to the project owner and the organizer — not posted publicly on the wall.</p>
+      <form id="review-form">
+        <div class="field">
+          <label for="r-reviewer">Your name *</label>
+          <input type="text" id="r-reviewer" required maxlength="60">
+        </div>
+        <div class="field">
+          <label for="r-target">Project owner's name *</label>
+          <input type="text" id="r-target" required maxlength="60">
+          <div class="hint">Must match the name they used when submitting their project.</div>
+        </div>
+        <div class="field">
+          <label for="r-text">Written review *</label>
+          <textarea id="r-text" required maxlength="1200" style="min-height:120px;" placeholder="What works, what's unclear, what you'd improve..."></textarea>
+        </div>
+        <div class="field">
+          <label>Vote</label>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <button type="button" class="chip vote-btn active" data-vote="up">Up-vote</button>
+            <button type="button" class="chip vote-btn" data-vote="abstain">Abstain</button>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="review-submit-btn">Submit review</button>
+        <div class="form-msg" id="review-msg"></div>
+      </form>
+      <div style="margin-top:8px;padding-top:8px;border-top:1.5px dashed #d8d2c4;">
+        <p style="font-size:11.5px;color:#8a8478;line-height:1.5;">
+          Note: reviews for a project are visible to anyone who enters that project owner's exact
+          name below. This is a lightweight lookup, not real login-based security — appropriate for
+          a trusted cohort, not a guarantee of privacy.
+        </p>
+      </div>
+    </div>
+
+    <div class="form-shell" style="max-width:680px;margin-top:28px;">
+      <h2 style="font-size:22px;">View reviews on a project</h2>
+      <p class="sub">Enter the project owner's name to see the reviews left for them.</p>
+      <div class="field">
+        <input type="text" id="r-lookup" placeholder="Project owner's name" maxlength="60">
+      </div>
+      <button type="button" class="submit-btn" id="lookup-btn" style="box-shadow:4px 4px 0 var(--periwinkle-deep);">Show reviews</button>
+      <div id="review-results" style="margin-top:20px;"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-partners">
+    <div class="form-shell" style="max-width:720px;">
+      <h2>Partner with the cohort</h2>
+      <p class="sub">Hult Cohort 67 is a summer program of 66 builders shipping real, individually-built projects over weekly contest cycles. This page is for anyone considering partnering with, hiring from, investing in, or piloting a project from the cohort.</p>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;">What this program is</h3>
+      <p style="font-size:14px;color:#4a453d;line-height:1.6;margin-bottom:10px;">Each week centers on a themed build. Week 3 is vibe marketing: every participant ships a production site or campaign artifact for their own project, then reviews their peers' submissions before a fixed deadline. Participants work individually, and submissions appear on the wall as they merge.</p>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;">What "peer reviewed" means here</h3>
+      <p style="font-size:14px;color:#4a453d;line-height:1.6;margin-bottom:10px;">Every merged submission gets a written technical review from at least one peer, plus an optional up-vote or abstain. This is an internal quality signal between builders — not an external audit, accreditation, or endorsement. If you're evaluating a project for partnership or investment, we'd encourage your own independent diligence.</p>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;">Ways to engage</h3>
+      <ul style="font-size:14px;color:#4a453d;line-height:1.8;padding-left:20px;margin-bottom:10px;">
+        <li>Pilot a project — reach out directly to a builder whose work fits a real problem you have.</li>
+        <li>Hire — many participants are looking for their next role; profiles link to their work.</li>
+        <li>Invest or fund — builders are open to conversations if a project has commercial legs.</li>
+        <li>Mentor or advise — short-term guidance is welcome and often high-leverage this early.</li>
+      </ul>
+
+      <h3 style="font-family:'Fredoka',sans-serif;font-size:18px;margin:22px 0 8px;">How to contact a builder</h3>
+      <p style="font-size:14px;color:#4a453d;line-height:1.6;margin-bottom:10px;">Every profile on the cohort wall links to that builder's project and, where provided, a handle. If a profile doesn't list contact details, reach out to the cohort organizer for an introduction.</p>
+
+      <p style="font-size:12.5px;color:#8a8478;margin-top:20px;">Questions about the program: <strong style="color:var(--ink);">@mitchelldante99-create</strong></p>
+    </div>
+  </div>
+
+  <div class="view" id="view-organizer">
+    <div class="form-shell" id="organizer-gate" style="max-width:420px;">
+      <h2 style="font-size:20px;">Organizer access</h2>
+      <p class="sub">This tab is for managing submissions — enter the organizer password.</p>
+      <div class="field">
+        <input type="text" id="organizer-password" placeholder="Password">
+      </div>
+      <button type="button" class="submit-btn" id="organizer-unlock-btn">Unlock</button>
+      <div class="form-msg" id="organizer-gate-msg"></div>
+    </div>
+
+    <div id="organizer-panel" style="display:none;">
+      <div class="stats" style="margin-bottom:24px;">
+        <div class="stat-card c-coral"><div class="num" id="org-stat-total">0</div><div class="label">Total profiles</div></div>
+        <div class="stat-card c-marigold"><div class="num" id="org-stat-flagged">0</div><div class="label">Have reports</div></div>
+        <div class="stat-card c-leaf"><div class="num" id="org-stat-hidden">0</div><div class="label">Hidden / auto-removed</div></div>
+      </div>
+      <div class="controls">
+        <button class="chip" id="organizer-refresh-btn">Refresh list</button>
+      </div>
+      <div id="organizer-table"></div>
+
+      <div class="form-shell" style="max-width:480px;margin-top:28px;">
+        <h2 style="font-size:18px;">Reset someone's passcode</h2>
+        <p class="sub">For when someone forgot theirs. This sets a brand-new passcode — you never see or need their old one. Give the new one to them directly (Slack, in person, etc.) so they can keep editing their profile.</p>
+        <div class="field">
+          <label for="reset-name">Their exact name *</label>
+          <input type="text" id="reset-name" maxlength="60">
+        </div>
+        <div class="field">
+          <label for="reset-new-passcode">New passcode to set *</label>
+          <input type="text" id="reset-new-passcode" maxlength="40">
+        </div>
+        <button type="button" class="submit-btn" id="reset-passcode-btn">Set new passcode</button>
+        <div class="form-msg" id="reset-passcode-msg"></div>
+      </div>
+
+      <p style="font-size:11.5px;color:#8a8478;margin-top:20px;line-height:1.5;">
+        This password check happens in the browser, not the database — it keeps casual visitors out
+        of this tab but isn't real access control. Anything you do here (remove/unhide/reset passcode)
+        goes through the same protected database functions as everything else on the site.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>Hult Cohort 67 &middot; Summer Pilot 2026 &middot; @mitchelldante99-create</footer>
+
+<script>
+// ============================================================
+// SUPABASE CONFIG — fill these in, then save and reload.
+// Get both from: Supabase dashboard → Project Settings → API
+// ============================================================
+const SUPABASE_URL = "https://fxyoixgsagglhqczdutn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_0ceW2J__ZAftsVDgeev5hw_NNM3G1yB";
+// ============================================================
+
+(function(){
+  const CONFIGURED = !SUPABASE_URL.includes("YOUR_SUPABASE") && !SUPABASE_ANON_KEY.includes("YOUR_SUPABASE");
+
+  // A loose, non-identifying tag stored in this browser only, used purely
+  // to rate-limit rapid-fire submissions from the same browser. Not tied
+  // to any real identity — clearing browser storage resets it.
+  function getClientTag(){
+    try{
+      let tag = localStorage.getItem("hult_client_tag");
+      if(!tag){
+        tag = "c_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem("hult_client_tag", tag);
+      }
+      return tag;
+    }catch(e){
+      return "no-storage-" + Math.random().toString(36).slice(2);
+    }
+  }
+  if(!CONFIGURED){
+    document.getElementById("setup-banner").style.display = "block";
+  }
+
+  const REST_URL = SUPABASE_URL + "/rest/v1";
+  const HEADERS = {
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+    "Content-Type": "application/json",
+    "Prefer": "return=representation"
+  };
+
+  const BLOCKED_PATTERNS = [
+    /<script/i, /<iframe/i, /javascript:/i, /onerror\s*=/i, /onload\s*=/i,
+    /\bfuck\b/i, /\bshit\b/i, /\bbitch\b/i, /\bnigg/i, /\bcunt\b/i, /\bfaggot\b/i,
+    /viagra/i, /porn/i, /xxx/i, /\bcasino\b/i, /crypto\s*giveaway/i
+  ];
+  function containsBlockedContent(str){
+    if(!str) return false;
+    return BLOCKED_PATTERNS.some(p => p.test(str));
+  }
+
+  function nameKey(name){
+    return name.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+  }
+  function initials(name){
+    return (name||"?").split(" ").map(p=>p[0]).join("").slice(0,2).toUpperCase();
+  }
+  function escapeHTML(str){
+    const d = document.createElement("div");
+    d.textContent = str || "";
+    return d.innerHTML;
+  }
+
+  let allProfiles = [];
+  let activeFilter = "all";
+  let searchTerm = "";
+  let selectedColor = "coral";
+  let selectedVote = "up";
+
+  async function sbFetch(path, options = {}){
+    const res = await fetch(REST_URL + path, { ...options, headers: { ...HEADERS, ...(options.headers||{}) } });
+    if(!res.ok){
+      const errText = await res.text().catch(()=> "");
+      throw new Error("Supabase error " + res.status + ": " + errText);
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  let projectsByProfile = {};
+
+  async function loadProfiles(){
+    if(!CONFIGURED) return;
+    try{
+      const data = await sbFetch("/profiles?hidden=eq.false&order=created_at.desc&select=*");
+      allProfiles = data || [];
+
+      const allProjects = await sbFetch("/projects?select=id,profile_id,title,live_url,repo_url,demo_url");
+      projectsByProfile = {};
+      (allProjects || []).forEach(proj => {
+        if(!projectsByProfile[proj.profile_id]) projectsByProfile[proj.profile_id] = [];
+        projectsByProfile[proj.profile_id].push(proj);
+      });
+
+      render();
+    }catch(err){
+      console.error("Failed to load profiles", err);
+      document.getElementById("cluster").innerHTML = `<div class="empty-msg">Couldn't load the wall. Check your Supabase config and connection.</div>`;
+    }
+  }
+
+  function relativeTime(isoString){
+    if(!isoString) return "";
+    const then = new Date(isoString).getTime();
+    const now = Date.now();
+    const diffMs = now - then;
+    const mins = Math.floor(diffMs / 60000);
+    if(mins < 1) return "just now";
+    if(mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if(hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if(days < 7) return `${days}d ago`;
+    return new Date(isoString).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+
+  function cardHTML(p){
+    const hasProject = !!(p.title && p.title.trim());
+    const tagsHTML = (p.tags && p.tags.length)
+      ? `<div class="tag-row">${p.tags.map(t=>`<span class="tag">${escapeHTML(t)}</span>`).join("")}</div>`
+      : "";
+    const linkHTML = p.url
+      ? `<a class="card-link" href="${escapeHTML(p.url)}" target="_blank" rel="noopener">View project &rarr;</a>`
+      : "";
+    const updatedHTML = p.updated_at
+      ? `<div style="font-size:10.5px;color:#a39c8d;margin-top:8px;">Updated ${relativeTime(p.updated_at)}</div>`
+      : "";
+
+    const extraProjects = projectsByProfile[p.id] || [];
+    const extraProjectsHTML = extraProjects.length
+      ? `<div style="margin-top:10px;padding-top:10px;border-top:1.5px dashed #d8d2c4;">
+          <div style="font-size:10.5px;font-weight:600;color:#8a8478;margin-bottom:6px;">
+            ${extraProjects.length} more project${extraProjects.length > 1 ? "s" : ""}
+          </div>
+          ${extraProjects.slice(0,3).map(proj => `
+            <div style="font-size:11.5px;margin-bottom:4px;">
+              ${escapeHTML(proj.title)}
+              ${proj.live_url ? ` &middot; <a href="${escapeHTML(proj.live_url)}" target="_blank" rel="noopener" style="color:var(--coral-deep);font-weight:600;">live</a>` : ""}
+              ${proj.repo_url ? ` &middot; <a href="${escapeHTML(proj.repo_url)}" target="_blank" rel="noopener" style="color:var(--periwinkle-deep);font-weight:600;">repo</a>` : ""}
+              ${proj.demo_url ? ` &middot; <a href="${escapeHTML(proj.demo_url)}" target="_blank" rel="noopener" style="color:var(--leaf-deep);font-weight:600;">demo</a>` : ""}
+            </div>
+          `).join("")}
+        </div>`
+      : "";
+
+    return `
+      <div class="card" data-id="${escapeHTML(p.id)}">
+        <div class="avatar ${p.color||'coral'}">${initials(p.name)}</div>
+        <div class="card-name">${escapeHTML(p.name)}</div>
+        ${p.handle ? `<div class="card-handle">${escapeHTML(p.handle)}</div>` : ""}
+        ${hasProject ? `
+          <div class="card-project-title">${escapeHTML(p.title)}</div>
+          <div class="card-project-tagline">${escapeHTML(p.tagline||"")}</div>
+          ${tagsHTML}
+          ${linkHTML}
+        ` : `<div style="font-size:12.5px;color:#a39c8d;font-style:italic;padding-top:4px;">Project drop coming soon</div>`}
+        ${extraProjectsHTML}
+        ${updatedHTML}
+        <button class="flag-btn" data-id="${escapeHTML(p.id)}" data-count="${p.flag_count||0}">Report this profile</button>
+      </div>
+    `;
+  }
+
+  function render(){
+    const cluster = document.getElementById("cluster");
+    let filtered = allProfiles.filter(p=>{
+      const hasProject = !!(p.title && p.title.trim());
+      if(activeFilter === "shipped" && !hasProject) return false;
+      if(searchTerm){
+        const n = (p.name||"").toLowerCase();
+        const t = (p.title||"").toLowerCase();
+        if(!n.includes(searchTerm) && !t.includes(searchTerm)) return false;
+      }
+      return true;
+    });
+    cluster.innerHTML = filtered.length === 0
+      ? `<div class="empty-msg">No profiles yet — be the first to add yours.</div>`
+      : filtered.map(cardHTML).join("");
+    document.getElementById("stat-total").textContent = allProfiles.length;
+    document.getElementById("stat-shipped").textContent = allProfiles.filter(p=>p.title && p.title.trim()).length;
+  }
+
+  document.getElementById("search").addEventListener("input", e=>{
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+  document.querySelectorAll(".chip[data-filter]").forEach(chip=>{
+    chip.addEventListener("click", ()=>{
+      document.querySelectorAll(".chip[data-filter]").forEach(c=>c.classList.remove("active"));
+      chip.classList.add("active");
+      activeFilter = chip.getAttribute("data-filter");
+      render();
+    });
+  });
+  document.getElementById("refresh-btn").addEventListener("click", loadProfiles);
+
+  document.getElementById("cluster").addEventListener("click", async (e)=>{
+    if(e.target.classList.contains("flag-btn")){
+      const btn = e.target;
+      const id = btn.getAttribute("data-id");
+      const currentCount = parseInt(btn.getAttribute("data-count"), 10) || 0;
+      const nextCount = currentCount + 1;
+      btn.disabled = true;
+      btn.textContent = "Reporting...";
+      try{
+        if(nextCount >= 3){
+          await sbFetch(`/profiles?id=eq.${id}`, { method: "PATCH", body: JSON.stringify({ flag_count: nextCount, hidden: true }) });
+          btn.closest(".card").style.display = "none";
+        } else {
+          await sbFetch(`/profiles?id=eq.${id}`, { method: "PATCH", body: JSON.stringify({ flag_count: nextCount }) });
+          btn.textContent = `Flagged (${nextCount}/3)`;
+          btn.setAttribute("data-count", nextCount);
+        }
+      }catch(err){
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = "Report this profile";
+      }
+    }
+  });
+
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      const tab = btn.getAttribute("data-tab");
+      document.getElementById("view-wall").classList.toggle("active", tab==="wall");
+      document.getElementById("view-howto").classList.toggle("active", tab==="howto");
+      document.getElementById("view-form").classList.toggle("active", tab==="form");
+      document.getElementById("view-review").classList.toggle("active", tab==="review");
+      document.getElementById("view-partners").classList.toggle("active", tab==="partners");
+      document.getElementById("view-organizer").classList.toggle("active", tab==="organizer");
+      if(tab==="wall") loadProfiles();
+    });
+  });
+
+  document.querySelectorAll(".color-swatch").forEach(sw=>{
+    sw.addEventListener("click", ()=>{
+      document.querySelectorAll(".color-swatch").forEach(s=>s.classList.remove("selected"));
+      sw.classList.add("selected");
+      selectedColor = sw.getAttribute("data-color");
+    });
+  });
+
+  document.getElementById("submit-form").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const btn = document.getElementById("submit-btn");
+    const msg = document.getElementById("form-msg");
+    msg.className = "form-msg";
+    msg.textContent = "";
+
+    if(!CONFIGURED){
+      msg.className = "form-msg error";
+      msg.textContent = "This site isn't connected to a database yet. See the banner at the top.";
+      return;
+    }
+
+    const name = document.getElementById("f-name").value.trim();
+    const passcode = document.getElementById("f-passcode").value;
+    if(!name || !passcode){
+      msg.className = "form-msg error";
+      msg.textContent = "Name and a passcode are both required.";
+      return;
+    }
+
+    const profile = {
+      name,
+      handle: document.getElementById("f-handle").value.trim(),
+      color: selectedColor,
+      title: document.getElementById("f-title").value.trim(),
+      tagline: document.getElementById("f-tagline").value.trim(),
+      url: document.getElementById("f-url").value.trim(),
+      tags: document.getElementById("f-tags").value.trim()
+        ? document.getElementById("f-tags").value.trim().split(",").map(t=>t.trim().toLowerCase()).filter(Boolean).slice(0,4)
+        : []
+    };
+
+    const fieldsToCheck = [profile.name, profile.handle, profile.title, profile.tagline, profile.url, ...profile.tags];
+    if(fieldsToCheck.some(containsBlockedContent)){
+      msg.className = "form-msg error";
+      msg.textContent = "That submission contains content that isn't allowed here. Please revise and resubmit.";
+      return;
+    }
+    if(profile.url && !/^https?:\/\//i.test(profile.url)){
+      msg.className = "form-msg error";
+      msg.textContent = "Project URL needs to start with http:// or https://";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Submitting...";
+
+    try{
+      const key = nameKey(name);
+      const existing = await sbFetch(`/profiles?name_key=eq.${encodeURIComponent(key)}&select=id`);
+      if(existing && existing.length > 0){
+        msg.className = "form-msg error";
+        msg.textContent = "That name is already on the wall. Use \"Edit or delete your profile\" below with your passcode to update it.";
+        btn.disabled = false;
+        btn.textContent = "Submit to the wall";
+        return;
+      }
+      await sbFetch("/rpc/insert_profile_with_passcode", {
+        method: "POST",
+        body: JSON.stringify({
+          p_name: profile.name,
+          p_passcode: passcode,
+          p_handle: profile.handle,
+          p_color: profile.color,
+          p_title: profile.title,
+          p_tagline: profile.tagline,
+          p_url: profile.url,
+          p_tags: profile.tags,
+          p_client_tag: getClientTag()
+        })
+      });
+      msg.className = "form-msg success";
+      msg.textContent = "You're on the wall! Save your passcode — you'll need it to edit or delete later.";
+      document.getElementById("submit-form").reset();
+      document.querySelectorAll(".color-swatch").forEach(s=>s.classList.remove("selected"));
+      document.querySelector(".color-swatch.coral").classList.add("selected");
+      selectedColor = "coral";
+      loadProfiles();
+    }catch(err){
+      console.error(err);
+      msg.className = "form-msg error";
+      msg.textContent = /rate_limited/i.test(err.message)
+        ? "You're submitting too quickly — wait a minute and try again."
+        : "Something went wrong saving your profile. Check your connection and try again.";
+    }finally{
+      btn.disabled = false;
+      btn.textContent = "Submit to the wall";
+    }
+  });
+
+  document.querySelectorAll(".vote-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".vote-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedVote = btn.getAttribute("data-vote");
+    });
+  });
+
+  document.getElementById("review-form").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const btn = document.getElementById("review-submit-btn");
+    const msg = document.getElementById("review-msg");
+    msg.className = "form-msg";
+    msg.textContent = "";
+
+    if(!CONFIGURED){
+      msg.className = "form-msg error";
+      msg.textContent = "This site isn't connected to a database yet.";
+      return;
+    }
+
+    const reviewer = document.getElementById("r-reviewer").value.trim();
+    const target = document.getElementById("r-target").value.trim();
+    const text = document.getElementById("r-text").value.trim();
+
+    if(!reviewer || !target || !text){
+      msg.className = "form-msg error";
+      msg.textContent = "Your name, the project owner's name, and a written review are all required.";
+      return;
+    }
+    if([reviewer, target, text].some(containsBlockedContent)){
+      msg.className = "form-msg error";
+      msg.textContent = "That review contains content that isn't allowed here. Please revise and resubmit.";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Submitting...";
+
+    try{
+      await sbFetch("/rpc/insert_review_rate_checked", {
+        method: "POST",
+        body: JSON.stringify({
+          p_target_name: target,
+          p_reviewer_name: reviewer,
+          p_review_text: text,
+          p_vote: selectedVote,
+          p_client_tag: getClientTag()
+        })
+      });
+      msg.className = "form-msg success";
+      msg.textContent = "Review submitted.";
+      document.getElementById("review-form").reset();
+      document.querySelectorAll(".vote-btn").forEach(b=>b.classList.remove("active"));
+      document.querySelector('.vote-btn[data-vote="up"]').classList.add("active");
+      selectedVote = "up";
+    }catch(err){
+      console.error(err);
+      msg.className = "form-msg error";
+      msg.textContent = /rate_limited/i.test(err.message)
+        ? "You're submitting too quickly — wait a minute and try again."
+        : "Something went wrong submitting your review. Try again.";
+    }finally{
+      btn.disabled = false;
+      btn.textContent = "Submit review";
+    }
+  });
+
+  document.getElementById("lookup-btn").addEventListener("click", async ()=>{
+    const target = document.getElementById("r-lookup").value.trim();
+    const resultsEl = document.getElementById("review-results");
+    if(!target){
+      resultsEl.innerHTML = `<p style="font-size:13px;color:#8a8478;">Enter a name first.</p>`;
+      return;
+    }
+    if(!CONFIGURED){
+      resultsEl.innerHTML = `<p style="font-size:13px;color:var(--coral-deep);">Database not configured yet.</p>`;
+      return;
+    }
+    resultsEl.innerHTML = `<p style="font-size:13px;color:#8a8478;">Loading...</p>`;
+    try{
+      const key = nameKey(target);
+      const list = await sbFetch(`/reviews?target_name_key=eq.${encodeURIComponent(key)}&order=created_at.desc&select=*`);
+      if(!list || list.length === 0){
+        resultsEl.innerHTML = `<p style="font-size:13px;color:#8a8478;">No reviews yet for that name.</p>`;
+        return;
+      }
+      resultsEl.innerHTML = list.map(rev => `
+        <div style="border:2px solid var(--ink);border-radius:16px;padding:14px 16px;margin-bottom:12px;background:var(--paper-warm);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <strong style="font-size:13.5px;">${escapeHTML(rev.reviewer_name)}</strong>
+            <span style="font-size:11px;font-weight:600;color:${rev.vote==='up' ? 'var(--leaf-deep)' : '#8a8478'};">${rev.vote==='up' ? '\u2191 Up-voted' : 'Abstained'}</span>
+          </div>
+          <div style="font-size:13.5px;color:#4a453d;line-height:1.5;">${escapeHTML(rev.review_text)}</div>
+        </div>
+      `).join("");
+    }catch(err){
+      console.error(err);
+      resultsEl.innerHTML = `<p style="font-size:13px;color:var(--coral-deep);">Couldn't load reviews. Try again.</p>`;
+    }
+  });
+
+  // ---------- Edit / delete own profile ----------
+  let loadedProfileKey = null;
+  let loadedPasscode = null;
+  let loadedProfileId = null;
+
+  async function loadAndRenderProjects(profileId){
+    const listEl = document.getElementById("projects-list");
+    listEl.innerHTML = `<p style="font-size:13px;color:#8a8478;">Loading...</p>`;
+    try{
+      const projects = await sbFetch(`/projects?profile_id=eq.${profileId}&order=created_at.asc&select=*`);
+      if(!projects || projects.length === 0){
+        listEl.innerHTML = `<p style="font-size:13px;color:#8a8478;">No projects added yet — add your first one below.</p>`;
+        return;
+      }
+      listEl.innerHTML = projects.map(proj => `
+        <div style="border:2px solid var(--ink);border-radius:14px;padding:14px 16px;margin-bottom:12px;background:var(--paper-warm);">
+          <div style="font-weight:600;font-size:14px;margin-bottom:4px;">${escapeHTML(proj.title)}</div>
+          ${proj.tagline ? `<div style="font-size:12.5px;color:#6b665c;margin-bottom:8px;">${escapeHTML(proj.tagline)}</div>` : ""}
+          <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;margin-bottom:8px;">
+            ${proj.live_url ? `<a href="${escapeHTML(proj.live_url)}" target="_blank" rel="noopener" style="color:var(--coral-deep);font-weight:600;">Live site &rarr;</a>` : ""}
+            ${proj.repo_url ? `<a href="${escapeHTML(proj.repo_url)}" target="_blank" rel="noopener" style="color:var(--periwinkle-deep);font-weight:600;">Repo &rarr;</a>` : ""}
+            ${proj.demo_url ? `<a href="${escapeHTML(proj.demo_url)}" target="_blank" rel="noopener" style="color:var(--leaf-deep);font-weight:600;">Demo &rarr;</a>` : ""}
+          </div>
+          <button type="button" class="remove-project-btn" data-id="${escapeHTML(proj.id)}" style="font-size:10.5px;color:#a39c8d;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove this project</button>
+        </div>
+      `).join("");
+    }catch(err){
+      console.error(err);
+      listEl.innerHTML = `<p style="font-size:13px;color:var(--coral-deep);">Couldn't load your projects.</p>`;
+    }
+  }
+
+  document.getElementById("load-for-edit-btn").addEventListener("click", async ()=>{
+    const msg = document.getElementById("edit-msg");
+    const editFields = document.getElementById("edit-fields");
+    const projectsManager = document.getElementById("projects-manager");
+    msg.className = "form-msg";
+    msg.textContent = "";
+    editFields.style.display = "none";
+    projectsManager.style.display = "none";
+
+    const name = document.getElementById("e-name").value.trim();
+    const passcode = document.getElementById("e-passcode").value;
+    if(!name || !passcode){
+      msg.className = "form-msg error";
+      msg.textContent = "Enter both your name and passcode.";
+      return;
+    }
+
+    try{
+      const key = nameKey(name);
+      const result = await sbFetch("/rpc/update_profile_with_passcode", {
+        method: "POST",
+        body: JSON.stringify({ p_name_key: key, p_passcode: passcode, p_updates: {} })
+      });
+      if(result !== true){
+        msg.className = "form-msg error";
+        msg.textContent = "Name or passcode didn't match. Nothing was loaded.";
+        return;
+      }
+      const rows = await sbFetch(`/profiles?name_key=eq.${encodeURIComponent(key)}&select=*`);
+      const p = rows && rows[0];
+      if(!p){
+        msg.className = "form-msg error";
+        msg.textContent = "Couldn't find that profile.";
+        return;
+      }
+      document.getElementById("e-title").value = p.title || "";
+      document.getElementById("e-tagline").value = p.tagline || "";
+      document.getElementById("e-url").value = p.url || "";
+      document.getElementById("e-tags").value = (p.tags || []).join(", ");
+      editFields.style.display = "block";
+      projectsManager.style.display = "block";
+      loadedProfileKey = key;
+      loadedPasscode = passcode;
+      loadedProfileId = p.id;
+      loadAndRenderProjects(p.id);
+      msg.className = "form-msg success";
+      msg.textContent = "Loaded. Make your changes below and save.";
+    }catch(err){
+      console.error(err);
+      msg.className = "form-msg error";
+      msg.textContent = "Something went wrong. Try again.";
+    }
+  });
+
+  document.getElementById("save-edit-btn").addEventListener("click", async ()=>{
+    const msg = document.getElementById("edit-msg");
+    const passcode = document.getElementById("e-passcode").value;
+    if(!loadedProfileKey){
+      msg.className = "form-msg error";
+      msg.textContent = "Load your profile first.";
+      return;
+    }
+    const updates = {
+      title: document.getElementById("e-title").value.trim(),
+      tagline: document.getElementById("e-tagline").value.trim(),
+      url: document.getElementById("e-url").value.trim(),
+      tags: document.getElementById("e-tags").value.trim()
+        ? document.getElementById("e-tags").value.trim().split(",").map(t=>t.trim().toLowerCase()).filter(Boolean).slice(0,4)
+        : []
+    };
+    if([updates.title, updates.tagline, updates.url, ...updates.tags].some(containsBlockedContent)){
+      msg.className = "form-msg error";
+      msg.textContent = "That content isn't allowed here.";
+      return;
+    }
+    try{
+      const result = await sbFetch("/rpc/update_profile_with_passcode", {
+        method: "POST",
+        body: JSON.stringify({ p_name_key: loadedProfileKey, p_passcode: passcode, p_updates: updates })
+      });
+      if(result !== true){
+        msg.className = "form-msg error";
+        msg.textContent = "Passcode no longer matches — reload your profile and try again.";
+        return;
+      }
+      msg.className = "form-msg success";
+      msg.textContent = "Saved. Check the Cohort wall tab to see it.";
+      loadProfiles();
+    }catch(err){
+      console.error(err);
+      msg.className = "form-msg error";
+      msg.textContent = "Something went wrong saving your changes.";
+    }
+  });
+
+  document.getElementById("delete-btn").addEventListener("click", async ()=>{
+    const msg = document.getElementById("edit-msg");
+    const name = document.getElementById("e-name").value.trim();
+    const passcode = document.getElementById("e-passcode").value;
+    if(!name || !passcode){
+      msg.className = "form-msg error";
+      msg.textContent = "Enter both your name and passcode.";
+      return;
+    }
+    if(!confirm("This permanently removes your profile from the wall. Continue?")) return;
+
+    try{
+      const key = nameKey(name);
+      const result = await sbFetch("/rpc/delete_profile_with_passcode", {
+        method: "POST",
+        body: JSON.stringify({ p_name_key: key, p_passcode: passcode })
+      });
+      if(result !== true){
+        msg.className = "form-msg error";
+        msg.textContent = "Name or passcode didn't match. Nothing was deleted.";
+        return;
+      }
+      msg.className = "form-msg success";
+      msg.textContent = "Profile deleted.";
+      document.getElementById("edit-fields").style.display = "none";
+      document.getElementById("projects-manager").style.display = "none";
+      loadedProfileKey = null;
+      loadedPasscode = null;
+      loadedProfileId = null;
+      loadProfiles();
+    }catch(err){
+      console.error(err);
+      msg.className = "form-msg error";
+      msg.textContent = "Something went wrong deleting your profile.";
+    }
+  });
+
+  // ---------- Multi-project management ----------
+  document.getElementById("add-project-btn").addEventListener("click", async ()=>{
+    const msg = document.getElementById("add-project-msg");
+    msg.className = "form-msg";
+    msg.textContent = "";
+
+    if(!loadedProfileKey || !loadedPasscode){
+      msg.className = "form-msg error";
+      msg.textContent = "Load your profile above first.";
+      return;
+    }
+
+    const title = document.getElementById("np-title").value.trim();
+    if(!title){
+      msg.className = "form-msg error";
+      msg.textContent = "A project title is required.";
+      return;
+    }
+
+    const newProject = {
+      title,
+      tagline: document.getElementById("np-tagline").value.trim(),
+      live_url: document.getElementById("np-live").value.trim(),
+      repo_url: document.getElementById("np-repo").value.trim(),
+      demo_url: document.getElementById("np-demo").value.trim(),
+      tags: document.getElementById("np-tags").value.trim()
+        ? document.getElementById("np-tags").value.trim().split(",").map(t=>t.trim().toLowerCase()).filter(Boolean).slice(0,4)
+        : []
+    };
+
+    const urlFields = [newProject.live_url, newProject.repo_url, newProject.demo_url].filter(Boolean);
+    if(urlFields.some(u => !/^https?:\/\//i.test(u))){
+      msg.className = "form-msg error";
+      msg.textContent = "Links need to start with http:// or https://";
+      return;
+    }
+    if([newProject.title, newProject.tagline, ...newProject.tags].some(containsBlockedContent)){
+      msg.className = "form-msg error";
+      msg.textContent = "That content isn't allowed here.";
+      return;
+    }
+
+    try{
+      const result = await sbFetch("/rpc/add_project_with_passcode", {
+        method: "POST",
+        body: JSON.stringify({
+          p_name_key: loadedProfileKey,
+          p_passcode: loadedPasscode,
+          p_title: newProject.title,
+          p_tagline: newProject.tagline,
+          p_live_url: newProject.live_url,
+          p_repo_url: newProject.repo_url,
+          p_demo_url: newProject.demo_url,
+          p_tags: newProject.tags
+        })
+      });
+      if(!result){
+        msg.className = "form-msg error";
+        msg.textContent = "Couldn't add the project — passcode may no longer match.";
+        return;
+      }
+      msg.className = "form-msg success";
+      msg.textContent = "Project added.";
+      document.getElementById("np-title").value = "";
+      document.getElementById("np-tagline").value = "";
+      document.getElementById("np-live").value = "";
+      document.getElementById("np-repo").value = "";
+      document.getElementById("np-demo").value = "";
+      document.getElementById("np-tags").value = "";
+      loadAndRenderProjects(loadedProfileId);
+    }catch(err){
+      console.error(err);
+      msg.className = "form-msg error";
+      msg.textContent = "Something went wrong adding the project.";
+    }
+  });
+
+  document.getElementById("projects-list").addEventListener("click", async (e)=>{
+    if(e.target.classList.contains("remove-project-btn")){
+      if(!loadedProfileKey || !loadedPasscode){
+        return;
+      }
+      if(!confirm("Remove this project from your wall card?")) return;
+      const projectId = e.target.getAttribute("data-id");
+      try{
+        await sbFetch("/rpc/delete_project_with_passcode", {
+          method: "POST",
+          body: JSON.stringify({
+            p_name_key: loadedProfileKey,
+            p_passcode: loadedPasscode,
+            p_project_id: projectId
+          })
+        });
+        loadAndRenderProjects(loadedProfileId);
+      }catch(err){
+        console.error(err);
+      }
+    }
+  });
+
+  // ---------- Organizer panel ----------
+  const ORGANIZER_PASSWORD = "hult67admin";
+  let organizerUnlocked = false;
+
+  document.getElementById("organizer-unlock-btn").addEventListener("click", ()=>{
+    const input = document.getElementById("organizer-password").value;
+    const msg = document.getElementById("organizer-gate-msg");
+    if(input === ORGANIZER_PASSWORD){
+      organizerUnlocked = true;
+      document.getElementById("organizer-gate").style.display = "none";
+      document.getElementById("organizer-panel").style.display = "block";
+      loadOrganizerData();
+    } else {
+      msg.className = "form-msg error";
+      msg.textContent = "Wrong password.";
+    }
+  });
+
+  async function loadOrganizerData(){
+    if(!organizerUnlocked || !CONFIGURED) return;
+    try{
+      const all = await sbFetch("/profiles?order=created_at.desc&select=*");
+      const flagged = all.filter(p => (p.flag_count||0) > 0);
+      const hidden = all.filter(p => p.hidden);
+
+      document.getElementById("org-stat-total").textContent = all.length;
+      document.getElementById("org-stat-flagged").textContent = flagged.length;
+      document.getElementById("org-stat-hidden").textContent = hidden.length;
+
+      const tableEl = document.getElementById("organizer-table");
+      if(all.length === 0){
+        tableEl.innerHTML = `<p style="font-size:13px;color:#8a8478;">No profiles yet.</p>`;
+        return;
+      }
+      tableEl.innerHTML = all.map(p => `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;border:2px solid var(--ink);border-radius:14px;padding:12px 16px;margin-bottom:10px;background:${p.hidden ? '#FFD9D3' : '#fff'};">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:14px;">${escapeHTML(p.name)} ${p.hidden ? '<span style="color:var(--coral-deep);font-size:11px;">(hidden)</span>' : ''}</div>
+            <div style="font-size:12px;color:#6b665c;">${escapeHTML(p.title || 'no project yet')} &middot; ${p.flag_count||0} report(s)</div>
+          </div>
+          <button class="chip organizer-toggle-btn" data-id="${escapeHTML(p.id)}" data-hidden="${p.hidden ? '1':'0'}" style="font-size:11px;padding:8px 14px;">${p.hidden ? 'Unhide' : 'Hide'}</button>
+        </div>
+      `).join("");
+    }catch(err){
+      console.error(err);
+      document.getElementById("organizer-table").innerHTML = `<p style="font-size:13px;color:var(--coral-deep);">Couldn't load data.</p>`;
+    }
+  }
+
+  document.getElementById("organizer-refresh-btn").addEventListener("click", loadOrganizerData);
+
+  document.getElementById("organizer-table").addEventListener("click", async (e)=>{
+    if(e.target.classList.contains("organizer-toggle-btn")){
+      const btn = e.target;
+      const id = btn.getAttribute("data-id");
+      const currentlyHidden = btn.getAttribute("data-hidden") === "1";
+      btn.disabled = true;
+      try{
+        await sbFetch(`/rpc/organizer_set_hidden`, {
+          method: "POST",
+          body: JSON.stringify({ p_id: id, p_hidden: !currentlyHidden })
+        });
+        loadOrganizerData();
+        loadProfiles();
+      }catch(err){
+        console.error(err);
+        btn.disabled = false;
+      }
+    }
+  });
+
+  document.getElementById("reset-passcode-btn").addEventListener("click", async ()=>{
+    const msg = document.getElementById("reset-passcode-msg");
+    msg.className = "form-msg";
+    msg.textContent = "";
+
+    const name = document.getElementById("reset-name").value.trim();
+    const newPasscode = document.getElementById("reset-new-passcode").value;
+
+    if(!name || !newPasscode){
+      msg.className = "form-msg error";
+      msg.textContent = "Enter both their name and a new passcode.";
+      return;
+    }
+
+    try{
+      const key = nameKey(name);
+      const result = await sbFetch("/rpc/organizer_reset_passcode", {
+        method: "POST",
+        body: JSON.stringify({ p_name_key: key, p_new_passcode: newPasscode })
+      });
+      if(result !== true){
+        msg.className = "form-msg error";
+        msg.textContent = "Couldn't find a profile with that exact name.";
+        return;
+      }
+      msg.className = "form-msg success";
+      msg.textContent = `Done. Tell ${name} their new passcode is: ${newPasscode}`;
+      document.getElementById("reset-name").value = "";
+      document.getElementById("reset-new-passcode").value = "";
+    }catch(err){
+      console.error(err);
+      msg.className = "form-msg error";
+      msg.textContent = "Something went wrong resetting the passcode.";
+    }
+  });
+
+  loadProfiles();
+})();
+</script>
+</body>
+</html>

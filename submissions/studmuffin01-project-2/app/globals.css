@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+:root {
+  /* Forth-aligned — parchment, forest, hard edges */
+  --bg: #f0e9c8;
+  --bg-deep: #e4d9b0;
+  --surface: #f5efd6;
+  --surface-elevated: #faf6e4;
+  --ink: #1a2421;
+  --ink-muted: #3d4a42;
+  --ink-faint: #6b756c;
+  --line: #1a2421;
+  --accent: #2b3d30;
+  --accent-strong: #1a2421;
+  --accent-soft: #d5d8c4;
+  --warm: #8b5a3c;
+  --warm-soft: #e8d5c4;
+  --olive: #8e8a66;
+  --olive-soft: #ddd8b8;
+  --gold: #c4a035;
+  --sidebar: #1a2421;
+  --sidebar-text: #f0e9c8;
+  --online: #4a7c59;
+  --away: #c4a035;
+  --offline: #6b756c;
+  --shadow: 3px 3px 0 #1a2421;
+  --shadow-sm: 2px 2px 0 #1a2421;
+  --radius: 0px;
+  --font-display: var(--font-source-serif), "Times New Roman", serif;
+  --font-body: var(--font-source-serif), "Times New Roman", serif;
+  --font-mono: var(--font-ibm-plex-mono), "Courier New", monospace;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(rgba(26, 36, 33, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 36, 33, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
+}
+
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  border-radius: 0;
+}
+
+::selection {
+  background: var(--olive-soft);
+  color: var(--ink);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-soft {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.45s ease-out both;
+}
+
+.animate-fade {
+  animation: fade-soft 0.35s ease-out both;
+}
+
+.forth-panel {
+  border: 1.5px solid var(--line);
+  background: var(--surface-elevated);
+  box-shadow: var(--shadow);
+}
+
+.forth-btn {
+  border: 1.5px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.forth-btn:hover:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--line);
+}
+
+.forth-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.forth-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* Forth uses hard corners everywhere */
+.rounded-full,
+.rounded-xl,
+.rounded-2xl,
+.rounded-lg,
+.rounded-md,
+.rounded,
+.rounded-\[22px\],
+.rounded-\[28px\] {
+  border-radius: 0 !important;
+}

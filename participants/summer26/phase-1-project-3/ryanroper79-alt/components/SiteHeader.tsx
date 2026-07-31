@@ -5,6 +5,7 @@ import { positioning } from '@/data/cohort';
 const nav = [
   { href: '/', label: 'Home' },
   { href: '/work', label: 'Work' },
+  { href: '/join', label: 'Join' },
   { href: '/partners', label: 'Partners' },
 ] as const;
 

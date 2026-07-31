@@ -52,13 +52,15 @@ export default function HomePage() {
           <h2 className="font-display text-3xl text-ceal-mangrove">The ask</h2>
           <p className="mt-4 max-w-prose text-lg text-ceal-ink">{positioning.partnerAsk}.</p>
           <p className="mt-3 max-w-prose text-ceal-muted">
-            Entry cost: one conversation with {thoughtLeader.name} — {positioning.contact}. We
-            name scope, timeline, and what a sponsored seat delivers before you commit.
+            Wave energy, solar farms, or modular homes — we send the full feasibility report
+            (payback, returns, scope, schedule, cost, investment required, and investor cohort
+            structure) when you name the project. Start with {thoughtLeader.name} at{' '}
+            {positioning.contact}.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <PartnerCta />
             <Link href="/partners" className="text-ceal-leaf underline focus-ring rounded font-medium">
-              Read the partner brief →
+              View feasibility studies →
             </Link>
           </div>
         </section>

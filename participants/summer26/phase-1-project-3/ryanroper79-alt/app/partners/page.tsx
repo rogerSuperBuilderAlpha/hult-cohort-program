@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { FeasibilityProjects } from '@/components/FeasibilityProjects';
 import { SiteHeader } from '@/components/SiteHeader';
 import { PartnerCta, SiteFooter } from '@/components/PartnerCta';
-import { buildThemes } from '@/data/brand-guidelines';
 import { positioning, proofInventory } from '@/data/cohort';
 import { thoughtLeader } from '@/data/thought-leader';
 
 export const metadata: Metadata = {
   title: 'Partners',
-  description: 'Sponsor the Hult Cohort Summer Pilot 2026 — fund seats, inspect evidence, engage CEAL Green.',
+  description:
+    'Invest in Caribbean infrastructure — wave energy, solar farms, modular homes. Request feasibility reports with payback, returns, and investor cohort structure.',
 };
 
 export default function PartnersPage() {
@@ -16,28 +17,25 @@ export default function PartnersPage() {
     <>
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-6 py-16">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-ceal-leaf">For partners</p>
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-ceal-leaf">For investors</p>
         <h1 className="mt-3 font-display text-4xl text-ceal-mangrove md:text-5xl">
-          Sponsor capability, not slides
+          Choose a project. Receive the report.
         </h1>
-        <p className="mt-4 max-w-prose text-xl text-ceal-muted">{positioning.brand.sponsorLine}</p>
+        <p className="mt-4 max-w-prose text-xl text-ceal-muted">
+          {positioning.brand.sponsorLine} We do not publish payback or return figures on this
+          site — you receive the full feasibility report when you name the project you want to
+          invest in.
+        </p>
 
-        <section className="mt-12 space-y-6">
-          <h2 className="font-display text-2xl text-ceal-mangrove">What you fund</h2>
-          <ul className="list-disc space-y-2 pl-5 text-ceal-muted">
-            <li>A cohort seat for a Caribbean builder shipping production software in public</li>
-            <li>Or a named project sprint aligned to energy and digital transformation outcomes</li>
-            <li>Evidence you can inspect before you commit — deploys, PRs, peer review on GitHub</li>
-          </ul>
-        </section>
+        <FeasibilityProjects />
 
-        <section className="mt-12 space-y-4">
+        <section className="mt-16 space-y-4">
           <h2 className="font-display text-2xl text-ceal-mangrove">How engagement works</h2>
           <ol className="list-decimal space-y-3 pl-5 text-ceal-muted">
-            <li>Review the work index and sample profiles on this site</li>
-            <li>Email {positioning.contact} with scope and timeline</li>
-            <li>CEAL Green names deliverables, entry cost, and sponsorship structure</li>
-            <li>Builders ship; you inspect GitHub and live deploys throughout the pilot</li>
+            <li>Select wave energy, solar farms, or modular homes above</li>
+            <li>Request the report — email {positioning.contact} or use the project card CTA</li>
+            <li>Review payback, rates of return, scope, schedule, cost, and investor cohort structure</li>
+            <li>CEAL Green names your investment required and delivery governance before you commit</li>
           </ol>
         </section>
 
@@ -46,36 +44,49 @@ export default function PartnersPage() {
           <p className="mt-2 font-medium text-ceal-ink">{thoughtLeader.name}</p>
           <p className="mt-2 text-ceal-muted">{thoughtLeader.bio}</p>
           <p className="mt-4">
-            <a href={thoughtLeader.linkedin} className="text-ceal-leaf underline focus-ring rounded" target="_blank" rel="noopener noreferrer">
+            <a
+              href={thoughtLeader.linkedin}
+              className="text-ceal-leaf underline focus-ring rounded"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               LinkedIn →
             </a>
           </p>
         </section>
 
-        <section className="mt-12">
-          <h2 className="font-display text-2xl text-ceal-mangrove">Build themes we operate on</h2>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {buildThemes.map((t) => (
-              <li key={t.key} className="rounded-md border border-ceal-line px-4 py-3">
-                <p className="font-medium text-ceal-mangrove">{t.key}</p>
-                <p className="text-sm text-ceal-muted">{t.pillar}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
         <section className="mt-12 space-y-3">
-          <h2 className="font-display text-2xl text-ceal-mangrove">Evidence on this deploy</h2>
+          <h2 className="font-display text-2xl text-ceal-mangrove">Software cohort evidence</h2>
+          <p className="text-ceal-muted">
+            The Summer Pilot 2026 cohort ships deployable software in public — inspect artifacts
+            before you allocate capital to a physical project.
+          </p>
           <ul className="space-y-2 text-ceal-muted">
             <li>
+              Work index:{' '}
+              <Link href="/work" className="text-ceal-leaf underline focus-ring rounded">
+                /work
+              </Link>
+            </li>
+            <li>
               Production:{' '}
-              <a href={proofInventory.productionUrl} className="text-ceal-leaf underline" target="_blank" rel="noopener noreferrer">
+              <a
+                href={proofInventory.productionUrl}
+                className="text-ceal-leaf underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {proofInventory.productionUrl}
               </a>
             </li>
             <li>
               Submission PR:{' '}
-              <a href={proofInventory.submissionPrUrl} className="text-ceal-leaf underline" target="_blank" rel="noopener noreferrer">
+              <a
+                href={proofInventory.submissionPrUrl}
+                className="text-ceal-leaf underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 #{proofInventory.submissionPrUrl.split('/').pop()}
               </a>
             </li>
@@ -89,7 +100,12 @@ export default function PartnersPage() {
             the cohort repo submission folder.
           </p>
           <p className="mt-2 text-sm">
-            <a href={positioning.brand.guidelinesUrl} className="text-ceal-leaf underline focus-ring rounded" target="_blank" rel="noopener noreferrer">
+            <a
+              href={positioning.brand.guidelinesUrl}
+              className="text-ceal-leaf underline focus-ring rounded"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               CEAL Green brand guidelines →
             </a>
           </p>
@@ -97,7 +113,10 @@ export default function PartnersPage() {
 
         <div className="mt-12 flex flex-wrap gap-4">
           <PartnerCta />
-          <Link href="/work" className="font-medium text-ceal-leaf underline focus-ring rounded self-center">
+          <Link
+            href="/work"
+            className="self-center font-medium text-ceal-leaf underline focus-ring rounded"
+          >
             Work index →
           </Link>
         </div>

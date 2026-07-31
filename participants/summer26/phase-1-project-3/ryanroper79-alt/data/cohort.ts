@@ -8,7 +8,7 @@ export const positioning = {
     'Energy sovereignty requires digital sovereignty. The Caribbean cannot close the Green Gap by importing every watt and every line of code — it builds local capability, in public.',
   belief:
     'This cohort builds deployable software against real Caribbean infrastructure problems, in weeks — practitioners who understand the region because they work inside it.',
-  partnerAsk: 'Sponsor the cohort — fund a cohort seat or project sprint',
+  partnerAsk: 'Request a feasibility report — choose a Caribbean project',
   contact: 'ryan@cealgreen.com',
   contactLabel: 'CEAL Green — ryan@cealgreen.com',
   contactHref: 'mailto:ryan@cealgreen.com',

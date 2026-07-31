@@ -9,3 +9,4 @@ dist/
 .next/
 **/secrets/
 **/*firebase-adminsdk*.json
+.env*

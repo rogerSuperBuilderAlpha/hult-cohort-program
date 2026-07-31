@@ -9,6 +9,7 @@
 - Build repo: https://github.com/kureen-cyber/Banterfolio (`main`)
 - Partner-facing README: https://github.com/kureen-cyber/Banterfolio/blob/main/README.md
 - Profiles surface: https://banterfolio.vercel.app/profiles
+- Latest production deploy: aliased to https://banterfolio.vercel.app/ (redeployed 2026-07-31)
 
 ## Sample profile URLs
 
@@ -28,14 +29,14 @@ Self-serve creator profiles (no fixed signup quota gate before merge — roster 
 
 **Differentiators:**
 - Cohort dashboard narrating four weekly ships (sites → PM → comms → vibe marketing)
-- Creator profiles with draft save progress (IndexedDB-backed)
+- Creator profiles with save progress + optional Supabase cloud sync for cross-device visibility
 - AI caption generator + social post scheduler loop
-- Site-wide focus music, light/dark theme, coding meme corner for lock-in energy
+- Site-wide focus music, light/dark theme, coding memes every 3 minutes (20s display)
 - Supabase-ready auth scaffolding for Studio
 
 ## Partner-facing README
 
-[`README.md`](https://github.com/kureen-cyber/Banterfolio/blob/main/README.md) in the build repo — overview, architecture, run steps, Supabase/OpenAI setup.
+[`README.md`](https://github.com/kureen-cyber/Banterfolio/blob/main/README.md) in the build repo — overview, architecture, run steps, Supabase/OpenAI setup, production URL.
 
 ## Product summary
 
@@ -46,7 +47,7 @@ Self-serve creator profiles (no fixed signup quota gate before merge — roster 
 | Explore projects | `/explore` |
 | AI captions | `/captions` |
 | Post scheduler | `/scheduler` |
-| Settings (theme / music) | `/settings` |
+| Settings (theme / music / memes) | `/settings` |
 | Contact a creator | `/contact` |
 | Studio | `/studio` |
 
@@ -76,17 +77,19 @@ cp .env.example .env.local
 npm run dev
 ```
 
+For cross-device profile sync: set Supabase env on Vercel and run `supabase/showcase-profiles.sql`.
+
 ## Validation
 
-- `npx tsc --noEmit`
-- `npm run build`
+- `npx tsc --noEmit` / `npm run build`
 - Production smoke: https://banterfolio.vercel.app/ , `/profiles`, `/explore`, `/captions`, `/scheduler`
+- Redeploy verified aliased to https://banterfolio.vercel.app/
 
 ## Agent usage
 
 - **Research:** Project 3 public-showcase curriculum, hiring-partner needs, peer Project 3 PR patterns
-- **Dev:** Next.js App Router Banterfolio — dashboard, profiles, captions, scheduler, settings, Studio scaffolding
-- **QA:** Typecheck/build; production URL verification on Vercel
+- **Dev:** Next.js App Router Banterfolio — dashboard, profiles, captions, scheduler, settings, Studio scaffolding, cloud profile sync, meme timing
+- **QA:** Typecheck/build; Vercel production redeploy
 
 ## Known limitations
 
@@ -94,4 +97,4 @@ npm run dev
 - PM status is a cohort sprint snapshot, not a live Forth API yet
 - Roster is self-serve (no enforced signup quota before merge)
 - OpenAI captions fall back to templates without `OPENAI_API_KEY`
-- Supabase auth/storage enabled when `.env.local` keys are set; otherwise local mode
+- Cross-device profile text sync requires Supabase env on Vercel + `showcase_profiles` SQL; large local video data-URLs stay device-local until Storage is wired

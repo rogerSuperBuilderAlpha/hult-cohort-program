@@ -27,7 +27,9 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — sign in or continue as guest, then the showcase at `/home`.
+**Production:** [https://lighthouse-studmuffin01.vercel.app](https://lighthouse-studmuffin01.vercel.app)
+
+Locally: open [http://localhost:3000](http://localhost:3000) — sign in or continue as guest, then the showcase at `/home`.
 
 **Reviewers:** see [REVIEWER.md](./REVIEWER.md).  
 **Hiring partners (copy):** see [PARTNERS.md](./PARTNERS.md).

@@ -28,11 +28,11 @@ export const pmSnapshot: PmSnapshot = {
     {
       id: "p3",
       title: "Phase 1 · Public showcase (Lighthouse)",
-      status: "on-track",
+      status: "done",
       ownerHandle: "studmuffin01",
-      openTasks: 6,
-      doneTasks: 4,
-      updatedAt: "2026-07-30T17:00:00.000Z",
+      openTasks: 0,
+      doneTasks: 10,
+      updatedAt: "2026-07-31T22:00:00.000Z",
     },
     {
       id: "uni",

@@ -135,12 +135,13 @@ export const PROJECTS: ShowcaseProject[] = [
     summary:
       "Public hiring showcase — developer profiles, portfolio links, partner intros, and RSVP.",
     tagline: "Let partners inspect the work — not the pitch deck.",
-    status: "in-progress",
-    deployBadge: "beta",
+    status: "shipped",
+    deployBadge: "live",
     ownerHandle: "studmuffin01",
+    deployUrl: "https://lighthouse-studmuffin01.vercel.app",
     repoUrl: "https://github.com/studmuffin01",
     docsUrl: "https://github.com/studmuffin01",
-    lastShippedAt: "2026-07-30T22:00:00.000Z",
+    lastShippedAt: "2026-07-31T22:00:00.000Z",
     problem:
       "Hiring partners cannot evaluate a cohort from PDFs. They need profiles, build logs, proof of work, and live deploys in one public place.",
     solutionItems: [

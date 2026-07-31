@@ -23,13 +23,13 @@ Lighthouse is the public showcase for the cohort. Every enrolled participant has
 
 Full partner pipeline detail lives with the program’s placement lead.
 
-## Sample profile URLs (local / after deploy)
+## Sample profile URLs
 
-Replace the host with your production URL after Vercel deploy:
+Production: https://lighthouse-studmuffin01.vercel.app
 
-- `/developers/studmuffin01` — Rawle Arneaud (public)
-- `/developers/mayachen` — Maya Chen (public)
-- `/developers/elise` — private opt-out placeholder
+- https://lighthouse-studmuffin01.vercel.app/developers/studmuffin01 — Rawle Arneaud (public)
+- https://lighthouse-studmuffin01.vercel.app/developers/mayachen — Maya Chen (public)
+- https://lighthouse-studmuffin01.vercel.app/developers/elise — private opt-out placeholder
 
 ## Event
 

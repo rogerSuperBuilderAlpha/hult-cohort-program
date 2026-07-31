@@ -17,14 +17,16 @@ Reviewer guide: `submissions/studmuffin01-project-3/REVIEWER.md`
 
 ## Production URL
 
-*(add after Vercel deploy)*
+https://lighthouse-studmuffin01.vercel.app
 
 ## Sample profile URLs
 
-- `/developers/studmuffin01`
-- `/developers/mayachen`
-- `/developers/elise` (private; directory placeholder)
-- `/projects/forth` · `/projects/fireside` · `/projects/lighthouse`
+- https://lighthouse-studmuffin01.vercel.app/developers/studmuffin01
+- https://lighthouse-studmuffin01.vercel.app/developers/mayachen
+- https://lighthouse-studmuffin01.vercel.app/developers/elise (private; directory placeholder)
+- https://lighthouse-studmuffin01.vercel.app/projects/forth
+- https://lighthouse-studmuffin01.vercel.app/projects/fireside
+- https://lighthouse-studmuffin01.vercel.app/projects/lighthouse
 
 ## Setup steps verified on fresh clone
 
@@ -44,7 +46,7 @@ Reviewer guide: `submissions/studmuffin01-project-3/REVIEWER.md`
 
 ## Test plan
 
-- [ ] Open Production URL → homepage narrative + PM snapshot
+- [ ] Open https://lighthouse-studmuffin01.vercel.app → sign in / guest → `/home` narrative + PM snapshot
 - [ ] Browse Developers + project pages; open sample profiles
 - [ ] Partners → request intro (interest type)
 - [ ] Live feed + Testimonials

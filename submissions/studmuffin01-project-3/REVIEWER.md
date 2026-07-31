@@ -11,7 +11,7 @@ Phase 1 Project 3 · Public showcase platform
 | Branch (intended) | `participants/summer26/phase-1-project-3/studmuffin01` |
 | Base | `projects/summer26/phase-1-project-3` |
 
-Production URL: *(add after Vercel deploy)*
+Production URL: https://lighthouse-studmuffin01.vercel.app
 
 ## Smoke test (no auth)
 

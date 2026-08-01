@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { BuilderAvatar } from "@/components/showcase/BuilderAvatar";
 import { Badge } from "@/components/ui/Badge";
-import { initialsFromName } from "@/lib/slug";
 import { builderPath } from "@/lib/paths";
 import type { PublicBuilder } from "@/lib/showcase";
 
@@ -21,16 +21,11 @@ export function BuilderCard({ builder }: Props) {
     >
       <div className="flex gap-5">
         <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent-builders/40 bg-background-muted shadow-[0_0_24px_rgba(224,164,88,0.22)] font-display text-lg font-semibold text-accent-builders transition group-hover:border-accent-builders group-hover:shadow-[0_0_28px_rgba(224,164,88,0.32)] md:size-20">
-          {builder.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={builder.avatar_url}
-              alt={`${builder.name || "Builder"} avatar`}
-              className="size-full object-cover"
-            />
-          ) : (
-            <span aria-hidden>{initialsFromName(builder.name)}</span>
-          )}
+          <BuilderAvatar
+            name={builder.name}
+            githubProfileUrl={builder.github_profile_url}
+            avatarUrl={builder.avatar_url}
+          />
         </div>
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">

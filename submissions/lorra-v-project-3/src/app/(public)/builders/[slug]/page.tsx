@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BuilderAvatar } from "@/components/showcase/BuilderAvatar";
 import { CampaignStoryCards } from "@/components/showcase/CampaignStoryCards";
 import { ProjectCard } from "@/components/showcase/ProjectCard";
 import { Badge } from "@/components/ui/Badge";
@@ -7,7 +8,6 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { logAnalyticsEvent } from "@/lib/analytics";
 import { partnerInterestPath, projectPath } from "@/lib/paths";
-import { initialsFromName } from "@/lib/slug";
 import {
   getPublishedBuilder,
   listApprovedCampaignContentForCreator,
@@ -42,16 +42,11 @@ export default async function BuilderDetailPage({ params }: Props) {
       <section className="border-b border-border/80 bg-[radial-gradient(ellipse_at_top_left,rgba(61,255,181,0.10),transparent_50%)]">
         <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16 md:flex-row md:items-end md:py-20">
           <div className="flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-background-muted font-display text-3xl font-semibold text-accent md:size-36">
-            {builder.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={builder.avatar_url}
-                alt={builder.name ? `${builder.name}` : "Builder"}
-                className="size-full object-cover"
-              />
-            ) : (
-              <span aria-hidden>{initialsFromName(builder.name)}</span>
-            )}
+            <BuilderAvatar
+              name={builder.name}
+              githubProfileUrl={builder.github_profile_url}
+              avatarUrl={builder.avatar_url}
+            />
           </div>
           <div className="min-w-0 flex-1 space-y-4">
             <div>

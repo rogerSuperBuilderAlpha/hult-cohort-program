@@ -1,6 +1,6 @@
 # Project 3 Submission — @priyanshshahh
 
-**shiplog** — Cohort 67's vibe marketing platform. Summer Pilot 2026, Project 3.
+**shiplog** — the Summer Pilot 2026 cohort's vibe marketing platform. Project 3.
 
 ## Production URL
 

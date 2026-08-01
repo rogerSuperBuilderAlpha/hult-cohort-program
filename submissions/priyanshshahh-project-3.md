@@ -14,23 +14,24 @@ Build repo: https://github.com/priyanshshahh/shiplog
 - https://shiplog-snowy.vercel.app/cohort/RamyaTolety
 - https://shiplog-snowy.vercel.app/cohort/CodingWCal
 - https://shiplog-snowy.vercel.app/cohort (full roster)
-- https://shiplog-snowy.vercel.app/launch (Debut-style launch board)
+- https://shiplog-snowy.vercel.app/me (claim / edit after GitHub sign-in)
+- https://shiplog-snowy.vercel.app/partners
+- https://shiplog-snowy.vercel.app/status
 
 ## Vibe / positioning notes
 
-**One-liner:** OpenAI-grade credibility meets Debut-style launch momentum — every ship is a
-merged PR + live deploy, and peer `Vote: up` stays on GitHub (program rule).
+**One-liner:** Proof of work, not a portfolio — every ship is a merged cohort PR plus a live deploy, and peer `Vote: up` stays on GitHub.
 
-**Tone:** terminal / GitHub-native. Liquid-glass nav, 3D page-stack transitions, launch board
-with sort/search/micro-tags, social pulse of merges + review issues, contributor wall from the
-cohort program repo, partner intro + RSVP, Keel PM pulse.
+**Tone:** terminal / GitHub-native. Card roster, activity ticker, contributor wall, partner intro + RSVP, Keel PM pulse, light/dark theme.
 
 **Audience:** hiring partners; secondary, peers reviewing during contest week.
 
-**Differentiators:** GitHub-native review/Vote: up CTAs on every launch row; links to
-https://cohorts.algorithmacy.org/dashboard; active contributors from the program repo;
-request-intro + RSVP APIs to cohort@hult.edu; privacy opt-out placeholder; OG/SEO metadata;
-no fabricated tallies or "Cohort 67" branding (67 = enrolledCount).
+**Differentiators:**
+- GO LIVE from merged PRs on `projects/summer26/phase-1-project-{1,2,3}` (sync + webhook)
+- Member-owned profiles and ships via GitHub OAuth (`/signin`, `/me`)
+- On-site comments for conversation; ballot stays on GitHub review issues
+- Request-intro + RSVP to cohort@hult.edu; privacy opt-out; OG/SEO
+- No fabricated tallies; 67 is enrolledCount, not a cohort name
 
 ## Partner-facing README
 
@@ -40,15 +41,14 @@ Also on-site: https://shiplog-snowy.vercel.app/partners
 
 ## Architecture summary
 
-Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion.
-API routes for request-intro + RSVP. Roster/PM/contributors static data grounded in GitHub +
-cohort stats API.
+Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Auth.js (GitHub) + Neon Postgres (Drizzle). Static roster seed overlays with DB. Sync from GitHub merges. API routes for profile, projects, comments, sync, webhook, request-intro, RSVP.
 
 ## Setup steps verified on a fresh clone
 
 ```bash
 git clone https://github.com/priyanshshahh/shiplog.git
 cd shiplog
+cp .env.example .env.local   # DATABASE_URL + AUTH_* for ownership features
 npm install
 npm run build
 npm run dev
@@ -56,17 +56,16 @@ npm run dev
 
 ## Agent usage
 
-- Research: official dashboard (cohorts.algorithmacy.org/dashboard), Debut via Chrome DevTools,
-  buildnatively/openai/rapidnative showcases, 8 peer Project 3 apps, skills.sh
-  (frontend-design, web-design-guidelines, design-taste, accessibility, seo).
-- Dev: launch board, social pulse, contributor wall, PM panel, intro/RSVP APIs, review CTAs,
-  OG metadata, privacy stub.
-- QA: tsc, eslint, next build clean; routes / /launch /cohort /partners /rsvp /status /api/*.
+- Research: cohorts.algorithmacy.org Week 3 brief, Debut deep-inspect, curriculum requirements, peer Project 3 merges.
+- Dev: Neon + GitHub OAuth, merge sync / webhook, `/me` editor, comments, GO LIVE banner, keep roster/partners/status.
+- QA: `next build` clean; production redeploy; sync of week 1–3 merges into Postgres.
 
 ## Test plan
 
 - [x] Production URL HTTPS
-- [x] Sample profiles + launch board
+- [x] Sample profiles + roster
 - [x] /partners intro form + /rsvp
 - [x] Fresh clone build
+- [x] GitHub OAuth sign-in + /me (when AUTH_* set)
+- [x] Merge sync seeds ships from cohort PRs
 - [ ] Peer UI / Vote: up review week

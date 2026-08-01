@@ -31,7 +31,11 @@ cohort itself.
 **Differentiators:** every roster entry links a real merged pull request (not a
 claim); a `/status` page surfaces the author's own prior Project 1 (Keel, PM
 platform) and Project 2 (Cohort Comms) deploys as evidence of a three-week shipping
-streak; zero fabricated names, metrics, or placeholder logos anywhere on the site.
+streak; a homepage activity ticker replays real merge/open events (actual PR
+`mergedAt` timestamps from this repo, not simulated); interactive tag filtering on
+`/cohort`; `AnimatePresence`-driven 3D page-stack transitions; a liquid-glass nav
+whose blur/opacity respond continuously to scroll depth; zero fabricated names,
+metrics, or placeholder logos anywhere on the site.
 
 ## Partner-facing README
 
@@ -70,11 +74,20 @@ npm run dev     # http://localhost:3000
 - Research: read `AGENTS.md`, `content/program.ts`, and `governance/winner-selection.md`
   on this repo; pulled all 8 merged Project 3 PR bodies plus the author's own
   Project 1/2 PRs via the GitHub API to ground every data point in a real source
-  before writing any code.
+  before writing any code. Searched skills.sh (`npx skills find`) for relevant
+  Next.js/animation/UI skills and installed `magic-ui` and `framer-motion-animator`.
+  Reviewed real showcase-site patterns via `WebFetch` on buildnatively.com/showcase,
+  developers.openai.com/showcase, and rapidnative.com/showcase (debut.msagent.ai is
+  a pure client-rendered SPA with no server-side content and couldn't be inspected —
+  browser automation was unavailable, locked by another running session).
 - Dev: scaffolded and built the Next.js app end-to-end (roster/profile/partners/status
-  pages, design system, animations) with Claude Code.
+  pages, design system, animations) with Claude Code; iterated a second pass adding
+  a real-event activity ticker, `AnimatePresence` 3D page transitions, a scroll-linked
+  liquid-glass nav, real GitHub avatars, and interactive tag filtering.
 - QA: `npx tsc --noEmit`, `npm run lint`, `npm run build` all clean; production
-  deploy smoke-tested via `curl` on all five routes (200 on each).
+  deploy smoke-tested via `curl` on all five routes (200 on each) and avatar URLs
+  verified resolving. No in-browser visual QA was performed — flagging that
+  explicitly rather than claiming a visual pass.
 
 ## Test plan
 

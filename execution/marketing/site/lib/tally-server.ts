@@ -14,7 +14,7 @@ export type TallyResult = {
   cohortId: string;
   rows: TallyRow[];
   winner: string | null;
-  /** True when GitHub Search partially failed — do not publish outcomes. */
+  /** True when one or more repo issue listings failed — do not publish outcomes. */
   reviewsFetchDegraded: boolean;
 };
 

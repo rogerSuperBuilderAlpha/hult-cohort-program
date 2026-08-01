@@ -33,13 +33,13 @@ export type ContestState = {
   submissions: ContestSubmission[];
   /** voter → reviewee → review */
   reviews: Record<string, Record<string, ContestReview>>;
-  /** True when one or more GitHub Search calls failed (partial/empty reviews possible). */
+  /** True when one or more repo issue listings failed (partial/empty reviews possible). */
   reviewsFetchDegraded: boolean;
 };
 
 export { issueHasUpvote, parseReviewIssueTitle } from '@/lib/contest-state-format';
 
-type GithubSearchIssue = {
+type GithubIssue = {
   html_url?: string;
   title?: string;
   body?: string | null;
@@ -47,13 +47,28 @@ type GithubSearchIssue = {
   pull_request?: unknown;
 };
 
-type RepoSearchResult = {
-  issues: GithubSearchIssue[];
+type RepoIssuesResult = {
+  issues: GithubIssue[];
   ok: boolean;
 };
 
-/** Keep Search API under ~30 req/min authenticated ceiling across peer repos. */
-const SEARCH_CONCURRENCY = 3;
+/**
+ * Review issues come from the core issues endpoint, not GitHub Search.
+ *
+ * Search was wrong here twice over. Its authenticated ceiling is 30 req/min,
+ * and one pass costs one request per peer repo — so a cohort of ~20 builds
+ * degraded on back-to-back runs, silently returning partial counts under a
+ * table that still looked plausible. Worse, Search is *eventually consistent*:
+ * issues filed in the last minutes of a review window may not be indexed yet,
+ * so it under-counted late votes even when it reported no degradation. Both
+ * failure modes can name the wrong contest winner.
+ *
+ * The core endpoint is strongly consistent and shares the 5,000 req/hr budget,
+ * at the cost of listing all issues per repo and filtering client-side.
+ */
+const REPO_CONCURRENCY = 6;
+/** Safety stop; 100 issues/page, so this covers 1,000 issues in one repo. */
+const MAX_ISSUE_PAGES = 10;
 
 function githubHeaders(): HeadersInit {
   const token = process.env.GITHUB_TOKEN?.trim();
@@ -89,13 +104,13 @@ async function mapPool<T, R>(
   return results;
 }
 
-async function searchReviewIssuesInRepo(repo: string): Promise<RepoSearchResult> {
-  const out: GithubSearchIssue[] = [];
-  const q = `repo:${repo} is:issue in:title "Review by @"`;
+/** List every issue in a repo and keep the review filings. Includes closed issues. */
+async function listReviewIssuesInRepo(repo: string): Promise<RepoIssuesResult> {
+  const out: GithubIssue[] = [];
 
-  for (let page = 1; page <= 5; page += 1) {
-    const url = new URL('https://api.github.com/search/issues');
-    url.searchParams.set('q', q);
+  for (let page = 1; page <= MAX_ISSUE_PAGES; page += 1) {
+    const url = new URL(`https://api.github.com/repos/${repo}/issues`);
+    url.searchParams.set('state', 'all');
     url.searchParams.set('per_page', '100');
     url.searchParams.set('page', String(page));
 
@@ -107,19 +122,26 @@ async function searchReviewIssuesInRepo(repo: string): Promise<RepoSearchResult>
       });
     } catch (err) {
       console.warn(
-        `[contest-state] issue search network error repo=${repo}`,
+        `[contest-state] issue list network error repo=${repo}`,
         err instanceof Error ? err.message : err
       );
       return { issues: out, ok: false };
     }
     if (!res.ok) {
-      console.warn(`[contest-state] issue search failed ${res.status} repo=${repo}`);
+      console.warn(`[contest-state] issue list failed ${res.status} repo=${repo}`);
       return { issues: out, ok: false };
     }
 
-    const json = (await res.json()) as { items?: GithubSearchIssue[] };
-    const items = Array.isArray(json.items) ? json.items : [];
-    out.push(...items.filter((item) => !item.pull_request));
+    const items = (await res.json()) as GithubIssue[];
+    if (!Array.isArray(items)) return { issues: out, ok: false };
+
+    // The issues endpoint returns pull requests too — drop them, then keep only
+    // review filings so callers parse a small set rather than the whole repo.
+    out.push(
+      ...items.filter(
+        (item) => !item.pull_request && /^\s*Review by @/i.test(item.title ?? '')
+      )
+    );
     if (items.length < 100) break;
   }
 
@@ -127,11 +149,11 @@ async function searchReviewIssuesInRepo(repo: string): Promise<RepoSearchResult>
 }
 
 /** Discover review issues on each peer app repo (+ cohort monorepo for any legacy filings). */
-async function searchReviewIssues(
+async function collectReviewIssues(
   peerRepos: string[]
-): Promise<{ issues: GithubSearchIssue[]; degraded: boolean }> {
+): Promise<{ issues: GithubIssue[]; degraded: boolean }> {
   const repos = [...new Set([...peerRepos, cohortSubmissionRepo()].filter(Boolean))];
-  const batches = await mapPool(repos, SEARCH_CONCURRENCY, searchReviewIssuesInRepo);
+  const batches = await mapPool(repos, REPO_CONCURRENCY, listReviewIssuesInRepo);
   return {
     issues: batches.flatMap((b) => b.issues),
     degraded: batches.some((b) => !b.ok),
@@ -160,7 +182,7 @@ export async function buildContestState(projectSlug: string): Promise<ContestSta
   const submissionHandles = new Set(submissions.map((s) => s.handle));
   const reviews: ContestState['reviews'] = {};
 
-  const { issues, degraded } = await searchReviewIssues(submissions.map((s) => s.repo));
+  const { issues, degraded } = await collectReviewIssues(submissions.map((s) => s.repo));
   for (const issue of issues) {
     if (!issue.html_url || !issue.title) continue;
     const parsed = parseReviewIssueTitle(issue.title);

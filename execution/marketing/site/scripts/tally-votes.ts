@@ -62,7 +62,7 @@ function parseArgs() {
 function printTable(result: TallyResult) {
   console.log(`\n${result.projectSlug} (cohort ${result.cohortId})`);
   if (result.reviewsFetchDegraded) {
-    console.log('⚠ GitHub Search was degraded — review/upvote counts may be incomplete.');
+    console.log('⚠ Review issue fetch was degraded — counts are INCOMPLETE. Re-run before using.');
   }
   console.log('─'.repeat(48));
   console.log(`${'Handle'.padEnd(32)} ${'Up'.padStart(6)}`);
@@ -113,7 +113,7 @@ async function main() {
   const degraded = results.filter((r) => r.reviewsFetchDegraded);
   if (degraded.length > 0) {
     console.error(
-      `\nERROR: GitHub Search was degraded for: ${degraded.map((r) => r.projectSlug).join(', ')}`
+      `\nERROR: review issue fetch was degraded for: ${degraded.map((r) => r.projectSlug).join(', ')}`
     );
     console.error('Review/upvote counts may be incomplete. Re-run after GitHub recovers.');
     if (publish) {

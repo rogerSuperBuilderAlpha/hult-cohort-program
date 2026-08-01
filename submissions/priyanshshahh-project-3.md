@@ -30,6 +30,7 @@ Build repo: https://github.com/priyanshshahh/shiplog
 **Differentiators:**
 - GO LIVE from merged PRs on `projects/summer26/phase-1-project-{1,2,3}` (sync + webhook)
 - Member-owned profiles and ships via GitHub OAuth (`/signin`, `/me`) with screenshot uploads (Vercel Blob)
+- Performance / image optimization: `next/image` for LCP, sized GitHub avatars, WebP uploads to Blob
 - On-site comments for conversation; ballot stays on GitHub review issues
 - Request-intro + RSVP to cohort@hult.edu; privacy opt-out; OG/SEO
 - No fabricated tallies; 67 is enrolledCount, not a cohort name
@@ -42,7 +43,7 @@ Also on-site: https://shiplog-snowy.vercel.app/partners
 
 ## Architecture summary
 
-Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Auth.js (GitHub) + Neon Postgres (Drizzle) + Vercel Blob. Static roster seed overlays with DB. Sync from GitHub merges. API routes for profile, projects, comments, sync, webhook, upload, request-intro, RSVP.
+Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Auth.js (GitHub) + Neon Postgres (Drizzle) + Vercel Blob. Static roster seed overlays with DB. Sync from GitHub merges. API routes for profile, projects, comments, sync, webhook, upload, request-intro, RSVP. Images: `next/image` for LCP-critical assets, sized GitHub avatars, WebP for Blob uploads.
 
 ## Setup steps verified on a fresh clone
 
@@ -59,7 +60,7 @@ npm run dev
 
 - Research: cohorts.algorithmacy.org Week 3 brief, Debut deep-inspect, curriculum requirements, peer Project 3 merges.
 - Dev: Neon + GitHub OAuth, merge sync / webhook, `/me` editor, Blob screenshots, comments, GO LIVE banner, keep roster/partners/status.
-- QA: `next build` clean; production redeploy; sync of week 1–3 merges; profile/ship save + upload verified path.
+- QA: `next build` clean; production redeploy; sync of week 1–3 merges; profile/ship save + upload verified path; LCP / image optimization (`next/image`, WebP uploads).
 
 ## Test plan
 
@@ -70,4 +71,5 @@ npm run dev
 - [x] GitHub OAuth sign-in + /me
 - [x] Merge sync seeds ships from cohort PRs
 - [x] Screenshot upload + profile/ship save
+- [x] Performance / image optimization (next/image, sized avatars, WebP uploads)
 - [ ] Peer UI / Vote: up review week

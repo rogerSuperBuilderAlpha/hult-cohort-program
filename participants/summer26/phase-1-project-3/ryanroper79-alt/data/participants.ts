@@ -31,7 +31,7 @@ export const participants: Participant[] = [
         title: 'Vibe marketing platform',
         summary:
           'Partner-facing showcase with static profiles, project index, and live /join surface for review week.',
-        liveUrl: 'https://hult-cohort-program-iota.vercel.app',
+        liveUrl: 'https://cealgreen-projects.vercel.app',
         prUrl:
           'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186',
       },

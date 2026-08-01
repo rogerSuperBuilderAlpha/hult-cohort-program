@@ -51,9 +51,9 @@ LinkedIn: https://www.linkedin.com/in/ryanroper1/
 
 | Item | URL |
 |------|-----|
-| Production | https://hult-cohort-program-iota.vercel.app |
-| Partners page | https://hult-cohort-program-iota.vercel.app/partners |
-| Work index | https://hult-cohort-program-iota.vercel.app/work |
+| Production | https://cealgreen-projects.vercel.app |
+| Partners page | https://cealgreen-projects.vercel.app/partners |
+| Work index | https://cealgreen-projects.vercel.app/work |
 | Submission PR | https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186 |
 | Brand guidelines | https://peteranthonygales.craft.me/s3ywHY5a1ppmyU |
 

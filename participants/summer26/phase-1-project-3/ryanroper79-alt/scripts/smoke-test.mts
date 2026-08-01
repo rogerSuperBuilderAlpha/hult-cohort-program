@@ -2,7 +2,7 @@
  * Phase 6 smoke checks — run against production or local preview.
  * Usage: node --experimental-strip-types scripts/smoke-test.mts [baseUrl]
  */
-const baseUrl = (process.argv[2] ?? 'https://hult-cohort-program-iota.vercel.app').replace(/\/$/, '');
+const baseUrl = (process.argv[2] ?? 'https://cealgreen-projects.vercel.app').replace(/\/$/, '');
 
 const routes = [
   '/',

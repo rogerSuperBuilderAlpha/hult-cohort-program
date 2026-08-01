@@ -4,15 +4,15 @@ Standalone vibe marketing platform at `participants/summer26/phase-1-project-3/r
 
 ## Production URL
 
-https://hult-cohort-program-iota.vercel.app
+https://cealgreen-projects.vercel.app
 
 Vercel root directory: `participants/summer26/phase-1-project-3/ryanroper79-alt` (CEAL Green team project).
 
 ## Sample profile URLs
 
-- https://hult-cohort-program-iota.vercel.app/p/ryanroper79-alt
-- https://hult-cohort-program-iota.vercel.app/p/raven-dubgub
-- https://hult-cohort-program-iota.vercel.app/p/gge513
+- https://cealgreen-projects.vercel.app/p/ryanroper79-alt
+- https://cealgreen-projects.vercel.app/p/raven-dubgub
+- https://cealgreen-projects.vercel.app/p/gge513
 
 ## Vibe / positioning notes
 
@@ -30,7 +30,7 @@ Architecture: typed static roster; peers join via `/join` (GitHub issue or mailt
 
 `participants/summer26/phase-1-project-3/ryanroper79-alt/PARTNERS.md`
 
-On-site: https://hult-cohort-program-iota.vercel.app/partners
+On-site: https://cealgreen-projects.vercel.app/partners
 
 ## Agent usage
 

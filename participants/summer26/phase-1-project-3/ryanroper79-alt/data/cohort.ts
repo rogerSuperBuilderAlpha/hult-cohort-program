@@ -12,7 +12,7 @@ export const positioning = {
   contact: 'ryan@cealgreen.com',
   contactLabel: 'CEAL Green — ryan@cealgreen.com',
   contactHref: 'mailto:ryan@cealgreen.com',
-  productionDomain: 'https://hult-cohort-program-iota.vercel.app',
+  productionDomain: 'https://cealgreen-projects.vercel.app',
   brand: {
     name: 'CEAL Green',
     guidelinesUrl: brandGuidelinesUrl,
@@ -34,7 +34,7 @@ export const proofInventory = {
   programWeek: 3,
   submissionPrUrl:
     'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186',
-  productionUrl: 'https://hult-cohort-program-iota.vercel.app',
+  productionUrl: 'https://cealgreen-projects.vercel.app',
   gitDeployVerified: '2026-07-30',
   activeProfileCount: 1,
   pendingProfileCount: 2,

@@ -17,6 +17,7 @@ Build repo: https://github.com/priyanshshahh/shiplog
 - https://shiplog-snowy.vercel.app/me (claim / edit after GitHub sign-in)
 - https://shiplog-snowy.vercel.app/partners
 - https://shiplog-snowy.vercel.app/status
+- https://shiplog-snowy.vercel.app/rsvp
 
 ## Vibe / positioning notes
 
@@ -28,7 +29,7 @@ Build repo: https://github.com/priyanshshahh/shiplog
 
 **Differentiators:**
 - GO LIVE from merged PRs on `projects/summer26/phase-1-project-{1,2,3}` (sync + webhook)
-- Member-owned profiles and ships via GitHub OAuth (`/signin`, `/me`)
+- Member-owned profiles and ships via GitHub OAuth (`/signin`, `/me`) with screenshot uploads (Vercel Blob)
 - On-site comments for conversation; ballot stays on GitHub review issues
 - Request-intro + RSVP to cohort@hult.edu; privacy opt-out; OG/SEO
 - No fabricated tallies; 67 is enrolledCount, not a cohort name
@@ -41,14 +42,14 @@ Also on-site: https://shiplog-snowy.vercel.app/partners
 
 ## Architecture summary
 
-Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Auth.js (GitHub) + Neon Postgres (Drizzle). Static roster seed overlays with DB. Sync from GitHub merges. API routes for profile, projects, comments, sync, webhook, request-intro, RSVP.
+Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Auth.js (GitHub) + Neon Postgres (Drizzle) + Vercel Blob. Static roster seed overlays with DB. Sync from GitHub merges. API routes for profile, projects, comments, sync, webhook, upload, request-intro, RSVP.
 
 ## Setup steps verified on a fresh clone
 
 ```bash
 git clone https://github.com/priyanshshahh/shiplog.git
 cd shiplog
-cp .env.example .env.local   # DATABASE_URL + AUTH_* for ownership features
+cp .env.example .env.local   # DATABASE_URL + AUTH_* (+ BLOB for uploads)
 npm install
 npm run build
 npm run dev
@@ -57,8 +58,8 @@ npm run dev
 ## Agent usage
 
 - Research: cohorts.algorithmacy.org Week 3 brief, Debut deep-inspect, curriculum requirements, peer Project 3 merges.
-- Dev: Neon + GitHub OAuth, merge sync / webhook, `/me` editor, comments, GO LIVE banner, keep roster/partners/status.
-- QA: `next build` clean; production redeploy; sync of week 1–3 merges into Postgres.
+- Dev: Neon + GitHub OAuth, merge sync / webhook, `/me` editor, Blob screenshots, comments, GO LIVE banner, keep roster/partners/status.
+- QA: `next build` clean; production redeploy; sync of week 1–3 merges; profile/ship save + upload verified path.
 
 ## Test plan
 
@@ -66,6 +67,7 @@ npm run dev
 - [x] Sample profiles + roster
 - [x] /partners intro form + /rsvp
 - [x] Fresh clone build
-- [x] GitHub OAuth sign-in + /me (when AUTH_* set)
+- [x] GitHub OAuth sign-in + /me
 - [x] Merge sync seeds ships from cohort PRs
+- [x] Screenshot upload + profile/ship save
 - [ ] Peer UI / Vote: up review week

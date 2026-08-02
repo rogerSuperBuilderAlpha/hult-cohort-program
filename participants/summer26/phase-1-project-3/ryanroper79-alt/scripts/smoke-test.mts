@@ -9,8 +9,6 @@ const routes = [
   '/work',
   '/join',
   '/partners',
-  '/partners/solutions',
-  '/builders',
   '/partners/readme',
   '/vote',
   '/rsvp',
@@ -27,7 +25,6 @@ const routes = [
 const externalLinks = [
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186',
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/201',
-  'https://www.cealgreen.com',
   'https://github.com/ryanroper79-alt',
 ];
 
@@ -67,6 +64,22 @@ async function main() {
   }
 
   try {
+    const res = await fetchStatus(`${baseUrl}/builders`);
+    const ok = res.status >= 300 && res.status < 400;
+    checks.push({
+      name: 'Redirect /builders → /work',
+      ok,
+      detail: `${res.status} (expect redirect)`,
+    });
+  } catch (err) {
+    checks.push({
+      name: 'Redirect /builders → /work',
+      ok: false,
+      detail: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  try {
     const res = await fetchStatus(`${baseUrl}/p/ryanroper79-alt/opengraph-image`);
     const contentType = res.headers.get('content-type') ?? '';
     checks.push({
@@ -85,20 +98,20 @@ async function main() {
   try {
     const res = await fetchStatus(`${baseUrl}/`);
     const html = await res.text();
-    const cohortFirst =
-      html.includes('CARICOM committed to 47%') &&
-      html.includes('Hult Cohort · Summer Pilot 2026') &&
-      !html.includes('Request a feasibility report') &&
-      !html.includes('Pending');
-    const hasOldTemplate = html.includes('Build the software your cohort actually runs on');
+    const climateNetwork =
+      html.includes('Climate Builder Network') &&
+      html.includes('climate problems') &&
+      !html.includes('Meet the builders') &&
+      !html.includes('investor') &&
+      !html.includes('Ryan R. Roper featured');
     checks.push({
-      name: 'Cohort-first homepage content',
-      ok: cohortFirst && !hasOldTemplate,
-      detail: cohortFirst ? 'Cohort-first hero detected' : 'Homepage content unrecognized',
+      name: 'Climate Builder Network homepage',
+      ok: climateNetwork,
+      detail: climateNetwork ? 'Branding + scope freeze OK' : 'Homepage content check failed',
     });
   } catch (err) {
     checks.push({
-      name: 'Cohort-first homepage content',
+      name: 'Climate Builder Network homepage',
       ok: false,
       detail: err instanceof Error ? err.message : String(err),
     });
@@ -115,6 +128,22 @@ async function main() {
   } catch (err) {
     checks.push({
       name: 'Private profile /p/studmuffin01',
+      ok: false,
+      detail: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  try {
+    const res = await fetchStatus(`${baseUrl}/work`);
+    const html = await res.text();
+    checks.push({
+      name: 'Work page island bandwidth note',
+      ok: res.ok && html.includes('Island conditions'),
+      detail: res.ok ? 'Artifact note present' : `${res.status}`,
+    });
+  } catch (err) {
+    checks.push({
+      name: 'Work page island bandwidth note',
       ok: false,
       detail: err instanceof Error ? err.message : String(err),
     });

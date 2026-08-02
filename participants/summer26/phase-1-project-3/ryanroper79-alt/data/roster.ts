@@ -8,9 +8,10 @@ export type RosterEntry = {
   photoPath?: string;
   location?: string;
   skills?: string[];
-  featured?: boolean;
   /** Default public; opt-out shows a private placeholder at /p/{handle}. */
   privacy?: 'public' | 'private';
+  /** Participant sets via /join PR — default false; never preset by maintainers. */
+  availableForEngagement?: boolean;
   links: { github?: string; site?: string; linkedin?: string; blog?: string };
 };
 
@@ -20,22 +21,10 @@ export const roster: RosterEntry[] = [
     handle: 'ryanroper79-alt',
     displayName: 'Ryan R. Roper',
     status: 'active',
-    featured: true,
-    location: 'Caribbean · CEAL Green',
-    photoPath: '/builders/ryan-roper.jpg',
     headline:
-      '20+ years major Caribbean project development · Harvard Business School (data analytics & AI) · engineering, digital transformation, and energy transition.',
-    skills: [
-      'Major project development',
-      'Data analytics',
-      'AI platforms',
-      'Energy transition',
-      'Infrastructure',
-    ],
+      'Summer Pilot 2026 participant — climate software for Caribbean and SIDS grid resilience.',
     links: {
       github: 'https://github.com/ryanroper79-alt',
-      linkedin: 'https://www.linkedin.com/in/ryanroper1/',
-      site: 'https://www.cealgreen.com',
     },
   },
   {
@@ -89,7 +78,7 @@ export const roster: RosterEntry[] = [
   {
     handle: 'rogersuperbuilderalpha',
     status: 'stub',
-    headline: 'Summer Pilot 2026 participant — cohort program maintainer and builder.',
+    headline: 'Summer Pilot 2026 participant — cohort program maintainer and operator.',
     links: { github: 'https://github.com/rogerSuperBuilderAlpha' },
   },
   {
@@ -105,8 +94,13 @@ function titleCaseHandle(handle: string) {
   return handle.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/** Builder picker options for client forms (handle + display name only). */
-export const builderPickerOptions = roster.map((entry) => ({
+export function isAvailableForEngagement(handle: string): boolean {
+  const entry = roster.find((r) => r.handle.toLowerCase() === handle.toLowerCase());
+  return entry?.availableForEngagement === true;
+}
+
+/** Participant picker options for forms (handle + display name only). */
+export const participantPickerOptions = roster.map((entry) => ({
   handle: entry.handle,
   displayName: entry.displayName ?? titleCaseHandle(entry.handle),
 }));

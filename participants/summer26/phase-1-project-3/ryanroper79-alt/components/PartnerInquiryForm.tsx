@@ -1,31 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import {
-  defaultPartnerBuilder,
-  featuredBuilder,
-} from '@/data/featured-builder';
-import {
-  interestTypes,
-  partnerSolutions,
-  problemDomains,
-} from '@/data/solutions';
-import { builderPickerOptions } from '@/data/roster';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
 export function PartnerInquiryForm() {
   const [state, setState] = useState<FormState>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [defaultSolution, setDefaultSolution] = useState('');
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.hash.replace('#inquiry?', '').split('?').pop() ?? window.location.search);
-    const solution = params.get('solution');
-    if (solution) setDefaultSolution(solution);
-  }, []);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,12 +25,7 @@ export function PartnerInquiryForm() {
           name: data.get('name'),
           email: data.get('email'),
           organisation: data.get('organisation'),
-          website: data.get('website'),
-          linkedin: data.get('linkedin'),
-          interestType: data.get('interestType'),
-          builderHandle: data.get('builderHandle'),
-          problemDomain: data.get('problemDomain'),
-          solutionSlug: data.get('solutionSlug'),
+          participantHandle: data.get('participantHandle'),
           message: data.get('message'),
           _honeypot: data.get('_honeypot'),
         }),
@@ -66,10 +43,8 @@ export function PartnerInquiryForm() {
   if (state === 'success') {
     return (
       <div className="rounded-lg border border-ceal-leaf bg-ceal-panel p-8" role="status">
-        <h3 className="font-display text-xl text-ceal-mangrove">Enquiry received</h3>
-        <p className="mt-3 text-ceal-muted">
-          We reply within 2 business days. You can stay on this page — no redirect required.
-        </p>
+        <h3 className="font-display text-xl text-ceal-mangrove">Introduction request received</h3>
+        <p className="mt-3 text-ceal-muted">We reply within 2 business days when notification is configured.</p>
         <button
           type="button"
           onClick={() => setState('idle')}
@@ -87,11 +62,6 @@ export function PartnerInquiryForm() {
         <input name="_honeypot" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <p className="text-sm text-ceal-muted">
-        Tell us who you are and what you&apos;re looking for. No account required — modelled on the
-        cohort partner flow with Caribbean infrastructure focus.
-      </p>
-
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="partner-org" className="block text-sm font-medium text-ceal-ink">
@@ -101,35 +71,7 @@ export function PartnerInquiryForm() {
             id="partner-org"
             name="organisation"
             required
-            placeholder="Your firm or fund"
-            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
-          />
-        </div>
-        <div>
-          <label htmlFor="partner-website" className="block text-sm font-medium text-ceal-ink">
-            Website <span className="text-ceal-muted">(optional)</span>
-          </label>
-          <input
-            id="partner-website"
-            name="website"
-            type="url"
-            placeholder="https://…"
-            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="partner-linkedin" className="block text-sm font-medium text-ceal-ink">
-            LinkedIn <span className="text-ceal-muted">(optional)</span>
-          </label>
-          <input
-            id="partner-linkedin"
-            name="linkedin"
-            type="url"
-            placeholder="https://linkedin.com/in/…"
-            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
+            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring"
           />
         </div>
         <div>
@@ -140,8 +82,7 @@ export function PartnerInquiryForm() {
             id="partner-name"
             name="name"
             required
-            placeholder="Your name"
-            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
+            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring"
           />
         </div>
       </div>
@@ -156,90 +97,20 @@ export function PartnerInquiryForm() {
           type="email"
           required
           autoComplete="email"
-          placeholder="you@organisation.com"
-          className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
+          className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring"
         />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="partner-interest" className="block text-sm font-medium text-ceal-ink">
-            Interest type *
-          </label>
-          <select
-            id="partner-interest"
-            name="interestType"
-            required
-            defaultValue="investor"
-            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
-          >
-            {interestTypes.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="partner-builder" className="block text-sm font-medium text-ceal-ink">
-            Builder <span className="text-ceal-muted">(optional)</span>
-          </label>
-          <select
-            id="partner-builder"
-            name="builderHandle"
-            defaultValue={defaultPartnerBuilder}
-            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
-          >
-            <option value="">No specific builder</option>
-            <option value={featuredBuilder.handle}>{featuredBuilder.displayName} (recommended)</option>
-            {builderPickerOptions
-              .filter((p) => p.handle !== featuredBuilder.handle)
-              .map((p) => (
-                <option key={p.handle} value={p.handle}>
-                  {p.displayName}
-                </option>
-              ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="partner-domain" className="block text-sm font-medium text-ceal-ink">
-            Problem domain *
-          </label>
-          <select
-            id="partner-domain"
-            name="problemDomain"
-            required
-            defaultValue="digital-ai"
-            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
-          >
-            {problemDomains.map((d) => (
-              <option key={d.value} value={d.value}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="partner-solution" className="block text-sm font-medium text-ceal-ink">
-            Solution <span className="text-ceal-muted">(optional)</span>
-          </label>
-          <select
-            id="partner-solution"
-            name="solutionSlug"
-            defaultValue={defaultSolution}
-            className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
-          >
-            <option value="">No specific solution</option>
-            {partnerSolutions.map((s) => (
-              <option key={s.slug} value={s.slug}>
-                {s.title}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div>
+        <label htmlFor="partner-participant" className="block text-sm font-medium text-ceal-ink">
+          Participant handle <span className="text-ceal-muted">(optional)</span>
+        </label>
+        <input
+          id="partner-participant"
+          name="participantHandle"
+          placeholder="@handle from /work or /p/handle"
+          className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring"
+        />
       </div>
 
       <div>
@@ -253,8 +124,8 @@ export function PartnerInquiryForm() {
           rows={5}
           minLength={20}
           maxLength={2000}
-          placeholder="What are you looking for, and how might Ryan and the cohort help with Caribbean infrastructure or digital/AI delivery?"
-          className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring dark:bg-ceal-ink/20"
+          placeholder="What climate or resilience problem are you exploring, and which shipped artifact did you inspect?"
+          className="mt-2 w-full rounded-md border border-ceal-line bg-ceal-white px-4 py-3 text-sm focus-ring"
         />
       </div>
 
@@ -269,18 +140,15 @@ export function PartnerInquiryForm() {
         disabled={state === 'submitting'}
         className="rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow disabled:opacity-60"
       >
-        {state === 'submitting' ? 'Sending…' : 'Submit enquiry'}
+        {state === 'submitting' ? 'Sending…' : 'Request introduction'}
       </button>
 
       <p className="text-xs text-ceal-muted">
-        Prefer to browse first?{' '}
-        <Link href="/partners/solutions" className="text-ceal-leaf underline focus-ring rounded">
-          View solution catalog
-        </Link>{' '}
-        ·{' '}
-        <Link href="/builders" className="text-ceal-leaf underline focus-ring rounded">
-          Meet all builders
+        Browse profiles on{' '}
+        <Link href="/work" className="text-ceal-leaf underline focus-ring rounded">
+          /work
         </Link>
+        .
       </p>
     </form>
   );

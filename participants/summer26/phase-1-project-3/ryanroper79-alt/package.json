@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node --experimental-strip-types scripts/enrich-roster.mts && next build",
+    "build": "node --experimental-strip-types scripts/enrich-roster.mts && node --experimental-strip-types scripts/enrich-artifact-checks.mts && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",

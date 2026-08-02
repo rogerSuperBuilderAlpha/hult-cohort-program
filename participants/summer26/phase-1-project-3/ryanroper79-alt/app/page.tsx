@@ -1,12 +1,9 @@
 import Link from 'next/link';
 import { SiteHeader, SiteFooter, StickyJoinBar } from '@/components/SiteChrome';
-import { ExpertsStrip } from '@/components/ExpertsStrip';
-import { FeaturedBuilderSpotlight } from '@/components/FeaturedBuilderSpotlight';
 import { PeopleStrip } from '@/components/PeopleStrip';
 import { ProofStrip } from '@/components/ProofStrip';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { ShipTicker } from '@/components/ShipTicker';
-import { SolutionsCatalog } from '@/components/SolutionsCatalog';
 import { positioning } from '@/data/cohort';
 
 export default function HomePage() {
@@ -27,27 +24,23 @@ export default function HomePage() {
 
         <div className="mt-10 flex flex-wrap gap-4">
           <Link
-            href="/partners/solutions"
+            href="/work"
             className="inline-block rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow"
           >
-            Explore solutions →
+            Inspect shipped work →
           </Link>
           <Link
-            href="/builders"
+            href="/join"
             className="inline-block rounded-md border border-ceal-mangrove px-5 py-3 font-semibold text-ceal-mangrove focus-ring hover:bg-ceal-panel"
           >
-            Meet the builders →
+            Join the roster →
           </Link>
           <Link
             href="/partners"
             className="inline-block rounded-md border border-ceal-line px-5 py-3 font-semibold text-ceal-muted focus-ring hover:bg-ceal-panel"
           >
-            Partner opportunities →
+            Partner with the cohort →
           </Link>
-        </div>
-
-        <div className="mt-12">
-          <FeaturedBuilderSpotlight variant="compact" />
         </div>
 
         <aside className="mt-10 rounded-lg border border-ceal-sun bg-gradient-to-br from-ceal-panel to-ceal-sunGlow/30 p-6 md:p-8">
@@ -64,15 +57,9 @@ export default function HomePage() {
             href={positioning.votePath}
             className="mt-6 inline-block rounded-md bg-ceal-mangrove px-5 py-3 font-semibold text-ceal-white focus-ring hover:opacity-90"
           >
-            Open one-click vote link →
+            Open vote helper →
           </Link>
         </aside>
-
-        <ScrollReveal>
-          <div className="mt-20">
-            <SolutionsCatalog limit={2} showViewAll />
-          </div>
-        </ScrollReveal>
 
         <ScrollReveal>
           <div className="mt-20">
@@ -86,32 +73,7 @@ export default function HomePage() {
           </div>
         </ScrollReveal>
 
-        <ScrollReveal>
-          <div className="mt-20">
-            <ExpertsStrip />
-          </div>
-        </ScrollReveal>
-
         <ShipTicker />
-
-        <section className="mt-20 rounded-lg border border-ceal-line bg-ceal-panel p-8 md:p-10">
-          <h2 className="font-display text-3xl text-ceal-mangrove">Ready to partner?</h2>
-          <p className="mt-4 max-w-prose text-lg text-ceal-muted">
-            Investors and operators: engage Ryan R. Roper for digital/AI delivery on Caribbean
-            infrastructure challenges — or browse the full cohort roster and work ledger.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link
-              href="/partners#inquiry"
-              className="inline-block rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow"
-            >
-              Submit partner enquiry →
-            </Link>
-            <Link href="/work" className="self-center font-medium text-ceal-leaf underline focus-ring rounded">
-              Work index →
-            </Link>
-          </div>
-        </section>
       </main>
       <SiteFooter />
       <StickyJoinBar />

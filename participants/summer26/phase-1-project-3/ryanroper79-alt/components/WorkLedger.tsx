@@ -4,8 +4,10 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { LedgerEntry, LedgerStatus } from '@/data/ledger';
 import { featuredEntries, ledgerEntries } from '@/data/ledger';
+import { isAvailableForEngagement } from '@/data/roster';
 import { entryKey } from '@/lib/ledger-keys';
 import { LiveVerifyChip } from '@/components/LiveVerifyChip';
+import { ArtifactScorecard } from '@/components/ArtifactScorecard';
 
 const WEEKS = [1, 2, 3] as const;
 
@@ -30,12 +32,20 @@ function StatusChip({ status }: { status: LedgerStatus }) {
 }
 
 function EntryCard({ entry }: { entry: LedgerEntry }) {
+  const key = entryKey(entry);
+  const open = isAvailableForEngagement(entry.handle);
+
   return (
     <article className="rounded-lg border border-ceal-line bg-ceal-white p-5">
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-mono text-xs uppercase text-ceal-leaf">Week {entry.week}</span>
         <StatusChip status={entry.status} />
-        <LiveVerifyChip entryKey={entryKey(entry)} />
+        <LiveVerifyChip entryKey={key} />
+        {open ? (
+          <span className="rounded-full border border-ceal-leaf/40 bg-ceal-panel px-2 py-0.5 font-mono text-[10px] uppercase text-ceal-leaf">
+            Open to engagement
+          </span>
+        ) : null}
       </div>
       <h3 className="mt-2 font-display text-xl text-ceal-mangrove">{entry.title}</h3>
       <p className="mt-1 text-sm text-ceal-muted">
@@ -44,6 +54,7 @@ function EntryCard({ entry }: { entry: LedgerEntry }) {
         </Link>
       </p>
       <p className="mt-3 text-sm text-ceal-muted">{entry.summary}</p>
+      <ArtifactScorecard entryKey={key} deployUrl={entry.deployUrl} />
       <div className="mt-4 flex flex-wrap gap-3 text-sm font-medium">
         {entry.deployUrl ? (
           <a
@@ -75,10 +86,11 @@ function EntryCard({ entry }: { entry: LedgerEntry }) {
 
 export function WorkLedger() {
   const [week, setWeek] = useState<number | 'all'>('all');
-  const [builder, setBuilder] = useState<string>('all');
+  const [participant, setParticipant] = useState<string>('all');
   const [status, setStatus] = useState<LedgerStatus | 'all'>('all');
+  const [engagementOnly, setEngagementOnly] = useState(false);
 
-  const builders = useMemo(
+  const participants = useMemo(
     () => [...new Set(ledgerEntries.map((e) => e.handle))].sort(),
     [],
   );
@@ -86,16 +98,23 @@ export function WorkLedger() {
   const filtered = useMemo(() => {
     return ledgerEntries.filter((entry) => {
       if (week !== 'all' && entry.week !== week) return false;
-      if (builder !== 'all' && entry.handle !== builder) return false;
+      if (participant !== 'all' && entry.handle !== participant) return false;
       if (status !== 'all' && entry.status !== status) return false;
+      if (engagementOnly && !isAvailableForEngagement(entry.handle)) return false;
       return true;
     });
-  }, [week, builder, status]);
+  }, [week, participant, status, engagementOnly]);
 
   const featured = featuredEntries();
 
   return (
     <div className="space-y-10">
+      <aside className="rounded-lg border border-ceal-sun/60 bg-ceal-panel p-4 text-sm text-ceal-muted">
+        <strong className="text-ceal-mangrove">Island conditions:</strong> Under Caribbean and SIDS
+        bandwidth and outage patterns, payload weight and offline behaviour are correctness issues —
+        not polish. Scorecards below measure <em>artifacts</em> (deploy URLs), never participants.
+      </aside>
+
       {featured.length > 0 ? (
         <section>
           <h2 className="font-display text-2xl text-ceal-mangrove">Operating cohort infrastructure</h2>
@@ -132,14 +151,14 @@ export function WorkLedger() {
             </select>
           </label>
           <label className="block text-sm">
-            <span className="font-mono text-xs uppercase text-ceal-muted">Builder</span>
+            <span className="font-mono text-xs uppercase text-ceal-muted">Participant</span>
             <select
-              value={builder}
-              onChange={(e) => setBuilder(e.target.value)}
+              value={participant}
+              onChange={(e) => setParticipant(e.target.value)}
               className="mt-1 block w-full min-w-[160px] rounded-md border border-ceal-line bg-ceal-white px-3 py-2 text-sm focus-ring"
             >
-              <option value="all">All builders</option>
-              {builders.map((h) => (
+              <option value="all">All participants</option>
+              {participants.map((h) => (
                 <option key={h} value={h}>
                   @{h}
                 </option>
@@ -159,6 +178,15 @@ export function WorkLedger() {
               <option value="submitted">Submitted</option>
               <option value="not-indexed">Not yet indexed</option>
             </select>
+          </label>
+          <label className="flex items-center gap-2 text-sm text-ceal-muted">
+            <input
+              type="checkbox"
+              checked={engagementOnly}
+              onChange={(e) => setEngagementOnly(e.target.checked)}
+              className="rounded border-ceal-line focus-ring"
+            />
+            Open to engagement only
           </label>
         </div>
 

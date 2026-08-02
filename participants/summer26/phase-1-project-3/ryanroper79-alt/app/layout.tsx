@@ -27,11 +27,14 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(positioning.productionDomain),
   title: {
-    default: 'Hult Cohort · Capability in public',
-    template: '%s · Hult Cohort',
+    default: positioning.siteTitle,
+    template: `%s · ${positioning.cohortMark}`,
   },
-  description:
-    'Summer Pilot 2026 — deployable software against Caribbean and SIDS infrastructure problems, built in public.',
+  description: positioning.subhead,
+  openGraph: {
+    title: positioning.siteTitle,
+    description: positioning.headline,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

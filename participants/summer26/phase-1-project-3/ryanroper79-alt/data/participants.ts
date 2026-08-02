@@ -12,8 +12,8 @@ export type Participant = {
   photoPath?: string;
   location?: string;
   skills?: string[];
-  featured?: boolean;
   privacy?: 'public' | 'private';
+  availableForEngagement?: boolean;
   links: { github?: string; site?: string; linkedin?: string; blog?: string };
 };
 
@@ -40,8 +40,8 @@ function normalizeParticipant(
     photoPath: entry.photoPath,
     location: entry.location,
     skills: entry.skills,
-    featured: entry.featured,
     privacy: entry.privacy ?? 'public',
+    availableForEngagement: entry.availableForEngagement === true,
     links: {
       ...entry.links,
       blog: entry.links.blog ?? github?.blog ?? undefined,

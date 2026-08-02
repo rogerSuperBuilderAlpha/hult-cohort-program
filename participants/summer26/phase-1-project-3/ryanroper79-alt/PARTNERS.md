@@ -1,75 +1,45 @@
-# Partner guide — Hult Cohort · Summer Pilot 2026
+# Partner guide — Hult Cohort · Climate Builder Network
 
-**Maintainer:** Ryan R. Roper · **Platform operator:** CEAL Green Energy Limited · **Commercial work:** [cealgreen.com](https://www.cealgreen.com)
+Summer Pilot 2026 · Project 3 public showcase
 
-## What this cohort is
+## What this platform is
 
-The Hult Cohort Developer Program Summer Pilot 2026 is a six-week, production-first sequence. Participants ship real platforms the cohort depends on: a **project-management system** (Week 1), an **internal communications workspace** (Week 2), and this **public showcase** (Week 3). Every submission is a merged or review-ready pull request with a live HTTPS deploy. Peers file written GitHub reviews, then cast votes. Winners operate infrastructure for the rest of the pilot; everyone else contributes pull requests to the winning stacks.
+The **Hult Cohort - Climate Builder Network** indexes deployable software shipped in public against climate and resilience problems for the **Caribbean and global Small Island Developing States**. Participants publish profiles and artifact evidence; partners inspect `/work` before requesting introductions.
 
-This showcase site is **cohort-first**. It indexes shipped work, publishes builder profiles, and describes how partners engage with the cohort. Commercial Caribbean infrastructure project work lives on [cealgreen.com](https://www.cealgreen.com), not here.
+This is a **cohort introduction channel**, not a marketplace. We do not rank people, publish individual scores, or list pricing.
 
 ## Six-week structure
-
-- **Weeks 1–3 (Phase 1):** Build PM, comms, and vibe marketing platforms in one-week cycles
-- **Review week:** Written technical reviews + `Vote: up` on peer submissions
-- **Weeks 4–6:** Contribute to winning stacks; unification and operator duties for platform winners
-
-## What gets shipped each week
 
 | Week | Platform | Output |
 |------|----------|--------|
 | 1 | PM | Deployable task/project workspace for the cohort |
-| 2 | Comms | Internal messaging workspace integrated with PM identity |
-| 3 | Showcase | Public marketing surface for cohort builders and partners |
+| 2 | Comms | Internal messaging workspace |
+| 3 | Showcase | Public climate software index (this site) |
 
 Inspect the live ledger at [/work](https://cealgreen-projects.vercel.app/work).
 
 ## How to engage
 
-### 1. Hire a builder
-
-Participants are available for contract or full-time work. Browse profiles at [/p/{handle}](https://cealgreen-projects.vercel.app/work) and name the builder you want to talk to.
-
-### 2. Sponsor a build
-
-Fund a one-week sprint against a named Caribbean or Small Island Developing State infrastructure problem. Output is an MIT-licensed deploy with a public PR and evidence on this site.
-
-### 3. Co-develop a pilot
-
-Bring a live infrastructure problem — grid integration, comms for field teams, public evidence surfaces. The cohort ships a working prototype inside one cycle.
-
-## Caribbean infrastructure advisors
-
-CEAL Green connects cohort software work to a regional advisor network focused on **resilient infrastructure** and **energy sovereignty** for the Caribbean:
-
-- [Mellissa Lezama](https://www.linkedin.com/in/mellissa-lezama/)
-- [Leslie Lee Fook](https://www.linkedin.com/in/leslieleefook/)
-- [Vaughn Lezama](https://www.linkedin.com/in/vaughn-lezama/)
-
-Commercial project delivery: [cealgreen.com](https://www.cealgreen.com).
-
-## Response commitment
-
-We reply to partner inquiries within **2 business days**. Use the engagement form on [/partners](https://cealgreen-projects.vercel.app/partners) or open a GitHub issue via [/join](https://cealgreen-projects.vercel.app/join).
-
-## End-of-pilot showcase RSVP
-
-Hiring partners: register at [/rsvp](https://cealgreen-projects.vercel.app/rsvp) for the Week 6 hiring showcase (virtual + Boston campus, August 2026).
+1. **Inspect artifacts** on `/work` — Lighthouse, payload weight, and mobile TTI scorecards apply to **deploy URLs**, not people.
+2. **Request introduction** on [/partners](https://cealgreen-projects.vercel.app/partners) — name a participant handle if you have one.
+3. **RSVP** for the end-of-pilot showcase at [/rsvp](https://cealgreen-projects.vercel.app/rsvp).
 
 ## Privacy
 
-Every enrolled participant has a profile page. Opt-outs appear as private placeholders (example: [/p/studmuffin01](https://cealgreen-projects.vercel.app/p/studmuffin01)) so the roster stays complete without exposing personal bios.
+Every enrolled participant has a profile page. Opt-outs appear as private placeholders (example: [/p/studmuffin01](https://cealgreen-projects.vercel.app/p/studmuffin01)).
+
+Participants set `availableForEngagement: true` themselves via the [/join](https://cealgreen-projects.vercel.app/join) PR flow when open to introductions.
+
+## Response commitment
+
+We reply within **2 business days** when notification services are configured on the deployment.
 
 ## Licensing
 
-Cohort submission code is MIT-licensed unless a participant specifies otherwise in their build repo. This showcase platform is maintained by CEAL Green Energy Limited for the duration of the pilot.
+Cohort submission code is MIT-licensed unless a participant specifies otherwise.
 
 ## Contact
 
-- **Showcase / cohort:** [GitHub @ryanroper79-alt](https://github.com/ryanroper79-alt)
 - **Production URL:** [cealgreen-projects.vercel.app](https://cealgreen-projects.vercel.app)
-- **Commercial (CEAL Green):** [cealgreen.com](https://www.cealgreen.com)
-
----
-
-Nothing on this site constitutes an offer of securities or investment advice.
+- **Program repo:** [rogerSuperBuilderAlpha/hult-cohort-program](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program)
+- **Vote helper:** [/vote](https://cealgreen-projects.vercel.app/vote)

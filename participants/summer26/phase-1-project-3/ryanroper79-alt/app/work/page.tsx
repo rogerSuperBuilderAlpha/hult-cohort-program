@@ -5,7 +5,7 @@ import { WorkLedger } from '@/components/WorkLedger';
 
 export const metadata: Metadata = {
   title: 'Shipped work',
-  description: 'Cross-cohort index of deployed artifacts — weeks 1–3, all builders, honest evidence links.',
+  description: 'Cross-cohort climate software index — weeks 1–3, artifact scorecards, honest evidence links.',
 };
 
 export default function WorkPage() {

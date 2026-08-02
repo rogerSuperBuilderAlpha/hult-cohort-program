@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import { positioning } from '@/data/cohort';
+import { positioning, proofInventory } from '@/data/cohort';
 import { ThemeToggle } from '@/components/ThemeProvider';
 
 const nav = [
   { href: '/', label: 'Home' },
   { href: '/work', label: 'Work' },
-  { href: '/builders', label: 'Builders' },
   { href: '/partners', label: 'Partners' },
   { href: '/contribute', label: 'Contribute' },
 ] as const;
@@ -52,31 +51,32 @@ export function StickyJoinBar() {
 }
 
 export function SiteFooter() {
-  const { maintainer, cealGreenUrl } = positioning;
+  const { maintainer, programRepo } = positioning;
 
   return (
     <footer className="mt-20 border-t border-ceal-line bg-ceal-panel pb-24">
       <div className="mx-auto max-w-5xl px-6 py-12">
         <p className="text-sm text-ceal-muted">
-          Built and maintained by{' '}
+          {positioning.cohortMark} — Summer Pilot 2026 · evidence indexed in public.
+        </p>
+        <p className="mt-2 text-sm text-ceal-muted">
+          Program repo:{' '}
           <a
-            href={cealGreenUrl}
-            className="font-medium text-ceal-leaf underline focus-ring rounded"
+            href={programRepo}
+            className="text-ceal-leaf underline focus-ring rounded"
             target="_blank"
             rel="noopener noreferrer"
           >
-            CEAL Green Energy Limited · cealgreen.com
-          </a>
-        </p>
-        <p className="mt-2 text-sm text-ceal-muted">
-          Maintainer: {maintainer.name} ·{' '}
+            hult-cohort-program
+          </a>{' '}
+          · Operator GitHub{' '}
           <a
             href={maintainer.githubUrl}
             className="text-ceal-leaf underline focus-ring rounded"
             target="_blank"
             rel="noopener noreferrer"
           >
-            GitHub @{maintainer.githubHandle}
+            @{maintainer.githubHandle}
           </a>
         </p>
         <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm">
@@ -91,11 +91,6 @@ export function SiteFooter() {
             </Link>
           </li>
           <li>
-            <Link href="/changelog" className="text-ceal-leaf underline focus-ring rounded">
-              Changelog
-            </Link>
-          </li>
-          <li>
             <Link href="/partners/readme" className="text-ceal-leaf underline focus-ring rounded">
               Partner README
             </Link>
@@ -107,13 +102,18 @@ export function SiteFooter() {
           </li>
           <li>
             <Link href={positioning.votePath} className="text-ceal-leaf underline focus-ring rounded">
-              Vote for this showcase
+              Vote
             </Link>
           </li>
           <li>
             <Link href={positioning.joinPath} className="text-ceal-leaf underline focus-ring rounded">
-              Join the roster
+              Join roster
             </Link>
+          </li>
+          <li>
+            <a href={proofInventory.productionUrl} className="text-ceal-leaf underline focus-ring rounded">
+              {proofInventory.productionUrl.replace('https://', '')}
+            </a>
           </li>
         </ul>
       </div>

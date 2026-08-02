@@ -1,14 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { featuredBuilder } from '@/data/featured-builder';
 import { participants, type Participant } from '@/data/participants';
 
 function sortedParticipants() {
-  return [...participants].sort((a, b) => {
-    if (a.featured) return -1;
-    if (b.featured) return 1;
-    return a.displayName.localeCompare(b.displayName);
-  });
+  return [...participants].sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
 export function PeopleStrip() {
@@ -19,15 +14,22 @@ export function PeopleStrip() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 id="people-heading" className="font-display text-3xl text-ceal-mangrove">
-            Meet the cohort
+            Cohort participants
           </h2>
           <p className="mt-3 max-w-prose text-ceal-muted">
-            Practitioners and first-time shippers on the same roster — led by Ryan R. Roper for
-            Caribbean infrastructure and digital/AI delivery.
+            Every enrolled handle gets a profile page. Opt-outs show a private placeholder. Set{' '}
+            <code className="rounded bg-ceal-panel px-1 py-0.5 font-mono text-xs">
+              availableForEngagement
+            </code>{' '}
+            yourself via the{' '}
+            <Link href="/join" className="text-ceal-leaf underline focus-ring rounded">
+              /join
+            </Link>{' '}
+            PR flow — never preset by maintainers.
           </p>
         </div>
-        <Link href="/builders" className="text-sm font-medium text-ceal-leaf underline focus-ring rounded">
-          Full directory →
+        <Link href="/work" className="text-sm font-medium text-ceal-leaf underline focus-ring rounded">
+          Work ledger →
         </Link>
       </div>
 
@@ -43,19 +45,19 @@ export function PeopleStrip() {
 }
 
 function ParticipantCard({ participant: p }: { participant: Participant }) {
-  const photo = p.photoPath ?? (p.featured ? featuredBuilder.photoPath : undefined);
+  const photo = p.photoPath ?? p.avatarUrl;
 
   return (
     <Link
       href={`/p/${p.handle}`}
       className={`block h-full rounded-lg border p-5 transition focus-ring hover:border-ceal-leaf ${
-        p.featured
-          ? 'border-ceal-sun bg-gradient-to-br from-ceal-panel to-ceal-sunGlow/20'
+        p.privacy === 'private'
+          ? 'border-dashed border-ceal-line bg-ceal-panel'
           : 'border-ceal-line bg-ceal-panel'
       }`}
     >
       <div className="flex items-start gap-3">
-        {photo ? (
+        {photo && p.privacy !== 'private' ? (
           <Image
             src={photo}
             alt=""
@@ -66,23 +68,16 @@ function ParticipantCard({ participant: p }: { participant: Participant }) {
         ) : null}
         <div>
           <p className="font-mono text-xs uppercase tracking-wider text-ceal-leaf">
-            {p.featured ? 'Featured builder' : p.privacy === 'private' ? 'Private profile' : 'Cohort builder'}
+            {p.privacy === 'private' ? 'Private profile' : 'Participant'}
           </p>
           <p className="mt-1 font-display text-xl text-ceal-mangrove">{p.displayName}</p>
-          {p.location ? <p className="text-xs text-ceal-muted">{p.location}</p> : null}
         </div>
       </div>
       <p className="mt-3 text-sm text-ceal-muted line-clamp-3">
         {p.privacy === 'private' ? 'Opted out of public bio — listed for roster completeness.' : p.headline}
       </p>
-      {p.skills && p.skills.length > 0 ? (
-        <ul className="mt-3 flex flex-wrap gap-1">
-          {p.skills.slice(0, 3).map((s) => (
-            <li key={s} className="rounded bg-ceal-white/70 px-1.5 py-0.5 font-mono text-[10px] text-ceal-muted">
-              {s}
-            </li>
-          ))}
-        </ul>
+      {p.availableForEngagement ? (
+        <p className="mt-2 font-mono text-[10px] uppercase text-ceal-leaf">Open to engagement</p>
       ) : null}
     </Link>
   );

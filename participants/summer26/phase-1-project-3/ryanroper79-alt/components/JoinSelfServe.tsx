@@ -15,8 +15,8 @@ export function JoinSelfServe() {
   return (
     <section className="mt-12 rounded-lg border border-ceal-line bg-ceal-panel p-6">
       <h2 className="font-display text-2xl text-ceal-mangrove">Two-minute self-serve PR</h2>
-      <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm text-ceal-muted">
-        <li>Copy the snippet below into `data/participants.ts` inside the `roster` array.</li>
+        <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm text-ceal-muted">
+          <li>Copy the snippet below into `data/roster.ts` inside the `roster` array.</li>
         <li>
           <a
             href={participantsEditUrl}
@@ -24,7 +24,7 @@ export function JoinSelfServe() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Edit participants.ts on GitHub →
+            Edit roster.ts on GitHub →
           </a>
         </li>
         <li>Open a PR — CI must pass. Your profile publishes on merge + redeploy.</li>

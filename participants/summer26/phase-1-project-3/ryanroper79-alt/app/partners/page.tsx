@@ -1,17 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteHeader, SiteFooter, StickyJoinBar } from '@/components/SiteChrome';
-import { FeaturedBuilderSpotlight } from '@/components/FeaturedBuilderSpotlight';
-import { ExpertsStrip } from '@/components/ExpertsStrip';
 import { PartnerInquiryForm } from '@/components/PartnerInquiryForm';
-import { CalendlyEmbed } from '@/components/CalendlyEmbed';
-import { SolutionsCatalog } from '@/components/SolutionsCatalog';
 import { positioning, proofInventory } from '@/data/cohort';
 
 export const metadata: Metadata = {
   title: 'Partners',
   description:
-    'Partner with Ryan R. Roper and the Hult Summer Pilot 2026 cohort — digital/AI solutions for Caribbean resilient infrastructure and renewable energy.',
+    'Engage the Hult Climate Builder Network — cohort participants shipping climate software for Caribbean and SIDS communities.',
 };
 
 export default function PartnersPage() {
@@ -19,99 +15,57 @@ export default function PartnersPage() {
     <>
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-6 py-16">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-ceal-leaf">For partners & investors</p>
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-ceal-leaf">Cohort partners</p>
         <h1 className="mt-3 font-display text-4xl text-ceal-mangrove md:text-5xl">
-          Partner with the Hult Summer Cohort
+          Partner with the Climate Builder Network
         </h1>
         <p className="mt-4 max-w-prose text-xl text-ceal-muted">
-          Builders here ship in public — with deploy evidence, live verification, and peer-reviewed
-          software. Partners plug into pilots, sponsorship, and digital/AI delivery for Caribbean
-          resilient infrastructure and energy transition, led by{' '}
-          <Link href="/p/ryanroper79-alt" className="text-ceal-leaf underline focus-ring rounded">
-            Ryan R. Roper
-          </Link>
-          .
+          Participants ship deployable software in public against island climate and resilience
+          problems. Inspect evidence on{' '}
+          <Link href="/work" className="text-ceal-leaf underline focus-ring rounded">
+            /work
+          </Link>{' '}
+          before you reach out. This is a cohort introduction channel — not a marketplace.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
-            href="/partners/solutions"
+            href="/work"
             className="inline-block rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow"
           >
-            Browse solutions →
+            Work ledger →
           </Link>
           <Link
-            href="/builders"
+            href="/rsvp"
             className="inline-block rounded-md border border-ceal-mangrove px-5 py-3 font-semibold text-ceal-mangrove focus-ring hover:bg-ceal-panel"
           >
-            Meet the builders →
+            Showcase RSVP →
           </Link>
           <Link
-            href="/work"
+            href="/partners/readme"
             className="self-center font-medium text-ceal-leaf underline focus-ring rounded"
           >
-            Inspect shipped work →
+            Partner README →
           </Link>
         </div>
 
-        <div className="mt-16">
-          <FeaturedBuilderSpotlight />
-        </div>
-
-        <div className="mt-16">
-          <SolutionsCatalog limit={4} showViewAll />
-        </div>
-
-        <section className="mt-16">
-          <ExpertsStrip />
-        </section>
-
         <section className="mt-16 rounded-lg border border-ceal-line bg-ceal-white p-6 md:p-8">
-          <h2 className="font-display text-2xl text-ceal-mangrove">Express interest</h2>
+          <h2 className="font-display text-2xl text-ceal-mangrove">Request introduction</h2>
+          <p className="mt-2 text-sm text-ceal-muted">
+            Name the participant handle you want to meet. Responses within two business days when
+            notification services are configured.
+          </p>
           <PartnerInquiryForm />
         </section>
 
         <section className="mt-12 rounded-lg border border-ceal-line bg-ceal-panel p-6">
-          <h2 className="font-display text-2xl text-ceal-mangrove">20-minute briefing</h2>
-          <p className="mt-2 text-sm text-ceal-muted">
-            Book a briefing with Ryan and the cohort maintainer team.
-          </p>
-          <CalendlyEmbed />
-          <p className="mt-4 text-sm">
-            <Link href="/partners/readme" className="text-ceal-leaf underline focus-ring rounded">
-              Capability statement (printable README) →
-            </Link>
-          </p>
-        </section>
-
-        <section className="mt-12 rounded-lg border border-ceal-line bg-ceal-panel p-6">
-          <h2 className="font-display text-2xl text-ceal-mangrove">End-of-pilot showcase</h2>
-          <p className="mt-2 text-sm text-ceal-muted">
-            Hiring partners: RSVP for the Week 6 hiring showcase to meet builders and inspect live deploys.
-          </p>
-          <Link
-            href="/rsvp"
-            className="mt-4 inline-block rounded-md border border-ceal-mangrove px-5 py-3 text-sm font-semibold text-ceal-mangrove focus-ring hover:bg-ceal-white"
-          >
-            RSVP for showcase →
-          </Link>
-        </section>
-
-        <section className="mt-12 rounded-lg border border-ceal-line bg-ceal-panel p-6">
-          <h2 className="font-display text-2xl text-ceal-mangrove">Evidence & response</h2>
-          <p className="mt-3 text-ceal-muted">
-            We reply within <strong>2 business days</strong>. Inspect the three-week ledger and live
-            verification before you engage.
-          </p>
+          <h2 className="font-display text-2xl text-ceal-mangrove">Evidence first</h2>
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
             <Link href="/work" className="text-ceal-leaf underline focus-ring rounded">
-              /work — cross-cohort ledger →
+              /work — artifact ledger →
             </Link>
             <Link href="/status" className="text-ceal-leaf underline focus-ring rounded">
               /status — CI & verify →
-            </Link>
-            <Link href="/partners/readme" className="text-ceal-leaf underline focus-ring rounded">
-              Partner README →
             </Link>
             <a
               href={proofInventory.productionUrl}
@@ -123,25 +77,6 @@ export default function PartnersPage() {
             </a>
           </div>
         </section>
-
-        <p className="mt-12 text-sm text-ceal-muted">
-          CEAL Green Energy Limited maintains this platform. Commercial resilient infrastructure
-          project work is at{' '}
-          <a
-            href={positioning.cealGreenUrl}
-            className="text-ceal-leaf underline focus-ring rounded"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            cealgreen.com
-          </a>
-          .
-        </p>
-
-        <p className="mt-6 text-xs text-ceal-muted">
-          Nothing on this site constitutes an offer of securities or investment advice. Partner
-          enquiries concern digital/AI capability and cohort engagement — not capital solicitation.
-        </p>
       </main>
       <SiteFooter />
       <StickyJoinBar />

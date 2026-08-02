@@ -1,30 +1,29 @@
 import { positioning } from '@/data/cohort';
 
 export async function GET() {
-  const body = `# Hult Cohort · Summer Pilot 2026 — Showcase Platform
+  const body = `# ${positioning.siteTitle}
 
-> Cohort-first, evidence-first marketing surface for the Hult Cohort Developer Program.
+> Digital participants solving climate problems for the Caribbean and global Small Island Developing States.
 
 ## Production URL
 ${positioning.productionDomain}
 
 ## What this site is
-- Public showcase for cohort builders and shipped work (Weeks 1–3)
-- Cross-cohort ledger at /work with live verification at /api/verify
-- Builder profiles at /p/{handle}
-- Partner engagement at /partners (not capital solicitation)
-- Commercial Caribbean infrastructure work: ${positioning.cealGreenUrl}
+- Public climate software index for Summer Pilot 2026 (Weeks 1–3)
+- Cross-cohort ledger at /work with artifact quality scorecards (deploy URLs only)
+- Participant profiles at /p/{handle}
+- Cohort introduction requests at /partners (not a marketplace)
+- Program repo: ${positioning.programRepo}
 
 ## Key routes
-- /work — three-week build ledger
-- /join — roster contribution
-- /contribute — governance and open tickets
-- /partners/readme — partner-facing README
-- /vote — peer review vote link for Week 3 competition
-- /status — CI and quality surface
+- /work — build ledger + artifact checks
+- /join — roster self-serve PR
+- /partners/readme — partner README
+- /vote — peer review vote helper
+- /status — CI and verification
 
-## Maintainer
-${positioning.maintainer.name} (@${positioning.maintainer.githubHandle})
+## Operator
+@${positioning.maintainer.githubHandle}
 `;
 
   return new Response(body, {

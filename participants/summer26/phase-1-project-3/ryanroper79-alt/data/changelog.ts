@@ -22,9 +22,9 @@ export const changelog: ChangelogEntry[] = [
   },
   {
     date: '2026-08-02',
-    title: 'Submission complete — RSVP, privacy, reviewer docs',
+    title: 'Scope freeze — Climate Builder Network',
     summary:
-      'Showcase RSVP, private profile opt-out, README/REVIEWER/SUBMISSION_PR, vote template aligned to peer review rubric.',
-    href: '/vote',
+      'Rebrand to Hult Cohort - Climate Builder Network; artifact scorecards on /work; engagement opt-in flag; removed marketplace/commercial surfaces.',
+    href: '/work',
   },
 ];

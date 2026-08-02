@@ -1,54 +1,17 @@
 import { positioning } from '@/data/cohort';
-import {
-  interestTypes,
-  problemDomains,
-  partnerSolutions,
-  type InterestType,
-  type ProblemDomain,
-} from '@/data/solutions';
-import { participants } from '@/data/participants';
 
 export type PartnerInquiry = {
   name: string;
   email: string;
   organisation: string;
-  website?: string;
-  linkedin?: string;
-  interestType: InterestType;
-  builderHandle?: string;
-  problemDomain: ProblemDomain;
-  solutionSlug?: string;
+  participantHandle?: string;
   message: string;
 };
 
-const INTEREST_LABELS = Object.fromEntries(interestTypes.map((t) => [t.value, t.label])) as Record<
-  InterestType,
-  string
->;
-const DOMAIN_LABELS = Object.fromEntries(problemDomains.map((d) => [d.value, d.label])) as Record<
-  ProblemDomain,
-  string
->;
-
-function optionalUrl(value: unknown, label: string): string | undefined {
-  const trimmed = String(value ?? '').trim();
-  if (!trimmed) return undefined;
-  try {
-    const url = new URL(trimmed);
-    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-      throw new Error(`${label} must use http or https.`);
-    }
-    return url.toString();
-  } catch {
-    throw new Error(`${label} must be a valid URL.`);
-  }
-}
-
 function optionalEmail(value: unknown): string | undefined {
   const trimmed = String(value ?? '').trim();
-  if (!trimmed) return undefined;
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-    throw new Error('Email must be valid.');
+    throw new Error('Valid email is required.');
   }
   return trimmed;
 }
@@ -68,63 +31,19 @@ export function validatePartnerInquiry(body: Record<string, unknown>): PartnerIn
     throw new Error('Message is required — 20–2000 characters.');
   }
 
-  const interestType = String(body.interestType ?? 'general') as InterestType;
-  if (!interestTypes.some((t) => t.value === interestType)) {
-    throw new Error('Select an interest type.');
-  }
+  const participantHandle = String(body.participantHandle ?? '').trim().replace(/^@/, '') || undefined;
 
-  const problemDomain = String(body.problemDomain ?? 'other') as ProblemDomain;
-  if (!problemDomains.some((d) => d.value === problemDomain)) {
-    throw new Error('Select a problem domain.');
-  }
-
-  const builderHandle = String(body.builderHandle ?? '').trim() || undefined;
-  if (builderHandle && !participants.some((p) => p.handle === builderHandle)) {
-    throw new Error('Unknown builder selected.');
-  }
-
-  const solutionSlug = String(body.solutionSlug ?? '').trim() || undefined;
-  if (solutionSlug && !partnerSolutions.some((s) => s.slug === solutionSlug)) {
-    throw new Error('Unknown solution selected.');
-  }
-
-  return {
-    name,
-    email,
-    organisation,
-    website: optionalUrl(body.website, 'Website'),
-    linkedin: optionalUrl(body.linkedin, 'LinkedIn'),
-    interestType,
-    builderHandle,
-    problemDomain,
-    solutionSlug,
-    message,
-  };
-}
-
-function labelBuilder(handle?: string) {
-  if (!handle) return '_not specified_';
-  return participants.find((p) => p.handle === handle)?.displayName ?? `@${handle}`;
-}
-
-function labelSolution(slug?: string) {
-  if (!slug) return '_not specified_';
-  return partnerSolutions.find((s) => s.slug === slug)?.title ?? slug;
+  return { name, email, organisation, participantHandle, message };
 }
 
 function issueBody(input: PartnerInquiry, notifyEmail: string) {
   return [
-    '## Partner enquiry — Hult Summer Pilot 2026',
+    '## Partner introduction — Hult Climate Builder Network',
     '',
     `**Organization:** ${input.organisation}`,
     `**Contact:** ${input.name}`,
     `**Email:** ${input.email}`,
-    `**Website:** ${input.website ?? '_not provided_'}`,
-    `**LinkedIn:** ${input.linkedin ?? '_not provided_'}`,
-    `**Interest type:** ${INTEREST_LABELS[input.interestType]}`,
-    `**Builder:** ${labelBuilder(input.builderHandle)}`,
-    `**Problem domain:** ${DOMAIN_LABELS[input.problemDomain]}`,
-    `**Solution:** ${labelSolution(input.solutionSlug)}`,
+    `**Participant:** ${input.participantHandle ? `@${input.participantHandle}` : '_not specified_'}`,
     '',
     '### Message',
     input.message,
@@ -142,10 +61,10 @@ export type PartnerSubmitResult =
 
 export async function submitPartnerInquiry(input: PartnerInquiry): Promise<PartnerSubmitResult> {
   const resendKey = process.env.RESEND_API_KEY?.trim();
-  const notifyEmail = process.env.PARTNER_NOTIFY_EMAIL?.trim() ?? 'ryan@cealgreen.com';
+  const notifyEmail = process.env.PARTNER_NOTIFY_EMAIL?.trim() ?? process.env.PLACEMENT_LEAD_EMAIL?.trim();
   const fromEmail = process.env.RESEND_FROM_EMAIL?.trim() ?? 'onboarding@resend.dev';
 
-  if (resendKey) {
+  if (resendKey && notifyEmail) {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -156,7 +75,7 @@ export async function submitPartnerInquiry(input: PartnerInquiry): Promise<Partn
         from: fromEmail,
         to: [notifyEmail],
         replyTo: input.email,
-        subject: `[Partner enquiry] ${INTEREST_LABELS[input.interestType]} — ${input.organisation}`,
+        subject: `[Cohort intro] ${input.organisation}`,
         text: issueBody(input, notifyEmail),
       }),
     });
@@ -165,7 +84,7 @@ export async function submitPartnerInquiry(input: PartnerInquiry): Promise<Partn
 
   const token = process.env.GITHUB_TOKEN?.trim();
   const repo = process.env.PARTNER_GITHUB_REPO?.trim() ?? 'ryanroper79-alt/hult-cohort-program';
-  const title = `[Partner enquiry] ${INTEREST_LABELS[input.interestType]} — ${input.organisation}`;
+  const title = `[Cohort intro] ${input.organisation}`;
 
   if (token) {
     const res = await fetch(`https://api.github.com/repos/${repo}/issues`, {
@@ -177,7 +96,7 @@ export async function submitPartnerInquiry(input: PartnerInquiry): Promise<Partn
       },
       body: JSON.stringify({
         title,
-        body: issueBody(input, notifyEmail),
+        body: issueBody(input, notifyEmail ?? '(unset)'),
         labels: ['partner-inquiry'],
       }),
     });
@@ -187,7 +106,10 @@ export async function submitPartnerInquiry(input: PartnerInquiry): Promise<Partn
     }
   }
 
-  const fallback =
-    'https://github.com/ryanroper79-alt/hult-cohort-program/issues/new?labels=partner-inquiry&title=%5BPartner%20enquiry%5D';
-  return { mode: 'github-fallback', issueUrl: fallback };
+  console.info('[partner:intro]', JSON.stringify({ ...input, receivedAt: new Date().toISOString() }));
+  return {
+    mode: 'github-fallback',
+    issueUrl:
+      'https://github.com/ryanroper79-alt/hult-cohort-program/issues/new?labels=partner-inquiry',
+  };
 }

@@ -10,12 +10,17 @@ const proofLinks = [
   {
     label: 'Submission PR #186',
     href: proofInventory.submissionPrUrl,
-    meta: 'Week 3 · open for review',
+    meta: 'Week 3 · merged',
   },
   {
     label: 'Full work index',
     href: '/work',
-    meta: 'Weeks 1–3 · all builders',
+    meta: 'Weeks 1–3 · all participants',
+  },
+  {
+    label: 'Sync PR #201',
+    href: proofInventory.syncPrUrl,
+    meta: 'Scope freeze · ready for admin merge',
   },
   {
     label: 'Vote for this showcase',

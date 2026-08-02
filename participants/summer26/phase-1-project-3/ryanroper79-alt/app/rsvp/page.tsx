@@ -22,7 +22,7 @@ export default function RsvpPage() {
         <section className="mt-10 rounded-lg border border-ceal-line bg-ceal-panel p-6 md:p-8">
           <h2 className="font-display text-xl text-ceal-mangrove">Register your interest</h2>
           <p className="mt-2 text-sm text-ceal-muted">
-            Partners and hiring managers: RSVP to receive logistics and a builder roster preview before the
+            Partners and hiring managers: RSVP to receive logistics and a participant roster preview before the
             event.
           </p>
           <RsvpForm />
@@ -34,8 +34,8 @@ export default function RsvpPage() {
             Partner enquiry →
           </Link>{' '}
           ·{' '}
-          <Link href="/builders" className="text-ceal-leaf underline focus-ring rounded">
-            Meet builders →
+          <Link href="/work" className="text-ceal-leaf underline focus-ring rounded">
+            Browse work ledger →
           </Link>
         </p>
       </main>

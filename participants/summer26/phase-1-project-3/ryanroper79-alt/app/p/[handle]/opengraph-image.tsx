@@ -16,7 +16,7 @@ export default async function OgImage({ params }: Props) {
 
   const name = participant?.displayName ?? `@${handle}`;
   const headline = participant?.headline ?? 'Hult Cohort · Summer Pilot 2026';
-  const badge = participant?.status === 'stub' ? 'Cohort builder' : 'Builder profile';
+  const badge = participant?.status === 'stub' ? 'Cohort participant' : 'Participant profile';
 
   return new ImageResponse(
     (

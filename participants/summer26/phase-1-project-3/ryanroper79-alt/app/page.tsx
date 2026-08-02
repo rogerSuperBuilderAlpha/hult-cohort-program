@@ -20,6 +20,11 @@ export default function HomePage() {
           </h1>
           <p className="mt-6 text-xl leading-relaxed text-ceal-muted">{positioning.subhead}</p>
           <p className="mt-4 text-sm text-ceal-muted">{positioning.sourceNote}</p>
+          <div className="mt-8 space-y-4 text-base leading-relaxed text-ceal-muted">
+            {positioning.homeNarrative.split('\n\n').map((para) => (
+              <p key={para.slice(0, 40)}>{para}</p>
+            ))}
+          </div>
         </section>
 
         <div className="mt-10 flex flex-wrap gap-4">

@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+[data-vibe="cyberpunk"] {
+  --bg: #07080f;
+  --bg-elevated: rgba(15, 18, 32, 0.72);
+  --ink: #e8ecff;
+  --ink-muted: #94a3b8;
+  --accent: #6366f1;
+  --accent-2: #10b981;
+  --glow: rgba(99, 102, 241, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --cta: #6366f1;
+}
+
+[data-vibe="brutalist"] {
+  --bg: #ffffff;
+  --bg-elevated: #f5f5f5;
+  --ink: #000000;
+  --ink-muted: #444444;
+  --accent: #000000;
+  --accent-2: #ff0000;
+  --glow: rgba(0, 0, 0, 0.15);
+  --glass-border: #000000;
+  --cta: #000000;
+}
+
+[data-vibe="y2k"] {
+  --bg: #0a0f0a;
+  --bg-elevated: rgba(0, 20, 0, 0.85);
+  --ink: #33ff66;
+  --ink-muted: #1a9933;
+  --accent: #33ff66;
+  --accent-2: #ffff00;
+  --glow: rgba(51, 255, 102, 0.35);
+  --glass-border: rgba(51, 255, 102, 0.25);
+  --cta: #33ff66;
+}
+
+[data-vibe="executive"] {
+  --bg: #0c1222;
+  --bg-elevated: rgba(18, 28, 48, 0.85);
+  --ink: #f0f4ff;
+  --ink-muted: #9aa8c7;
+  --accent: #c9a227;
+  --accent-2: #3b82f6;
+  --glow: rgba(201, 162, 39, 0.35);
+  --glass-border: rgba(201, 162, 39, 0.2);
+  --cta: #c9a227;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+.glass {
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+}
+
+.pulse-wordmark {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pulse-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulse-icon::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 2px solid var(--accent);
+  animation: pulse-ring 2s ease infinite;
+  opacity: 0.6;
+}
+
+.hero-grid {
+  background-image:
+    radial-gradient(circle at 20% 20%, var(--glow), transparent 40%),
+    radial-gradient(circle at 80% 60%, rgba(16, 185, 129, 0.15), transparent 35%);
+}
+
+.cursor-glow {
+  pointer-events: none;
+  position: fixed;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow), transparent 70%);
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  opacity: 0.35;
+  transition: opacity 0.3s;
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.2;
+  }
+}
+
+.metric-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  transition: transform 300ms;
+}
+
+.metric-card:hover {
+  transform: scale(1.02);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  transition: all 150ms;
+  background: linear-gradient(135deg, var(--cta), var(--accent-2));
+  color: var(--bg);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  transition: colors 150ms;
+  border-color: var(--glass-border);
+  color: var(--ink);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 45s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.arch-node {
+  border-radius: 0.5rem;
+  border-width: 1px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono), monospace;
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.arch-edge {
+  stroke: var(--accent-2);
+  stroke-width: 2;
+  fill: none;
+  opacity: 0.7;
+}

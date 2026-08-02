@@ -9,15 +9,17 @@ const routes = [
   '/work',
   '/join',
   '/partners',
+  '/partners/readme',
+  '/vote',
   '/p/ryanroper79-alt',
   '/p/raven-dubgub',
   '/p/gge513',
+  '/p/CodingWCal',
 ];
 
 const externalLinks = [
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186',
-  'https://www.linkedin.com/in/ryanroper1/',
-  'https://peteranthonygales.craft.me/s3ywHY5a1ppmyU',
+  'https://www.cealgreen.com',
   'https://github.com/ryanroper79-alt',
 ];
 
@@ -37,7 +39,6 @@ async function fetchStatus(url: string, method: 'GET' | 'HEAD' = 'GET') {
 async function main() {
   console.log(`Smoke test base URL: ${baseUrl}\n`);
 
-  // HTTPS + routes
   for (const route of routes) {
     const url = `${baseUrl}${route}`;
     try {
@@ -57,7 +58,6 @@ async function main() {
     }
   }
 
-  // OG image route
   try {
     const res = await fetchStatus(`${baseUrl}/p/ryanroper79-alt/opengraph-image`);
     const contentType = res.headers.get('content-type') ?? '';
@@ -74,33 +74,28 @@ async function main() {
     });
   }
 
-  // Homepage markers for standalone app (not template site)
   try {
     const res = await fetchStatus(`${baseUrl}/`);
     const html = await res.text();
-    const hasStandalone =
-      html.includes('Energy sovereignty requires digital sovereignty') ||
-      html.includes('Request a feasibility report') ||
-      html.includes('Build curve');
+    const cohortFirst =
+      html.includes('CARICOM committed to 47%') &&
+      html.includes('Hult Cohort · Summer Pilot 2026') &&
+      !html.includes('Request a feasibility report') &&
+      !html.includes('Pending');
     const hasOldTemplate = html.includes('Build the software your cohort actually runs on');
     checks.push({
-      name: 'Standalone app homepage content',
-      ok: hasStandalone && !hasOldTemplate,
-      detail: hasOldTemplate
-        ? 'Still serving template site — repoint Vercel root or redeploy standalone app'
-        : hasStandalone
-          ? 'Standalone pitch detected'
-          : 'Homepage content unrecognized',
+      name: 'Cohort-first homepage content',
+      ok: cohortFirst && !hasOldTemplate,
+      detail: cohortFirst ? 'Cohort-first hero detected' : 'Homepage content unrecognized',
     });
   } catch (err) {
     checks.push({
-      name: 'Standalone app homepage content',
+      name: 'Cohort-first homepage content',
       ok: false,
       detail: err instanceof Error ? err.message : String(err),
     });
   }
 
-  // External links — GET (some sites reject HEAD, e.g. LinkedIn)
   for (const url of externalLinks) {
     try {
       const res = await fetchStatus(url, 'GET');
@@ -118,7 +113,6 @@ async function main() {
     }
   }
 
-  // Print results
   let failed = 0;
   for (const c of checks) {
     const mark = c.ok ? '✓' : '✗';

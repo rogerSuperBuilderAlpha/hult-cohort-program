@@ -1,9 +1,10 @@
-import { participants, type Participant } from '@/data/participants';
+import { ledgerEntries } from '@/data/ledger';
+import { getParticipant } from '@/data/participants';
 
 export type WorkEntry = {
   handle: string;
-  name: string;
-  status: Participant['status'];
+  displayName: string;
+  status: 'active' | 'stub';
   week: 1 | 2 | 3;
   title: string;
   summary: string;
@@ -12,20 +13,17 @@ export type WorkEntry = {
 };
 
 export function allWorkEntries(): WorkEntry[] {
-  const entries: WorkEntry[] = [];
-  for (const p of participants) {
-    for (const project of p.projects) {
-      entries.push({
-        handle: p.handle,
-        name: p.name,
-        status: p.status,
-        week: project.week,
-        title: project.title,
-        summary: project.summary,
-        liveUrl: project.liveUrl,
-        prUrl: project.prUrl,
-      });
-    }
-  }
-  return entries.sort((a, b) => a.week - b.week);
+  return ledgerEntries.map((entry) => {
+    const participant = getParticipant(entry.handle);
+    return {
+      handle: entry.handle,
+      displayName: participant?.displayName ?? entry.handle,
+      status: participant?.status ?? 'stub',
+      week: entry.week,
+      title: entry.title,
+      summary: entry.summary,
+      liveUrl: entry.deployUrl,
+      prUrl: entry.prUrl,
+    };
+  });
 }

@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { positioning } from '@/data/cohort';
+
+const JOIN_FALLBACK =
+  'https://github.com/ryanroper79-alt/hult-cohort-program/issues/new?labels=join-request&title=%5BJoin%20request%5D';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
-type SuccessPayload =
-  | { mode: 'github'; issueUrl: string }
-  | { mode: 'mailto'; mailto: string };
+type SuccessPayload = { mode: 'github'; issueUrl: string };
 
 export function JoinForm() {
   const [state, setState] = useState<FormState>('idle');
@@ -45,12 +45,9 @@ export function JoinForm() {
       if (payload.mode === 'github' && payload.issueUrl) {
         setSuccess({ mode: 'github', issueUrl: payload.issueUrl });
       } else if (payload.mailto) {
-        setSuccess({ mode: 'mailto', mailto: payload.mailto });
+        setSuccess({ mode: 'github', issueUrl: JOIN_FALLBACK });
       } else {
-        setSuccess({
-          mode: 'mailto',
-          mailto: positioning.contactHref,
-        });
+        setSuccess({ mode: 'github', issueUrl: JOIN_FALLBACK });
       }
 
       setState('success');
@@ -70,30 +67,16 @@ export function JoinForm() {
             Your join request is tracked on GitHub. We paste approved entries into the roster and
             redeploy — usually within a day during review week.
           </p>
-        ) : (
-          <p className="mt-4 text-ceal-muted">
-            Live form routing is not configured on this deploy. Send your details by email — same
-            fields, one message.
-          </p>
-        )}
+        ) : null}
         <div className="mt-6 flex flex-wrap gap-4">
-          {success.mode === 'github' ? (
-            <a
-              href={success.issueUrl}
-              className="inline-block rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View join request →
-            </a>
-          ) : (
-            <a
-              href={success.mailto}
-              className="inline-block rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow"
-            >
-              Email join request →
-            </a>
-          )}
+          <a
+            href={success.issueUrl}
+            className="inline-block rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View join request →
+          </a>
           <button
             type="button"
             onClick={() => {

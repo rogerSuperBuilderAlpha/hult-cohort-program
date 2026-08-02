@@ -1,31 +1,27 @@
-/** Positioning + cohort facts — hand-edited, no runtime fetch. */
-
-import { brandFoundation, brandGuidelinesUrl } from './brand-guidelines';
-import { thoughtLeader } from './thought-leader';
+/** Cohort-first positioning — commercial content lives at cealgreen.com only. */
 
 export const positioning = {
-  thesis:
-    'Energy sovereignty requires digital sovereignty. The Caribbean cannot close the Green Gap by importing every watt and every line of code — it builds local capability, in public.',
-  belief:
-    'This cohort builds deployable software against real Caribbean infrastructure problems, in weeks — practitioners who understand the region because they work inside it.',
-  partnerAsk: 'Request a feasibility report — choose a Caribbean project',
-  contact: 'ryan@cealgreen.com',
-  contactLabel: 'CEAL Green — ryan@cealgreen.com',
-  contactHref: 'mailto:ryan@cealgreen.com',
+  cohortMark: 'Hult Cohort · Summer Pilot 2026',
+  eyebrow: 'Hult Cohort · Summer Pilot 2026 · Week 3',
+  headline:
+    'CARICOM committed to 47% renewable electricity by 2027. The region is at roughly 12%. Closing that gap needs local software as much as local megawatts.',
+  subhead:
+    'This cohort ships deployable software against real Caribbean and Small Island Developing State infrastructure problems, in one-week cycles, in public. Every claim below links to a deploy, a pull request, or a commit.',
+  sourceNote:
+    'CARICOM Regional Energy Policy / C-SERMS targets: 20% (2017), 28% (2022), 47% (2027). Current regional penetration per Climate Analytics, 2025.',
   productionDomain: 'https://cealgreen-projects.vercel.app',
-  brand: {
-    name: 'CEAL Green',
-    guidelinesUrl: brandGuidelinesUrl,
-    focus:
-      'Positivity, energy sovereignty for the Caribbean, and leveraging the region\'s natural resources to promote energy and digital transformation.',
-    paletteNote:
-      'Mangrove green, sun yellow, white — from CEAL Green logo. Full visual spec pending Brand Guidelines §5.',
-    logoPath: '/brand/ceal-green-logo.png',
-    /** Cohort site framing under CEAL Green sponsor voice */
-    sponsorLine: brandFoundation.coreProposition,
-    executionLine: 'We do not stay at concept level. We build.',
+  cealGreenUrl: 'https://www.cealgreen.com',
+  maintainer: {
+    name: 'Ryan R. Roper',
+    githubHandle: 'ryanroper79-alt',
+    githubUrl: 'https://github.com/ryanroper79-alt',
   },
-  thoughtLeader,
+  brand: {
+    logoPath: '/brand/ceal-green-logo.png',
+  },
+  /** Shareable vote link for cohort peer review week */
+  votePath: '/vote',
+  joinPath: '/join',
 } as const;
 
 /** Verified proof inventory — add only real, gathered values. */
@@ -35,7 +31,4 @@ export const proofInventory = {
   submissionPrUrl:
     'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186',
   productionUrl: 'https://cealgreen-projects.vercel.app',
-  gitDeployVerified: '2026-07-30',
-  activeProfileCount: 1,
-  pendingProfileCount: 2,
 } as const;

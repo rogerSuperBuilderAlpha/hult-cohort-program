@@ -14,10 +14,9 @@ export default async function OgImage({ params }: Props) {
   const { handle } = await params;
   const participant = getParticipant(handle);
 
-  const name = participant?.status === 'active' ? participant.name : `@${handle}`;
+  const name = participant?.displayName ?? `@${handle}`;
   const headline = participant?.headline ?? 'Hult Cohort · Summer Pilot 2026';
-  const badge =
-    participant?.status === 'pending' ? 'Profile pending' : 'Builder profile';
+  const badge = participant?.status === 'stub' ? 'Cohort builder' : 'Builder profile';
 
   return new ImageResponse(
     (
@@ -43,7 +42,7 @@ export default async function OgImage({ params }: Props) {
             }}
           />
           <span style={{ fontSize: 28, color: '#1F5C45', fontWeight: 600 }}>
-            CEAL Green · Hult Cohort
+            Hult Cohort · Summer Pilot 2026
           </span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -74,10 +73,10 @@ export default async function OgImage({ params }: Props) {
           </p>
         </div>
         <p style={{ fontSize: 20, color: '#163D30', margin: 0 }}>
-          Caribbean capability, in public · Build Now
+          Caribbean infrastructure software · evidence in public
         </p>
       </div>
     ),
-    { ...size }
+    { ...size },
   );
 }

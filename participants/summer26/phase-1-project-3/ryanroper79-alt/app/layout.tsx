@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: '%s · Hult Cohort',
   },
   description:
-    'Summer Pilot 2026 — deployable software against Global South infrastructure problems, built in public.',
+    'Summer Pilot 2026 — deployable software against Caribbean and SIDS infrastructure problems, built in public.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

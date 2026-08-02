@@ -22,8 +22,9 @@ export const changelog: ChangelogEntry[] = [
   },
   {
     date: '2026-08-02',
-    title: 'Phase 1 — contribute & status surfaces',
-    summary: 'Added /contribute governance docs, /status quality dashboard, and CI workflow for build/lint/types.',
-    href: '/contribute',
+    title: 'Partner surface — Ryan R. Roper spotlight',
+    summary:
+      'Comentiq-inspired /partners with featured builder, solution catalog, builders directory, and investor-grade enquiry form.',
+    href: '/partners',
   },
 ];

@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { SiteHeader, SiteFooter, StickyJoinBar } from '@/components/SiteChrome';
 import { ExpertsStrip } from '@/components/ExpertsStrip';
+import { FeaturedBuilderSpotlight } from '@/components/FeaturedBuilderSpotlight';
 import { PeopleStrip } from '@/components/PeopleStrip';
 import { ProofStrip } from '@/components/ProofStrip';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { ShipTicker } from '@/components/ShipTicker';
+import { SolutionsCatalog } from '@/components/SolutionsCatalog';
 import { positioning } from '@/data/cohort';
 
 export default function HomePage() {
@@ -25,17 +27,27 @@ export default function HomePage() {
 
         <div className="mt-10 flex flex-wrap gap-4">
           <Link
-            href="/work"
+            href="/partners/solutions"
             className="inline-block rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow"
           >
-            Inspect shipped work →
+            Explore solutions →
+          </Link>
+          <Link
+            href="/builders"
+            className="inline-block rounded-md border border-ceal-mangrove px-5 py-3 font-semibold text-ceal-mangrove focus-ring hover:bg-ceal-panel"
+          >
+            Meet the builders →
           </Link>
           <Link
             href="/partners"
-            className="inline-block rounded-md border border-ceal-mangrove px-5 py-3 font-semibold text-ceal-mangrove focus-ring hover:bg-ceal-panel"
+            className="inline-block rounded-md border border-ceal-line px-5 py-3 font-semibold text-ceal-muted focus-ring hover:bg-ceal-panel"
           >
-            Partner with the cohort →
+            Partner opportunities →
           </Link>
+        </div>
+
+        <div className="mt-12">
+          <FeaturedBuilderSpotlight variant="compact" />
         </div>
 
         <aside className="mt-10 rounded-lg border border-ceal-sun bg-gradient-to-br from-ceal-panel to-ceal-sunGlow/30 p-6 md:p-8">
@@ -46,8 +58,7 @@ export default function HomePage() {
           <p className="mt-3 max-w-prose text-ceal-muted">
             File a written technical review with{' '}
             <code className="rounded bg-ceal-white px-1 py-0.5 font-mono text-xs">Vote: up</code> on
-            this submission. The site with the most votes becomes the cohort&apos;s public marketing
-            surface for the rest of the pilot.
+            this submission.
           </p>
           <Link
             href={positioning.votePath}
@@ -56,6 +67,12 @@ export default function HomePage() {
             Open one-click vote link →
           </Link>
         </aside>
+
+        <ScrollReveal>
+          <div className="mt-20">
+            <SolutionsCatalog limit={2} showViewAll />
+          </div>
+        </ScrollReveal>
 
         <ScrollReveal>
           <div className="mt-20">
@@ -78,17 +95,17 @@ export default function HomePage() {
         <ShipTicker />
 
         <section className="mt-20 rounded-lg border border-ceal-line bg-ceal-panel p-8 md:p-10">
-          <h2 className="font-display text-3xl text-ceal-mangrove">Contribute to the showcase</h2>
+          <h2 className="font-display text-3xl text-ceal-mangrove">Ready to partner?</h2>
           <p className="mt-4 max-w-prose text-lg text-ceal-muted">
-            Every enrolled builder already has a profile. Send a pull request to update yours, or
-            inspect the three-week ledger before you ship.
+            Investors and operators: engage Ryan R. Roper for digital/AI delivery on Caribbean
+            infrastructure challenges — or browse the full cohort roster and work ledger.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
-              href={positioning.joinPath}
+              href="/partners#inquiry"
               className="inline-block rounded-md bg-ceal-sun px-5 py-3 font-semibold text-ceal-ink focus-ring hover:bg-ceal-sunGlow"
             >
-              Add your work to the showcase →
+              Submit partner enquiry →
             </Link>
             <Link href="/work" className="self-center font-medium text-ceal-leaf underline focus-ring rounded">
               Work index →

@@ -9,6 +9,8 @@ const routes = [
   '/work',
   '/join',
   '/partners',
+  '/partners/solutions',
+  '/builders',
   '/partners/readme',
   '/vote',
   '/contribute',

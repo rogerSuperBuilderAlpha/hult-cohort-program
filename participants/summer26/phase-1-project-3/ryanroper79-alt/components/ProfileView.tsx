@@ -3,6 +3,7 @@ import Image from 'next/image';
 import type { Participant } from '@/data/participants';
 import { participantProjects } from '@/data/participants';
 import { participantsEditUrl } from '@/data/constants';
+import { featuredBuilder } from '@/data/featured-builder';
 import type { LedgerEntry } from '@/data/ledger';
 
 type Props = { participant: Participant };
@@ -67,28 +68,80 @@ function LedgerProjectList({ entries }: { entries: LedgerEntry[] }) {
 export function ProfileView({ participant }: Props) {
   const entries = participantProjects(participant.handle);
   const isStub = participant.status === 'stub';
+  const isRyan = participant.handle === featuredBuilder.handle;
+  const photo = participant.photoPath ?? (isRyan ? featuredBuilder.photoPath : participant.avatarUrl);
 
   return (
     <article>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        {participant.avatarUrl ? (
+        {photo ? (
           <Image
-            src={participant.avatarUrl}
-            alt=""
-            width={96}
-            height={96}
-            className="rounded-full border border-ceal-line"
+            src={photo}
+            alt={participant.displayName}
+            width={isRyan ? 160 : 96}
+            height={isRyan ? 160 : 96}
+            className={`shrink-0 rounded-full border-2 border-ceal-leaf object-cover ${
+              isRyan ? 'h-40 w-40' : 'h-24 w-24'
+            }`}
+            priority={isRyan}
           />
         ) : null}
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-ceal-leaf">Builder profile</p>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-ceal-leaf">
+            {isRyan ? 'Featured builder' : 'Builder profile'}
+          </p>
           <h1 className="mt-3 font-display text-4xl text-ceal-mangrove md:text-5xl">
             {participant.displayName}
           </h1>
+          {participant.location ? (
+            <p className="mt-2 text-sm font-medium text-ceal-leaf">{participant.location}</p>
+          ) : null}
           <p className="mt-2 font-mono text-sm text-ceal-muted">@{participant.handle}</p>
           <p className="mt-6 max-w-prose text-xl leading-relaxed text-ceal-ink">{participant.headline}</p>
         </div>
       </div>
+
+      {isRyan ? (
+        <section className="mt-10 rounded-xl border border-ceal-sun bg-ceal-panel p-6 md:p-8">
+          <h2 className="font-display text-2xl text-ceal-mangrove">Why partner with Ryan</h2>
+          <p className="mt-4 text-ceal-muted leading-relaxed">{featuredBuilder.bio}</p>
+          <ul className="mt-6 flex flex-wrap gap-2">
+            {featuredBuilder.credentials.map((c) => (
+              <li
+                key={c}
+                className="rounded-full border border-ceal-leaf/40 bg-ceal-white px-3 py-1 text-xs font-medium text-ceal-mangrove"
+              >
+                {c}
+              </li>
+            ))}
+          </ul>
+          {participant.skills && participant.skills.length > 0 ? (
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {participant.skills.map((s) => (
+                <li key={s} className="rounded-md bg-ceal-white px-2 py-1 font-mono text-xs text-ceal-muted">
+                  {s}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/partners#inquiry"
+              className="inline-block rounded-md bg-ceal-mangrove px-5 py-3 text-sm font-semibold text-ceal-white focus-ring hover:opacity-90"
+            >
+              Partner enquiry →
+            </Link>
+            <a
+              href={featuredBuilder.cealGreenUrl}
+              className="inline-block rounded-md border border-ceal-mangrove px-5 py-3 text-sm font-semibold text-ceal-mangrove focus-ring hover:bg-ceal-white"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              CEAL Green commercial work →
+            </a>
+          </div>
+        </section>
+      ) : null}
 
       {isStub ? (
         <aside className="mt-8 rounded-lg border border-ceal-sun bg-ceal-panel p-6">

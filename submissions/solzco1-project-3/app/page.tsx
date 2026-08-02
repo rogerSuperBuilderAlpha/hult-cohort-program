@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BuilderCard } from "@/components/BuilderCard";
+import { StatsDashboard } from "@/components/LivePulseTicker";
 import { PmStatusPanel } from "@/components/PmStatusPanel";
 import { PulseTagline, PulseWordmark } from "@/components/PulseWordmark";
 import { ShowcaseGrid } from "@/components/ShowcaseProjectCard";
@@ -14,10 +15,12 @@ export default function HomePage() {
   const builders = publicBuilders().slice(0, 8);
 
   return (
-    <div className="hero-grid">
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+    <div className="hero-grid relative">
+      <section className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <PulseTagline />
-        <PulseWordmark />
+        <div className="hero-breathe">
+          <PulseWordmark />
+        </div>
         <p className="mt-6 max-w-3xl text-lg leading-relaxed text-[var(--ink-muted)] sm:text-xl">
           <strong className="text-[var(--ink)]">
             We are the Hult Developer Cohort.
@@ -34,30 +37,16 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            ["Total ships", metrics.totalShips],
-            ["Combined commits", metrics.combinedCommits],
-            ["Active projects", metrics.activeProjects],
-            ["Live deployments", metrics.liveDeployments],
-          ].map(([label, value]) => (
-            <div key={label} className="metric-card">
-              <p className="font-mono text-xs uppercase text-[var(--ink-muted)]">
-                {label}
-              </p>
-              <p className="mt-2 font-display text-3xl font-bold text-[var(--accent)]">
-                {value}
-              </p>
-            </div>
-          ))}
+        <div className="mt-12">
+          <StatsDashboard initialMetrics={metrics} />
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+      <section className="relative mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <PmStatusPanel snapshot={snapshot} />
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+      <section className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="mb-8 flex items-end justify-between gap-4">
           <h2 className="font-display text-2xl font-bold">The Builders</h2>
           <Link href="/builders" className="text-sm text-[var(--accent)] hover:underline">
@@ -82,7 +71,7 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="glass rounded-2xl p-8 text-center sm:p-12">
+        <div className="glass-card rounded-2xl p-8 text-center sm:p-12">
           <h2 className="font-display text-2xl font-bold sm:text-3xl">
             Partner with momentum
           </h2>

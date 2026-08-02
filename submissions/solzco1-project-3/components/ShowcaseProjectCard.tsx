@@ -5,7 +5,7 @@ import { ArchitectureInspector } from "./ArchitectureInspector";
 
 export function ShowcaseProjectCard({ project }: { project: ShowcaseProject }) {
   return (
-    <article className="glass rounded-2xl p-6">
+    <article className="glass-card rounded-2xl p-6">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="font-mono text-xs uppercase tracking-wider text-[var(--accent)]">

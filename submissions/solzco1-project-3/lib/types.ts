@@ -1,4 +1,4 @@
-export type VibeId = "cyberpunk" | "brutalist" | "y2k" | "executive";
+export type VibeId = "cyberpunk" | "sunset" | "matrix" | "executive";
 
 export type Builder = {
   handle: string;
@@ -58,6 +58,7 @@ export type PulseMetrics = {
   combinedCommits: number;
   activeProjects: number;
   liveDeployments: number;
+  cohortVelocity: number;
 };
 
 export type PmInitiative = {

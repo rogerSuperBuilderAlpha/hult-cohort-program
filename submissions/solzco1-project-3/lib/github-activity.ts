@@ -1,5 +1,5 @@
 import type { PulseEvent, PulseMetrics } from "./types";
-import { publicBuilders } from "./roster";
+import { getBuilder, publicBuilders } from "./roster";
 
 const EVENT_TEMPLATES: PulseEvent["kind"][] = [
   "commit",
@@ -8,22 +8,19 @@ const EVENT_TEMPLATES: PulseEvent["kind"][] = [
   "ship",
 ];
 
-function templateMessage(
-  handle: string,
-  kind: PulseEvent["kind"],
-  project: string
-): string {
+function actionPhrase(kind: PulseEvent["kind"], project: string): string {
   switch (kind) {
     case "commit":
-      return `@${handle} pushed to ${project}`;
+      return `pushed to ${project}`;
     case "deploy":
-      return `@${handle} deployed ${project} to production`;
+      return `deployed ${project}`;
     case "merge":
-      return `@${handle} merged PR on ${project}`;
+      return `merged PR on ${project}`;
     case "ship":
-      return `@${handle} shipped ${project} milestone`;
+      return `shipped ${project}`;
   }
 }
+
 
 function minutesAgo(n: number): string {
   if (n < 60) return `${n}m ago`;
@@ -38,11 +35,16 @@ export function seededPulseEvents(): PulseEvent[] {
 
   builders.slice(0, 12).forEach((b, i) => {
     const kind = EVENT_TEMPLATES[i % EVENT_TEMPLATES.length]!;
+    const when = minutesAgo(3 + i * 7);
     events.push({
       id: `seed-${b.handle}-${i}`,
       handle: b.handle,
-      message: templateMessage(b.handle, kind, projects[i % projects.length]!),
-      when: minutesAgo(3 + i * 7),
+      message: formatTickerLine(
+        b.displayName,
+        actionPhrase(kind, projects[i % projects.length]!),
+        when
+      ),
+      when,
       kind,
     });
   });
@@ -56,7 +58,17 @@ export function defaultMetrics(): PulseMetrics {
     combinedCommits: 1284,
     activeProjects: 60,
     liveDeployments: 38,
+    cohortVelocity: 98,
   };
+}
+
+/** Ticker copy: ⚡ Solange pushed to Pulse (2m ago) */
+export function formatTickerLine(
+  displayName: string,
+  action: string,
+  when: string
+): string {
+  return `⚡ ${displayName} ${action} (${when})`;
 }
 
 export async function fetchGitHubEvents(
@@ -99,15 +111,18 @@ export async function fetchGitHubEvents(
             (Date.now() - new Date(ev.created_at).getTime()) / 60_000
           )
         );
+        const when = minutesAgo(ago);
+        const name = getBuilder(handle)?.displayName ?? handle;
+        const project = ev.repo.name.split("/")[1] ?? "repo";
         events.push({
           id: String(ev.id),
           handle,
-          message: templateMessage(
-            handle,
-            kind,
-            ev.repo.name.split("/")[1] ?? "repo"
+          message: formatTickerLine(
+            name,
+            actionPhrase(kind, project),
+            when
           ),
-          when: minutesAgo(ago),
+          when,
           kind,
         });
       }

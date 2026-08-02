@@ -9,7 +9,8 @@ import {
   type ReactNode,
 } from "react";
 import type { VibeId } from "@/lib/types";
-import { nextVibe, VIBES } from "@/lib/vibes";
+import { nextVibe, normalizeVibe, VIBES } from "@/lib/vibes";
+import { AmbientOrbs } from "./AmbientOrbs";
 import { CursorGlow } from "./CursorGlow";
 import { LivePulseTicker } from "./LivePulseTicker";
 import { PulseHeader } from "./PulseHeader";
@@ -33,8 +34,8 @@ export function PulseShell({ children }: { children: ReactNode }) {
   const [vibe, setVibe] = useState<VibeId>("cyberpunk");
 
   useEffect(() => {
-    const saved = localStorage.getItem("pulse-vibe") as VibeId | null;
-    if (saved && VIBES.some((v) => v.id === saved)) {
+    const saved = normalizeVibe(localStorage.getItem("pulse-vibe"));
+    if (saved) {
       setVibe(saved);
       document.documentElement.setAttribute("data-vibe", saved);
     }
@@ -55,6 +56,7 @@ export function PulseShell({ children }: { children: ReactNode }) {
   return (
     <VibeContext.Provider value={{ vibe, cycleVibe, vibeLabel }}>
       <CursorGlow />
+      <AmbientOrbs />
       <div className="relative flex min-h-screen flex-col">
         <LivePulseTicker />
         <PulseHeader />

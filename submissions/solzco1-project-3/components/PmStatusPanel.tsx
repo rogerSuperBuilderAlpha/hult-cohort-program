@@ -9,7 +9,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function PmStatusPanel({ snapshot }: { snapshot: PmSnapshot }) {
   return (
-    <section className="glass rounded-2xl p-6">
+    <section className="glass-card rounded-2xl p-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display text-lg font-bold">Cohort project status</h2>
         <a

@@ -34,10 +34,11 @@ export function PulseHeader() {
         <button
           type="button"
           onClick={cycleVibe}
-          className="btn-ghost text-xs font-mono uppercase tracking-wider"
-          title="Cycle aesthetic vibe (easter egg)"
+          className="vibe-toggle"
+          title={`Cycle vibe — ${vibeLabel}`}
         >
-          Vibe · {vibeLabel.split(" ")[0]}
+          <span className="vibe-toggle-glow" aria-hidden />
+          <span className="relative">◐ {vibeLabel}</span>
         </button>
       </div>
     </header>

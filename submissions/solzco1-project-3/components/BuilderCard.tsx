@@ -2,24 +2,35 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import type { Builder } from "@/lib/types";
-import { githubAvatar, githubUrl } from "@/lib/config";
-import { QuickConnectModal } from "./QuickConnectModal";
+import { githubAvatar } from "@/lib/config";
+import { BuilderQuickPeek } from "./BuilderQuickPeek";
 
 export function BuilderCard({ builder }: { builder: Builder }) {
-  const [connectOpen, setConnectOpen] = useState(false);
+  const [peekOpen, setPeekOpen] = useState(false);
 
   return (
     <>
-      <article className="glass group flex flex-col rounded-2xl p-5 transition-all hover:border-[var(--accent)] hover:shadow-[0_0_30px_var(--glow)]">
-        <div className="flex items-start gap-4">
+      <article
+        role="button"
+        tabIndex={0}
+        onClick={() => setPeekOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setPeekOpen(true);
+          }
+        }}
+        className="glass-card builder-card group cursor-pointer"
+      >
+        <div className="builder-card-glow" />
+        <div className="relative flex items-start gap-4">
           <Image
             src={githubAvatar(builder.handle)}
             alt=""
             width={56}
             height={56}
-            className="rounded-xl border border-[var(--glass-border)]"
+            className="rounded-xl border border-white/10 transition-transform duration-300 group-hover:scale-105"
             unoptimized
           />
           <div className="min-w-0 flex-1">
@@ -29,47 +40,28 @@ export function BuilderCard({ builder }: { builder: Builder }) {
             <p className="font-mono text-xs text-[var(--accent)]">@{builder.handle}</p>
           </div>
         </div>
-        <p className="mt-3 line-clamp-2 text-sm text-[var(--ink-muted)]">
+        <p className="relative mt-3 line-clamp-2 text-sm text-[var(--ink-muted)]">
           {builder.tagline}
         </p>
-        <p className="mt-2 text-xs font-medium text-[var(--accent-2)]">
-          Signature: {builder.signatureProject}
+        <p className="relative mt-2 text-xs font-medium text-[var(--accent-2)]">
+          {builder.signatureProject}
         </p>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {builder.skills.slice(0, 4).map((s) => (
-            <span
-              key={s}
-              className="rounded-md border border-[var(--glass-border)] px-2 py-0.5 text-[10px] font-mono uppercase tracking-wide"
-            >
+        <div className="relative mt-3 flex flex-wrap gap-1.5">
+          {builder.skills.slice(0, 3).map((s) => (
+            <span key={s} className="skill-chip">
               {s}
             </span>
           ))}
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Link href={`/builders/${builder.handle}`} className="btn-primary text-sm">
-            Profile
-          </Link>
-          <button
-            type="button"
-            onClick={() => setConnectOpen(true)}
-            className="btn-ghost text-sm"
-          >
-            Quick Connect
-          </button>
-          <a
-            href={githubUrl(builder.handle)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-ghost text-sm"
-          >
-            GitHub
-          </a>
-        </div>
+        <p className="relative mt-4 font-mono text-[10px] uppercase tracking-widest text-[var(--ink-muted)] opacity-0 transition-opacity group-hover:opacity-100">
+          Click for quick peek →
+        </p>
       </article>
-      <QuickConnectModal
+
+      <BuilderQuickPeek
         builder={builder}
-        open={connectOpen}
-        onClose={() => setConnectOpen(false)}
+        open={peekOpen}
+        onClose={() => setPeekOpen(false)}
       />
     </>
   );

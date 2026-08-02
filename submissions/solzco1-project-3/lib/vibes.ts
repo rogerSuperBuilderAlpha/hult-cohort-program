@@ -8,17 +8,17 @@ export const VIBES: {
   {
     id: "cyberpunk",
     label: "Cyberpunk Neon",
-    description: "Obsidian base, electric indigo & emerald accents",
+    description: "Electric indigo & emerald on obsidian",
   },
   {
-    id: "brutalist",
-    label: "Minimalist Brutalist",
-    description: "High-contrast monochrome with sharp edges",
+    id: "sunset",
+    label: "Sunset Mode",
+    description: "Warm amber & rose gradients",
   },
   {
-    id: "y2k",
-    label: "Y2K Retro Terminal",
-    description: "Phosphor green on CRT black",
+    id: "matrix",
+    label: "Matrix Terminal",
+    description: "Pure phosphor green on CRT black",
   },
   {
     id: "executive",
@@ -30,4 +30,13 @@ export const VIBES: {
 export function nextVibe(current: VibeId): VibeId {
   const idx = VIBES.findIndex((v) => v.id === current);
   return VIBES[(idx + 1) % VIBES.length]!.id;
+}
+
+/** Map legacy localStorage values from earlier builds */
+export function normalizeVibe(saved: string | null): VibeId | null {
+  if (!saved) return null;
+  if (saved === "brutalist") return "sunset";
+  if (saved === "y2k") return "matrix";
+  if (VIBES.some((v) => v.id === saved)) return saved as VibeId;
+  return null;
 }

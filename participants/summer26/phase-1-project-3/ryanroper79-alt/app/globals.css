@@ -7,6 +7,30 @@
     @apply bg-ceal-white text-ceal-ink antialiased;
   }
 
+  html.dark {
+    @apply bg-ceal-ink text-ceal-panel;
+  }
+
+  html.dark .border-ceal-line {
+    border-color: #2A7A52;
+  }
+
+  html.dark .bg-ceal-white {
+    @apply bg-[#163D30];
+  }
+
+  html.dark .bg-ceal-panel {
+    @apply bg-[#1F5C45];
+  }
+
+  html.dark .text-ceal-mangrove {
+    @apply text-ceal-panel;
+  }
+
+  html.dark .text-ceal-muted {
+    color: #a8c4b8;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

@@ -73,7 +73,7 @@ export type JoinSubmitResult =
 export async function submitJoinRequest(input: JoinRequest): Promise<JoinSubmitResult> {
   const token = process.env.GITHUB_TOKEN?.trim();
   const repo = process.env.JOIN_GITHUB_REPO?.trim() ?? 'ryanroper79-alt/hult-cohort-program';
-  const notifyEmail = process.env.JOIN_NOTIFY_EMAIL?.trim() ?? positioning.contact;
+  const notifyEmail = process.env.JOIN_NOTIFY_EMAIL?.trim() ?? 'ryan@cealgreen.com';
 
   if (!token) {
     const subject = encodeURIComponent(`Join request — @${input.handle}`);

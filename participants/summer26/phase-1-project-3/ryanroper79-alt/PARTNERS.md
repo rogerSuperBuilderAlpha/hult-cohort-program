@@ -1,62 +1,45 @@
-# Partner guide — CEAL Green · Hult Cohort Showcase (Summer Pilot 2026)
+# Partner guide — Hult Cohort · Climate Builder Network
 
-**Operator:** Ryan R. Roper · **CEAL Green** · **Contact:** ryan@cealgreen.com
+Summer Pilot 2026 · Project 3 public showcase
 
-## One sentence
+## What this platform is
 
-CEAL Green delivers bankable Caribbean infrastructure — choose a feasibility study, receive the full investment report, and join a structured investor cohort built to deliver the project and return your capital.
+The **Hult Cohort - Climate Builder Network** indexes deployable software shipped in public against climate and resilience problems for the **Caribbean and global Small Island Developing States**. Participants publish profiles and artifact evidence; partners inspect `/work` before requesting introductions.
 
-## What we have studied
+This is a **cohort introduction channel**, not a marketplace. We do not rank people, publish individual scores, or list pricing.
 
-We have completed feasibility studies for three project types across Caribbean islands:
+## Six-week structure
 
-| Project | Focus |
-|---------|--------|
-| **Wave energy solutions** | Island-scale wave energy — resource, generation profile, grid integration |
-| **Solar farms** | Utility-scale solar — land use, interconnection, generation economics |
-| **Modular homes** | Fast-construction modular housing — factory-to-site delivery and build cost structure |
+| Week | Platform | Output |
+|------|----------|--------|
+| 1 | PM | Deployable task/project workspace for the cohort |
+| 2 | Comms | Internal messaging workspace |
+| 3 | Showcase | Public climate software index (this site) |
 
-Financial metrics are project-specific and included in the full report — not published on this marketing site.
-
-## What you receive when you invest
-
-Choose the project you want to invest in. We provide a copy of the feasibility report that includes:
-
-- **Payback period**
-- **Rates of return**
-- **Project management** — scope, schedule, and cost of construction
-- **Investment required** — your capital ask for the selected project
-- **Investor cohort** — the co-investors we are working with to ensure each project is delivered and creates a return on your investment
+Inspect the live ledger at [/work](https://cealgreen-projects.vercel.app/work).
 
 ## How to engage
 
-1. Browse **/partners** on the live deploy and choose a feasibility study
-2. Email **ryan@cealgreen.com** (or use **Request this report** on the project card) naming your chosen project
-3. CEAL Green sends the full report and schedules a scope conversation
-4. Inspect cohort software evidence on **/work** and **/p/{handle}** — digital capability ships in public alongside physical project delivery
+1. **Inspect artifacts** on `/work` — Lighthouse, payload weight, and mobile TTI scorecards apply to **deploy URLs**, not people.
+2. **Request introduction** on [/partners](https://cealgreen-projects.vercel.app/partners) — name a participant handle if you have one.
+3. **RSVP** for the end-of-pilot showcase at [/rsvp](https://cealgreen-projects.vercel.app/rsvp).
 
-## Software cohort (supporting proof)
+## Privacy
 
-The Hult Summer Pilot 2026 cohort builds deployable software in public — profiles, project index, and peer signup on this site. Sponsorship of a cohort seat or named sprint remains available; the primary partner path for capital partners is the feasibility pipeline above.
+Every enrolled participant has a profile page. Opt-outs appear as private placeholders (example: [/p/studmuffin01](https://cealgreen-projects.vercel.app/p/studmuffin01)).
 
-Peers join during review week via live **/join** — static roster, redeploy on operator review.
+Participants set `availableForEngagement: true` themselves via the [/join](https://cealgreen-projects.vercel.app/join) PR flow when open to introductions.
 
-## Thought leader
+## Response commitment
 
-**Ryan R. Roper** — 20+ years developing major energy projects across the Caribbean; now building a native AI firm through Cursor and digital platforms.
+We reply within **2 business days** when notification services are configured on the deployment.
 
-LinkedIn: https://www.linkedin.com/in/ryanroper1/
+## Licensing
 
-## Evidence (verified on this submission)
+Cohort submission code is MIT-licensed unless a participant specifies otherwise.
 
-| Item | URL |
-|------|-----|
-| Production | https://cealgreen-projects.vercel.app |
-| Partners page | https://cealgreen-projects.vercel.app/partners |
-| Work index | https://cealgreen-projects.vercel.app/work |
-| Submission PR | https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186 |
-| Brand guidelines | https://peteranthonygales.craft.me/s3ywHY5a1ppmyU |
+## Contact
 
-## Brand
-
-CEAL Green — mangrove green, sun yellow, white. Caribbean execution engine for green and digital solutions. Present tense. Build Now.
+- **Production URL:** [cealgreen-projects.vercel.app](https://cealgreen-projects.vercel.app)
+- **Program repo:** [rogerSuperBuilderAlpha/hult-cohort-program](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program)
+- **Vote helper:** [/vote](https://cealgreen-projects.vercel.app/vote)

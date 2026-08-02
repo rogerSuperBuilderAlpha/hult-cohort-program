@@ -1,39 +1,53 @@
 # Project 3 Submission — @ryanroper79-alt
 
-Standalone vibe marketing platform at `participants/summer26/phase-1-project-3/ryanroper79-alt/` — Next.js App Router, TypeScript, Tailwind, static `data/participants.ts`.
+**Hult Cohort - Climate Builder Network** — digital participants solving climate problems for the Caribbean and global Small Island Developing States.
 
 ## Production URL
 
 https://cealgreen-projects.vercel.app
 
-Vercel root directory: `participants/summer26/phase-1-project-3/ryanroper79-alt` (CEAL Green team project).
+Vercel root: `participants/summer26/phase-1-project-3/ryanroper79-alt`
 
 ## Sample profile URLs
 
 - https://cealgreen-projects.vercel.app/p/ryanroper79-alt
-- https://cealgreen-projects.vercel.app/p/raven-dubgub
-- https://cealgreen-projects.vercel.app/p/gge513
+- https://cealgreen-projects.vercel.app/p/CodingWCal
+- https://cealgreen-projects.vercel.app/p/studmuffin01 (private opt-out)
 
 ## Vibe / positioning notes
 
-Primary audience: partners, sponsors, and capital partners — Caribbean infrastructure investors evaluating CEAL Green feasibility studies and cohort software capability.
-
-Thesis: energy sovereignty requires digital sovereignty. Target belief: these people build deployable software against real Caribbean infrastructure problems in weeks.
-
-Primary call to engage: request a feasibility report — choose wave energy, solar farms, or modular homes.
-
-Design: CEAL Green palette (mangrove green, sun yellow, white), Instrument Serif + Source Sans + IBM Plex Mono, signature element A — the build curve.
-
-Architecture: typed static roster; peers join via `/join` (GitHub issue or mailto fallback); profiles publish on redeploy.
+Cohort-first, evidence-first climate showcase. Artifact scorecards on `/work` (Lighthouse, transfer weight, mobile TTI) score **deploy URLs only** — never participants. Privacy opt-out and opt-in `availableForEngagement` flag (default false, self-serve via `/join`). No marketplace, ratings, or commercial language on-site. Vote: `/vote`.
 
 ## Partner-facing README
 
-`participants/summer26/phase-1-project-3/ryanroper79-alt/PARTNERS.md`
+https://cealgreen-projects.vercel.app/partners/readme
 
-On-site: https://cealgreen-projects.vercel.app/partners
+## Architecture
 
-## Agent usage
+Next.js 15 · roster in `data/roster.ts` · ledger in `data/ledger.ts` · artifact checks cached at build via PSI mobile · `/api/verify` for PR/deploy health.
 
-- Research: Project 3 curriculum, CEAL Green brand guidelines, build plan phases 0–7
-- Dev: standalone app (homepage pitch, `/work`, `/partners`, `/join`, `/p/[handle]` + OG images), smoke/scale scripts
-- QA: `npm run build`, `tsc --noEmit`, `npm run smoke-test` (13/13), `npm run scale-check`; Vercel production deploy verified
+## Setup & test
+
+```bash
+cd participants/summer26/phase-1-project-3/ryanroper79-alt
+npm install && npm run typecheck && npm run build && npm run smoke-test
+```
+
+## Requirements checklist
+
+| Requirement | Status |
+|-------------|--------|
+| Public homepage | ✓ Climate narrative |
+| Participant profiles | ✓ `/p/{handle}` |
+| Portfolio / ledger links | ✓ `/work` |
+| PM integration snapshot | ✓ Ledger + `/status` |
+| `/partners` + intro form | ✓ |
+| Privacy opt-out | ✓ |
+| Showcase RSVP | ✓ `/rsvp` |
+| Artifact quality scorecards | ✓ Addition A |
+| Engagement opt-in flag | ✓ Addition B |
+| README + AGENTS.md | ✓ |
+
+## Vote
+
+https://cealgreen-projects.vercel.app/vote

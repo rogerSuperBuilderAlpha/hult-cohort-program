@@ -12,11 +12,10 @@ export function padParticipants(base: readonly Participant[], targetCount: numbe
   while (padded.length < targetCount) {
     padded.push({
       handle: `scale-check-${i}`,
-      name: 'Pending',
-      status: 'pending',
+      displayName: 'Scale Check',
+      status: 'stub',
       headline: 'Scale-check placeholder — not a real participant.',
       links: {},
-      projects: [],
     });
     i += 1;
   }

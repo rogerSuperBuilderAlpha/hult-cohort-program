@@ -1,21 +1,31 @@
 import Link from 'next/link';
-import { proofInventory, positioning } from '@/data/cohort';
+import { proofInventory } from '@/data/cohort';
 
 const proofLinks = [
   {
     label: 'Production deploy',
     href: proofInventory.productionUrl,
-    meta: 'HTTPS · verified 2026-07-30',
+    meta: 'This showcase · HTTPS',
   },
   {
     label: 'Submission PR #186',
     href: proofInventory.submissionPrUrl,
-    meta: 'Open · merge bar in progress',
+    meta: 'Week 3 · merged',
   },
   {
     label: 'Full work index',
     href: '/work',
-    meta: 'All shipped artifacts in one ledger',
+    meta: 'Weeks 1–3 · all participants',
+  },
+  {
+    label: 'Sync PR #201',
+    href: proofInventory.syncPrUrl,
+    meta: 'Scope freeze · ready for admin merge',
+  },
+  {
+    label: 'Vote for this showcase',
+    href: '/vote',
+    meta: 'Peer review · Vote: up',
   },
 ] as const;
 
@@ -26,8 +36,8 @@ export function ProofStrip() {
         The proof
       </h2>
       <p className="mt-3 max-w-prose text-ceal-muted">
-        Clickable evidence within one screen — deploys, pull requests, timestamps. No slide deck
-        required.
+        Clickable evidence within one screen — deploys, pull requests, and the cross-cohort ledger.
+        No slide deck required.
       </p>
       <ul className="mt-8 divide-y divide-ceal-line rounded-lg border border-ceal-line bg-ceal-white">
         {proofLinks.map((item) => (

@@ -9,15 +9,22 @@ const routes = [
   '/work',
   '/join',
   '/partners',
+  '/partners/readme',
+  '/vote',
+  '/rsvp',
+  '/contribute',
+  '/status',
+  '/changelog',
   '/p/ryanroper79-alt',
   '/p/raven-dubgub',
   '/p/gge513',
+  '/p/CodingWCal',
+  '/p/studmuffin01',
 ];
 
 const externalLinks = [
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186',
-  'https://www.linkedin.com/in/ryanroper1/',
-  'https://peteranthonygales.craft.me/s3ywHY5a1ppmyU',
+  'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/201',
   'https://github.com/ryanroper79-alt',
 ];
 
@@ -37,7 +44,6 @@ async function fetchStatus(url: string, method: 'GET' | 'HEAD' = 'GET') {
 async function main() {
   console.log(`Smoke test base URL: ${baseUrl}\n`);
 
-  // HTTPS + routes
   for (const route of routes) {
     const url = `${baseUrl}${route}`;
     try {
@@ -57,7 +63,22 @@ async function main() {
     }
   }
 
-  // OG image route
+  try {
+    const res = await fetch(`${baseUrl}/builders`, { redirect: 'manual', headers: { 'User-Agent': 'hult-cohort-smoke/1.0' } });
+    const ok = res.status >= 300 && res.status < 400;
+    checks.push({
+      name: 'Redirect /builders → /work',
+      ok,
+      detail: `${res.status} (expect redirect)`,
+    });
+  } catch (err) {
+    checks.push({
+      name: 'Redirect /builders → /work',
+      ok: false,
+      detail: err instanceof Error ? err.message : String(err),
+    });
+  }
+
   try {
     const res = await fetchStatus(`${baseUrl}/p/ryanroper79-alt/opengraph-image`);
     const contentType = res.headers.get('content-type') ?? '';
@@ -74,33 +95,59 @@ async function main() {
     });
   }
 
-  // Homepage markers for standalone app (not template site)
   try {
     const res = await fetchStatus(`${baseUrl}/`);
     const html = await res.text();
-    const hasStandalone =
-      html.includes('Energy sovereignty requires digital sovereignty') ||
-      html.includes('Request a feasibility report') ||
-      html.includes('Build curve');
-    const hasOldTemplate = html.includes('Build the software your cohort actually runs on');
+    const climateNetwork =
+      html.includes('Climate Builder Network') &&
+      html.includes('Small Island Developing States') &&
+      !html.includes('Meet the builders') &&
+      !html.includes('Ryan R. Roper featured');
     checks.push({
-      name: 'Standalone app homepage content',
-      ok: hasStandalone && !hasOldTemplate,
-      detail: hasOldTemplate
-        ? 'Still serving template site — repoint Vercel root or redeploy standalone app'
-        : hasStandalone
-          ? 'Standalone pitch detected'
-          : 'Homepage content unrecognized',
+      name: 'Climate Builder Network homepage',
+      ok: climateNetwork,
+      detail: climateNetwork ? 'Branding + scope freeze OK' : 'Homepage content check failed',
     });
   } catch (err) {
     checks.push({
-      name: 'Standalone app homepage content',
+      name: 'Climate Builder Network homepage',
       ok: false,
       detail: err instanceof Error ? err.message : String(err),
     });
   }
 
-  // External links — GET (some sites reject HEAD, e.g. LinkedIn)
+  try {
+    const res = await fetchStatus(`${baseUrl}/p/studmuffin01`);
+    const html = await res.text();
+    checks.push({
+      name: 'Private profile /p/studmuffin01',
+      ok: res.ok && html.includes('Private profile'),
+      detail: res.ok ? 'Private placeholder detected' : `${res.status}`,
+    });
+  } catch (err) {
+    checks.push({
+      name: 'Private profile /p/studmuffin01',
+      ok: false,
+      detail: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  try {
+    const res = await fetchStatus(`${baseUrl}/work`);
+    const html = await res.text();
+    checks.push({
+      name: 'Work page island bandwidth note',
+      ok: res.ok && html.includes('Island conditions'),
+      detail: res.ok ? 'Artifact note present' : `${res.status}`,
+    });
+  } catch (err) {
+    checks.push({
+      name: 'Work page island bandwidth note',
+      ok: false,
+      detail: err instanceof Error ? err.message : String(err),
+    });
+  }
+
   for (const url of externalLinks) {
     try {
       const res = await fetchStatus(url, 'GET');
@@ -118,7 +165,6 @@ async function main() {
     }
   }
 
-  // Print results
   let failed = 0;
   for (const c of checks) {
     const mark = c.ok ? '✓' : '✗';

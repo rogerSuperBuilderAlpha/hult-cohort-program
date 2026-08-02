@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono, Instrument_Serif, Source_Sans_3 } from 'next/font/google';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import { positioning } from '@/data/cohort';
 import './globals.css';
 
@@ -26,17 +27,22 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(positioning.productionDomain),
   title: {
-    default: 'Hult Cohort · Capability in public',
-    template: '%s · Hult Cohort',
+    default: positioning.siteTitle,
+    template: `%s · ${positioning.cohortMark}`,
   },
-  description:
-    'Summer Pilot 2026 — deployable software against Global South infrastructure problems, built in public.',
+  description: positioning.subhead,
+  openGraph: {
+    title: positioning.siteTitle,
+    description: positioning.headline,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body className="font-body min-h-screen">{children}</body>
+    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`} suppressHydrationWarning>
+      <body className="font-body min-h-screen">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

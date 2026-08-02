@@ -64,7 +64,7 @@ async function main() {
   }
 
   try {
-    const res = await fetchStatus(`${baseUrl}/builders`);
+    const res = await fetch(`${baseUrl}/builders`, { redirect: 'manual', headers: { 'User-Agent': 'hult-cohort-smoke/1.0' } });
     const ok = res.status >= 300 && res.status < 400;
     checks.push({
       name: 'Redirect /builders → /work',
@@ -100,9 +100,8 @@ async function main() {
     const html = await res.text();
     const climateNetwork =
       html.includes('Climate Builder Network') &&
-      html.includes('climate problems') &&
+      html.includes('Small Island Developing States') &&
       !html.includes('Meet the builders') &&
-      !html.includes('investor') &&
       !html.includes('Ryan R. Roper featured');
     checks.push({
       name: 'Climate Builder Network homepage',

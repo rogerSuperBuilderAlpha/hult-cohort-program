@@ -21,6 +21,12 @@ export default function WorkPage() {
           <span className="font-mono text-xs">not yet indexed</span> chip — never a fabricated URL.
         </p>
 
+        <aside className="mt-6 rounded-lg border border-ceal-sun/60 bg-ceal-panel p-4 text-sm text-ceal-muted">
+          <strong className="text-ceal-mangrove">Island conditions:</strong> Under Caribbean and SIDS
+          bandwidth and outage patterns, payload weight and offline behaviour are correctness issues
+          — not polish. Scorecards measure <em>artifacts</em> (deploy URLs), never participants.
+        </aside>
+
         <div className="mt-10">
           <WorkLedger />
         </div>

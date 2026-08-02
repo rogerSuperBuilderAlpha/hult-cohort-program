@@ -18,6 +18,8 @@ Build repo: https://github.com/nikjain15/hallmark
 - https://hallmark-eta.vercel.app/method — the published standard, every check specified with its known false negatives
 - https://hallmark-eta.vercel.app/partners — how to read the mark, and what it does not mean
 - https://hallmark-eta.vercel.app/builder/artira/opengraph-image — the shareable certificate card (1200×630 PNG, generated per builder)
+- https://hallmark-eta.vercel.app/badge/nikjain15 — the embeddable README badge (live SVG)
+- https://hallmark-eta.vercel.app/api/assay — the whole assay as public JSON
 
 ## Vibe / positioning notes
 
@@ -39,6 +41,11 @@ Build repo: https://github.com/nikjain15/hallmark
 - **The limits are published in the same type size as the marks.** `/method` lists every check's known false negatives; `/partners` states plainly that a mark is not a quality score, not a ranking, and not an endorsement.
 - **A GitHub-native correction path.** Every certificate carries "a mark wrong? tell us" — two clicks to a pre-filled issue containing all four marks and their evidence. No form, no account, no stored data.
 - **Shareable certificate card** per builder, generated as a real OG image so posting the link renders it automatically. Punch glyphs are drawn as shapes rather than typed, so there is no font dependency.
+- **A hollow mark tells you how to strike it.** Every unstruck mark carries a remedy — *"your README is 180 bytes; 320 more would strike this"*. The loop is check → gap → fix → verified on the next run, and it needs no stored state because the remedy is computed from the same fetch that produced the mark. This is what makes it a tool rather than a report.
+- **An embeddable badge** at `/badge/<handle>` — a live SVG of your marks for your own README, the way a CI badge works. It re-checks itself.
+- **A public JSON API** at [`/api/assay`](https://hallmark-eta.vercel.app/api/assay), CORS-open, with the standard embedded in the payload. If the standard is published, the data behind it should be too — any peer can build on this rather than re-scraping the cohort repo.
+- **A working roster** — search by name, handle, or what someone built; filter by mark earned and by project. There is deliberately **no sort control**, because every sort order worth offering would rank peers.
+- **Signals are not marks.** Extra observations (CI present, last activity) appear only on a builder's own certificate, clearly labelled, and never on the roster, share card, badge or API. Scoring peers on a bar invented after they submitted — by someone competing alongside them — would be self-serving, so the published four-mark standard stayed exactly as it was.
 - **We grade ourselves hardest.** `/method` publishes this project's own Build OS scorecard — 89/100, weak pillars included, with the arithmetic written out.
 
 **Accessibility:** marks are never colour-only (visible label + `aria-label` stating the verified fact); skip link; visible focus; WCAG AA contrast in both themes; `prefers-reduced-motion` respected; single column at 375px.

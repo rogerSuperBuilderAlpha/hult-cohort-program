@@ -19,8 +19,9 @@ export default function DevelopersPage() {
           Developers
         </h1>
         <p className="mt-3 max-w-xl text-[var(--ink-muted)]">
-          Every enrolled participant has a page. Opt-outs stay listed as private
-          — the roster stays complete.
+          Real Summer Pilot builders ship with public deploys. Additional
+          profiles are marked Sample data so partners can still walk the
+          directory UX.
         </p>
         <div className="mt-8">
           <PeopleDirectory

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { SampleDataBadge } from "@/components/SampleDataBadge";
 import type { Person } from "@/lib/types";
 
 type Props = {
@@ -91,6 +92,9 @@ export function PeopleDirectory({ people, campuses, skills }: Props) {
               <div className="border border-[var(--line)] bg-[var(--bg-elevated)] p-5 opacity-70">
                 <p className="font-[family-name:var(--font-syne)] text-lg font-semibold">
                   Private profile
+                  {person.isDemo ? (
+                    <SampleDataBadge className="ml-2 align-middle" />
+                  ) : null}
                 </p>
                 <p className="mt-1 text-sm text-[var(--ink-muted)]">
                   @{person.handle} · {person.campus} — opted out of public
@@ -109,6 +113,9 @@ export function PeopleDirectory({ people, campuses, skills }: Props) {
                   <div className="min-w-0">
                     <p className="font-[family-name:var(--font-syne)] text-lg font-semibold leading-tight">
                       {person.name}
+                      {person.isDemo ? (
+                        <SampleDataBadge className="ml-2 align-middle" />
+                      ) : null}
                     </p>
                     <p className="mt-0.5 font-[family-name:var(--font-jetbrains)] text-[11px] text-[var(--ink-faint)]">
                       @{person.handle} · {person.campus} · {person.role}

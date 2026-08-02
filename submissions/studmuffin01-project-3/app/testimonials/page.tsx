@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SampleDataBadge } from "@/components/SampleDataBadge";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -37,7 +38,8 @@ export default function TestimonialsPage() {
         </h1>
         <p className="mt-3 max-w-2xl text-[var(--ink-muted)]">
           Social proof from mentors, hiring partners, peers, and operators —
-          evidence that the cohort&apos;s work holds up under scrutiny.
+          illustrative quotes for UX — marked Sample data until real partner
+          feedback is wired.
         </p>
 
         <div className="mt-12 space-y-14">
@@ -54,6 +56,9 @@ export default function TestimonialsPage() {
                   >
                     <p className="font-[family-name:var(--font-jetbrains)] text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--signal)]">
                       {TESTIMONIAL_KIND_LABEL[item.kind]}
+                      {item.isDemo ? (
+                        <SampleDataBadge compact className="ml-2" />
+                      ) : null}
                     </p>
                     <blockquote className="mt-4 flex-1 text-base leading-relaxed text-[var(--ink)]">
                       &ldquo;{item.quote}&rdquo;

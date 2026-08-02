@@ -1,9 +1,12 @@
 import type { PmSnapshot } from "@/lib/types";
 import { forthUrl } from "@/lib/links";
 
-/** Daily-synced read-only snapshot from the cohort PM platform (Forth / Initiara). */
+/**
+ * Illustrative read-only snapshot shaped like cohort PM data.
+ * Not a live Forth API sync — labeled as demo in the UI.
+ */
 export const pmSnapshot: PmSnapshot = {
-  sourceLabel: "Forth · cohort PM snapshot",
+  sourceLabel: "Forth · illustrative PM snapshot (demo)",
   sourceUrl: forthUrl(),
   syncedAt: "2026-07-30T18:00:00.000Z",
   initiatives: [
@@ -38,7 +41,7 @@ export const pmSnapshot: PmSnapshot = {
       id: "uni",
       title: "Phase 1 · Ecosystem unification",
       status: "at-risk",
-      ownerHandle: "mayachen",
+      ownerHandle: "studmuffin01",
       openTasks: 8,
       doneTasks: 1,
       updatedAt: "2026-07-30T12:00:00.000Z",
@@ -47,7 +50,7 @@ export const pmSnapshot: PmSnapshot = {
       id: "p2a",
       title: "Peer review week · Project 2",
       status: "on-track",
-      ownerHandle: "jblake",
+      ownerHandle: "nikjain15",
       openTasks: 3,
       doneTasks: 9,
       updatedAt: "2026-07-30T15:30:00.000Z",

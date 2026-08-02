@@ -72,6 +72,11 @@ export type Person = {
   activity: ActivityItem[];
   /** Used by Live Summary / portfolio counts */
   projects: ProjectLink[];
+  /**
+   * Seed / fictional directory filler. Real cohort members omit this or set false.
+   * Demo profiles are badged in the UI and blocked from partner intros.
+   */
+  isDemo?: boolean;
 };
 
 export type PmInitiative = {

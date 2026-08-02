@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { positioning } from '@/data/cohort';
+import { ThemeToggle } from '@/components/ThemeProvider';
 
 const nav = [
   { href: '/', label: 'Home' },
   { href: '/work', label: 'Work' },
   { href: '/join', label: 'Join' },
   { href: '/partners', label: 'Partners' },
+  { href: '/contribute', label: 'Contribute' },
 ] as const;
 
 export function SiteHeader() {
@@ -15,12 +17,13 @@ export function SiteHeader() {
         <Link href="/" className="focus-ring rounded-md">
           <span className="font-display text-lg text-ceal-mangrove">{positioning.cohortMark}</span>
         </Link>
-        <nav className="flex flex-wrap gap-4 text-sm font-medium text-ceal-mangrove">
+        <nav className="flex flex-wrap items-center gap-4 text-sm font-medium text-ceal-mangrove">
           {nav.map((item) => (
             <Link key={item.href} href={item.href} className="hover:text-ceal-leaf focus-ring rounded">
               {item.label}
             </Link>
           ))}
+          <ThemeToggle />
         </nav>
       </div>
     </header>
@@ -77,6 +80,21 @@ export function SiteFooter() {
           </a>
         </p>
         <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <li>
+            <Link href="/contribute" className="text-ceal-leaf underline focus-ring rounded">
+              Contribute
+            </Link>
+          </li>
+          <li>
+            <Link href="/status" className="text-ceal-leaf underline focus-ring rounded">
+              Platform status
+            </Link>
+          </li>
+          <li>
+            <Link href="/changelog" className="text-ceal-leaf underline focus-ring rounded">
+              Changelog
+            </Link>
+          </li>
           <li>
             <Link href="/partners/readme" className="text-ceal-leaf underline focus-ring rounded">
               Partner README

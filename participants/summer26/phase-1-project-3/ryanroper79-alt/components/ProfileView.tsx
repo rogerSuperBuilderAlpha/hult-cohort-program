@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Participant } from '@/data/participants';
-import { participantProjects, participantsEditUrl } from '@/data/participants';
+import { participantProjects } from '@/data/participants';
+import { participantsEditUrl } from '@/data/constants';
 import type { LedgerEntry } from '@/data/ledger';
 
 type Props = { participant: Participant };

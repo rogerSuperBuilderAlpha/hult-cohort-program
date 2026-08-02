@@ -146,6 +146,3 @@ export function allHandles() {
 export function participantProjects(handle: string) {
   return entriesForHandle(handle);
 }
-
-export const participantsEditUrl =
-  'https://github.com/ryanroper79-alt/hult-cohort-program/edit/participants/summer26/phase-1-project-3/ryanroper79-alt/data/participants.ts';

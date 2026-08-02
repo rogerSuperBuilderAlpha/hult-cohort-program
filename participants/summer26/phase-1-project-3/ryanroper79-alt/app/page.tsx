@@ -3,6 +3,8 @@ import { SiteHeader, SiteFooter, StickyJoinBar } from '@/components/SiteChrome';
 import { ExpertsStrip } from '@/components/ExpertsStrip';
 import { PeopleStrip } from '@/components/PeopleStrip';
 import { ProofStrip } from '@/components/ProofStrip';
+import { ScrollReveal } from '@/components/ScrollReveal';
+import { ShipTicker } from '@/components/ShipTicker';
 import { positioning } from '@/data/cohort';
 
 export default function HomePage() {
@@ -55,17 +57,25 @@ export default function HomePage() {
           </Link>
         </aside>
 
-        <div className="mt-20">
-          <ProofStrip />
-        </div>
+        <ScrollReveal>
+          <div className="mt-20">
+            <ProofStrip />
+          </div>
+        </ScrollReveal>
 
-        <div className="mt-20">
-          <PeopleStrip />
-        </div>
+        <ScrollReveal>
+          <div className="mt-20">
+            <PeopleStrip />
+          </div>
+        </ScrollReveal>
 
-        <div className="mt-20">
-          <ExpertsStrip />
-        </div>
+        <ScrollReveal>
+          <div className="mt-20">
+            <ExpertsStrip />
+          </div>
+        </ScrollReveal>
+
+        <ShipTicker />
 
         <section className="mt-20 rounded-lg border border-ceal-line bg-ceal-panel p-8 md:p-10">
           <h2 className="font-display text-3xl text-ceal-mangrove">Contribute to the showcase</h2>

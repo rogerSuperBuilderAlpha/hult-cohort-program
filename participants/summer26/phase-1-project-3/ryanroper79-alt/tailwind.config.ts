@@ -7,6 +7,7 @@ import type { Config } from 'tailwindcss';
  * Visual hex spec: Brand Guidelines §5 pending — values aligned to logo until designer input.
  */
 const config: Config = {
+  darkMode: 'class',
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   theme: {
     extend: {

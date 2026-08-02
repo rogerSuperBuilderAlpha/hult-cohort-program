@@ -3,7 +3,10 @@ import path from 'node:path';
 
 /** Minimal markdown → React for PARTNERS.md (headings, lists, links, paragraphs). */
 export function readPartnersMarkdown() {
-  const filePath = path.join(process.cwd(), 'PARTNERS.md');
+  return readFileMarkdown(path.join(process.cwd(), 'PARTNERS.md'));
+}
+
+export function readFileMarkdown(filePath: string) {
   return fs.readFileSync(filePath, 'utf8');
 }
 

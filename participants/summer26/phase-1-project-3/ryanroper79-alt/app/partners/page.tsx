@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteHeader, SiteFooter, StickyJoinBar } from '@/components/SiteChrome';
 import { ExpertsStrip } from '@/components/ExpertsStrip';
+import { PartnerInquiryForm } from '@/components/PartnerInquiryForm';
+import { CalendlyEmbed } from '@/components/CalendlyEmbed';
 import { participants } from '@/data/participants';
 import { positioning, proofInventory } from '@/data/cohort';
 
@@ -93,7 +95,28 @@ export default function PartnersPage() {
           <ExpertsStrip />
         </section>
 
-        <section className="mt-16 rounded-lg border border-ceal-line bg-ceal-panel p-6">
+        <section className="mt-16 rounded-lg border border-ceal-line bg-ceal-white p-6 md:p-8">
+          <h2 className="font-display text-2xl text-ceal-mangrove">Partner inquiry</h2>
+          <p className="mt-2 text-sm text-ceal-muted">
+            Name, organisation, engagement model, and message — confirmation stays on this page.
+          </p>
+          <PartnerInquiryForm />
+        </section>
+
+        <section className="mt-12 rounded-lg border border-ceal-line bg-ceal-panel p-6">
+          <h2 className="font-display text-2xl text-ceal-mangrove">20-minute briefing</h2>
+          <p className="mt-2 text-sm text-ceal-muted">
+            Book a cohort briefing slot (optional — set `NEXT_PUBLIC_CALENDLY_URL` on deploy).
+          </p>
+          <CalendlyEmbed />
+          <p className="mt-4 text-sm">
+            <Link href="/partners/readme" className="text-ceal-leaf underline focus-ring rounded">
+              Download capability statement (printable README) →
+            </Link>
+          </p>
+        </section>
+
+        <section className="mt-12 rounded-lg border border-ceal-line bg-ceal-panel p-6">
           <h2 className="font-display text-2xl text-ceal-mangrove">Response commitment</h2>
           <p className="mt-3 text-ceal-muted">
             We reply to partner inquiries within <strong>2 business days</strong>. Use{' '}
@@ -118,8 +141,8 @@ export default function PartnersPage() {
         </section>
 
         <p className="mt-12 text-sm text-ceal-muted">
-          CEAL Green Energy Limited maintains this platform. Commercial project work, including
-          Commercial project work for Caribbean resilient infrastructure is at{' '}
+          CEAL Green Energy Limited maintains this platform. Commercial project work for Caribbean
+          resilient infrastructure is at{' '}
           <a
             href={positioning.cealGreenUrl}
             className="text-ceal-leaf underline focus-ring rounded"

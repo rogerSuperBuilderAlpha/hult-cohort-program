@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteHeader, SiteFooter, StickyJoinBar } from '@/components/SiteChrome';
 import { JoinForm } from '@/components/JoinForm';
+import { JoinSelfServe } from '@/components/JoinSelfServe';
 
 export const metadata: Metadata = {
   title: 'Join the roster',
@@ -31,11 +32,7 @@ export default function JoinPage() {
           <JoinForm />
         </div>
 
-        <p className="mt-10 text-sm text-ceal-muted">
-          Profiles are hand-edited in{' '}
-          <code className="rounded bg-ceal-panel px-1.5 py-0.5 font-mono text-xs">participants.ts</code>{' '}
-          and statically generated at build.
-        </p>
+        <JoinSelfServe />
       </main>
       <SiteFooter />
       <StickyJoinBar />

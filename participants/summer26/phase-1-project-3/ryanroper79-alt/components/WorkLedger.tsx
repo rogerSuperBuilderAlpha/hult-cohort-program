@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { LedgerEntry, LedgerStatus } from '@/data/ledger';
 import { featuredEntries, ledgerEntries } from '@/data/ledger';
+import { entryKey } from '@/lib/ledger-keys';
+import { LiveVerifyChip } from '@/components/LiveVerifyChip';
 
 const WEEKS = [1, 2, 3] as const;
 
@@ -33,6 +35,7 @@ function EntryCard({ entry }: { entry: LedgerEntry }) {
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-mono text-xs uppercase text-ceal-leaf">Week {entry.week}</span>
         <StatusChip status={entry.status} />
+        <LiveVerifyChip entryKey={entryKey(entry)} />
       </div>
       <h3 className="mt-2 font-display text-xl text-ceal-mangrove">{entry.title}</h3>
       <p className="mt-1 text-sm text-ceal-muted">

@@ -1,0 +1,37 @@
+name: Showcase CI (cealgreen-projects)
+
+on:
+  push:
+    branches: [main, 'projects/**', 'participants/**']
+    paths:
+      - 'participants/summer26/phase-1-project-3/ryanroper79-alt/**'
+      - '.github/workflows/showcase-cealgreen-projects.yml'
+  pull_request:
+    paths:
+      - 'participants/summer26/phase-1-project-3/ryanroper79-alt/**'
+      - '.github/workflows/showcase-cealgreen-projects.yml'
+
+defaults:
+  run:
+    working-directory: participants/summer26/phase-1-project-3/ryanroper79-alt
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: participants/summer26/phase-1-project-3/ryanroper79-alt/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build

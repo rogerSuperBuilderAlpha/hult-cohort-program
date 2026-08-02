@@ -4,22 +4,22 @@
 
 ## Production URL
 
-https://hallmark-eta.vercel.app
+https://hallmark.vercel.app
 
 Build repo: https://github.com/nikjain15/hallmark
 
 ## Sample profile URLs
 
-- https://hallmark-eta.vercel.app/cohort — the full roster (32 builders, alphabetical)
-- https://hallmark-eta.vercel.app/builder/artira — a certificate with all four marks struck
-- https://hallmark-eta.vercel.app/builder/alaskalam — a certificate with a partial row, showing "not yet" and "not checked" rendered distinctly
-- https://hallmark-eta.vercel.app/builder/nikjain15
-- https://hallmark-eta.vercel.app/builder/priyanshshahh
-- https://hallmark-eta.vercel.app/method — the published standard, every check specified with its known false negatives
-- https://hallmark-eta.vercel.app/partners — how to read the mark, and what it does not mean
-- https://hallmark-eta.vercel.app/builder/artira/opengraph-image — the shareable certificate card (1200×630 PNG, generated per builder)
-- https://hallmark-eta.vercel.app/badge/nikjain15 — the embeddable README badge (live SVG)
-- https://hallmark-eta.vercel.app/api/assay — the whole assay as public JSON
+- https://hallmark.vercel.app/cohort — the full roster (32 builders, alphabetical)
+- https://hallmark.vercel.app/builder/artira — a certificate with all four marks struck
+- https://hallmark.vercel.app/builder/alaskalam — a certificate with a partial row, showing "not yet" and "not checked" rendered distinctly
+- https://hallmark.vercel.app/builder/nikjain15
+- https://hallmark.vercel.app/builder/priyanshshahh
+- https://hallmark.vercel.app/method — the published standard, every check specified with its known false negatives
+- https://hallmark.vercel.app/partners — how to read the mark, and what it does not mean
+- https://hallmark.vercel.app/builder/artira/opengraph-image — the shareable certificate card (1200×630 PNG, generated per builder)
+- https://hallmark.vercel.app/badge/nikjain15 — the embeddable README badge (live SVG)
+- https://hallmark.vercel.app/api/assay — the whole assay as public JSON
 
 ## Vibe / positioning notes
 
@@ -43,7 +43,7 @@ Build repo: https://github.com/nikjain15/hallmark
 - **Shareable certificate card** per builder, generated as a real OG image so posting the link renders it automatically. Punch glyphs are drawn as shapes rather than typed, so there is no font dependency.
 - **A hollow mark tells you how to strike it.** Every unstruck mark carries a remedy — *"your README is 180 bytes; 320 more would strike this"*. The loop is check → gap → fix → verified on the next run, and it needs no stored state because the remedy is computed from the same fetch that produced the mark. This is what makes it a tool rather than a report.
 - **An embeddable badge** at `/badge/<handle>` — a live SVG of your marks for your own README, the way a CI badge works. It re-checks itself.
-- **A public JSON API** at [`/api/assay`](https://hallmark-eta.vercel.app/api/assay), CORS-open, with the standard embedded in the payload. If the standard is published, the data behind it should be too — any peer can build on this rather than re-scraping the cohort repo.
+- **A public JSON API** at [`/api/assay`](https://hallmark.vercel.app/api/assay), CORS-open, with the standard embedded in the payload. If the standard is published, the data behind it should be too — any peer can build on this rather than re-scraping the cohort repo.
 - **A working roster** — search by name, handle, or what someone built; filter by mark earned and by project. There is deliberately **no sort control**, because every sort order worth offering would rank peers.
 - **Signals are not marks.** Extra observations (CI present, last activity) appear only on a builder's own certificate, clearly labelled, and never on the roster, share card, badge or API. Scoring peers on a bar invented after they submitted — by someone competing alongside them — would be self-serving, so the published four-mark standard stayed exactly as it was.
 - **We grade ourselves hardest.** `/method` publishes this project's own Build OS scorecard — 89/100, weak pillars included, with the arithmetic written out.

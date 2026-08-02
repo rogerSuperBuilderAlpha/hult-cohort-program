@@ -21,12 +21,17 @@ https://lighthouse-studmuffin01.vercel.app
 
 ## Sample profile URLs
 
-Real cohort profiles (public deploys linked):
+Real cohort profiles (from merged submission PRs + public deploys):
 
 - https://lighthouse-studmuffin01.vercel.app/developers/studmuffin01
 - https://lighthouse-studmuffin01.vercel.app/developers/nikjain15
 - https://lighthouse-studmuffin01.vercel.app/developers/lorra-v
 - https://lighthouse-studmuffin01.vercel.app/developers/kiaracaesar5627
+- https://lighthouse-studmuffin01.vercel.app/developers/solzco1
+- https://lighthouse-studmuffin01.vercel.app/developers/arjun-singh2127
+- https://lighthouse-studmuffin01.vercel.app/developers/celiciakitty-creator
+- https://lighthouse-studmuffin01.vercel.app/developers/jiaxinaspenlin-dotcom
+- https://lighthouse-studmuffin01.vercel.app/developers/r3s0lv343vr
 
 Also:
 

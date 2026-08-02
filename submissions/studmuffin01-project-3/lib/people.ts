@@ -293,7 +293,7 @@ export const PEOPLE: Person[] = [
     initials: "NJ",
     isDemo: false,
     headline:
-      "Pulse + Rally — AI-first cohort PM and internal comms with public deploys.",
+      "Pulse, Rally, and Hallmark — PM, comms, and an independent cohort assay.",
     whyImHere:
       "I build products where removing the model leaves nothing behind. Partners can open Pulse and Rally on Vercel and judge the work without a guided tour.",
     skills: ["Next.js", "Firebase", "AI product", "TypeScript"],
@@ -313,6 +313,11 @@ export const PEOPLE: Person[] = [
         kind: "deploy",
       },
       {
+        label: "Hallmark (showcase) deploy",
+        href: "https://hallmark.vercel.app",
+        kind: "deploy",
+      },
+      {
         label: "GitHub",
         href: "https://github.com/nikjain15",
         kind: "repo",
@@ -320,30 +325,35 @@ export const PEOPLE: Person[] = [
     ],
     buildLog: [
       { week: "Week 1", title: "Shipped Pulse — board that updates itself" },
-      { week: "Week 2", title: "Peer review week on Project 1" },
-      { week: "Week 3", title: "Shipped Rally internal communications" },
-      { week: "Week 4", title: "Public deploys linked from cohort showcase" },
+      { week: "Week 2", title: "Shipped Rally internal communications" },
+      { week: "Week 3", title: "Shipped Hallmark cohort assay (Project 3)" },
+      { week: "Week 4", title: "Merged Project 3 PR — live on Vercel" },
     ],
     featuredProject: {
-      title: "Pulse",
-      tagline: "The board that updates itself from real cohort work.",
+      title: "Hallmark",
+      tagline: "Independent assay of the cohort — ship · live · docs · open.",
       problem:
-        "Task boards die when status is manual. Cohort work already lives in public repos — status should be sensed, not typed.",
+        "Partners need identical evidence checks across builders, not self-reported portfolios.",
       solutionItems: [
         {
           kind: "screenshot",
-          label: "Pulse board",
-          description: "Sense · Bank · Broker layers for cohort delivery.",
-          href: "https://pulsecohort.vercel.app",
+          label: "Hallmark",
+          description: "Four automated marks from GitHub + production probes.",
+          href: "https://hallmark.vercel.app",
         },
         {
           kind: "prototype",
-          label: "Rally",
-          description: "Internal comms deploy for Project 2.",
-          href: "https://rally-nikjain15.vercel.app",
+          label: "Pulse + Rally",
+          description: "Earlier Phase 1 PM and comms deploys.",
+          href: "https://pulsecohort.vercel.app",
         },
       ],
       proofOfWork: [
+        {
+          label: "Production showcase",
+          detail: "https://hallmark.vercel.app",
+          href: "https://hallmark.vercel.app",
+        },
         {
           label: "Production PM",
           detail: "https://pulsecohort.vercel.app",
@@ -356,17 +366,17 @@ export const PEOPLE: Person[] = [
         },
         {
           label: "Submission trail",
-          detail: "Merged Project 1 & 2 PRs in the cohort monorepo",
+          detail: "Merged Project 1–3 PRs in the cohort monorepo",
         },
       ],
-      liveAppUrl: "https://pulsecohort.vercel.app",
+      liveAppUrl: "https://hallmark.vercel.app",
       repoUrl: "https://github.com/nikjain15",
       docsUrl: "https://github.com/nikjain15",
       status: "live",
     },
     activity: [
-      { id: "nj1", text: "New deployment — Rally production", when: "Yesterday" },
-      { id: "nj2", text: "Pulse production live for peer review", when: "2 days ago" },
+      { id: "nj1", text: "New deployment — Hallmark production", when: "3 hours ago" },
+      { id: "nj2", text: "Merged Project 3 submission PR", when: "Yesterday" },
     ],
   }),
   makePerson({
@@ -377,13 +387,13 @@ export const PEOPLE: Person[] = [
     initials: "LV",
     isDemo: false,
     headline:
-      "Mission Control + Conexus — PM civilization tracker and cohort comms.",
+      "Mission Control, Conexus, and Comentiq — PM, comms, and partner showcase.",
     whyImHere:
-      "I ship operator-ready systems with real auth and data models. Partners can open Mission Control and Conexus and evaluate execution directly.",
+      "I ship operator-ready systems with real auth and data models. Partners can open Mission Control, Conexus, and Comentiq and evaluate execution directly.",
     skills: ["Next.js", "Supabase", "Product", "TypeScript"],
     links: {
-      deployment: "https://mission-control-sandy-phi.vercel.app",
-      portfolio: "https://mission-control-sandy-phi.vercel.app",
+      deployment: "https://hult-cohort-program-one.vercel.app",
+      portfolio: "https://hult-cohort-program-one.vercel.app",
     },
     projects: [
       {
@@ -397,6 +407,11 @@ export const PEOPLE: Person[] = [
         kind: "deploy",
       },
       {
+        label: "Comentiq (showcase) deploy",
+        href: "https://hult-cohort-program-one.vercel.app",
+        kind: "deploy",
+      },
+      {
         label: "GitHub",
         href: "https://github.com/lorra-v",
         kind: "repo",
@@ -404,30 +419,35 @@ export const PEOPLE: Person[] = [
     ],
     buildLog: [
       { week: "Week 1", title: "Shipped Mission Control civilization tracker" },
-      { week: "Week 2", title: "Peer review and iteration on Project 1" },
-      { week: "Week 3", title: "Shipped Conexus internal communications" },
-      { week: "Week 4", title: "Public deploys linked from cohort showcase" },
+      { week: "Week 2", title: "Shipped Conexus internal communications" },
+      { week: "Week 3", title: "Shipped Comentiq partner showcase (Project 3)" },
+      { week: "Week 4", title: "Merged Project 3 PR — live on Vercel" },
     ],
     featuredProject: {
-      title: "Mission Control",
-      tagline: "Cohort civilization tracker with real tasks and PR evidence.",
+      title: "Comentiq",
+      tagline: "Evidence-based campaign stories from builder progress.",
       problem:
-        "Cohorts lose motivation and clarity when progress is invisible. Operators need status tied to merged work, not slide decks.",
+        "Cohorts lose partner attention when progress stays buried in repos. Operators need public stories grounded in shipped work.",
       solutionItems: [
         {
           kind: "screenshot",
-          label: "Mission Control",
-          description: "Dashboard, tasks, and civilization progression.",
-          href: "https://mission-control-sandy-phi.vercel.app",
+          label: "Comentiq",
+          description: "AI-assisted campaign drafts from real project updates.",
+          href: "https://hult-cohort-program-one.vercel.app",
         },
         {
           kind: "prototype",
-          label: "Conexus",
-          description: "Internal communications platform for Project 2.",
-          href: "https://conexus-rust.vercel.app",
+          label: "Mission Control + Conexus",
+          description: "Earlier Phase 1 PM and comms deploys.",
+          href: "https://mission-control-sandy-phi.vercel.app",
         },
       ],
       proofOfWork: [
+        {
+          label: "Production showcase",
+          detail: "https://hult-cohort-program-one.vercel.app",
+          href: "https://hult-cohort-program-one.vercel.app",
+        },
         {
           label: "Production PM",
           detail: "https://mission-control-sandy-phi.vercel.app",
@@ -440,21 +460,17 @@ export const PEOPLE: Person[] = [
         },
         {
           label: "Submission trail",
-          detail: "Merged Project 1 & 2 PRs in the cohort monorepo",
+          detail: "Merged Project 1–3 PRs in the cohort monorepo",
         },
       ],
-      liveAppUrl: "https://mission-control-sandy-phi.vercel.app",
+      liveAppUrl: "https://hult-cohort-program-one.vercel.app",
       repoUrl: "https://github.com/lorra-v",
       docsUrl: "https://github.com/lorra-v",
       status: "live",
     },
     activity: [
-      { id: "lv1", text: "New deployment — Conexus production", when: "Yesterday" },
-      {
-        id: "lv2",
-        text: "Mission Control production live for peer review",
-        when: "2 days ago",
-      },
+      { id: "lv1", text: "New deployment — Comentiq production", when: "3 hours ago" },
+      { id: "lv2", text: "Merged Project 3 submission PR", when: "Yesterday" },
     ],
   }),
   makePerson({
@@ -547,6 +563,374 @@ export const PEOPLE: Person[] = [
         text: "FlexiFlow production live for peer review",
         when: "2 days ago",
       },
+    ],
+  }),
+  makePerson({
+    handle: "solzco1",
+    name: "Solzco",
+    campus: "Summer Pilot",
+    role: "Full-stack builder",
+    initials: "SO",
+    isDemo: false,
+    headline:
+      "Pulse — vibe marketing showcase with live cohort telemetry.",
+    whyImHere:
+      "I build partner-facing surfaces that feel alive — heartbeat metrics, builder profiles, and intros tied to real Phase 1 deploys.",
+    skills: ["Next.js", "Supabase", "Product", "Marketing"],
+    links: {
+      deployment: "https://pulse-ten-theta.vercel.app",
+      portfolio: "https://pulse-ten-theta.vercel.app",
+    },
+    projects: [
+      {
+        label: "Pulse showcase deploy",
+        href: "https://pulse-ten-theta.vercel.app",
+        kind: "deploy",
+      },
+      {
+        label: "Sol PM deploy",
+        href: "https://solzpm.vercel.app",
+        kind: "deploy",
+      },
+      {
+        label: "Sol Comms deploy",
+        href: "https://solforth.vercel.app",
+        kind: "deploy",
+      },
+      {
+        label: "GitHub",
+        href: "https://github.com/solzco1",
+        kind: "repo",
+      },
+    ],
+    buildLog: [
+      { week: "Week 1", title: "Shipped Sol PM platform" },
+      { week: "Week 2", title: "Shipped Sol Comms" },
+      { week: "Week 3", title: "Shipped Pulse vibe marketing (Project 3)" },
+      { week: "Week 4", title: "Merged Project 3 PR — live on Vercel" },
+    ],
+    featuredProject: {
+      title: "Pulse",
+      tagline: "Live telemetry showcase for the Summer Pilot cohort.",
+      problem:
+        "Hiring partners bounce when a cohort site feels like a static directory. They need heartbeat and proof they can open.",
+      solutionItems: [
+        {
+          kind: "screenshot",
+          label: "Pulse",
+          description: "Ticker, builder profiles, partner portal.",
+          href: "https://pulse-ten-theta.vercel.app",
+        },
+      ],
+      proofOfWork: [
+        {
+          label: "Production showcase",
+          detail: "https://pulse-ten-theta.vercel.app",
+          href: "https://pulse-ten-theta.vercel.app",
+        },
+        {
+          label: "Merged Project 3 PR",
+          detail: "solzco1 submission in cohort monorepo",
+        },
+      ],
+      liveAppUrl: "https://pulse-ten-theta.vercel.app",
+      repoUrl: "https://github.com/solzco1",
+      docsUrl: "https://github.com/solzco1",
+      status: "live",
+    },
+    activity: [
+      { id: "so1", text: "New deployment — Pulse production", when: "3 hours ago" },
+      { id: "so2", text: "Merged Project 3 submission PR", when: "Yesterday" },
+    ],
+  }),
+  makePerson({
+    handle: "arjun-singh2127",
+    name: "Arjun Singh",
+    campus: "Summer Pilot",
+    role: "Full-stack builder",
+    initials: "AS",
+    isDemo: false,
+    headline:
+      "Good Vibes — studio collective showcase driven by live GitHub roster data.",
+    whyImHere:
+      "I refuse fabricated bios. Good Vibes reads handles from real submission PRs and hydrates names, avatars, and merges from the GitHub API.",
+    skills: ["Next.js", "GitHub API", "Product", "Design systems"],
+    links: {
+      deployment: "https://good-vibes-zeta.vercel.app",
+      portfolio: "https://good-vibes-zeta.vercel.app",
+    },
+    projects: [
+      {
+        label: "Good Vibes deploy",
+        href: "https://good-vibes-zeta.vercel.app",
+        kind: "deploy",
+      },
+      {
+        label: "Build repo",
+        href: "https://github.com/arjun-singh2127/Good-Vibes",
+        kind: "repo",
+      },
+    ],
+    buildLog: [
+      { week: "Week 1–2", title: "Phase 1 builds + peer review" },
+      { week: "Week 3", title: "Shipped Good Vibes (Project 3)" },
+      { week: "Week 4", title: "Merged Project 3 PR — live GitHub roster" },
+    ],
+    featuredProject: {
+      title: "Good Vibes",
+      tagline: "We don't pitch decks. We ship software.",
+      problem:
+        "Static directories invent people. Partners need a collective roster backed by merged PRs and live GitHub facts.",
+      solutionItems: [
+        {
+          kind: "screenshot",
+          label: "Builders directory",
+          description: "Alphabetical roster hydrated from GitHub.",
+          href: "https://good-vibes-zeta.vercel.app/builders",
+        },
+      ],
+      proofOfWork: [
+        {
+          label: "Production",
+          detail: "https://good-vibes-zeta.vercel.app",
+          href: "https://good-vibes-zeta.vercel.app",
+        },
+        {
+          label: "Merged Project 3 PR",
+          detail: "#209 in cohort monorepo",
+        },
+      ],
+      liveAppUrl: "https://good-vibes-zeta.vercel.app",
+      repoUrl: "https://github.com/arjun-singh2127/Good-Vibes",
+      docsUrl: "https://github.com/arjun-singh2127/Good-Vibes#readme",
+      status: "live",
+    },
+    activity: [
+      {
+        id: "as1",
+        text: "New deployment — Good Vibes production",
+        when: "3 hours ago",
+      },
+      { id: "as2", text: "Merged Project 3 submission PR", when: "Yesterday" },
+    ],
+  }),
+  makePerson({
+    handle: "celiciakitty-creator",
+    name: "Celicia",
+    campus: "Summer Pilot",
+    role: "Full-stack builder",
+    initials: "CA",
+    isDemo: false,
+    headline:
+      "Cohort in Bloom — garden-inspired public marketing platform for partners.",
+    whyImHere:
+      "I want partners to discover builders the way a garden grows — profiles, projects, and collaboration paths that feel welcoming and real.",
+    skills: ["Next.js", "Supabase", "UI", "TypeScript"],
+    links: {
+      deployment: "https://cohort-in-bloom.vercel.app",
+      portfolio: "https://cohort-in-bloom.vercel.app",
+    },
+    projects: [
+      {
+        label: "Cohort in Bloom deploy",
+        href: "https://cohort-in-bloom.vercel.app",
+        kind: "deploy",
+      },
+      {
+        label: "Build repo",
+        href: "https://github.com/celiciakitty-creator/cohort-in-bloom",
+        kind: "repo",
+      },
+    ],
+    buildLog: [
+      { week: "Week 3", title: "Shipped Cohort in Bloom (Project 3)" },
+      { week: "Week 4", title: "Merged Project 3 PR — live on Vercel" },
+    ],
+    featuredProject: {
+      title: "Cohort in Bloom",
+      tagline: "A living digital garden for cohort discovery.",
+      problem:
+        "Cold directories hide emerging talent. Partners need a warm public surface to browse people and projects.",
+      solutionItems: [
+        {
+          kind: "screenshot",
+          label: "Participants",
+          description: "Public participant and project routes.",
+          href: "https://cohort-in-bloom.vercel.app",
+        },
+      ],
+      proofOfWork: [
+        {
+          label: "Production",
+          detail: "https://cohort-in-bloom.vercel.app",
+          href: "https://cohort-in-bloom.vercel.app",
+        },
+        {
+          label: "Merged Project 3 PR",
+          detail: "#210 in cohort monorepo",
+        },
+      ],
+      liveAppUrl: "https://cohort-in-bloom.vercel.app",
+      repoUrl: "https://github.com/celiciakitty-creator/cohort-in-bloom",
+      docsUrl:
+        "https://github.com/celiciakitty-creator/cohort-in-bloom/blob/main/docs/PARTNER_README.md",
+      status: "live",
+    },
+    activity: [
+      {
+        id: "ca1",
+        text: "New deployment — Cohort in Bloom",
+        when: "3 hours ago",
+      },
+      { id: "ca2", text: "Merged Project 3 submission PR", when: "Yesterday" },
+    ],
+  }),
+  makePerson({
+    handle: "jiaxinaspenlin-dotcom",
+    name: "Aspen Lin",
+    campus: "Summer Pilot",
+    role: "Full-stack builder",
+    initials: "AL",
+    isDemo: false,
+    headline:
+      "Signal Atlas — talent universe with published stars and no rankings.",
+    whyImHere:
+      "I build discovery surfaces partners can trust: nothing public until reviewed, nothing scored or ranked, every star linked to real work.",
+    skills: ["Next.js", "Postgres", "Accessibility", "Product"],
+    links: {
+      deployment: "https://signal-atlas-omega.vercel.app",
+      portfolio: "https://signal-atlas-omega.vercel.app",
+    },
+    projects: [
+      {
+        label: "Signal Atlas deploy",
+        href: "https://signal-atlas-omega.vercel.app",
+        kind: "deploy",
+      },
+      {
+        label: "Build repo",
+        href: "https://github.com/jiaxinaspenlin-dotcom/signal-atlas",
+        kind: "repo",
+      },
+    ],
+    buildLog: [
+      { week: "Week 1–2", title: "Phase 1 builds (Grow Sprout, Ember)" },
+      { week: "Week 3", title: "Shipped Signal Atlas (Project 3)" },
+      { week: "Week 4", title: "Merged Project 3 PR — live on Vercel" },
+    ],
+    featuredProject: {
+      title: "Signal Atlas",
+      tagline: "Navigable talent universe — no ranking model.",
+      problem:
+        "Directories either invent people or turn peers into a leaderboard. Partners need discovery without scores.",
+      solutionItems: [
+        {
+          kind: "screenshot",
+          label: "Universe + List",
+          description: "Constellations by mission; accessible list view.",
+          href: "https://signal-atlas-omega.vercel.app",
+        },
+      ],
+      proofOfWork: [
+        {
+          label: "Production",
+          detail: "https://signal-atlas-omega.vercel.app",
+          href: "https://signal-atlas-omega.vercel.app",
+        },
+        {
+          label: "Public builder",
+          detail: "https://signal-atlas-omega.vercel.app/builders/jiaxinaspenlin",
+          href: "https://signal-atlas-omega.vercel.app/builders/jiaxinaspenlin",
+        },
+        {
+          label: "Merged Project 3 PR",
+          detail: "#202 in cohort monorepo",
+        },
+      ],
+      liveAppUrl: "https://signal-atlas-omega.vercel.app",
+      repoUrl: "https://github.com/jiaxinaspenlin-dotcom/signal-atlas",
+      docsUrl:
+        "https://github.com/jiaxinaspenlin-dotcom/signal-atlas/blob/main/docs/PARTNERS.md",
+      status: "live",
+    },
+    activity: [
+      {
+        id: "al1",
+        text: "New deployment — Signal Atlas production",
+        when: "3 hours ago",
+      },
+      { id: "al2", text: "Merged Project 3 submission PR", when: "Yesterday" },
+    ],
+  }),
+  makePerson({
+    handle: "r3s0lv343vr",
+    name: "Resolve",
+    campus: "Summer Pilot",
+    role: "Full-stack builder",
+    initials: "RS",
+    isDemo: false,
+    headline:
+      "NextMove — partner-facing vibe marketing with GitHub-linked profiles.",
+    whyImHere:
+      "I ship hiring surfaces partners will actually open — student/partner directories backed by a live production URL, not a pitch deck.",
+    skills: ["Next.js", "Product", "Brand", "TypeScript"],
+    links: {
+      deployment: "https://nextmove-hult.vercel.app",
+      portfolio: "https://nextmove-hult.vercel.app",
+    },
+    projects: [
+      {
+        label: "NextMove deploy",
+        href: "https://nextmove-hult.vercel.app",
+        kind: "deploy",
+      },
+      {
+        label: "Build repo",
+        href: "https://github.com/r3s0lv343vr/vibe-marketing-platform",
+        kind: "repo",
+      },
+    ],
+    buildLog: [
+      { week: "Week 3", title: "Shipped vibe marketing platform (Project 3)" },
+      { week: "Week 4", title: "Rebranded to NextMove — redirects preserved" },
+    ],
+    featuredProject: {
+      title: "NextMove",
+      tagline: "Cohort proof partners can browse and request intros from.",
+      problem:
+        "Mid-review rebrands break peer links. Partners need a stable HTTPS surface with real profile routes.",
+      solutionItems: [
+        {
+          kind: "screenshot",
+          label: "Profiles + partners",
+          description: "GitHub-linked directory and partner path.",
+          href: "https://nextmove-hult.vercel.app",
+        },
+      ],
+      proofOfWork: [
+        {
+          label: "Production",
+          detail: "https://nextmove-hult.vercel.app",
+          href: "https://nextmove-hult.vercel.app",
+        },
+        {
+          label: "Sample profile",
+          detail: "https://nextmove-hult.vercel.app/profiles/r3s0lv343vr",
+          href: "https://nextmove-hult.vercel.app/profiles/r3s0lv343vr",
+        },
+        {
+          label: "Merged Project 3 update",
+          detail: "#211 in cohort monorepo",
+        },
+      ],
+      liveAppUrl: "https://nextmove-hult.vercel.app",
+      repoUrl: "https://github.com/r3s0lv343vr/vibe-marketing-platform",
+      docsUrl: "https://github.com/r3s0lv343vr/vibe-marketing-platform",
+      status: "live",
+    },
+    activity: [
+      { id: "rs1", text: "New deployment — NextMove production", when: "3 hours ago" },
+      { id: "rs2", text: "Merged Project 3 update PR", when: "Yesterday" },
     ],
   }),
   makePerson({

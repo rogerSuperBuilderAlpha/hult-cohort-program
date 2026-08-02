@@ -15,12 +15,19 @@ Production URL: https://lighthouse-studmuffin01.vercel.app
 
 ## Real cohort profiles (smoke these)
 
+Pulled from merged Phase 1 submission PRs + verified production URLs:
+
 | Handle | Public deploys |
 |--------|----------------|
 | `studmuffin01` | Forth · Fireside · Lighthouse |
-| `nikjain15` | https://pulsecohort.vercel.app · https://rally-nikjain15.vercel.app |
-| `lorra-v` | https://mission-control-sandy-phi.vercel.app · https://conexus-rust.vercel.app |
+| `nikjain15` | Pulse · Rally · https://hallmark.vercel.app |
+| `lorra-v` | Mission Control · Conexus · https://hult-cohort-program-one.vercel.app |
 | `kiaracaesar5627` | https://pilot-hult-pm.vercel.app · https://pilot-hult-comms.vercel.app |
+| `solzco1` | https://pulse-ten-theta.vercel.app |
+| `arjun-singh2127` | https://good-vibes-zeta.vercel.app |
+| `celiciakitty-creator` | https://cohort-in-bloom.vercel.app |
+| `jiaxinaspenlin-dotcom` | https://signal-atlas-omega.vercel.app |
+| `r3s0lv343vr` | https://nextmove-hult.vercel.app |
 
 Sample / fictional directory fillers, testimonials, and industry partners are badged **Sample data** and cannot be selected for partner intros.
 

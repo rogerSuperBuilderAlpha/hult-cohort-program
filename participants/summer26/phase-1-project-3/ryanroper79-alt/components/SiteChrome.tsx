@@ -101,6 +101,11 @@ export function SiteFooter() {
             </Link>
           </li>
           <li>
+            <Link href={positioning.rsvpPath} className="text-ceal-leaf underline focus-ring rounded">
+              Showcase RSVP
+            </Link>
+          </li>
+          <li>
             <Link href={positioning.votePath} className="text-ceal-leaf underline focus-ring rounded">
               Vote for this showcase
             </Link>

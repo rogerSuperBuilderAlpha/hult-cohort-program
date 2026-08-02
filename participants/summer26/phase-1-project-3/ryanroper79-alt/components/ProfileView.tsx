@@ -68,8 +68,29 @@ function LedgerProjectList({ entries }: { entries: LedgerEntry[] }) {
 export function ProfileView({ participant }: Props) {
   const entries = participantProjects(participant.handle);
   const isStub = participant.status === 'stub';
+  const isPrivate = participant.privacy === 'private';
   const isRyan = participant.handle === featuredBuilder.handle;
   const photo = participant.photoPath ?? (isRyan ? featuredBuilder.photoPath : participant.avatarUrl);
+
+  if (isPrivate) {
+    return (
+      <article>
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-ceal-leaf">Private profile</p>
+        <h1 className="mt-3 font-display text-4xl text-ceal-mangrove md:text-5xl">{participant.displayName}</h1>
+        <p className="mt-2 font-mono text-sm text-ceal-muted">@{participant.handle}</p>
+        <div className="mt-8 rounded-lg border border-dashed border-ceal-line bg-ceal-panel p-6 md:p-8">
+          <p className="text-lg text-ceal-muted">
+            This enrolled participant opted out of a full public profile. Placement can still route
+            confidential introductions — use the{' '}
+            <Link href="/partners#inquiry" className="text-ceal-leaf underline focus-ring rounded">
+              partner enquiry form
+            </Link>{' '}
+            and name their handle.
+          </p>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article>

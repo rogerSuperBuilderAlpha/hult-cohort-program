@@ -13,6 +13,7 @@ const routes = [
   '/builders',
   '/partners/readme',
   '/vote',
+  '/rsvp',
   '/contribute',
   '/status',
   '/changelog',
@@ -20,10 +21,12 @@ const routes = [
   '/p/raven-dubgub',
   '/p/gge513',
   '/p/CodingWCal',
+  '/p/studmuffin01',
 ];
 
 const externalLinks = [
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186',
+  'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/201',
   'https://www.cealgreen.com',
   'https://github.com/ryanroper79-alt',
 ];
@@ -96,6 +99,22 @@ async function main() {
   } catch (err) {
     checks.push({
       name: 'Cohort-first homepage content',
+      ok: false,
+      detail: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  try {
+    const res = await fetchStatus(`${baseUrl}/p/studmuffin01`);
+    const html = await res.text();
+    checks.push({
+      name: 'Private profile /p/studmuffin01',
+      ok: res.ok && html.includes('Private profile'),
+      detail: res.ok ? 'Private placeholder detected' : `${res.status}`,
+    });
+  } catch (err) {
+    checks.push({
+      name: 'Private profile /p/studmuffin01',
       ok: false,
       detail: err instanceof Error ? err.message : String(err),
     });

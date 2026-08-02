@@ -52,6 +52,14 @@ Commercial project delivery: [cealgreen.com](https://www.cealgreen.com).
 
 We reply to partner inquiries within **2 business days**. Use the engagement form on [/partners](https://cealgreen-projects.vercel.app/partners) or open a GitHub issue via [/join](https://cealgreen-projects.vercel.app/join).
 
+## End-of-pilot showcase RSVP
+
+Hiring partners: register at [/rsvp](https://cealgreen-projects.vercel.app/rsvp) for the Week 6 hiring showcase (virtual + Boston campus, August 2026).
+
+## Privacy
+
+Every enrolled participant has a profile page. Opt-outs appear as private placeholders (example: [/p/studmuffin01](https://cealgreen-projects.vercel.app/p/studmuffin01)) so the roster stays complete without exposing personal bios.
+
 ## Licensing
 
 Cohort submission code is MIT-licensed unless a participant specifies otherwise in their build repo. This showcase platform is maintained by CEAL Green Energy Limited for the duration of the pilot.

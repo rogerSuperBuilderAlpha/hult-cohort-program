@@ -13,6 +13,7 @@ export type Participant = {
   location?: string;
   skills?: string[];
   featured?: boolean;
+  privacy?: 'public' | 'private';
   links: { github?: string; site?: string; linkedin?: string; blog?: string };
 };
 
@@ -40,6 +41,7 @@ function normalizeParticipant(
     location: entry.location,
     skills: entry.skills,
     featured: entry.featured,
+    privacy: entry.privacy ?? 'public',
     links: {
       ...entry.links,
       blog: entry.links.blog ?? github?.blog ?? undefined,

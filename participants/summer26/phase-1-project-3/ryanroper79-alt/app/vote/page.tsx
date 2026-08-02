@@ -18,17 +18,38 @@ function voteIssueUrl(reviewerHandle: string) {
     `Vote: up
 
 Production URL: ${proofInventory.productionUrl}
+Build repo: ${proofInventory.buildRepo}
+Submission PR: ${proofInventory.submissionPrUrl}
 
 Sample profiles:
 - ${proofInventory.productionUrl}/p/ryanroper79-alt
 - ${proofInventory.productionUrl}/p/CodingWCal
-- ${proofInventory.productionUrl}/p/ramyatolety
+- ${proofInventory.productionUrl}/p/studmuffin01 (private opt-out demo)
 
 Partner README: ${proofInventory.productionUrl}/partners/readme
 
-## Technical review
+## Review by @${reviewerHandle}
+**Deployment tested:** yes/no — URL: ${proofInventory.productionUrl}
+**Time spent:** ~X min
 
-- 
+### Repo exploration (cite files)
+- \`data/ledger.ts\`:
+- \`data/participants.ts\`:
+- \`app/partners/page.tsx\`:
+
+### Rubric
+| Dimension | Score (1-5) | Note |
+| Production readiness | | |
+| Core functionality | | |
+| Code quality | | |
+| Ecosystem thinking | | |
+| Credibility to employers | | |
+
+### One actionable suggestion
+
+
+### Recommendation
+merge-ready / needs-work / incoherent
 `,
   );
   return `${ISSUE_BASE}?title=${title}&body=${body}`;
@@ -52,8 +73,8 @@ export default function VotePage() {
 
         <ol className="mt-8 list-decimal space-y-3 pl-5 text-ceal-muted">
           <li>Replace YOUR-HANDLE in the link below with your GitHub username</li>
-          <li>Complete the technical review section (deploy, ledger, profiles, accessibility)</li>
-          <li>Keep the Vote: up line in the issue body</li>
+          <li>Complete the rubric (≥150 words, cite ≥3 files)</li>
+          <li>Keep the Vote: up line in the issue body to cast your upvote</li>
         </ol>
 
         <div className="mt-10 space-y-4">
@@ -80,19 +101,31 @@ export default function VotePage() {
               <Link href="/work" className="text-ceal-leaf underline focus-ring rounded">
                 /work
               </Link>{' '}
-              — three-week ledger for all builders
+              — three-week ledger + live verification chips
             </li>
             <li>
-              <Link href="/p/ryanroper79-alt" className="text-ceal-leaf underline focus-ring rounded">
-                /p/your-handle
+              <Link href="/builders" className="text-ceal-leaf underline focus-ring rounded">
+                /builders
               </Link>{' '}
-              — every enrolled profile published
+              — directory with featured builder + private opt-out
             </li>
             <li>
-              <Link href="/partners/readme" className="text-ceal-leaf underline focus-ring rounded">
-                /partners/readme
+              <Link href="/partners" className="text-ceal-leaf underline focus-ring rounded">
+                /partners
               </Link>{' '}
-              — partner-facing README rendered on-site
+              — enquiry form, solutions catalog, Ryan R. Roper spotlight
+            </li>
+            <li>
+              <Link href="/status" className="text-ceal-leaf underline focus-ring rounded">
+                /status
+              </Link>{' '}
+              — CI badge + /api/verify summary
+            </li>
+            <li>
+              <Link href="/rsvp" className="text-ceal-leaf underline focus-ring rounded">
+                /rsvp
+              </Link>{' '}
+              — end-of-pilot showcase registration
             </li>
           </ul>
         </section>

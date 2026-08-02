@@ -9,6 +9,8 @@ export type RosterEntry = {
   location?: string;
   skills?: string[];
   featured?: boolean;
+  /** Default public; opt-out shows a private placeholder at /p/{handle}. */
+  privacy?: 'public' | 'private';
   links: { github?: string; site?: string; linkedin?: string; blog?: string };
 };
 
@@ -93,7 +95,8 @@ export const roster: RosterEntry[] = [
   {
     handle: 'studmuffin01',
     status: 'stub',
-    headline: 'Summer Pilot 2026 participant — linked cohort stack studio showcase.',
+    privacy: 'private',
+    headline: 'Private profile — enrolled participant opted out of public bio.',
     links: { github: 'https://github.com/studmuffin01' },
   },
 ];

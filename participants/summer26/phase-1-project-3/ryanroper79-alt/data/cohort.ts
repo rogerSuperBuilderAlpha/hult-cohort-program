@@ -21,7 +21,15 @@ export const positioning = {
   },
   /** Shareable vote link for cohort peer review week */
   votePath: '/vote',
+  rsvpPath: '/rsvp',
   joinPath: '/join',
+} as const;
+
+export const showcaseEvent = {
+  title: 'End-of-pilot hiring showcase',
+  when: 'Week 6 · August 2026 · Virtual + Boston campus',
+  description:
+    'Meet builders in person or online. Inspect live deploys, ledger evidence, and partner with the cohort operator team.',
 } as const;
 
 /** Verified proof inventory — add only real, gathered values. */
@@ -30,5 +38,9 @@ export const proofInventory = {
   programWeek: 3,
   submissionPrUrl:
     'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/186',
+  syncPrUrl:
+    'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/pull/201',
   productionUrl: 'https://cealgreen-projects.vercel.app',
+  buildRepo:
+    'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/tree/participants/summer26/phase-1-project-3/ryanroper79-alt',
 } as const;

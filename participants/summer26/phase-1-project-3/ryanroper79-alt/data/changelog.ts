@@ -22,9 +22,9 @@ export const changelog: ChangelogEntry[] = [
   },
   {
     date: '2026-08-02',
-    title: 'Partner surface — Ryan R. Roper spotlight',
+    title: 'Submission complete — RSVP, privacy, reviewer docs',
     summary:
-      'Comentiq-inspired /partners with featured builder, solution catalog, builders directory, and investor-grade enquiry form.',
-    href: '/partners',
+      'Showcase RSVP, private profile opt-out, README/REVIEWER/SUBMISSION_PR, vote template aligned to peer review rubric.',
+    href: '/vote',
   },
 ];

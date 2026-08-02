@@ -85,6 +85,19 @@ export default function PartnersPage() {
         </section>
 
         <section className="mt-12 rounded-lg border border-ceal-line bg-ceal-panel p-6">
+          <h2 className="font-display text-2xl text-ceal-mangrove">End-of-pilot showcase</h2>
+          <p className="mt-2 text-sm text-ceal-muted">
+            Hiring partners: RSVP for the Week 6 hiring showcase to meet builders and inspect live deploys.
+          </p>
+          <Link
+            href="/rsvp"
+            className="mt-4 inline-block rounded-md border border-ceal-mangrove px-5 py-3 text-sm font-semibold text-ceal-mangrove focus-ring hover:bg-ceal-white"
+          >
+            RSVP for showcase →
+          </Link>
+        </section>
+
+        <section className="mt-12 rounded-lg border border-ceal-line bg-ceal-panel p-6">
           <h2 className="font-display text-2xl text-ceal-mangrove">Evidence & response</h2>
           <p className="mt-3 text-ceal-muted">
             We reply within <strong>2 business days</strong>. Inspect the three-week ledger and live

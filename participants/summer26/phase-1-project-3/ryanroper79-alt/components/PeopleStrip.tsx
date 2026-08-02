@@ -66,13 +66,15 @@ function ParticipantCard({ participant: p }: { participant: Participant }) {
         ) : null}
         <div>
           <p className="font-mono text-xs uppercase tracking-wider text-ceal-leaf">
-            {p.featured ? 'Featured builder' : 'Cohort builder'}
+            {p.featured ? 'Featured builder' : p.privacy === 'private' ? 'Private profile' : 'Cohort builder'}
           </p>
           <p className="mt-1 font-display text-xl text-ceal-mangrove">{p.displayName}</p>
           {p.location ? <p className="text-xs text-ceal-muted">{p.location}</p> : null}
         </div>
       </div>
-      <p className="mt-3 text-sm text-ceal-muted line-clamp-3">{p.headline}</p>
+      <p className="mt-3 text-sm text-ceal-muted line-clamp-3">
+        {p.privacy === 'private' ? 'Opted out of public bio — listed for roster completeness.' : p.headline}
+      </p>
       {p.skills && p.skills.length > 0 ? (
         <ul className="mt-3 flex flex-wrap gap-1">
           {p.skills.slice(0, 3).map((s) => (

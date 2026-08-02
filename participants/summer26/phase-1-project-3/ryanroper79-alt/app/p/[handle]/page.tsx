@@ -17,9 +17,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const participant = getParticipant(handle);
   if (!participant) return { title: 'Profile not found' };
 
+  const isPrivate = participant.privacy === 'private';
+
   return {
-    title: participant.displayName,
-    description: participant.headline,
+    title: isPrivate ? `${participant.displayName} (private)` : participant.displayName,
+    description: isPrivate
+      ? 'Private profile — enrolled participant opted out of public bio.'
+      : participant.headline,
     openGraph: {
       title: `${participant.displayName} · Hult Cohort`,
       description: participant.headline,

@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/partners/solutions',
     '/partners/readme',
     '/vote',
+    '/rsvp',
     '/contribute',
     '/status',
     '/changelog',

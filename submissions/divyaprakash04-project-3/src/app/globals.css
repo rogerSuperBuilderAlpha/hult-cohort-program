@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    color-scheme: dark;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    @apply min-h-screen bg-slate-950 text-slate-100 antialiased;
+    background-image: radial-gradient(circle at top left, rgba(16, 185, 129, 0.2), transparent 25%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.2), transparent 30%),
+        linear-gradient(135deg, #020617 0%, #111827 55%, #020617 100%);
+    background-attachment: fixed;
+}
+
+::selection {
+    @apply bg-emerald-500/40 text-white;
+}

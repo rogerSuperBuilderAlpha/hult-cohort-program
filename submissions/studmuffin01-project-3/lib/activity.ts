@@ -12,16 +12,17 @@ export type CohortActivity = {
 
 const RELATIVE_RANK: Record<string, number> = {
   "3 hours ago": 90,
-  "Yesterday": 50,
+  Yesterday: 50,
   "2 days ago": 30,
 };
 
 /**
- * Cohort-wide activity stream — profile feeds + project ship signals.
+ * Cohort-wide activity stream — real profiles + project ship signals.
+ * Demo directory fillers are omitted so the feed does not invent peers.
  */
 export function getCohortActivity(): CohortActivity[] {
   const fromPeople: CohortActivity[] = PEOPLE.filter(
-    (p) => p.privacy === "public"
+    (p) => p.privacy === "public" && !p.isDemo
   ).flatMap((person) =>
     person.activity.map((item, index) => ({
       id: item.id,

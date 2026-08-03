@@ -13,18 +13,36 @@ Phase 1 Project 3 · Public showcase platform
 
 Production URL: https://lighthouse-studmuffin01.vercel.app
 
+## Real cohort profiles (smoke these)
+
+Pulled from merged Phase 1 submission PRs + verified production URLs:
+
+| Handle | Public deploys |
+|--------|----------------|
+| `studmuffin01` | Forth · Fireside · Lighthouse |
+| `nikjain15` | Pulse · Rally · https://hallmark.vercel.app |
+| `lorra-v` | Mission Control · Conexus · https://hult-cohort-program-one.vercel.app |
+| `kiaracaesar5627` | https://pilot-hult-pm.vercel.app · https://pilot-hult-comms.vercel.app |
+| `solzco1` | https://pulse-ten-theta.vercel.app |
+| `arjun-singh2127` | https://good-vibes-zeta.vercel.app |
+| `celiciakitty-creator` | https://cohort-in-bloom.vercel.app |
+| `jiaxinaspenlin-dotcom` | https://signal-atlas-omega.vercel.app |
+| `r3s0lv343vr` | https://nextmove-hult.vercel.app |
+
+Sample / fictional directory fillers, testimonials, and industry partners are badged **Sample data** and cannot be selected for partner intros.
+
 ## Smoke test (no auth)
 
 1. Open `/` — sign in or **Continue as guest** (no account) → `/home`
-2. Open `/home` — brand **Lighthouse**, 3 CTAs, live feed, journey, narrative, PM snapshot
+2. Open `/home` — brand **Lighthouse**, 3 CTAs, activity feed, journey, narrative, PM snapshot (labeled demo)
 3. `/projects` and `/projects/forth` — Problem / Solution / Proof / Deploy
-4. `/live` — cohort activity feed
-5. `/developers` — search/filter; open `studmuffin01`
+4. `/live` — cohort activity feed (real profiles + project signals)
+5. `/developers` — confirm ≥4 real profiles without Sample badge; open `studmuffin01`, `nikjain15`, `lorra-v`, `kiaracaesar5627`
 6. Confirm Why I’m Here, build log, project showcase; CTA → Partners (not inline form)
-7. `/developers/elise` — private placeholder (directory only)
+7. `/developers/elise` — private placeholder (directory only; sample)
 8. `/people` and `/people/studmuffin01` — redirect to `/developers…`
-9. `/partners` — fee copy + interest type + submit test intro (server log)
-10. `/testimonials` — quote list
+9. `/partners` — intro form lists only real public handles; sample partners badged
+10. `/testimonials` — quotes badged as sample data
 11. `/rsvp` — submit test RSVP
 12. Mobile width — Cohort Live bottom strip readable
 
@@ -35,11 +53,12 @@ Production URL: https://lighthouse-studmuffin01.vercel.app
 | Production readiness | Deploy HTTPS, LCP-friendly static pages, mobile layout |
 | Core functionality | Profiles, portfolio links, PM snapshot, partners, intro form |
 | Code quality | Typed Next.js app; no secrets in repo |
-| Ecosystem thinking | Links to Forth/Fireside deploys; privacy opt-out |
-| Credibility to employers | Partner narrative + PARTNERS.md + sample profiles |
+| Ecosystem thinking | Links to Forth/Fireside + peer deploys; privacy opt-out |
+| Credibility to employers | Real merged-submission profiles + clear sample-data badges |
 
 ## Known limitations
 
-- Roster is a seed list (expand to full enrolled count as roster finalizes)
+- Directory still includes sample profiles for UX density; they are badged and intro-blocked
 - Intro/RSVP notify via server `console` until email provider is wired
-- PM data is a static snapshot file, not a live API yet
+- PM panel is an illustrative snapshot file, not a live Forth API
+- Cohort Live intro/RSVP counters are session-local, not a backend sync

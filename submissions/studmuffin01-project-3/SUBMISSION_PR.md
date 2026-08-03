@@ -21,9 +21,22 @@ https://lighthouse-studmuffin01.vercel.app
 
 ## Sample profile URLs
 
+Real cohort profiles (from merged submission PRs + public deploys):
+
 - https://lighthouse-studmuffin01.vercel.app/developers/studmuffin01
-- https://lighthouse-studmuffin01.vercel.app/developers/mayachen
-- https://lighthouse-studmuffin01.vercel.app/developers/elise (private; directory placeholder)
+- https://lighthouse-studmuffin01.vercel.app/developers/nikjain15
+- https://lighthouse-studmuffin01.vercel.app/developers/lorra-v
+- https://lighthouse-studmuffin01.vercel.app/developers/kiaracaesar5627
+- https://lighthouse-studmuffin01.vercel.app/developers/solzco1
+- https://lighthouse-studmuffin01.vercel.app/developers/arjun-singh2127
+- https://lighthouse-studmuffin01.vercel.app/developers/celiciakitty-creator
+- https://lighthouse-studmuffin01.vercel.app/developers/jiaxinaspenlin-dotcom
+- https://lighthouse-studmuffin01.vercel.app/developers/r3s0lv343vr
+
+Also:
+
+- https://lighthouse-studmuffin01.vercel.app/developers/mayachen (sample data — badged)
+- https://lighthouse-studmuffin01.vercel.app/developers/elise (private sample; directory placeholder)
 - https://lighthouse-studmuffin01.vercel.app/projects/forth
 - https://lighthouse-studmuffin01.vercel.app/projects/fireside
 - https://lighthouse-studmuffin01.vercel.app/projects/lighthouse
@@ -40,7 +53,7 @@ https://lighthouse-studmuffin01.vercel.app
 ## Architecture summary
 
 - **Frontend:** Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4
-- **Data:** Seed roster + PM snapshot modules (no login on public pages)
+- **Data:** Real cohort profiles + clearly badged sample roster/PM snapshot (no login on public pages)
 - **Hosting:** Vercel (Root Directory: `submissions/studmuffin01-project-3`)
 - **Forms:** `/api/request-intro`, `/api/rsvp` → placement lead log / email env
 

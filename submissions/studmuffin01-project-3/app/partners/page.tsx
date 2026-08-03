@@ -3,9 +3,10 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { RequestIntroForm } from "@/components/RequestIntroForm";
+import { SampleDataBadge } from "@/components/SampleDataBadge";
 import { COHORT } from "@/lib/cohort";
 import { INDUSTRY_PARTNERS } from "@/lib/industry-partners";
-import { publicPeople } from "@/lib/people";
+import { introEligiblePeople } from "@/lib/people";
 
 export const metadata: Metadata = {
   title: "Partners",
@@ -20,7 +21,7 @@ type Props = {
 export default async function PartnersPage({ searchParams }: Props) {
   const params = await searchParams;
   const developer = params.developer?.trim() ?? "";
-  const candidates = publicPeople().map((person) => ({
+  const candidates = introEligiblePeople().map((person) => ({
     handle: person.handle,
     name: person.name,
   }));
@@ -87,7 +88,7 @@ export default async function PartnersPage({ searchParams }: Props) {
 
             <section>
               <h2 className="font-[family-name:var(--font-syne)] text-xl font-semibold">
-                Industry partners
+                Industry partners (sample)
               </h2>
               <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                 {INDUSTRY_PARTNERS.map((partner) => (
@@ -95,7 +96,10 @@ export default async function PartnersPage({ searchParams }: Props) {
                     key={partner.id}
                     className="border border-[var(--line)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm"
                   >
-                    <p className="font-medium text-[var(--ink)]">{partner.name}</p>
+                    <p className="font-medium text-[var(--ink)]">
+                      {partner.name}{" "}
+                      {partner.isDemo ? <SampleDataBadge compact /> : null}
+                    </p>
                     <p className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.1em] text-[var(--ink-faint)]">
                       {partner.sector}
                     </p>
@@ -111,6 +115,7 @@ export default async function PartnersPage({ searchParams }: Props) {
             </h2>
             <p className="mt-2 text-sm text-[var(--ink-muted)]">
               Partner name, company, developer(s), message → placement lead.
+              Only real public profiles are listed (sample handles are excluded).
             </p>
             <div className="mt-5">
               <RequestIntroForm

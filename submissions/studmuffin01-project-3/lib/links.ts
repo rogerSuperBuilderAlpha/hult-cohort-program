@@ -9,7 +9,7 @@ export function forthUrl(path = ""): string {
 export function firesideUrl(path = ""): string {
   const base =
     process.env.NEXT_PUBLIC_FIRESIDE_URL?.replace(/\/$/, "") ||
-    "https://hult-cohort-program-henna.vercel.app";
+    "https://fireside-studmuffin01.vercel.app";
   if (!path) return base;
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }

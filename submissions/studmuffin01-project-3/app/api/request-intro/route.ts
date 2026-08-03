@@ -7,7 +7,7 @@ import {
   MAX_STUDENT_HANDLES,
   clampText,
 } from "@/lib/form-limits";
-import { getPerson } from "@/lib/people";
+import { getPerson, isIntroEligible } from "@/lib/people";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
 import {
   PARTNER_INTEREST_OPTIONS,
@@ -81,9 +81,11 @@ export async function POST(request: Request) {
   }
   for (const handle of studentHandles) {
     const person = getPerson(handle);
-    if (!person || person.privacy !== "public") {
+    if (!person || !isIntroEligible(person)) {
       return NextResponse.json(
-        { error: `Developer not available for intro: ${handle}` },
+        {
+          error: `Developer not available for intro (must be a real public profile): ${handle}`,
+        },
         { status: 400 }
       );
     }

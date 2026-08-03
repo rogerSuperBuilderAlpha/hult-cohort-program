@@ -17,7 +17,8 @@ export type LiveMetrics = {
 
 /** Derive Live Summary numbers from current app data. */
 export function getLiveMetrics(): LiveMetrics {
-  const developers = PEOPLE.length;
+  const realDevelopers = PEOPLE.filter((p) => !p.isDemo).length;
+  const sampleDevelopers = PEOPLE.filter((p) => p.isDemo).length;
 
   const buildRepos = PEOPLE.reduce(
     (sum, person) =>
@@ -32,7 +33,7 @@ export function getLiveMetrics(): LiveMetrics {
   ).length;
   const activeProjects = buildRepos + activePlatforms + activePm;
 
-  const deployedFromProfiles = PEOPLE.reduce(
+  const deployedFromProfiles = PEOPLE.filter((p) => !p.isDemo).reduce(
     (sum, person) =>
       sum + person.projects.filter((link) => link.kind === "deploy").length,
     0
@@ -43,15 +44,17 @@ export function getLiveMetrics(): LiveMetrics {
   const deployedProducts = deployedFromProfiles + deployedPlatforms;
 
   const industryPartners = INDUSTRY_PARTNERS.length;
-  const publicProfiles = PEOPLE.filter((p) => p.privacy === "public").length;
+  const publicProfiles = PEOPLE.filter(
+    (p) => p.privacy === "public" && !p.isDemo
+  ).length;
 
   return {
     updatedAt: new Date().toISOString(),
     items: [
       {
         id: "developers",
-        label: "Developers",
-        value: developers,
+        label: `Developers (${sampleDevelopers} sample)`,
+        value: realDevelopers,
         href: "/developers",
       },
       {
@@ -62,19 +65,19 @@ export function getLiveMetrics(): LiveMetrics {
       },
       {
         id: "deployed-products",
-        label: "Deployed products",
+        label: "Deployed (real profiles)",
         value: deployedProducts,
         href: "/projects",
       },
       {
         id: "industry-partners",
-        label: "Industry partners",
+        label: "Partners (sample)",
         value: industryPartners,
         href: "/partners",
       },
       {
         id: "public-profiles",
-        label: "Public profiles",
+        label: "Real public profiles",
         value: publicProfiles,
         href: "/developers",
       },

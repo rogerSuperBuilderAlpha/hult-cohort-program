@@ -70,7 +70,7 @@ export function LiveSummary({ metrics }: Props) {
             </p>
           </div>
           <p className="mt-1.5 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.1em] text-[var(--ink-faint)]">
-            Synced {syncedLabel}
+            Demo counters · {syncedLabel}
           </p>
         </div>
 
@@ -98,7 +98,7 @@ export function LiveSummary({ metrics }: Props) {
               aria-hidden
             />
             <span className="font-[family-name:var(--font-jetbrains)] text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--signal)]">
-              Live
+              Demo
             </span>
           </div>
           {items.map((item) => (

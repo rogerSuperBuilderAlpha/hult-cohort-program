@@ -34,7 +34,7 @@ export function CohortStatusPanel({ compact = false }: { compact?: boolean }) {
         </a>
       </div>
       <p className="mt-1 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.1em] text-[var(--ink-faint)]">
-        Read-only snapshot · synced {synced}
+        Illustrative demo snapshot · not a live Forth API · {synced}
       </p>
       <ul className="mt-4 divide-y divide-[var(--line)]">
         {pmSnapshot.initiatives.map((item) => (

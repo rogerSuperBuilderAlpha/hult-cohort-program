@@ -320,9 +320,9 @@ export const cohortMarketing = {
 
 /** Live cohort session — shown in the site header for accepted participants. */
 export const cohortLiveSession = {
-  label: 'Week 2 winner + Week 3 kickoff',
-  when: 'Mon Jul 27 · 6:00 PM ET',
-  zoomUrl: 'https://bentley.zoom.us/j/92685600810',
-  meetingId: '926 8560 0810',
+  label: 'Week 3 winner + Week 4 kickoff',
+  when: 'Mon Aug 3 · 6:00 PM ET',
+  zoomUrl: 'https://bentley.zoom.us/j/91058003725',
+  meetingId: '910 5800 3725',
   agendaUrl: '',
 } as const;

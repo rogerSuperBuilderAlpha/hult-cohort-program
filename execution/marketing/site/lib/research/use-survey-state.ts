@@ -41,7 +41,10 @@ export function useSurveyState(
       try {
         const idToken = await getIdToken();
         if (!idToken) return;
+        // no-store: a participant who has just submitted must not be shown a cached
+        // "not completed" state, which is what a stale response looks like in the UI.
         const res = await fetch('/api/research/survey', {
+          cache: 'no-store',
           headers: { Authorization: `Bearer ${idToken}` },
         });
         if (!res.ok) return;

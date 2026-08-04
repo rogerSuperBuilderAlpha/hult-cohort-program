@@ -347,8 +347,11 @@ export function waveItemIds(wave: SurveyWave): string[] {
 export const SURVEY_GATES: Record<string, SurveyWaveId> = {
   // Baseline (before week 1) — address before Project 1.
   'phase-1-project-1': 'w1',
-  // Midpoint (after week 3) — address before Week 4 learning app. Week 2/3 projects are not gated.
-  'phase-2-learning-app': 'w2',
+  // The midpoint wave (w2) previously gated the Week 4 learning app. That gate is removed: w2 opened
+  // five hours *after* Week 4's submission window, so the project was unreachable for everyone at
+  // open, and anyone who simply hadn't answered yet stayed locked out mid-week with a Sunday
+  // deadline. Coursework access must not depend on a research response — participation is voluntary
+  // and must not affect standing. The midpoint survey is still surfaced on the dashboard.
 };
 
 /** The wave that gates a project, if any. */

@@ -204,18 +204,18 @@ export const programProjects: ProgramProject[] = [
     title: 'Learning engineer integration to Ludwitt',
     weeks: 'Week 4',
     summary:
-      'Build and register a learning application on Ludwitt; success is measured by verified external user adoption.',
+      'Build a learning application and integrate it with Ludwitt; success is a working, registered, instrumented app.',
     description:
-      'Week 4: act as a learning engineer. Choose a subject — algorithms, finance, language, interview prep, or another topic — and ship a production learning application registered on the Ludwitt/Hult platform. Wire JWT auth and event tracking. The pass gate is verified external usage (≥25 qualified external users on the platform snapshot). Self-reported metrics are not accepted.',
+      'Week 4: act as a learning engineer. Choose a subject — algorithms, finance, language, interview prep, or another topic — and ship a production learning application registered on the Ludwitt/Hult platform. Wire JWT auth and event tracking so the platform can see real sessions. The week 4 bar is the integration itself: a registered app, a working launch flow, and events landing on the platform. There is no user-count condition on this week — external adoption is measured later in the program, from the platform snapshot, and is not something you must clear to merge on Sunday.',
     voteWeek: false,
     schedule: {
       submissionOpens: '2026-08-03T13:00:00.000Z',
       submissionCloses: '2026-08-09T21:00:00.000Z',
     },
     expectations: [
-      'Register the application via the Ludwitt/Hult API; JWT authentication and event tracking operational',
-      'Promote externally — qualified usage is counted by the platform snapshot (self-reporting is not accepted)',
-      'Submit a proof-of-work pull request with listing URL and date-stamped metrics snapshot filled in the PR template',
+      'Register the application via the Ludwitt/Hult developer portal; JWT authentication and event tracking operational',
+      'Verify the integration end to end — a launch token validates and at least one non-heartbeat event lands per session',
+      'Submit a proof-of-work pull request with the app ID and listing URL filled in the PR template',
     ],
     submission: {
       repoPattern: '{repo}',
@@ -225,13 +225,15 @@ export const programProjects: ProgramProject[] = [
       prBodyMustInclude: [
         'Ludwitt/Hult app ID',
         'Production listing URL',
-        'Metrics API snapshot (date-stamped)',
-        'Promotion channels used',
+        'Integration evidence (launch flow + events firing)',
       ],
       deadlineNote:
-        'Merge bar: fill every required PR body section, then merge by Sunday week 4, 17:00 Eastern Time. The ≥25-user pass gate is verified from the platform snapshot / PR evidence — not a separate “collect users before you may open a PR” rule.',
+        'Merge bar: fill every required PR body section, then merge by Sunday week 4, 17:00 Eastern Time. No user-count condition applies to this merge — a registered, working, instrumented app is the bar.',
     },
-    passGate: ['≥25 qualified external users on platform snapshot'],
+    passGate: [
+      'Registered Ludwitt/Hult app with working JWT launch and event tracking',
+      'Merged proof-of-work pull request',
+    ],
   },
   {
     slug: 'phase-2-venture',

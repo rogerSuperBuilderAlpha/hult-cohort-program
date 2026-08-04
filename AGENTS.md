@@ -127,7 +127,7 @@ Legacy Firestore paths (do not write): submissions/, peerWrittenReviews/, peerRa
 | `phase-1-project-2` | Internal comms platform (vote week) |
 | `phase-1-project-3` | Public showcase website (vote week) |
 | `phase-1-unification` | Winners merge the three platforms |
-| `phase-2-learning-app` | Learning app, ≥25 external users |
+| `phase-2-learning-app` | Learning app registered + instrumented on Ludwitt (no user-count condition to merge) |
 | `phase-2-venture` | Startup deck + production platform |
 | `phase-2-open-source` | ≥1 merged upstream PR; starter targets include cursorboston.com, algorithmacy.org |
 

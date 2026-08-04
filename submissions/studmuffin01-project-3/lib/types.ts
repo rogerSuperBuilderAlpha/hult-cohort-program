@@ -7,7 +7,8 @@ export type ProjectLink = {
 };
 
 export type SocialLinks = {
-  github: string;
+  /** Omitted on sample profiles so we never invent stranger social URLs. */
+  github?: string;
   linkedin?: string;
   x?: string;
   portfolio?: string;

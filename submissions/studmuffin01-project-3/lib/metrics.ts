@@ -1,6 +1,5 @@
 import { INDUSTRY_PARTNERS } from "@/lib/industry-partners";
 import { PEOPLE } from "@/lib/people";
-import { pmSnapshot } from "@/lib/pm-snapshot";
 import { PROJECTS } from "@/lib/projects";
 
 export type LiveMetric = {
@@ -20,7 +19,7 @@ export function getLiveMetrics(): LiveMetrics {
   const realDevelopers = PEOPLE.filter((p) => !p.isDemo).length;
   const sampleDevelopers = PEOPLE.filter((p) => p.isDemo).length;
 
-  const buildRepos = PEOPLE.reduce(
+  const buildRepos = PEOPLE.filter((p) => !p.isDemo).reduce(
     (sum, person) =>
       sum + person.projects.filter((link) => link.kind === "repo").length,
     0
@@ -28,10 +27,8 @@ export function getLiveMetrics(): LiveMetrics {
   const activePlatforms = PROJECTS.filter(
     (project) => project.status === "shipped" || project.status === "in-progress"
   ).length;
-  const activePm = pmSnapshot.initiatives.filter(
-    (item) => item.status === "on-track" || item.status === "at-risk"
-  ).length;
-  const activeProjects = buildRepos + activePlatforms + activePm;
+  // Platform + real profile repos only — exclude illustrative PM snapshot rows.
+  const activeProjects = buildRepos + activePlatforms;
 
   const deployedFromProfiles = PEOPLE.filter((p) => !p.isDemo).reduce(
     (sum, person) =>
@@ -59,7 +56,7 @@ export function getLiveMetrics(): LiveMetrics {
       },
       {
         id: "active-projects",
-        label: "Active projects",
+        label: "Active projects (real)",
         value: activeProjects,
         href: "/projects",
       },

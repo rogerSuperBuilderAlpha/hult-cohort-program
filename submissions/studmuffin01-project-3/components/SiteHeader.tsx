@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { LIGHTHOUSE_HERO_IMAGE } from "@/lib/hero";
 
+/** Primary nav kept short; Testimonials + RSVP live on Partners / footer CTAs. */
 const links = [
   { href: "/projects", label: "Projects" },
-  { href: "/live", label: "Live" },
   { href: "/developers", label: "Developers" },
   { href: "/partners", label: "Partners" },
-  { href: "/testimonials", label: "Testimonials" },
-  { href: "/rsvp", label: "RSVP" },
+  { href: "/live", label: "Feed" },
 ];
 
 type Props = {
@@ -28,7 +27,7 @@ export function SiteHeader({ variant = "default" }: Props) {
     >
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
         <Link
-          href="/home"
+          href="/"
           aria-label="Lighthouse home"
           className={`shrink-0 overflow-hidden border transition ${
             hero
@@ -52,7 +51,7 @@ export function SiteHeader({ variant = "default" }: Props) {
           }`}
         >
           <Link
-            href="/home"
+            href="/"
             className="px-2.5 py-2 transition hover:text-[var(--signal)] sm:px-3"
           >
             Home
@@ -67,7 +66,7 @@ export function SiteHeader({ variant = "default" }: Props) {
             </Link>
           ))}
           <Link
-            href="/"
+            href="/signin"
             className={
               hero
                 ? "ml-1 border border-white/50 bg-black/25 px-3 py-2 text-white transition hover:border-[var(--signal)] hover:text-[var(--signal)]"

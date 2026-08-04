@@ -34,13 +34,13 @@ export function LiveSummary({ metrics }: Props) {
   const sessionItems = [
     {
       id: "intro-requests",
-      label: "Intro requests",
+      label: "Intro requests (browser)",
       value: counters.introRequests,
       href: "/partners",
     },
     {
       id: "rsvps",
-      label: "Event RSVPs",
+      label: "RSVPs (browser)",
       value: counters.rsvps,
       href: "/rsvp",
     },

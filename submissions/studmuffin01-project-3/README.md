@@ -8,9 +8,10 @@ Lighthouse is the outward-facing hiring surface for the Summer Pilot. Browse par
 
 ## Features (MVP)
 
-- **Public homepage** — brand hero, live feed preview, journey timeline, cohort narrative, PM snapshot
+- **Public homepage (`/`)** — brand hero, seeded activity preview, journey timeline, cohort narrative
 - **Projects** — showcase pages (Problem / Solution / Proof / Deploy)
-- **Live** — cohort-wide activity feed
+- **Live** — seeded activity feed (labeled sample — not live webhooks)
+- **Sign-in (`/signin`)** — optional demo identity; does not gate the showcase
 - **Developers directory** — search + filter by campus/skill; private opt-outs respected
 - **Profiles** (`/developers/[handle]`) — Why I’m Here, build log, links, project showcase, activity
 - **Partners** — industry list, fee summary, request-intro (interest types)
@@ -29,7 +30,7 @@ npm run dev
 
 **Production:** [https://lighthouse-studmuffin01.vercel.app](https://lighthouse-studmuffin01.vercel.app)
 
-Locally: open [http://localhost:3000](http://localhost:3000) — sign in or continue as guest, then the showcase at `/home`.
+Locally: open [http://localhost:3000](http://localhost:3000) — public showcase at `/`. Optional demo sign-in at `/signin`.
 
 **Reviewers:** see [REVIEWER.md](./REVIEWER.md).  
 **Hiring partners (copy):** see [PARTNERS.md](./PARTNERS.md).
@@ -39,7 +40,7 @@ Locally: open [http://localhost:3000](http://localhost:3000) — sign in or cont
 | Platform | Env | Default |
 |----------|-----|---------|
 | Forth (PM) | `NEXT_PUBLIC_FORTH_URL` | https://forth-bice.vercel.app |
-| Fireside (comms) | `NEXT_PUBLIC_FIRESIDE_URL` | https://hult-cohort-program-henna.vercel.app |
+| Fireside (comms) | `NEXT_PUBLIC_FIRESIDE_URL` | https://fireside-studmuffin01.vercel.app |
 
 PM integration is a **read-only synced snapshot** in `lib/pm-snapshot.ts` (daily-update stand-in until live API).
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, JetBrains_Mono, Syne } from "next/font/google";
 import { AppChrome } from "@/components/AppChrome";
+import { siteOrigin } from "@/lib/links";
 import "./globals.css";
 
 const syne = Syne({
@@ -22,6 +23,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteOrigin()),
   title: {
     default: "Lighthouse — Hult Cohort Summer Pilot",
     template: "%s · Lighthouse",
@@ -34,12 +36,16 @@ export const metadata: Metadata = {
       "Hiring-partner showcase: public profiles, live deploys, and cohort project status.",
     type: "website",
     siteName: "Lighthouse",
+    url: "/",
   },
   twitter: {
     card: "summary_large_image",
     title: "Lighthouse — Hult Cohort Summer Pilot",
     description:
       "Hiring-partner showcase: public profiles, live deploys, and cohort project status.",
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 

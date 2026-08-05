@@ -1,13 +1,14 @@
 # Interview Room (Week 4 · Ludwitt learning)
 
-Mock-interview practice by **job application track** — Software Engineer, Product
-Manager, Data Analyst, Marketing, and Customer Success. Each track has
-scenario-specific interviewer prompts. Registered on a Ludwitt/Hult-compatible
-API at the same origin.
+Mock-interview practice across **10 job tracks** (100 scenarios): Software
+Engineer, Product Manager, Data Analyst, Marketing, Customer Success, UX
+Designer, Account Executive, DevOps/SRE, People Ops, and Operations. Each
+scenario has interviewer prompts and a debrief. Registered on a
+Ludwitt/Hult-compatible API at the same origin.
 
 ## Topic
 
-**Interview prep by role** — questions matched to real application scenarios.
+**Interview prep by role** — ≥10 questions per job application track.
 
 ## Stack
 

@@ -27,7 +27,7 @@ As of **2026-08-05T17:18:16.318Z** via `GET /v1/apps/7f3e9c2a-4b1d-4e8f-9a6c-2d5
 
 ## Notes
 
-- App: **Interview Room** — interview questions by job track (SWE, PM, Data Analyst, Marketing, CS) with scenario-specific prompts
+- App: **Interview Room** — 10 job tracks × 10 scenarios (100 questions) with role-specific prompts
 - Path: `submissions/kiaracaesar5627-project-4`
 - Platform API (OpenAPI-compatible): same origin `/v1/*`
 - Health: https://kiaracaesar5627-project-4.vercel.app/health

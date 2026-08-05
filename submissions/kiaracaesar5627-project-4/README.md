@@ -37,11 +37,6 @@ npm run smoke
 | `/practice/[track]` | Scenarios for that role |
 | `/practice/[track]/[slug]` | Scenario + interviewer + playbook + debrief |
 | `/launch?token=` | Ludwitt JWT gate → practice room |
-| `/coach` | AI chat that personalizes scenario picks + mock feedback |
-| `/api/coach/chat` | Coach backend (Anthropic / OpenAI / local fallback) |
-
-Optional env: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`. Without either, a
-built-in personalizer still recommends tracks and runs light mock coaching.
 
 ## Integration
 

@@ -19,7 +19,7 @@ export default function Icon() {
           fontWeight: 700,
         }}
       >
-        P
+        I
       </div>
     ),
     { ...size },

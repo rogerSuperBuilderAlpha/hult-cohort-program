@@ -1,10 +1,14 @@
-export type Lesson = {
+export type InterviewRound = {
   slug: string;
+  stage: "Behavioral" | "Coding" | "System design" | "Closing";
   title: string;
   minutes: number;
   summary: string;
-  body: string[];
-  quiz: {
+  /** What the interviewer says to open the round */
+  interviewer: string;
+  /** How the candidate should work the round */
+  playbook: string[];
+  debrief: {
     prompt: string;
     choices: string[];
     answerIndex: number;
@@ -12,86 +16,123 @@ export type Lesson = {
   };
 };
 
-export const LESSONS: Lesson[] = [
+export const ROUNDS: InterviewRound[] = [
   {
-    slug: "two-pointers",
-    title: "Two pointers",
-    minutes: 8,
-    summary: "Walk a sorted array from both ends to find pairs in linear time.",
-    body: [
-      "When the input is sorted (or can be sorted cheaply), two pointers often replace nested loops.",
-      "Start left at index 0 and right at n − 1. Move the pointer that improves the invariant — for a target sum, advance left if the sum is too small, shrink right if too large.",
-      "Classic shapes: pair sum, remove duplicates in place, container with most water, and palindrome checks on a string.",
-      "Complexity target: O(n) time after any sort, O(1) extra space when you mutate in place.",
+    slug: "behavioral-star",
+    stage: "Behavioral",
+    title: "Tell me about a conflict",
+    minutes: 12,
+    summary: "STAR-format behavioral round — situation, tension, your move, the outcome.",
+    interviewer:
+      "Tell me about a time you disagreed with a teammate on a technical decision. What happened, and what would you do differently?",
+    playbook: [
+      "Open with Situation in one sentence: team, stakes, timeline.",
+      "Task: name your responsibility without blaming the other person.",
+      "Action: 2–3 concrete steps you took (data, prototype, escalation path).",
+      "Result: business or product outcome, plus one learning you still use.",
+      "If you stall, restate the disagreement as a shared goal — interviewers reward ownership, not winning the argument.",
     ],
-    quiz: {
-      prompt: "Given a sorted array, finding two numbers that sum to a target with two pointers is typically:",
-      choices: ["O(n²) time", "O(n) time", "O(log n) time", "O(n!) time"],
-      answerIndex: 1,
-      explain: "Each step moves one pointer; you scan at most n elements once.",
+    debrief: {
+      prompt: "In STAR answers, the weakest answers usually skip:",
+      choices: [
+        "A named Result with evidence",
+        "The company name",
+        "Multiple programming languages",
+        "A joke to build rapport",
+      ],
+      answerIndex: 0,
+      explain: "Interviewers need proof the story mattered — impact closes the loop.",
     },
   },
   {
-    slug: "sliding-window",
-    title: "Sliding window",
-    minutes: 10,
-    summary: "Maintain a contiguous span that grows and shrinks to satisfy a constraint.",
-    body: [
-      "Sliding window turns substring / subarray problems into a single pass with a moving [left, right] range.",
-      "Expand right to include new elements. When the window violates a constraint (too many unique chars, sum too large), advance left until it is valid again.",
-      "Track window state with a counter, frequency map, or running sum — update in O(1) as edges move.",
-      "Use it for longest substring without repeat, minimum window covering a set, and max sum of size k (fixed window).",
+    slug: "coding-screen",
+    stage: "Coding",
+    title: "Live coding screen",
+    minutes: 25,
+    summary: "A shared-editor round: clarify, choose a pattern, talk while you code, then test.",
+    interviewer:
+      "Here’s a coding problem. Talk me through your approach before you write code. What are the edge cases?",
+    playbook: [
+      "Repeat the prompt and ask 2 clarifying questions (constraints, duplicates, mutability).",
+      "State brute force first, then the target complexity — show you can trade space for time.",
+      "Name the pattern out loud (hash map, two pointers, BFS) before typing.",
+      "Write a happy-path solution, then walk 2 edge cases and a complexity line.",
+      "If stuck for 90 seconds, narrate what you would try next — silence fails the screen more than a wrong turn.",
     ],
-    quiz: {
-      prompt: "In a variable sliding window, when the window becomes invalid you usually:",
+    debrief: {
+      prompt: "In a coding interview, the first thing to do after hearing the prompt is usually:",
       choices: [
-        "Restart from index 0",
-        "Advance the left edge until valid",
-        "Sort the window",
-        "Binary search the array",
+        "Start typing immediately",
+        "Clarify constraints and restate the problem",
+        "Ask for the answer key",
+        "Switch languages",
       ],
       answerIndex: 1,
-      explain: "Shrinking from the left restores the invariant without discarding the work already done on the right.",
+      explain: "Clarifying shows judgment and prevents solving the wrong problem.",
     },
   },
   {
-    slug: "hash-maps",
-    title: "Hash maps for lookups",
-    minutes: 7,
-    summary: "Trade space for O(1) average lookups — the backbone of many easy/medium prompts.",
-    body: [
-      "Interview favorites (two-sum, anagrams, group by key) lean on a map from value → index or frequency.",
-      "Build the map as you scan, or do a first pass to count then a second pass to decide.",
-      "Watch collisions in theory; in practice languages give you dict/Map. Focus on what you store and when you update it.",
-      "Pair with two pointers or a window when you need both order and fast membership tests.",
+    slug: "system-design",
+    stage: "System design",
+    title: "Design a feed",
+    minutes: 30,
+    summary: "Open-ended design round: requirements, API, data model, scale, and tradeoffs.",
+    interviewer:
+      "Design a news feed for 10 million daily users. Walk me from requirements to a first architecture.",
+    playbook: [
+      "Lock functional requirements (post, follow, read feed) and non-functional (latency, freshness).",
+      "Draw a simple path: client → API → write path → read path → storage.",
+      "Call out fan-out on write vs fan-out on read and when you’d choose each.",
+      "Name bottlenecks (hot users, cache stampede) and one mitigation each.",
+      "End with what you’d measure in week one of production.",
     ],
-    quiz: {
-      prompt: "Two-sum with a hash map of value → index is typically:",
-      choices: ["O(n) time, O(n) space", "O(n²) time, O(1) space", "O(n log n) time only", "O(1) time always"],
-      answerIndex: 0,
-      explain: "One pass with constant-time lookups; space grows with distinct values stored.",
-    },
-  },
-  {
-    slug: "bfs-dfs",
-    title: "BFS and DFS",
-    minutes: 12,
-    summary: "Traverse graphs and trees — queue for layers, stack/recursion for depth-first paths.",
-    body: [
-      "BFS uses a queue and explores level by level. Shortest path in an unweighted graph is BFS distance.",
-      "DFS uses recursion or an explicit stack. Reachability, cycle detection, and topological ideas start here.",
-      "On grids, treat each cell as a node with up to four edges. Mark visited early to avoid re-enqueueing.",
-      "Interview cue: “minimum steps” or “nearest” → BFS. “Explore all paths” or “connected components” → often DFS.",
-    ],
-    quiz: {
-      prompt: "Shortest path in an unweighted graph is most directly found with:",
-      choices: ["Dijkstra only", "BFS", "Binary search", "Two pointers"],
+    debrief: {
+      prompt: "A strong system-design answer usually starts by:",
+      choices: [
+        "Listing every AWS service you know",
+        "Agreeing on requirements and scale assumptions",
+        "Drawing Kubernetes first",
+        "Skipping the data model",
+      ],
       answerIndex: 1,
-      explain: "BFS visits nodes in increasing distance from the source when edges have equal weight.",
+      explain: "Shared assumptions keep the rest of the design coherent and testable.",
+    },
+  },
+  {
+    slug: "closing-questions",
+    stage: "Closing",
+    title: "Your questions",
+    minutes: 8,
+    summary: "The closing round — questions that show you evaluate the role, not just sell yourself.",
+    interviewer:
+      "That’s all from our side. What questions do you have for me about the team or the role?",
+    playbook: [
+      "Ask about success in the first 90 days — shows you think in outcomes.",
+      "Ask how the team makes technical decisions when opinions diverge.",
+      "Ask what is hard about the product right now (honesty signal).",
+      "Avoid salary, vacation, or “what does your company do?” — those belong elsewhere.",
+      "Leave one thoughtful follow-up that references something they said earlier.",
+    ],
+    debrief: {
+      prompt: "The best closing questions usually focus on:",
+      choices: [
+        "Vacation policy only",
+        "How success and decisions work on the team",
+        "Whether you can work remote forever",
+        "The interviewer’s personal salary",
+      ],
+      answerIndex: 1,
+      explain: "You’re interviewing them too — process and success criteria reveal the job.",
     },
   },
 ];
 
-export function getLesson(slug: string): Lesson | undefined {
-  return LESSONS.find((l) => l.slug === slug);
+export function getRound(slug: string): InterviewRound | undefined {
+  return ROUNDS.find((r) => r.slug === slug);
+}
+
+/** Back-compat alias for older imports */
+export const LESSONS = ROUNDS;
+export function getLesson(slug: string) {
+  return getRound(slug);
 }

@@ -1,11 +1,11 @@
-# Pattern Forge (Week 4 · Ludwitt learning)
+# Interview Room (Week 4 · Ludwitt learning)
 
-Interview-prep learning app for coding patterns, registered on a Ludwitt/Hult-compatible
-API hosted at the same origin (`/v1/*`).
+Mock-interview practice app: behavioral STAR, coding screen, system design, and
+closing questions. Registered on a Ludwitt/Hult-compatible API at the same origin.
 
 ## Topic
 
-**Interview prep — coding patterns** (two pointers, sliding window, hash maps, BFS/DFS).
+**Interview prep** — full interview loop, not algorithm lectures.
 
 ## Stack
 
@@ -21,25 +21,25 @@ npm install
 npm run dev
 ```
 
-Smoke (dev server running):
-
 ```bash
 npm run smoke
 ```
 
-## Integration
+## Product surfaces
 
-1. `POST /v1/developer/apps` with `Authorization: Bearer prod_key_demo` → `app_id`, `api_key`, `jwt_secret`
-2. `POST /v1/auth/launch-token` → open returned `launch_url`
-3. `/launch?token=…` validates JWT, starts session cookie, records `lesson_started`
-4. Lessons fire `lesson_started` / `quiz_submitted` / `lesson_completed`; heartbeat every 60s
+| Route | Role |
+|-------|------|
+| `/` | Interview Room landing |
+| `/practice` | Round picker |
+| `/practice/[slug]` | Interviewer prompt + playbook + debrief |
+| `/launch?token=` | Ludwitt JWT gate → practice room |
+
+## Integration
 
 Seeded app ID: `7f3e9c2a-4b1d-4e8f-9a6c-2d5e8f1a3b7c`
 
 ## Deploy
 
 ```bash
-npx vercel --prod
+npx vercel --prod --scope personal-portfolio-kc
 ```
-
-Set `NEXT_PUBLIC_SITE_URL` to the production origin after the first deploy.

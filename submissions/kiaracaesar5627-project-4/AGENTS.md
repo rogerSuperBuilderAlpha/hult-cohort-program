@@ -1,9 +1,9 @@
-# AGENTS.md — Pattern Forge (Project 4 / Week 4)
+# AGENTS.md — Interview Room (Project 4 / Week 4)
 
 ## Goal
 
-Ship a production learning app registered on Ludwitt/Hult with JWT launch and
-event tracking. Week 4 merge bar = integration working (no user-count gate).
+Ship a production **interview** learning app on Ludwitt/Hult with JWT launch and
+event tracking. Product is mock-interview rounds — not a generic course site.
 
 ## Commands
 
@@ -16,13 +16,13 @@ npm run smoke
 
 ## Key paths
 
-- `src/lib/lessons.ts` — curriculum
-- `src/lib/platform/store.ts` — Ludwitt in-process store + seeded app
-- `src/app/api/v1/**` — OpenAPI-compatible platform surface (rewritten from `/v1`)
+- `src/lib/lessons.ts` — interview rounds (behavioral / coding / design / closing)
+- `src/app/practice/**` — practice room UI
+- `src/lib/platform/**` — Ludwitt `/v1` surface
 - `src/app/launch` — JWT gate
-- `src/app/api/track` — session events
 
 ## Do not
 
-- Commit `.env.local` or secrets beyond the documented demo keys
-- Invent external user counts — metrics come from `GET /v1/apps/{id}/metrics`
+- Drift back into algorithm-textbook framing
+- Commit `.env.local`
+- Invent external user counts

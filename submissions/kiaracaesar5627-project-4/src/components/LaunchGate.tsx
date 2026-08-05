@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { SITE } from "@/lib/site";
 
 export function LaunchGate() {
   const params = useSearchParams();
@@ -25,7 +26,7 @@ export function LaunchGate() {
         setError("invalid");
         return;
       }
-      router.replace("/learn");
+      router.replace("/practice");
     });
   }, [token, router]);
 
@@ -34,9 +35,9 @@ export function LaunchGate() {
       <section className="gate">
         <h1>Launch from Ludwitt/Hult</h1>
         <p>
-          Pattern Forge only starts a counted learning session when the platform
-          redirects here with a signed JWT. Open the app from the Ludwitt/Hult
-          directory — or use the developer launch-token endpoint during review.
+          {SITE.name} only opens a counted interview session when the platform
+          redirects here with a signed JWT. Start from the Ludwitt/Hult
+          directory — or mint a launch token during review.
         </p>
       </section>
     );
@@ -44,8 +45,12 @@ export function LaunchGate() {
 
   return (
     <section className="gate">
-      <h1>Opening session…</h1>
-      <p>{pending ? "Validating launch token and starting your lesson." : "Almost there."}</p>
+      <h1>Opening the room…</h1>
+      <p>
+        {pending
+          ? "Validating your launch token and seating you for practice."
+          : "Almost there."}
+      </p>
     </section>
   );
 }

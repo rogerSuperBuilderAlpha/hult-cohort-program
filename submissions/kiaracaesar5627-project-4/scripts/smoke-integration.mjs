@@ -1,5 +1,5 @@
 /**
- * Smoke the Ludwitt integration against a running Pattern Forge deploy.
+ * Smoke the Ludwitt integration against a running Interview Room deploy.
  *
  * Usage:
  *   node scripts/smoke-integration.mjs
@@ -38,10 +38,10 @@ async function main() {
   console.log("health", health);
 
   const reg = await api("POST", "/v1/developer/apps", {
-    title: "Pattern Forge",
+    title: "Interview Room",
     description:
-      "A focused learning app for technical interview prep: two pointers, sliding windows, BFS/DFS, and hash maps — with quizzes and Ludwitt/Hult session tracking.",
-    topic: "Interview prep · coding patterns",
+      "A mock-interview app for job seekers: timed rounds for behavioral STAR answers, coding screens, system design, and closing questions — with Ludwitt/Hult session tracking so practice sessions count.",
+    topic: "Interview prep",
     launch_url: `${BASE}/launch`,
     repo_url:
       "https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/tree/main/submissions/kiaracaesar5627-project-4",
@@ -75,7 +75,7 @@ async function main() {
       event: "lesson_started",
       user_id: userId,
       session_id: sessionId,
-      metadata: { lesson_id: "two-pointers", smoke: true },
+      metadata: { lesson_id: "behavioral-star", smoke: true },
     },
     api_key,
   );
@@ -86,7 +86,7 @@ async function main() {
       event: "quiz_submitted",
       user_id: userId,
       session_id: sessionId,
-      metadata: { lesson_id: "two-pointers", correct: true },
+      metadata: { lesson_id: "behavioral-star", correct: true },
     },
     api_key,
   );

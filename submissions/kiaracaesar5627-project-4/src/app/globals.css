@@ -332,6 +332,43 @@ a {
   line-height: 1.65;
 }
 
+.interviewer {
+  margin: 1.5rem 0 0;
+  padding: 1.25rem 1.35rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+}
+
+.interviewer .meta {
+  color: rgba(243, 240, 234, 0.65);
+  margin-bottom: 0.55rem;
+}
+
+.interviewer p:last-child {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.45;
+  font-family: var(--font-display);
+}
+
+.round-subhead {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.playbook {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.playbook li {
+  padding-left: 0.25rem;
+}
+
 .quiz {
   padding: 1.5rem 0;
   border-top: 1px solid var(--line);

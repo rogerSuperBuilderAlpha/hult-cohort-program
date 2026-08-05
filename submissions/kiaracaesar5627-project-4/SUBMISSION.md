@@ -8,7 +8,8 @@
 
 https://kiaracaesar5627-project-4.vercel.app
 
-Launch path: https://kiaracaesar5627-project-4.vercel.app/launch
+Launch path: https://kiaracaesar5627-project-4.vercel.app/launch  
+Practice room: https://kiaracaesar5627-project-4.vercel.app/practice
 
 ## Metrics API snapshot (date-stamped)
 
@@ -26,7 +27,7 @@ As of **2026-08-05T17:18:16.318Z** via `GET /v1/apps/7f3e9c2a-4b1d-4e8f-9a6c-2d5
 
 ## Notes
 
-- App: **Pattern Forge** — coding interview patterns
+- App: **Interview Room** — mock interview rounds (behavioral, coding screen, system design, closing)
 - Path: `submissions/kiaracaesar5627-project-4`
 - Platform API (OpenAPI-compatible): same origin `/v1/*`
 - Health: https://kiaracaesar5627-project-4.vercel.app/health

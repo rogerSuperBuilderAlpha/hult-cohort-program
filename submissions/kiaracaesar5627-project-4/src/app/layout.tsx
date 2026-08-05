@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: `${SITE.name} · Interview prep`,
+    default: `${SITE.name} · Mock interviews`,
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
@@ -29,15 +29,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {SITE.name}
             </Link>
             <nav className="nav" aria-label="Primary">
-              <Link href="/learn">Lessons</Link>
-              <a href="https://site-nine-rouge-68.vercel.app/program/phase-2-learning-app">
-                Cohort brief
-              </a>
+              <Link href="/practice">Practice</Link>
+              <Link href="/launch">Launch</Link>
             </nav>
           </header>
           <main>{children}</main>
           <footer className="site-footer">
-            {SITE.name} · {SITE.cohort} · @{SITE.handle}
+            {SITE.name} · mock interview practice · @{SITE.handle}
           </footer>
         </div>
       </body>

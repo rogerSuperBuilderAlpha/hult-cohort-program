@@ -1,9 +1,9 @@
 export const SITE = {
-  name: "Pattern Forge",
-  tagline: "Coding interview patterns, drilled until they stick.",
+  name: "Interview Room",
+  tagline: "Practice the interview. Not the textbook.",
   description:
-    "A focused learning app for technical interview prep: two pointers, sliding windows, BFS/DFS, and hash maps — with quizzes and Ludwitt/Hult session tracking.",
-  topic: "Interview prep · coding patterns",
+    "A mock-interview app for job seekers: timed rounds for behavioral STAR answers, coding screens, system design, and closing questions — with Ludwitt/Hult session tracking so practice sessions count.",
+  topic: "Interview prep",
   handle: "kiaracaesar5627",
   cohort: "Hult Cohort Summer Pilot 2026",
 } as const;

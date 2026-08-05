@@ -130,8 +130,8 @@ export function registerApp(
   },
 ): { app_id: string; api_key: string; jwt_secret: string } {
   const store = getStore();
-  // Re-registering Pattern Forge returns the seeded credentials (idempotent).
-  if (meta.title === SEEDED_APP.title) {
+  // Re-registering this app returns the seeded credentials (idempotent).
+  if (meta.title === SEEDED_APP.title || meta.title === "Pattern Forge") {
     const existing = store.apps.get(SEEDED_APP.app_id)!;
     existing.launch_url = meta.launch_url;
     existing.repo_url = meta.repo_url;

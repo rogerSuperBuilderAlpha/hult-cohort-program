@@ -6,15 +6,20 @@ Summer Pilot 2026 · Week 4 · Ludwitt learning integration
 
 https://learn-joes9987.vercel.app
 
-## Ludwitt / Hult app ID
+## Ludwitt Creator client / app ID
 
-`f9a08a30-630d-41a2-90a1-4dc132cae8b4`
+`le_d0e87dbc215bdf4d90eaa7`
+
+Registered on Ludwitt Creator (BYOB tier). Creator settings: https://www.ludwitt.com/creator/apps/le_d0e87dbc215bdf4d90eaa7  
+Status at submission update: **In review** (marketplace listing pending publish).
 
 ## Production listing URL
 
-https://learn-joes9987.vercel.app/
+https://www.ludwitt.com/dashboard/marketplace/eudalearn
 
-(Curriculum host `api.ludwitt.hult` does not resolve in DNS yet. EudaLearn exposes a curriculum-compatible platform shim at `https://learn-joes9987.vercel.app/api/platform/v1` for launch-token, events, and metrics. Ludwitt developer portal: https://ludwitt.com/developers.)
+App URL (OAuth callbacks / practice): https://learn-joes9987.vercel.app
+
+Curriculum host `api.ludwitt.hult` still does not resolve in DNS. **Identity + listing** use live Ludwitt Creator OAuth at `pitchrise.ludwitt.com`. **Learning-event / qualified-session telemetry** is app-owned via Supabase + `GET /api/platform/v1/apps/{app_id}/metrics` until an official Hult events API is available.
 
 ## Build repo
 
@@ -24,31 +29,36 @@ https://github.com/joes9987/learn-joes9987
 
 | Check | Result |
 |-------|--------|
-| JWT launch | `POST /api/platform/v1/auth/launch-token` → `/launch?token=` → session cookie → `/learn` |
-| Events | Practice loop + platform events: `lesson_started`, `quiz_submitted`, `lesson_completed` (heartbeats optional) |
-| Health | https://learn-joes9987.vercel.app/api/health → `app: "eudalearn"`, `ludwittConfigured: true` |
+| Creator registration | Client ID `le_d0e87dbc215bdf4d90eaa7`, slug `eudalearn`, category Learning, icon set, **submitted for review** |
+| OAuth | `GET /api/auth/ludwitt` → `pitchrise.ludwitt.com/oauth/authorize` → `/auth/callback` → session cookie → `/learn` |
+| AI / credits loop | Creator Test mode mint + `POST /api/v1/ai/messages` → 200 (`chargedCostCents: 0`, test mode). In-app coach: `POST /api/coach` |
+| Events | Practice loop posts `lesson_started`, `quiz_submitted`, `lesson_completed` (+ optional heartbeats) |
+| Health | https://learn-joes9987.vercel.app/api/health → `oauthConfigured: true`, `clientIdPresent: true` |
 
 ### Metrics API snapshot (date-stamped)
 
+App-owned learning telemetry (not a substitute for Creator marketplace analytics):
+
 ```json
 {
-  "app_id": "f9a08a30-630d-41a2-90a1-4dc132cae8b4",
+  "app_id": "le_d0e87dbc215bdf4d90eaa7",
   "unique_users": 1,
   "qualified_users": 1,
   "qualified_sessions": 1,
   "events": 3,
-  "snapshot_at": "2026-08-05T16:52:17.081Z"
+  "snapshot_at": "2026-08-05T17:52:58.657Z"
 }
 ```
 
-Pulled via `GET /api/platform/v1/apps/{app_id}/metrics` after a non-cohort external test user completed a qualified session (non-heartbeat events).
+Pulled via `GET /api/platform/v1/apps/le_d0e87dbc215bdf4d90eaa7/metrics` after a non-cohort external test user completed a qualified session (non-heartbeat events).
 
 ## Promotion channels used
 
+- Ludwitt marketplace listing: https://www.ludwitt.com/dashboard/marketplace/eudalearn
 - EudaMarket suite deep link: https://showcase-joes9987.vercel.app/suite
-- Public GitHub repo + Vercel production URL
-- Cohort-facing listing URL (this app) for launcher-style entry once official Ludwitt directory DNS is live
+- Public GitHub repo: https://github.com/joes9987/learn-joes9987
+- Production app: https://learn-joes9987.vercel.app
 
 ## Notes
 
-Week 4 merge bar is integration evidence (register → JWT launch → events → proof PR), not ≥25 external users. Adoption snapshot remains a later program gate.
+Week 4 merge bar is integration evidence (register → Ludwitt identity/launch → events → proof PR), not ≥25 external users. Adoption snapshot (≥25 qualified external users) remains the later program gate (~Aug 19). Promote the **marketplace listing URL**, not only the raw Vercel URL.

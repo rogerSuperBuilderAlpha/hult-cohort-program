@@ -1,9 +1,9 @@
 export const SITE = {
   name: "Interview Room",
-  tagline: "Practice the interview. Not the textbook.",
+  tagline: "Practice the interview for the job you’re applying to.",
   description:
-    "A mock-interview app for job seekers: timed rounds for behavioral STAR answers, coding screens, system design, and closing questions — with Ludwitt/Hult session tracking so practice sessions count.",
-  topic: "Interview prep",
+    "Mock interview questions by job application track — Software Engineer, Product Manager, Data Analyst, Marketing, and Customer Success — with scenario context, interviewer prompts, playbooks, and Ludwitt/Hult session tracking.",
+  topic: "Interview prep by role",
   handle: "kiaracaesar5627",
   cohort: "Hult Cohort Summer Pilot 2026",
 } as const;

@@ -13,21 +13,30 @@ type Debrief = {
 
 export function InterviewRoundClient({
   slug,
+  trackSlug,
+  role,
+  setting,
   stage,
   title,
+  scenario,
   interviewer,
   playbook,
   debrief,
   canTrack,
 }: {
   slug: string;
+  trackSlug: string;
+  role: string;
+  setting: string;
   stage: string;
   title: string;
+  scenario: string;
   interviewer: string;
   playbook: string[];
   debrief: Debrief;
   canTrack: boolean;
 }) {
+  const lessonId = `${trackSlug}/${slug}`;
   const [choice, setChoice] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -35,16 +44,17 @@ export function InterviewRoundClient({
 
   useEffect(() => {
     if (!canTrack) return;
-    void track("lesson_started", { lesson_id: slug, round: stage });
-  }, [slug, stage, canTrack]);
+    void track("lesson_started", { lesson_id: lessonId, role, stage });
+  }, [lessonId, role, stage, canTrack]);
 
   function submitDebrief() {
     if (choice === null) return;
     startTransition(async () => {
       if (canTrack) {
         await track("quiz_submitted", {
-          lesson_id: slug,
-          round: stage,
+          lesson_id: lessonId,
+          role,
+          stage,
           correct: choice === debrief.answerIndex,
           choice,
         });
@@ -56,7 +66,7 @@ export function InterviewRoundClient({
   function endRound() {
     startTransition(async () => {
       if (canTrack) {
-        await track("lesson_completed", { lesson_id: slug, round: stage });
+        await track("lesson_completed", { lesson_id: lessonId, role, stage });
       }
       setDone(true);
     });
@@ -65,9 +75,17 @@ export function InterviewRoundClient({
   return (
     <div className="lesson-flow">
       <header className="lesson-head">
-        <p className="eyebrow">{stage} round</p>
+        <p className="eyebrow">
+          {role} · {stage}
+        </p>
         <h1>{title}</h1>
+        <p className="setting-line">{setting}</p>
       </header>
+
+      <aside className="scenario-box">
+        <p className="meta">Application scenario</p>
+        <p>{scenario}</p>
+      </aside>
 
       <blockquote className="interviewer">
         <p className="meta">Interviewer</p>
@@ -75,7 +93,7 @@ export function InterviewRoundClient({
       </blockquote>
 
       <div className="lesson-body">
-        <h2 className="round-subhead">How you work this round</h2>
+        <h2 className="round-subhead">How you work this question</h2>
         <ol className="playbook">
           {playbook.map((step) => (
             <li key={step}>{step}</li>
@@ -120,22 +138,21 @@ export function InterviewRoundClient({
       <footer className="lesson-foot">
         {!done ? (
           <button type="button" className="btn" disabled={pending} onClick={endRound}>
-            End interview round
+            End this question
           </button>
         ) : (
           <p className="feedback ok">
             {canTrack
-              ? "Round complete — session event sent to Ludwitt."
-              : "Round complete (preview — launch from Ludwitt to count)."}
+              ? "Question complete — session event sent to Ludwitt."
+              : "Question complete (preview — launch from Ludwitt to count)."}
           </p>
         )}
-        <Link href="/practice" className="text-link">
-          All rounds
+        <Link href={`/practice/${trackSlug}`} className="text-link">
+          More {role} questions
         </Link>
       </footer>
     </div>
   );
 }
 
-/** @deprecated use InterviewRoundClient */
 export const LessonClient = InterviewRoundClient;

@@ -3,7 +3,8 @@
 ## Goal
 
 Ship a production **interview** learning app on Ludwitt/Hult with JWT launch and
-event tracking. Product is mock-interview rounds — not a generic course site.
+event tracking. Product is job-application scenarios by role — not a generic
+course site or algorithm textbook.
 
 ## Commands
 
@@ -16,8 +17,8 @@ npm run smoke
 
 ## Key paths
 
-- `src/lib/lessons.ts` — interview rounds (behavioral / coding / design / closing)
-- `src/app/practice/**` — practice room UI
+- `src/lib/lessons.ts` — `JOB_TRACKS` (role → scenarios with interviewer + playbook)
+- `src/app/practice/[track]/[slug]` — scenario practice UI
 - `src/lib/platform/**` — Ludwitt `/v1` surface
 - `src/app/launch` — JWT gate
 

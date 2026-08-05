@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ROUNDS } from "@/lib/lessons";
+import { JOB_TRACKS } from "@/lib/lessons";
 import { SITE } from "@/lib/site";
 
 export default function HomePage() {
@@ -11,29 +11,29 @@ export default function HomePage() {
           <p className="lede">{SITE.tagline}</p>
           <div className="cta-row">
             <Link href="/practice" className="btn primary">
-              Enter practice room
+              Choose a job track
             </Link>
-            <a className="btn" href="#rounds">
-              See rounds
+            <a className="btn" href="#tracks">
+              Browse roles
             </a>
           </div>
         </div>
       </section>
 
-      <section className="section" id="rounds">
-        <h2>Four rounds. One full loop.</h2>
+      <section className="section" id="tracks">
+        <h2>Questions by job application</h2>
         <p className="support">
-          Behavioral, coding screen, system design, and closing questions — run
-          each like a real interview, then debrief.
+          Each track is a different role and hiring context — with scenario-specific
+          interviewer prompts, not generic one-size questions.
         </p>
         <div className="lesson-grid">
-          {ROUNDS.map((round) => (
-            <Link key={round.slug} href={`/practice/${round.slug}`} className="lesson-link">
+          {JOB_TRACKS.map((track) => (
+            <Link key={track.slug} href={`/practice/${track.slug}`} className="lesson-link">
               <p className="meta">
-                {round.stage} · {round.minutes} min
+                {track.setting} · {track.scenarios.length} scenarios
               </p>
-              <h3>{round.title}</h3>
-              <p>{round.summary}</p>
+              <h3>{track.role}</h3>
+              <p>{track.blurb}</p>
             </Link>
           ))}
         </div>
@@ -43,8 +43,8 @@ export default function HomePage() {
         <h2>How a session starts</h2>
         <p className="support">
           Launch from Ludwitt/Hult with a signed JWT at <code>/launch</code>. That
-          opens a counted interview session — rounds fire learning events the
-          platform can see.
+          opens a counted interview session — each question fires learning events
+          the platform can see.
         </p>
       </section>
     </>

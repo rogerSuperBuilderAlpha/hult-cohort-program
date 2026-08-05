@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { ROUNDS } from "@/lib/lessons";
+import { JOB_TRACKS } from "@/lib/lessons";
 import { SessionHeartbeat } from "@/components/SessionHeartbeat";
 import type { LearnerSession } from "@/app/api/session/route";
 
@@ -22,20 +22,19 @@ export default async function PracticeIndexPage() {
       <p className="eyebrow">
         {session ? `Candidate session · ${session.email}` : "Preview · not counted"}
       </p>
-      <h2>Practice room</h2>
+      <h2>Job application tracks</h2>
       <p className="support">
-        {session
-          ? "Your Ludwitt interview session is live. Pick a round and treat it like the real call."
-          : "Browse rounds here. Counted practice requires launching from Ludwitt/Hult with a JWT."}
+        Pick the role you’re interviewing for. Each track has scenarios tailored to
+        that application — behavioral, technical, case, and closing-style prompts.
       </p>
       <div className="lesson-grid">
-        {ROUNDS.map((round) => (
-          <Link key={round.slug} href={`/practice/${round.slug}`} className="lesson-link">
+        {JOB_TRACKS.map((track) => (
+          <Link key={track.slug} href={`/practice/${track.slug}`} className="lesson-link">
             <p className="meta">
-              {round.stage} · {round.minutes} min
+              {track.setting} · {track.scenarios.length} questions
             </p>
-            <h3>{round.title}</h3>
-            <p>{round.summary}</p>
+            <h3>{track.role}</h3>
+            <p>{track.blurb}</p>
           </Link>
         ))}
       </div>

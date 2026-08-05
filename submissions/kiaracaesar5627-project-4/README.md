@@ -1,11 +1,13 @@
 # Interview Room (Week 4 · Ludwitt learning)
 
-Mock-interview practice app: behavioral STAR, coding screen, system design, and
-closing questions. Registered on a Ludwitt/Hult-compatible API at the same origin.
+Mock-interview practice by **job application track** — Software Engineer, Product
+Manager, Data Analyst, Marketing, and Customer Success. Each track has
+scenario-specific interviewer prompts. Registered on a Ludwitt/Hult-compatible
+API at the same origin.
 
 ## Topic
 
-**Interview prep** — full interview loop, not algorithm lectures.
+**Interview prep by role** — questions matched to real application scenarios.
 
 ## Stack
 
@@ -30,8 +32,9 @@ npm run smoke
 | Route | Role |
 |-------|------|
 | `/` | Interview Room landing |
-| `/practice` | Round picker |
-| `/practice/[slug]` | Interviewer prompt + playbook + debrief |
+| `/practice` | Job-track picker |
+| `/practice/[track]` | Scenarios for that role |
+| `/practice/[track]/[slug]` | Scenario + interviewer + playbook + debrief |
 | `/launch?token=` | Ludwitt JWT gate → practice room |
 
 ## Integration

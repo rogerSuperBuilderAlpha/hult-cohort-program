@@ -325,6 +325,32 @@ a {
   margin: 0;
 }
 
+.setting-line {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.scenario-box {
+  margin: 1.5rem 0 0;
+  padding: 1.15rem 1.25rem;
+  border-left: 3px solid var(--accent);
+  background: #ebe6dc;
+}
+
+.scenario-box .meta {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.scenario-box p:last-child {
+  margin: 0;
+  line-height: 1.55;
+}
+
 .lesson-body {
   margin: 1.75rem 0 2.5rem;
   display: grid;

@@ -10,12 +10,12 @@ export default function HomePage() {
           <h1>{SITE.name}</h1>
           <p className="lede">{SITE.tagline}</p>
           <div className="cta-row">
-            <Link href="/practice" className="btn primary">
-              Choose a job track
+            <Link href="/coach" className="btn primary">
+              Personalize with coach
             </Link>
-            <a className="btn" href="#tracks">
-              Browse roles
-            </a>
+            <Link href="/practice" className="btn">
+              Browse job tracks
+            </Link>
           </div>
         </div>
       </section>
@@ -37,6 +37,19 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      <section className="section">
+        <h2>AI interview coach</h2>
+        <p className="support">
+          Not sure where to start? The{" "}
+          <Link href="/coach" className="text-link">
+            coach chat
+          </Link>{" "}
+          asks about your target role and maps you to specific scenarios — plus
+          mock prompts and STAR feedback. Works with a built-in personalizer; add
+          an API key for full LLM replies.
+        </p>
       </section>
 
       <section className="section">

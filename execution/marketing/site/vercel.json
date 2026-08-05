@@ -8,7 +8,7 @@
   "crons": [
     {
       "path": "/api/cron/warm-contest",
-      "schedule": "0 13 * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }

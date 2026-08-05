@@ -62,3 +62,8 @@ Pulled via `GET /api/platform/v1/apps/le_d0e87dbc215bdf4d90eaa7/metrics` after a
 ## Notes
 
 Week 4 merge bar is integration evidence (register → Ludwitt identity/launch → events → proof PR), not ≥25 external users. Adoption snapshot (≥25 qualified external users) remains the later program gate (~Aug 19). Promote the **marketplace listing URL**, not only the raw Vercel URL.
+
+## OAuth authorize note (2026-08-05)
+
+Ludwitt Creator apps currently receive `invalid_client` from `GET /api/oauth/authorize` and `POST /api/oauth/token` (reproduced with both `le_d0e87�` and a freshly registered second client). Creator **Mint test token** + `GET /api/oauth/userinfo` and `POST /api/v1/ai/messages` work. EudaLearn `/login` therefore supports Creator test-token session establishment while platform authorize is broken; OAuth redirect remains wired for when Ludwitt fixes client lookup.
+

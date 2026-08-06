@@ -7,20 +7,20 @@
 - **Live since:** August 5, 2026
 - **Source repos:** https://github.com/CodingWCal/ai-onramp (app), https://github.com/CodingWCal/ludwitt-api (self-hosted Ludwitt/Hult reference API, Turso-persistent)
 
-## Metrics API snapshot (2026-08-05)
+## Metrics API snapshot (2026-08-06)
 
 Fetched live from the Ludwitt/Hult metrics API (`GET /v1/apps/{app_id}/metrics`) using the registered app credentials:
 
 | App ID | Metric | Value |
 |---|---|---|
-| `78f5ecd3-4f57-4f7b-9671-0477a1b49f9e` | unique_users | 1 |
-| `78f5ecd3-4f57-4f7b-9671-0477a1b49f9e` | qualified_users | 1 |
+| `78f5ecd3-4f57-4f7b-9671-0477a1b49f9e` | unique_users | 4 |
+| `78f5ecd3-4f57-4f7b-9671-0477a1b49f9e` | qualified_users | 4 |
 
-Admin snapshot export (CSV, `GET /v1/admin/cohorts/summer26/snapshots/2026-08-05`):
+Admin snapshot export (CSV, `GET /v1/admin/cohorts/summer26/snapshots/2026-08-06`):
 
 ```csv
 app_id,student_handle,unique_users,qualified_users
-78f5ecd3-4f57-4f7b-9671-0477a1b49f9e,student-demo,1,1
+78f5ecd3-4f57-4f7b-9671-0477a1b49f9e,student-demo,4,4
 ```
 
 ## Promotion channels used
@@ -32,14 +32,15 @@ app_id,student_handle,unique_users,qualified_users
 
 ## Summary
 
-**AI OnRamp** is a hands-on learning app that teaches AI fundamentals in five modules and ten interactive lessons with quizzes. It is a full end-to-end integration with the Ludwitt/Hult learning-app platform: users enter through a signed launch token, session state is negotiated as a 24-hour HttpOnly cookie, and every lesson start/completion, quiz submission, and heartbeat is instrumented back to the metrics API.
+**AI OnRamp** is a hands-on learning app that teaches AI fundamentals in five modules and sixteen interactive lessons, each with quizzes and code samples, plus per-module progress tracking. It is a full end-to-end integration with the Ludwitt/Hult learning-app platform: users enter through a signed launch token, session state is negotiated as a 24-hour HttpOnly cookie, and every lesson start/completion, quiz submission, and heartbeat is instrumented back to the metrics API.
 
 ## Architecture summary
 
 - **Framework:** Next.js 16 (App Router) + TypeScript (strict) + React 19 + Tailwind CSS v4.
 - **Auth:** JWT launch-token verification in `app/launch/route.ts` (`jose`), exchanged for a signed `ai-onramp-session` cookie.
 - **Events:** client-side `EventTracker` components -> `POST /api/events` (session-gated) -> Ludwitt/Hult events API (`POST /v1/apps/{app_id}/events`) with `event`, `user_id`, `session_id`, `metadata`.
-- **Content:** `lib/content.ts` — 5 modules, 10 lessons, quizzes with instant feedback.
+- **Content:** `lib/content.ts` — 5 modules, 16 lessons, quizzes with instant feedback, code samples.
+- **Progress:** `components/CourseProgress.tsx` — per-lesson completion + dashboard progress bars (browser-local, no account needed).
 - **API:** the adjacent `ludwitt-api` repo is the self-hosted Ludwitt/Hult reference API (Express + Turso/LibSQL persistence) deployed at `https://ludwitt-api.vercel.app`.
 - **Deployment:** Vercel (app aliased to `https://ai-onramp-hult.vercel.app`; API at `https://ludwitt-api.vercel.app`).
 

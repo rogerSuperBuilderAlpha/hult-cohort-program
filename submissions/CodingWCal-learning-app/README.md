@@ -7,12 +7,13 @@ AI OnRamp is a hands-on learning app that teaches AI fundamentals in short, inte
 
 ## What's inside
 
-- **5 modules / 10 lessons** with in-lesson quizzes and instant feedback:
-  - Understanding AI (`what-is-ai`, `ml-down-the-stack`)
-  - How AI works (`training-and-data`, `neural-networks`, `generative-ai`)
-  - Applying AI (`pick-the-right-tool`, `prompting`)
-  - AI and the work (`pair-programming`, `agents-and-context`)
-  - Ethics (`bias-and-fairness`, `privacy-and-safety`)
+- **5 modules / 16 lessons** with in-lesson quizzes, code samples, and instant feedback:
+  - Understanding AI (`what-is-ai`, `ml-down-the-stack`, `ai-in-daily-life`)
+  - How AI works (`training-and-data`, `neural-networks`, `generative-ai`, `embeddings-and-search`)
+  - Applying AI (`pick-the-right-tool`, `prompting`, `grounded-ai`)
+  - AI and the work (`pair-programming`, `agents-and-context`, `testing-with-ai`)
+  - Ethics (`bias-and-fairness`, `privacy-and-safety`, `human-oversight`)
+- **Progress tracking** — per-lesson "mark complete" buttons and a dashboard with per-module progress bars and an "up next" prompt (stored in the browser, no account needed).
 - **JWT launch flow** — users arrive via a signed launch token from the Ludwitt/Hult API (`/launch?token=...`), which is verified server-side and exchanged for a 24h HttpOnly session cookie.
 - **Events instrumentation** — `lesson_started`, `lesson_completed`, `quiz_submitted`, and a 60s `session_heartbeat` are forwarded to the Ludwitt/Hult events API (`/api/events` -> `POST /v1/apps/{app_id}/events`).
 - **Session-gated pages** — `/dashboard` and `/learn/...` require a valid session; `/launch` validates and redirects.
@@ -54,7 +55,8 @@ npm run build      # production build passes
 - `lib/events.ts` — posts events to the Ludwitt/Hult events API with `user_id` and `session_id`.
 - `app/api/events/route.ts` — server-side event proxy that requires a valid session.
 - `components/EventTracker.tsx` — client component that fires events (mount, interval).
-- `lib/content.ts` — all course content (modules, lessons, quizzes).
+- `lib/content.ts` — all course content (modules, lessons, quizzes, code samples).
+- `components/CourseProgress.tsx` — client-side progress state (`localStorage`) and dashboard widgets.
 
 ## Known limitations
 

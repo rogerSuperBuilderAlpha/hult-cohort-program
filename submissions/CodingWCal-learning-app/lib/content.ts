@@ -39,6 +39,7 @@ export const COURSE_MODULES: Module[] = [
           "Artificial intelligence is software that performs tasks that traditionally required human judgment: recognizing images, understanding language, predicting outcomes, and generating new content. It is not a single technology, but a collection of techniques and products built on them.",
           "The key shift: traditional software follows explicit rules written by developers (if this, then that). AI systems learn patterns from data instead of being handed rules. That's both their superpower and the reason they need guardrails.",
           "Three words you will see everywhere: AI (the broad field), machine learning (the technique of learning patterns from data), and deep learning (machine learning using large neural networks). People often say 'AI' when they mean any of the three. This course will teach all of them from the ground up.",
+          "A useful first habit: when you hear 'AI can do X,' translate it to 'some software can approximate X given enough examples and compute.' That translation keeps expectations honest.",
         ],
         quiz: [
           {
@@ -52,6 +53,13 @@ export const COURSE_MODULES: Module[] = [
             answer: 1,
             explain:
               "Traditional software encodes rules directly; AI systems infer patterns from data, which is why they generalize to new inputs in ways hand-written rules cannot.",
+          },
+          {
+            prompt: "Which term describes 'machine learning using large neural networks'?",
+            options: ["Artificial general intelligence", "Deep learning", "Robotics", "Natural language"],
+            answer: 1,
+            explain:
+              "Deep learning is machine learning built on large neural networks — most modern AI products run on it.",
           },
         ],
       },
@@ -79,6 +87,30 @@ export const COURSE_MODULES: Module[] = [
           },
         ],
       },
+      {
+        slug: "ai-in-daily-life",
+        title: "AI in daily life — find the pattern",
+        minutes: 5,
+        body: [
+          "You already use AI every day: email spam filters classify messages, streaming services recommend the next video, maps apps predict arrival times, and your camera chooses the right exposure. Each one is a small model solving a narrow task — not a single 'AI brain' running everything.",
+          "Once you start looking, the pattern is everywhere: a system that decides, predicts, or generates something from data is almost certainly a model underneath. Spotting the model changes how you debug the product: bad suggestions are usually bad data or a mismatched task, not a mystery.",
+          "Practice exercise: next time a product surprises you — a weird recommendation, a wrong auto-caption, a spam folder mistake — ask three questions. What task was it trying to solve? What data shaped its answer? Where would you add a rule or a human check to fix it?",
+        ],
+        quiz: [
+          {
+            prompt: "A music app 'likes' songs you skip. What is the model doing?",
+            options: [
+              "Generating new songs",
+              "Predicting your preference from listening behavior",
+              "Downloading music",
+              "Running a text search",
+            ],
+            answer: 1,
+            explain:
+              "It infers a preference pattern from your behavior — a prediction task, not generation.",
+          },
+        ],
+      },
     ],
   },
   {
@@ -95,6 +127,15 @@ export const COURSE_MODULES: Module[] = [
           "Data quality determines everything. If the data is biased, incomplete, or duplicated, the model learns those flaws. A famous rule of thumb: 'garbage in, garbage out.' Models do not discover truth; they compress the patterns present in their training data.",
           "After training, we evaluate on data the model never saw (a test set). A model that memorized its training examples but fails on new ones is overfit. Measuring on held-out data is how we know whether the model actually learned general patterns.",
         ],
+        code: `// The training loop, simplified
+for (let epoch = 0; epoch < EPOCHS; epoch++) {
+  for (const example of batch) {
+    const prediction = model.forward(example.input);
+    const loss = measureError(prediction, example.label);
+    model.backprop(loss);        // how wrong were we?
+    model.step();                // nudge weights to reduce loss
+  }
+}`,
         quiz: [
           {
             prompt: "Why do we evaluate models on data they never saw during training?",
@@ -107,6 +148,18 @@ export const COURSE_MODULES: Module[] = [
             answer: 1,
             explain:
               "A held-out test set reveals whether the model learned general patterns or simply memorized its training examples (overfitting).",
+          },
+          {
+            prompt: "What does 'garbage in, garbage out' mean for machine learning?",
+            options: [
+              "Models crash on bad input",
+              "The model inherits the flaws of its training data",
+              "Clean code fixes bad data",
+              "Models ignore bad examples",
+            ],
+            answer: 1,
+            explain:
+              "Models compress patterns from data — biased, incomplete, or duplicated data produces flawed behavior.",
           },
         ],
       },
@@ -158,6 +211,36 @@ export const COURSE_MODULES: Module[] = [
           },
         ],
       },
+      {
+        slug: "embeddings-and-search",
+        title: "Embeddings, search, and meaning",
+        minutes: 6,
+        body: [
+          "Computers don't understand words, but they can measure similarity. An embedding model converts text into a long list of numbers (a vector) arranged so that similar meanings sit close together. 'Kitten' and 'puppy' end up near each other; 'kitten' and 'tax audit' do not.",
+          "This unlocks real products: semantic search (find the document that means the same thing, not just contains the keyword), deduplication, clustering, and recommendation. You don't need an LLM at all — embedding similarity is cheap, fast, and often the right tool.",
+          "The trick to keep straight: embeddings measure statistical similarity in language, not truth. Two documents can be near-identical in style and tone while one is completely wrong. Similarity is a routing signal, not a quality judgment.",
+        ],
+        code: `// Semantic search in a few lines
+const queryVector = embed("how do I reset my password?");
+const results = documents
+  .map((doc) => ({ doc, score: cosineSimilarity(queryVector, doc.vector) }))
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 5);`,
+        quiz: [
+          {
+            prompt: "What does an embedding model map text to?",
+            options: [
+              "A single number from 0 to 100",
+              "A vector where similar meanings are close together",
+              "A database row",
+              "A web URL",
+            ],
+            answer: 1,
+            explain:
+              "Embeddings place text in a vector space where semantic similarity corresponds to distance.",
+          },
+        ],
+      },
     ],
   },
   {
@@ -198,6 +281,16 @@ export const COURSE_MODULES: Module[] = [
           "Iterate. Real prompting is a conversation: refine the request, ask for alternatives, demand the model explain its reasoning, and push back on weak drafts. Treat the first output as a rough draft, not an answer.",
           "Give the model room to work. Provide examples in the prompt (few-shot prompting), split hard problems into smaller steps (chain-of-thought), and ask it to reconsider when an answer feels wrong.",
         ],
+        code: `// A repeatable prompt template
+const prompt = \`You are a data analyst.
+Audience: non-technical stakeholder.
+Task: summarize the numbers below in 3 bullets.
+Flag: the single biggest risk. Keep it under 150 words.
+
+Data: \${JSON.stringify(data)}\`;
+
+const draft = await model(prompt);
+// then: "Which assumption would break this conclusion?"`,
         quiz: [
           {
             prompt: "Which prompt is most likely to produce a useful response?",
@@ -210,6 +303,42 @@ export const COURSE_MODULES: Module[] = [
             answer: 1,
             explain:
               "A concrete role, audience, format, and constraints steer the model toward useful, on-target output.",
+          },
+          {
+            prompt: "What is 'few-shot prompting'?",
+            options: [
+              "Asking the model to work fast",
+              "Providing examples in the prompt",
+              "Restricting the model to one answer",
+              "Prompting with a timer",
+            ],
+            answer: 1,
+            explain:
+              "Few-shot prompting shows the model examples of the desired output pattern inside the prompt itself.",
+          },
+        ],
+      },
+      {
+        slug: "grounded-ai",
+        title: "Grounded answers: RAG and retrieval",
+        minutes: 6,
+        body: [
+          "A raw LLM answers from memory and invents freely. Grounding fixes that: instead of asking the model directly, you first search your own documents (often with embeddings), then hand the model only the relevant passages and ask it to answer from them.",
+          "This pattern — retrieval-augmented generation, or RAG — is how most production AI assistants actually work. The model becomes a summarizer of your knowledge base instead of a maker-up of facts. Citations become possible because you know which source each answer came from.",
+          "RAG has limits: if the right passage isn't retrieved, the model quietly answers from memory anyway. The engineering work is in retrieval quality: chunking documents well, indexing with good embeddings, and testing which queries fail.",
+        ],
+        quiz: [
+          {
+            prompt: "Why does RAG reduce hallucinations?",
+            options: [
+              "It makes the model bigger",
+              "The model answers from retrieved passages instead of memory",
+              "It disables generation",
+              "It encrypts the prompt",
+            ],
+            answer: 1,
+            explain:
+              "RAG supplies relevant evidence in context, so the model reasons from your documents rather than inventing from memory.",
           },
         ],
       },
@@ -268,6 +397,36 @@ export const COURSE_MODULES: Module[] = [
           },
         ],
       },
+      {
+        slug: "testing-with-ai",
+        title: "AI-assisted testing: keep the loop safe",
+        minutes: 6,
+        body: [
+          "Tests are where AI assistance pays for itself. Ask the model to enumerate edge cases you might have missed, generate test inputs, and draft assertions — then review each one. A test that encodes the wrong expectation is worse than no test.",
+          "A practical pattern is test-first delegation: write the test, let the AI implement until green, then review the diff. The test defines the contract; the model fills in the implementation; your review keeps the contract honest.",
+          "Watch for tests that always pass for the wrong reason: missing assertions, mocking away the logic under test, or mirroring the buggy implementation. Read generated tests with the same suspicion you'd apply to generated features.",
+        ],
+        code: `// Test-first delegation loop
+1. Write a failing test for the behavior you want
+2. Let the AI implement until the test goes green
+3. Review the diff — no new mocking, no weakened assertions
+4. Add the edge cases the AI missed
+5. Re-run the full suite before merge`,
+        quiz: [
+          {
+            prompt: "What is the risk of 'tests that always pass for the wrong reason'?",
+            options: [
+              "They slow down CI",
+              "They give false confidence while missing real bugs",
+              "They use too much memory",
+              "They can't be reviewed",
+            ],
+            answer: 1,
+            explain:
+              "Weak assertions or over-mocking make tests green regardless of behavior — they certify nothing.",
+          },
+        ],
+      },
     ],
   },
   {
@@ -320,6 +479,30 @@ export const COURSE_MODULES: Module[] = [
             answer: 1,
             explain:
               "Submitted data may be stored and reused. Ask about retention, scope, and controls before sending sensitive information.",
+          },
+        ],
+      },
+      {
+        slug: "human-oversight",
+        title: "Human oversight in consequential decisions",
+        minutes: 6,
+        body: [
+          "The higher the stakes of an automated decision, the more infrastructure you need around it: a clear escalation path, a human who can override, and a record of what the model saw and decided. 'The model said so' is not an accountability story.",
+          "Design for graceful failure. Every AI system should know what it can't do and say so — a loan model that declines, a medical triage bot that admits uncertainty, a moderation system that defers. Confidence scores are useful; knowing when to not decide is essential.",
+          "The best teams treat oversight as a product feature: dashboards of decisions, audits of edge cases, and review queues for the risky 1%. Responsibility never ships with the model — it stays with the organization.",
+        ],
+        quiz: [
+          {
+            prompt: "What makes an AI decision accountable in a high-stakes setting?",
+            options: [
+              "A high confidence score",
+              "A human with override authority and a record of the decision",
+              "Faster inference",
+              "A bigger model",
+            ],
+            answer: 1,
+            explain:
+              "Accountability comes from oversight: escalation paths, human override, and records — not from model confidence.",
           },
         ],
       },

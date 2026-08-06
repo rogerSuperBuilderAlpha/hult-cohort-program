@@ -5,6 +5,7 @@ import { readSessionToken } from "@/lib/session";
 import { getLesson, COURSE_MODULES, APP_NAME } from "@/lib/content";
 import { Quiz } from "@/components/Quiz";
 import { EventTracker } from "@/components/EventTracker";
+import { LessonCompleteButton } from "@/components/CourseProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +74,14 @@ export default async function LessonPage({
         </div>
 
         <Quiz lessonSlug={lessonSlug} moduleSlug={moduleSlug} quiz={lesson.quiz} />
+
+        <LessonCompleteButton
+          lessonSlug={lessonSlug}
+          moduleSlug={moduleSlug}
+          nextHref={
+            next ? `/learn/${next.module}/${next.lesson.slug}` : "/dashboard"
+          }
+        />
 
         <div className="mt-10 flex items-center justify-between border-t border-border pt-6">
           {index > 0 ? (

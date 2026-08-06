@@ -16,12 +16,17 @@ export default function Home() {
             {APP_TAGLINE} {TOTAL_LESSONS} short lessons across {COURSE_MODULES.length} modules
             — no math degree required.
           </p>
-          <Link
-            href="/dashboard"
-            className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-background transition hover:brightness-110"
-          >
-            Start learning
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/api/demo-launch"
+              className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-background transition hover:brightness-110"
+            >
+              Start learning
+            </Link>
+            <span className="text-xs text-muted">
+              instant demo session — no sign-up
+            </span>
+          </div>
         </div>
       </section>
 
@@ -29,7 +34,7 @@ export default function Home() {
         {COURSE_MODULES.map((m) => (
           <Link
             key={m.slug}
-            href="/dashboard"
+            href="/api/demo-launch"
             className="group rounded-2xl border border-border bg-surface p-6 transition hover:border-accent/60"
           >
             <h2 className="text-lg font-semibold mb-2 group-hover:text-accent">

@@ -1,54 +1,21 @@
-export type Debrief = {
-  prompt: string;
-  choices: string[];
-  answerIndex: number;
-  explain: string;
-};
+import { q, d, type InterviewScenario, type JobTrack } from "./track-model";
+import { BUSINESS_JOB_TRACKS } from "./business-tracks";
+import { EXTRA_BY_TRACK } from "./track-extras";
 
-export type InterviewScenario = {
-  slug: string;
-  stage: string;
-  title: string;
-  minutes: number;
-  summary: string;
-  scenario: string;
-  interviewer: string;
-  playbook: string[];
-  debrief: Debrief;
-};
+export type { Debrief, InterviewScenario, JobTrack } from "./track-model";
 
-export type JobTrack = {
-  slug: string;
-  role: string;
-  setting: string;
-  blurb: string;
-  scenarios: InterviewScenario[];
-};
-
-function q(
-  slug: string,
-  stage: string,
-  title: string,
-  minutes: number,
-  summary: string,
-  scenario: string,
-  interviewer: string,
-  playbook: string[],
-  debrief: Debrief,
-): InterviewScenario {
-  return { slug, stage, title, minutes, summary, scenario, interviewer, playbook, debrief };
+function withExtras(tracks: JobTrack[]): JobTrack[] {
+  return tracks.map((track) => {
+    const extra = EXTRA_BY_TRACK[track.slug] ?? [];
+    const scenarios = [...track.scenarios, ...extra];
+    if (scenarios.length < 20) {
+      throw new Error(`Track ${track.slug} has ${scenarios.length} scenarios; need ≥20`);
+    }
+    return { ...track, scenarios };
+  });
 }
 
-function d(
-  prompt: string,
-  choices: [string, string, string, string],
-  answerIndex: 0 | 1 | 2 | 3,
-  explain: string,
-): Debrief {
-  return { prompt, choices: [...choices], answerIndex, explain };
-}
-
-export const JOB_TRACKS: JobTrack[] = [
+const CORE_JOB_TRACKS: JobTrack[] = [
   {
     slug: "software-engineer",
     role: "Software Engineer",
@@ -116,7 +83,7 @@ export const JOB_TRACKS: JobTrack[] = [
         30,
         "Multi-channel notification service.",
         "Senior loop for product messaging (email, push, in-app).",
-        "Design notifications for email, push, and in-app at 5M MAU. Start from requirements.",
+        "How would you design notifications across email, push, and in-app at about 5M MAU, and where do fan-out and failure modes get hard?",
         [
           "Separate functional needs from SLOs.",
           "Producer → queue → workers → providers; isolate failures.",
@@ -170,7 +137,7 @@ export const JOB_TRACKS: JobTrack[] = [
         20,
         "Classic coding with follow-up constraints.",
         "Phone screen. They escalate from brute force to streaming constraints.",
-        "Given an array of integers and a target, return whether any two numbers sum to target. Follow-up: stream of numbers, memory bound.",
+        "Given an array of integers and a target, how would you determine whether any two numbers sum to the target—and how would your approach change for a memory-bound stream?",
         [
           "Start with clarify: duplicates? indices? sorted?",
           "Brute O(n²), then hash set O(n).",
@@ -251,7 +218,7 @@ export const JOB_TRACKS: JobTrack[] = [
         30,
         "Classic design: write path, read path, scale.",
         "Backend SWE. Expect capacity estimates and uniqueness.",
-        "Design a URL shortener like bit.ly. Cover create, redirect, and scale to high QPS reads.",
+        "How would you design a URL shortener like bit.ly, covering create, redirect, and scale to high-QPS reads?",
         [
           "Requirements: custom aliases? expiry? analytics?",
           "Write path: generate unique code, store mapping.",
@@ -645,7 +612,7 @@ export const JOB_TRACKS: JobTrack[] = [
         20,
         "SQL for stepwise conversion.",
         "Live SQL screen for product analytics.",
-        "Write SQL (or describe it) for signup → verify email → first action conversion by week.",
+        "How would you write SQL (or describe it) for signup → verify email → first action conversion by week?",
         [
           "Clarify event names and uniqueness.",
           "Cohort by signup week.",
@@ -726,7 +693,7 @@ export const JOB_TRACKS: JobTrack[] = [
         15,
         "Explain retention to a non-technical stakeholder.",
         "Consumer subscription company.",
-        "Explain how you’d measure Day-1 / Day-7 / Day-30 retention and what would worry you.",
+        "Explain how you’d measure Day-1 / Day-7 / Day-30 retention and what would worry you?",
         [
           "Define the activating event and return event.",
           "Cohort by first use date.",
@@ -923,7 +890,7 @@ export const JOB_TRACKS: JobTrack[] = [
         18,
         "Pick a primary acquisition channel.",
         "New product launch with limited creative capacity.",
-        "We’re launching in two cities. Pick one primary paid channel and justify.",
+        "We’re launching in two cities. Pick one primary paid channel and justify?",
         [
           "Audience fit and intent.",
           "Creative format strengths.",
@@ -977,7 +944,7 @@ export const JOB_TRACKS: JobTrack[] = [
         12,
         "Learning from underperformance.",
         "Performance marketing screen.",
-        "Your last campaign missed CPA by 30%. Walk me through the postmortem.",
+        "Your last campaign missed CPA by 30%. Walk me through the postmortem?",
         [
           "Results vs plan, plainly.",
           "Diagnose: audience, creative, landing, tracking.",
@@ -1892,7 +1859,7 @@ export const JOB_TRACKS: JobTrack[] = [
         12,
         "Patience and process.",
         "Enterprise cycle company.",
-        "Describe a long deal you advanced without forcing a premature close.",
+        "Tell me about a long deal you advanced without forcing a premature close. What happened?",
         [
           "Mutual action plan with dates.",
           "Value at each stage.",
@@ -2448,7 +2415,7 @@ export const JOB_TRACKS: JobTrack[] = [
         12,
         "Employee experience design.",
         "People ops owning onboarding.",
-        "New hires say week one is chaotic. Redesign it.",
+        "New hires say week one is chaotic. How would you redesign it?",
         [
           "Define day-1 outcomes.",
           "Access, buddy, manager 1:1, role clarity.",
@@ -2830,6 +2797,8 @@ export const JOB_TRACKS: JobTrack[] = [
     ],
   },
 ];
+
+export const JOB_TRACKS: JobTrack[] = withExtras([...CORE_JOB_TRACKS, ...BUSINESS_JOB_TRACKS]);
 
 export type InterviewRound = InterviewScenario & {
   trackSlug: string;

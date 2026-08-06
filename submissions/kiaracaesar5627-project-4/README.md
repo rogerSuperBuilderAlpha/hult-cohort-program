@@ -1,14 +1,15 @@
 # Interview Room (Week 4 · Ludwitt learning)
 
-Mock-interview practice across **10 job tracks** (100 scenarios): Software
-Engineer, Product Manager, Data Analyst, Marketing, Customer Success, UX
-Designer, Account Executive, DevOps/SRE, People Ops, and Operations. Each
-scenario has interviewer prompts and a debrief. Registered on a
-Ludwitt/Hult-compatible API at the same origin.
+Mock-interview practice across **25 job tracks** (500 interview questions): core
+product roles plus major business tracks (FP&A, consulting, IB, BA, project
+management, accounting/audit, supply chain, corporate strategy, BD,
+risk/compliance, corporate communications, HRBP, founder, sales manager, GM).
+Each scenario is phrased as an interviewer question with a playbook and debrief.
+Registered on a Ludwitt/Hult-compatible API at the same origin.
 
 ## Topic
 
-**Interview prep by role** — ≥10 questions per job application track.
+**Interview prep by role** — ≥20 interview questions per job-application track.
 
 ## Stack
 

@@ -30,7 +30,7 @@ export default function HomePage() {
           {JOB_TRACKS.map((track) => (
             <Link key={track.slug} href={`/practice/${track.slug}`} className="lesson-link">
               <p className="meta">
-                {track.setting} · {track.scenarios.length} scenarios
+                {track.setting} · {track.scenarios.length} interview questions
               </p>
               <h3>{track.role}</h3>
               <p>{track.blurb}</p>

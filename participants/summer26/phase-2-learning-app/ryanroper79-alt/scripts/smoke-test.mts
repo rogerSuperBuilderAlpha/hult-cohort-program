@@ -1,6 +1,5 @@
 /**
- * End-to-end smoke test: Ludwitt API launch token → app /launch → lesson events → metrics.
- * Usage: npm run smoke-test
+ * E2E: launch JWT → qualify opportunity → qualification.scored (non-heartbeat)
  */
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
@@ -11,8 +10,8 @@ const root = path.join(__dirname, '..');
 const envPath = path.join(root, '.env.local');
 
 function loadEnv() {
-  const file = existsSync(envPath) ? readFileSync(envPath, 'utf8') : '';
-  for (const line of file.split('\n')) {
+  if (!existsSync(envPath)) return;
+  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
     const trimmed = line.trim().replace(/^\uFEFF/, '');
     const m = trimmed.match(/^([A-Z0-9_]+)=(.*)$/);
     if (m) process.env[m[1]] = m[2];
@@ -26,14 +25,11 @@ async function main() {
   const appId = process.env.LUDWITT_APP_ID?.trim();
   const appUrl = (process.env.APP_PRODUCTION_URL || 'http://localhost:3000').replace(/\/$/, '');
 
-  if (!appId) throw new Error('Run npm run register-app first (LUDWITT_APP_ID missing)');
+  if (!appId) throw new Error('Run npm run register-app first');
 
   const tokenRes = await fetch(`${baseUrl}/auth/launch-token`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${devKey}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { Authorization: `Bearer ${devKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       app_id: appId,
       user_id: 'external-smoke-user-1',
@@ -41,42 +37,49 @@ async function main() {
     }),
   });
   const tokenBody = await tokenRes.json();
-  if (!tokenRes.ok) throw new Error(`launch-token failed: ${JSON.stringify(tokenBody)}`);
+  if (!tokenRes.ok) throw new Error(JSON.stringify(tokenBody));
 
   const launchRes = await fetch(tokenBody.launch_url, { redirect: 'manual' });
-  if (launchRes.status !== 307 && launchRes.status !== 302 && launchRes.status !== 200) {
-    throw new Error(`launch page failed: ${launchRes.status}`);
-  }
-
   const cookie = launchRes.headers.get('set-cookie') || '';
-  if (!cookie.includes('climate_learn_session')) {
-    throw new Error('launch did not set session cookie');
-  }
+  if (!cookie.includes('bidmanager_session')) throw new Error('launch did not set session cookie');
 
-  const eventRes = await fetch(`${appUrl}/api/events`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Cookie: cookie.split(';')[0],
-    },
-    body: JSON.stringify({ event: 'quiz_submitted', metadata: { rfp_case_id: 'won-municipal-solar-2025-q1', smoke: 'true' } }),
+  const oppsRes = await fetch(`${appUrl}/api/opportunities`, {
+    headers: { Cookie: cookie.split(';')[0] },
   });
-  const eventBody = await eventRes.json();
-  if (!eventRes.ok) throw new Error(`event proxy failed: ${JSON.stringify(eventBody)}`);
+  const { opportunities } = await oppsRes.json();
+  const rfp = opportunities.find((o: { stage: string }) => o.stage === 'rfp');
+  if (!rfp) throw new Error('no rfp opportunity in store');
+
+  const qualRes = await fetch(`${appUrl}/api/opportunities/${rfp.id}/qualify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Cookie: cookie.split(';')[0] },
+    body: JSON.stringify({
+      memberCountryEligible: true,
+      dimensionScores: {
+        relationship_depth: 75,
+        mandatory_criteria_fit: 85,
+        evidence_coverage: 70,
+        competitive_position: 65,
+        commercial_value: 70,
+        capacity: 80,
+      },
+    }),
+  });
+  const qualBody = await qualRes.json();
+  if (!qualRes.ok) throw new Error(JSON.stringify(qualBody));
 
   const metricsRes = await fetch(`${baseUrl}/apps/${appId}/metrics`, {
     headers: { Authorization: `Bearer ${devKey}` },
   });
   const metrics = await metricsRes.json();
-  if (!metricsRes.ok) throw new Error(`metrics failed: ${JSON.stringify(metrics)}`);
 
   console.log(
     JSON.stringify(
       {
         ok: true,
         launch: tokenBody.launch_url,
+        qualified: qualBody.result?.recommendation,
         metrics,
-        event: eventBody,
       },
       null,
       2

@@ -1,18 +1,20 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
-import { verifyLaunchToken, postLearningEvent } from '@/lib/ludwitt-server';
-import { SESSION_COOKIE, type LaunchPayload } from '@/lib/ludwitt-types';
+import { verifyLaunchToken, SESSION_COOKIE, type LaunchPayload } from '@/lib/ludwitt/session';
+import { getOrg } from '@/lib/db/store';
+import { emitPlatformEvent } from '@/lib/ludwitt/events';
+import { ludwittTransport } from '@/lib/ludwitt/session';
+import { appendEvent } from '@/lib/db/store';
 
 function redirectHome(request: Request, query?: Record<string, string>) {
   const url = new URL('/', request.url);
-  if (query) {
-    for (const [key, value] of Object.entries(query)) url.searchParams.set(key, value);
-  }
+  if (query) for (const [k, v] of Object.entries(query)) url.searchParams.set(k, v);
   return NextResponse.redirect(url);
 }
 
 function setSessionCookie(response: NextResponse, payload: LaunchPayload) {
-  const session = { ...payload, sessionId: randomUUID() };
+  const org = getOrg();
+  const session = { ...payload, sessionId: randomUUID(), orgId: org.id };
   response.cookies.set(SESSION_COOKIE, JSON.stringify(session), {
     httpOnly: true,
     sameSite: 'lax',
@@ -24,21 +26,30 @@ function setSessionCookie(response: NextResponse, payload: LaunchPayload) {
 }
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const token = url.searchParams.get('token')?.trim();
-
-  if (!token) {
-    return redirectHome(request, { error: 'missing_token' });
-  }
+  const token = new URL(request.url).searchParams.get('token')?.trim();
+  if (!token) return redirectHome(request, { error: 'missing_token' });
 
   try {
     const payload = await verifyLaunchToken(token);
     const response = redirectHome(request, { launched: '1' });
     const session = setSessionCookie(response, payload);
     try {
-      await postLearningEvent('lesson_started', session.sub, session.sessionId, { source: 'launch' });
+      await emitPlatformEvent(
+        'session.start',
+        { orgId: session.orgId, userId: session.sub, sessionId: session.sessionId },
+        { email: session.email },
+        ludwittTransport,
+        async (e) =>
+          appendEvent({
+            orgId: e.orgId,
+            userId: e.userId,
+            eventName: e.eventName,
+            payload: e.payload,
+            sessionId: e.sessionId,
+          })
+      );
     } catch {
-      // Keep session even if platform API is down.
+      /* session valid even if Ludwitt unreachable */
     }
     return response;
   } catch (err) {

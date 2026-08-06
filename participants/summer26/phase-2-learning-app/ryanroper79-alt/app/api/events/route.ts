@@ -1,34 +1,46 @@
 import { NextResponse } from 'next/server';
-import { postLearningEvent, readLearnerSession } from '@/lib/ludwitt';
-
-const ALLOWED = new Set(['lesson_started', 'lesson_completed', 'quiz_submitted', 'session_heartbeat']);
+import { readSession, ludwittTransport } from '@/lib/ludwitt/session';
+import { emitPlatformEvent } from '@/lib/ludwitt/events';
+import { appendEvent } from '@/lib/db/store';
 
 export async function POST(request: Request) {
-  const session = await readLearnerSession();
-  if (!session) {
-    return NextResponse.json({ error: 'not authenticated' }, { status: 401 });
-  }
+  const session = await readSession();
+  if (!session) return NextResponse.json({ error: 'not authenticated' }, { status: 401 });
 
-  let body: { event?: string; metadata?: Record<string, string> };
+  let body: { event?: string; payload?: Record<string, unknown> };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'invalid json' }, { status: 400 });
   }
 
-  const event = body.event?.trim();
-  if (!event || !ALLOWED.has(event)) {
+  const eventName = body.event?.trim();
+  const allowed = [
+    'qualification.scored',
+    'bid.decided',
+    'opportunity.discovered',
+    'opportunity.screened',
+  ] as const;
+  if (!eventName || !allowed.includes(eventName as (typeof allowed)[number])) {
     return NextResponse.json({ error: 'invalid event' }, { status: 400 });
   }
 
   try {
-    const result = await postLearningEvent(
-      event as 'lesson_started' | 'lesson_completed' | 'quiz_submitted' | 'session_heartbeat',
-      session.sub,
-      session.sessionId,
-      body.metadata
+    await emitPlatformEvent(
+      eventName as 'qualification.scored',
+      { orgId: session.orgId, userId: session.sub, sessionId: session.sessionId },
+      body.payload ?? {},
+      ludwittTransport,
+      async (e) =>
+        appendEvent({
+          orgId: e.orgId,
+          userId: e.userId,
+          eventName: e.eventName,
+          payload: e.payload,
+          sessionId: e.sessionId,
+        })
     );
-    return NextResponse.json({ ok: true, ludwitt: result });
+    return NextResponse.json({ ok: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'event failed';
     return NextResponse.json({ error: message }, { status: 502 });

@@ -111,6 +111,43 @@ export const COURSE_MODULES: Module[] = [
           },
         ],
       },
+      {
+        slug: "history-of-ai",
+        title: "A short history of AI",
+        minutes: 4,
+        body: [
+          "AI has been 'ten years away' for over sixty years. The field began in the 1950s with chess programs and theorem provers, went through two brutal winters — funding crashes when hype outran capability — and kept quietly advancing: spam filters, credit scores, speech recognition, route planning.",
+          "The modern wave arrived with deep learning. Around 2012, neural networks trained on GPUs crushed previous benchmarks in image recognition. The same recipe scaled — more data, more compute, larger networks — until language models became chat-worthy products in the 2020s.",
+          "Every hype cycle teaches the same lesson: capabilities arrive on a different timetable than promised. The engine behind today's image generators and coding assistants is the same one that has powered your spam filter for fifteen years: pattern learning at scale.",
+          "Use history as calibration. When you read 'AI can now do X,' ask which part is pattern matching (plausible today) and which part is genuine reasoning or understanding (still an open research question).",
+        ],
+        quiz: [
+          {
+            prompt: "What pattern has repeated throughout AI's history?",
+            options: [
+              "Hype cycles where expectations run ahead of capability",
+              "AI steadily working exactly as promised",
+              "Capability always arriving before funding",
+              "Researchers avoiding publicity",
+            ],
+            answer: 0,
+            explain:
+              "Every wave of AI has swung between inflated promises and quiet, incremental progress — 'winters' follow hype every time.",
+          },
+          {
+            prompt: "What was deep learning's breakthrough recipe?",
+            options: [
+              "Smarter hand-written rules",
+              "More data, more compute, and larger neural networks",
+              "Faster chess engines",
+              "Smaller datasets with cleaner labels",
+            ],
+            answer: 1,
+            explain:
+              "Deep learning won by scaling the same learning loop — more data, more compute, bigger networks — until pattern recognition crossed useful thresholds.",
+          },
+        ],
+      },
     ],
   },
   {
@@ -241,6 +278,49 @@ const results = documents
           },
         ],
       },
+      {
+        slug: "llms-and-transformers",
+        title: "Large language models and transformers",
+        minutes: 6,
+        body: [
+          "Large language models are built on the transformer, an architecture (2017) that processes text as a stream of tokens — short word fragments — all at once rather than word by word. The heart is attention: each token looks at every other token and decides how much it matters.",
+          "Attention is why transformers scale. Because every token can reference every other token directly, the model tracks long-range patterns — who is doing what in a sentence — without the information loss of reading left to right.",
+          "Generation is a loop: predict the next token, append it, repeat. That loop runs on probabilities — the model does not 'know' an answer; it produces the most likely continuation. That is why the same prompt can produce different outputs (sampling) and why confident-sounding text can still be wrong.",
+          "Two dials matter in practice. Temperature controls randomness: low for predictable tasks, higher for creative ones. Context length is how much text the model can 'see' at once — its working memory, not its education.",
+        ],
+        code: `// The heart of a transformer: self-attention (simplified)
+function attention(query, keys, values) {
+  const weights = keys.map((k) => dot(query, k)); // similarity scores
+  const probs = softmax(weights);                  // normalize to 0..1
+  return blend(values, probs);                     // weighted summary
+}`,
+        quiz: [
+          {
+            prompt: "What lets a transformer track long-range patterns in text?",
+            options: [
+              "Reading text left to right only",
+              "Attention: each token can reference every other token",
+              "Bigger training sets",
+              "Faster hardware",
+            ],
+            answer: 1,
+            explain:
+              "Attention lets any token look directly at any other token, so long-range relationships survive without word-by-word information loss.",
+          },
+          {
+            prompt: "Why can the same prompt produce different answers?",
+            options: [
+              "The model is broken",
+              "The context window changed",
+              "Generation samples from next-token probabilities",
+              "The training data changed",
+            ],
+            answer: 2,
+            explain:
+              "Text generation picks the next token probabilistically (especially with higher temperature), so the same prompt can continue differently each run.",
+          },
+        ],
+      },
     ],
   },
   {
@@ -342,6 +422,49 @@ const draft = await model(prompt);
           },
         ],
       },
+      {
+        slug: "structured-output-and-tools",
+        title: "Structured output and tool calling",
+        minutes: 5,
+        body: [
+          "Text in, text out is fine for chat, but software needs structure. Models can be asked to emit JSON, call functions, or choose from a fixed set of actions — this is what turns an LLM from a toy into a component in a real pipeline.",
+          "The pattern: constrain the output format in the prompt, parse it with a schema validator, and treat anything that does not parse as a failed call. Never trust raw model text as data — validate first, then use it.",
+          "Tool/function calling goes further: the model returns a structured 'call this function with these arguments' request, your code executes it for real (database query, search, calculator), and the result is fed back into the conversation. That grounding loop is how agents do real work instead of guessing.",
+        ],
+        code: `const result = await model.chat({
+  messages,
+  format: "json",                    // ask for structured output
+  schema: { intent: "string" },      // describe the shape
+});
+const parsed = JSON.parse(result.text); // validate — never trust
+if (!parsed.intent) throw new Error("bad model output");`,
+        quiz: [
+          {
+            prompt: "Why validate structured model output?",
+            options: [
+              "To make the model slower",
+              "Model text can be confident and wrong; validation catches it before it becomes data",
+              "Validation makes prompts longer",
+              "You don't need to",
+            ],
+            answer: 1,
+            explain:
+              "A model can emit malformed or invented output confidently. Validation and typed parsing catch that before it corrupts your data.",
+          },
+          {
+            prompt: "What does tool calling let a model do?",
+            options: [
+              "Replace your entire application",
+              "Access the internet secretly",
+              "Request a function call that your code executes with real results",
+              "Choose its own training data",
+            ],
+            answer: 2,
+            explain:
+              "The model proposes a structured function call; your code runs it against real systems and feeds the result back. That is how agents take actions.",
+          },
+        ],
+      },
     ],
   },
   {
@@ -424,6 +547,181 @@ const draft = await model(prompt);
             answer: 1,
             explain:
               "Weak assertions or over-mocking make tests green regardless of behavior — they certify nothing.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "building-with-ai",
+    title: "Building with AI",
+    tagline: "Models, context, and measuring what matters.",
+    lessons: [
+      {
+        slug: "picking-models-and-apis",
+        title: "Picking models and APIs",
+        minutes: 5,
+        body: [
+          "There is no best model, only best-fit. Providers (OpenAI, Anthropic, Google, Meta, Mistral, and others) ship many sizes and tiers. Small models answer in milliseconds on a laptop; frontier models reason through harder problems but cost more per call and take longer.",
+          "Decide along four axes: capability (can it do the task at all?), cost per call, latency, and data handling (is it acceptable for your data to reach a third party? if not, open models you can self-host). Write these four answers down before choosing anything.",
+          "APIs beat self-hosting for most teams: no GPUs to manage and updates for free. Self-hosting wins when privacy, price at scale, or offline operation matter. The right answer changes as traffic grows — plan to swap providers, don't marry your first choice.",
+        ],
+        code: `// Calling a hosted model API — the shape most apps use
+const res = await fetch("https://api.provider.example/v1/chat", {
+  method: "POST",
+  headers: { Authorization: \`Bearer \${process.env.MODEL_API_KEY}\` },
+  body: JSON.stringify({
+    model: "fast-and-cheap",
+    messages: [{ role: "user", content: prompt }],
+  }),
+});
+const { choices } = await res.json();
+return choices[0].message.content;`,
+        quiz: [
+          {
+            prompt: "Which of these is NOT a useful axis for choosing a model?",
+            options: [
+              "Capability at the task",
+              "How popular the model is online",
+              "Cost per call and latency",
+              "Whether your data can go to the provider",
+            ],
+            answer: 1,
+            explain:
+              "Popularity is a vibes metric. Pick on capability, cost, latency, and data policy — everything else is noise.",
+          },
+          {
+            prompt: "When does self-hosting a model make sense?",
+            options: [
+              "When you want the strongest possible model",
+              "When data cannot leave your control or you need offline operation",
+              "When your traffic is very small",
+              "Never — APIs are always better",
+            ],
+            answer: 1,
+            explain:
+              "Self-hosting pays off when privacy, scale pricing, or offline use matter. For most small teams an API is the pragmatic start.",
+          },
+        ],
+      },
+      {
+        slug: "rag-and-long-context",
+        title: "RAG and long-context engineering",
+        minutes: 6,
+        body: [
+          "Modern models have huge context windows, but that does not remove the need for retrieval. Stuffing everything into one prompt gets expensive, diluted, and stale. Retrieval-augmented generation (RAG) flips it: search your own corpus first, then answer from what you found.",
+          "The RAG pipeline: split documents into focused chunks, embed each chunk (turn text into a vector), and store them in a vector database. At query time, embed the question, fetch the nearest chunks, and include them in the prompt as evidence.",
+          "This is why 'answer from my docs' assistants work: the model never relies on memory; it reads the evidence you supply. Keep chunks focused, re-embed whenever documents change, and always cite the source chunks so users can verify the answer.",
+        ],
+        code: `// Semantic search over your documents (simplified)
+function search(query, chunks, store) {
+  const q = embed(query);          // vector for the question
+  const hits = store.nearest(q, 5); // top-k chunks by distance
+  return hits.map((c) => chunks[c.id]);
+}
+// Then: model.chat([...question, ...retrievedChunks])`,
+        quiz: [
+          {
+            prompt: "What is the point of retrieval in RAG?",
+            options: [
+              "Find relevant evidence and put it in the prompt instead of relying on memory",
+              "Make the model's context window larger",
+              "Replace the model with a search engine",
+              "Speed up training",
+            ],
+            answer: 0,
+            explain:
+              "Retrieval grounds the answer in your documents, so the model reasons from evidence instead of inventing from memory.",
+          },
+          {
+            prompt: "Why keep document chunks small and focused?",
+            options: [
+              "Smaller chunks are easier to type",
+              "Focused evidence answers better and costs less per call",
+              "Vector databases only accept short texts",
+              "There is no reason",
+            ],
+            answer: 1,
+            explain:
+              "Compact, on-topic chunks surface the exact evidence the question needs — better answers at lower token cost.",
+          },
+        ],
+      },
+      {
+        slug: "evaluating-ai-systems",
+        title: "Evaluating AI systems",
+        minutes: 5,
+        body: [
+          "AI output looks confident regardless of correctness, so 'it seemed fine' is not an evaluation. What separates toy apps from real ones is evals: a fixed set of test cases you run on every change and score automatically.",
+          "Start with a golden set: a few dozen real inputs with expected behaviors. Score each response — exact match for structured tasks, rubric checks for open-ended ones (accurate? grounded? does it follow the format?).",
+          "Run the same eval before and after every prompt change or model swap. A change that dazzles on your demo cases but breaks the golden set is a regression, not an upgrade. Add a case every time you find a failure in the wild.",
+        ],
+        code: `// The loop that keeps AI quality honest
+const golden = loadTestCases(); // real inputs + expected behavior
+for (const { input, check } of golden) {
+  const out = await runPipeline(input);
+  if (!check(out)) reportFailure(input, out);
+}`,
+        quiz: [
+          {
+            prompt: "What is a golden test set for?",
+            options: [
+              "Saving the best prompts for later",
+              "Detecting regressions on every prompt or model change",
+              "Training the model",
+              "Replacing user feedback",
+            ],
+            answer: 1,
+            explain:
+              "A fixed, scored set of cases is the only way to know a change improved things instead of breaking them.",
+          },
+          {
+            prompt: "A prompt change passes your demo cases but fails your eval. What is it?",
+            options: [
+              "A success — ship it",
+              "A fluke — rerun and ignore",
+              "A regression — revert or fix it",
+              "A sign you need a bigger model",
+            ],
+            answer: 2,
+            explain:
+              "Evals exist to catch exactly this: improvements on cherry-picked cases that degrade real behavior. Treat it as a regression.",
+          },
+        ],
+      },
+      {
+        slug: "ai-and-automation",
+        title: "AI and automation at work",
+        minutes: 5,
+        body: [
+          "The biggest productivity gains come from wiring AI into workflows, not from crafting longer prompts. Pick one repetitive bottleneck — triaging tickets, summarizing meetings, drafting reports — and let a model do the 80% while a human checks the 20%.",
+          "Automation works best as a human-in-the-loop assembly line: model drafts, person edits, model formats, person approves. Each stage keeps a human accountable while the machine removes the toil.",
+          "Start small: instrument the process, measure time saved, and only then expand. Automation nobody monitors becomes a silent liability — wrong tickets auto-answered, bad drafts auto-sent, nobody noticing until it is too late.",
+        ],
+        quiz: [
+          {
+            prompt: "What is the safest pattern for AI automation at work?",
+            options: [
+              "Fully autonomous with no human review",
+              "Human-in-the-loop: model drafts, person reviews and approves",
+              "Let the model decide what to automate",
+              "Avoid automation entirely",
+            ],
+            answer: 1,
+            explain:
+              "A human review stage keeps accountability while the model removes the repetitive work — the 80/20 split that actually sticks.",
+          },
+          {
+            prompt: "Before expanding an automated workflow, what should you do?",
+            options: [
+              "Automate everything at once",
+              "Remove error logs to save space",
+              "Measure time saved and monitor output quality",
+              "Ask the model to monitor itself",
+            ],
+            answer: 2,
+            explain:
+              "Measure the win and watch quality first. Untracked automation grows into silent failure — monitor or don't scale.",
           },
         ],
       },

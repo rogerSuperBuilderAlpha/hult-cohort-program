@@ -7,11 +7,12 @@ AI OnRamp is a hands-on learning app that teaches AI fundamentals in short, inte
 
 ## What's inside
 
-- **5 modules / 16 lessons** with in-lesson quizzes, code samples, and instant feedback:
-  - Understanding AI (`what-is-ai`, `ml-down-the-stack`, `ai-in-daily-life`)
-  - How AI works (`training-and-data`, `neural-networks`, `generative-ai`, `embeddings-and-search`)
-  - Applying AI (`pick-the-right-tool`, `prompting`, `grounded-ai`)
-  - AI and the work (`pair-programming`, `agents-and-context`, `testing-with-ai`)
+- **6 modules / 23 lessons** with in-lesson quizzes, code samples, and instant feedback:
+  - Understanding AI (`what-is-ai`, `ml-down-the-stack`, `ai-in-daily-life`, `history-of-ai`)
+  - How AI works (`training-and-data`, `neural-networks`, `generative-ai`, `embeddings-and-search`, `llms-and-transformers`)
+  - Applying AI (`pick-the-right-tool`, `prompting`, `grounded-ai`, `structured-output-and-tools`)
+  - AI and the work (`pair-programming`, `agents-and-context`, `testing-with-ai`, `ai-and-automation`)
+  - Building with AI (`picking-models-and-apis`, `rag-and-long-context`, `evaluating-ai-systems`)
   - Ethics (`bias-and-fairness`, `privacy-and-safety`, `human-oversight`)
 - **Progress tracking** — per-lesson "mark complete" buttons and a dashboard with per-module progress bars and an "up next" prompt (stored in the browser, no account needed).
 - **JWT launch flow** — users arrive via a signed launch token from the Ludwitt/Hult API (`/launch?token=...`), which is verified server-side and exchanged for a 24h HttpOnly session cookie.

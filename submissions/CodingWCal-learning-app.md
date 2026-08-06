@@ -32,14 +32,14 @@ app_id,student_handle,unique_users,qualified_users
 
 ## Summary
 
-**AI OnRamp** is a hands-on learning app that teaches AI fundamentals in five modules and sixteen interactive lessons, each with quizzes and code samples, plus per-module progress tracking. It is a full end-to-end integration with the Ludwitt/Hult learning-app platform: users enter through a signed launch token, session state is negotiated as a 24-hour HttpOnly cookie, and every lesson start/completion, quiz submission, and heartbeat is instrumented back to the metrics API.
+**AI OnRamp** is a hands-on learning app that teaches AI fundamentals in six modules and twenty-three interactive lessons, each with quizzes and code samples (nine code samples total), plus per-module progress tracking. It is a full end-to-end integration with the Ludwitt/Hult learning-app platform: users enter through a signed launch token, session state is negotiated as a 24-hour HttpOnly cookie, and every lesson start/completion, quiz submission, and heartbeat is instrumented back to the metrics API.
 
 ## Architecture summary
 
 - **Framework:** Next.js 16 (App Router) + TypeScript (strict) + React 19 + Tailwind CSS v4.
 - **Auth:** JWT launch-token verification in `app/launch/route.ts` (`jose`), exchanged for a signed `ai-onramp-session` cookie.
 - **Events:** client-side `EventTracker` components -> `POST /api/events` (session-gated) -> Ludwitt/Hult events API (`POST /v1/apps/{app_id}/events`) with `event`, `user_id`, `session_id`, `metadata`.
-- **Content:** `lib/content.ts` — 5 modules, 16 lessons, quizzes with instant feedback, code samples.
+- **Content:** `lib/content.ts` — 6 modules, 23 lessons, quizzes with instant feedback, code samples.
 - **Progress:** `components/CourseProgress.tsx` — per-lesson completion + dashboard progress bars (browser-local, no account needed).
 - **API:** the adjacent `ludwitt-api` repo is the self-hosted Ludwitt/Hult reference API (Express + Turso/LibSQL persistence) deployed at `https://ludwitt-api.vercel.app`.
 - **Deployment:** Vercel (app aliased to `https://ai-onramp-hult.vercel.app`; API at `https://ludwitt-api.vercel.app`).

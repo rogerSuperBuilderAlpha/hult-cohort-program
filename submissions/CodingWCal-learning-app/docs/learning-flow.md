@@ -26,5 +26,5 @@ Live export from the self-hosted API (`GET /v1/admin/events`, admin-key authoriz
 
 ```
 GET /v1/apps/78f5ecd3-4f57-4f7b-9671-0477a1b49f9e/metrics
-{"unique_users":10,"qualified_users":10}
+{"unique_users":12,"qualified_users":12}
 ```

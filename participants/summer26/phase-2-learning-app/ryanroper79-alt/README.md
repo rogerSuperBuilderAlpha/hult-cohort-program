@@ -1,6 +1,6 @@
-# Climate Skills for Builders — Ludwitt learning app
+# cEAL Green RFP Learner — Ludwitt learning app
 
-Week 4 submission for `@ryanroper79-alt`. Three micro-lessons on carbon literacy, green software, and climate communications with Ludwitt/Hult JWT launch and event tracking.
+Week 4 submission for `@ryanroper79-alt`. Review won/lost Request for Proposals, analyze strategic inclusions, and surface agent recommendations to reach a **10% portfolio win rate**.
 
 ## Setup
 
@@ -10,36 +10,31 @@ cp .env.example .env.local
 npm install
 ```
 
-Start the Ludwitt/Hult API (separate terminal):
+Start Ludwitt API (separate terminal):
 
 ```bash
-cd execution/ludwitt-hult-api
-npm install
-npm run dev
+cd execution/ludwitt-hult-api && npm run dev
 ```
 
-Register the app and write credentials to `.env.local`:
+Register and run:
 
 ```bash
 npm run register-app
 npm run dev
-```
-
-## Verify integration
-
-```bash
 npm run smoke-test
 ```
 
-Expects: launch JWT validates, session cookie set, `quiz_submitted` event accepted, metrics API returns qualified users.
+## Features
+
+- **RFP case library** — 6 cEAL Green submissions (won + lost) with strategic inclusions
+- **Win/loss analysis** — debrief factors and agent takeaways per case
+- **Agent recommendations** — patterns from wins, lessons from losses, next-draft checklist
+- **Ludwitt integration** — JWT launch + `lesson_started` / `quiz_submitted` / `lesson_completed` events
+
+Replace sample data in `lib/rfp-cases.ts` with firm RFP records when available.
 
 ## Deploy
 
-Set Vercel root directory to `participants/summer26/phase-2-learning-app/ryanroper79-alt` and configure:
+Production: https://ryanroper79-alt.vercel.app
 
-- `LUDWITT_APP_ID`
-- `LUDWITT_API_KEY`
-- `LUDWITT_JWT_SECRET`
-- `LUDWITT_API_BASE_URL`
-
-Re-run `npm run register-app` with `APP_PRODUCTION_URL` set to the production HTTPS URL after first deploy.
+Vercel root: `participants/summer26/phase-2-learning-app/ryanroper79-alt`

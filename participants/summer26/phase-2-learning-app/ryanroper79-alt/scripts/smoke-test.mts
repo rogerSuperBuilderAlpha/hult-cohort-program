@@ -59,7 +59,7 @@ async function main() {
       'Content-Type': 'application/json',
       Cookie: cookie.split(';')[0],
     },
-    body: JSON.stringify({ event: 'quiz_submitted', metadata: { lesson_id: 'carbon-basics', smoke: 'true' } }),
+    body: JSON.stringify({ event: 'quiz_submitted', metadata: { rfp_case_id: 'won-municipal-solar-2025-q1', smoke: 'true' } }),
   });
   const eventBody = await eventRes.json();
   if (!eventRes.ok) throw new Error(`event proxy failed: ${JSON.stringify(eventBody)}`);

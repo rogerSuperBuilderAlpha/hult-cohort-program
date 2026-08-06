@@ -35,7 +35,7 @@ async function main() {
   const productionUrl = (process.env.APP_PRODUCTION_URL || 'http://localhost:3000').replace(/\/$/, '');
 
   const description =
-    'Climate Skills for Builders delivers three micro-lessons on carbon literacy, green software patterns, and credible climate communications for product teams shipping sustainability features.';
+    'cEAL Green RFP Learner reviews won and lost Request for Proposals, extracts strategic win/loss patterns, and trains agents to draft stronger proposals targeting a 10% portfolio win rate.';
 
   const res = await fetch(`${baseUrl}/developer/apps`, {
     method: 'POST',
@@ -44,9 +44,9 @@ async function main() {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      title: 'Climate Skills for Builders',
+      title: 'cEAL Green RFP Learner',
       description,
-      topic: 'Climate / sustainability for builders',
+      topic: 'RFP strategy / sustainability consulting',
       launch_url: `${productionUrl}/launch`,
       repo_url:
         'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/tree/participants/summer26/phase-2-learning-app/ryanroper79-alt',

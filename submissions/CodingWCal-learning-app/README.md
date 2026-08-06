@@ -5,6 +5,20 @@ AI OnRamp is a hands-on learning app that teaches AI fundamentals in short, inte
 **Production URL:** https://ai-onramp-hult.vercel.app
 **Ludwitt/Hult app ID:** `78f5ecd3-4f57-4f7b-9671-0477a1b49f9e`
 
+## Screenshots
+
+| Landing | Dashboard |
+|---|---|
+| <img src="screenshots/landing.png" width="420" alt="Landing page"> | <img src="screenshots/dashboard.png" width="420" alt="Dashboard with progress bars"> |
+
+| Lesson | Quiz result | Progress |
+| --- | --- | --- |
+| <img src="screenshots/lesson.png" width="280" alt="Lesson content"> | <img src="screenshots/quiz.png" width="280" alt="Quiz feedback"> | <img src="screenshots/progress.png" width="280" alt="Progress view"> |
+
+## Important note on the API
+
+The official Ludwitt/Hult API endpoints (`api.ludwitt.hult`) were **not resolving during the course week**, so this project runs against the course's **reference implementation**, self-hosted with Turso persistence at `https://ludwitt-api.vercel.app` (public repo: https://github.com/CodingWCal/ludwitt-api). It implements the same contracts — register app, launch token, events, metrics, admin snapshots — and the app's integration is verified live against it. All configuration (`LUDWITT_API_URL`, `LUDWITT_API_KEY`) is env-driven, so pointing at the official platform is a configuration change, not a code change.
+
 ## What's inside
 
 - **6 modules / 23 lessons** with in-lesson quizzes, code samples, and instant feedback:

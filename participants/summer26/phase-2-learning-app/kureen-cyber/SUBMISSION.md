@@ -1,6 +1,6 @@
-# [P2-L1] Submission — kureen-cyber
+﻿# [P2-L1] Submission â€” kureen-cyber
 
-**InterviewForge** — interview prep learning app integrated with Ludwitt (OAuth PKCE, hosted-storage events, credit-spend AI coach).
+**InterviewForge** â€” interview prep learning app integrated with Ludwitt (OAuth PKCE, hosted-storage events, credit-spend AI coach).
 
 ## Ludwitt/Hult app ID
 
@@ -8,7 +8,7 @@
 
 ## Production listing URL
 
-https://interview-forge-git-main-caribbean-emergence-institute.vercel.app/
+https://interview-forge-rosy.vercel.app
 
 ## Integration evidence (launch flow + events firing)
 

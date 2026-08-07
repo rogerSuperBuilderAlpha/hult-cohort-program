@@ -1,9 +1,14 @@
-import { buildAdaptiveSession, buildRematchDeck } from "./leitner";
+import {
+  buildAdaptiveSession,
+  buildExploreSession,
+  buildRematchDeck,
+} from "./leitner";
 import type { MasteryMap } from "./persistence";
 import type { CategoryFilter, Question } from "./questions";
 import { filterQuestionsByCategory, questionBank } from "./questions";
 
 export type SessionPhase = "practice" | "rematch" | "summary";
+export type DeckMode = "adaptive" | "explore";
 
 export type SessionComposition = {
   weak: number;
@@ -15,6 +20,7 @@ export type SessionComposition = {
 
 export type SessionState = {
   selectedCategory: CategoryFilter;
+  deckMode: DeckMode;
   questions: Question[];
   index: number;
   flipped: boolean;
@@ -38,6 +44,7 @@ export type SessionAction =
   | {
       type: "INIT_SESSION";
       category: CategoryFilter;
+      deckMode: DeckMode;
       bestStreak?: number;
       mastery: MasteryMap;
     }
@@ -66,9 +73,11 @@ const emptyComposition: SessionComposition = {
 export function createInitialSessionState(
   bestStreak = 0,
   category: CategoryFilter = "All",
+  deckMode: DeckMode = "adaptive",
 ): SessionState {
   return {
     selectedCategory: category,
+    deckMode,
     questions: [],
     index: 0,
     flipped: false,
@@ -134,14 +143,16 @@ export function sessionReducer(
   switch (action.type) {
     case "INIT_SESSION": {
       const pool = filterQuestionsByCategory(questionBank, action.category);
-      const { questions, composition } = buildAdaptiveSession(
-        pool,
-        action.mastery,
-      );
+      const builder =
+        action.deckMode === "explore"
+          ? buildExploreSession
+          : buildAdaptiveSession;
+      const { questions, composition } = builder(pool, action.mastery);
       return {
         ...createInitialSessionState(
           action.bestStreak ?? state.bestStreak,
           action.category,
+          action.deckMode,
         ),
         questions,
         composition,
@@ -242,4 +253,11 @@ export function sessionProgress(state: SessionState): number {
 
 export function isSessionActive(state: SessionState): boolean {
   return state.phase === "practice" || state.phase === "rematch";
+}
+
+export function hasStartedPractice(state: SessionState): boolean {
+  return (
+    state.phase === "practice" &&
+    (state.index > 0 || state.score > 0 || state.showExplanation)
+  );
 }

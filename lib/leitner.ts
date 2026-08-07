@@ -119,6 +119,42 @@ export function buildAdaptiveSession(
   };
 }
 
+/**
+ * Explore mode: random sample from the category pool (ignores Leitner priority).
+ * Still reports composition so the UI can show what you drew.
+ */
+export function buildExploreSession(
+  pool: Question[],
+  mastery: MasteryMap,
+  options?: { targetSize?: number; now?: number },
+): { questions: Question[]; composition: SessionComposition } {
+  if (pool.length === 0) {
+    return {
+      questions: [],
+      composition: { weak: 0, due: 0, fresh: 0, strong: 0, total: 0 },
+    };
+  }
+
+  const now = options?.now ?? Date.now();
+  const target =
+    options?.targetSize ??
+    (pool.length <= 8 ? pool.length : Math.min(12, pool.length));
+
+  const selected = shuffleArray(pool).slice(0, target);
+  const buckets = classifyQuestions(selected, mastery, now);
+
+  return {
+    questions: selected.map(withShuffledOptions),
+    composition: {
+      weak: buckets.weak.length,
+      due: buckets.due.length,
+      fresh: buckets.fresh.length,
+      strong: buckets.strong.length,
+      total: selected.length,
+    },
+  };
+}
+
 /** Shuffle MCQ distractor order so position isn't learnable. */
 export function withShuffledOptions(question: Question): Question {
   if (question.type !== "mcq") return question;

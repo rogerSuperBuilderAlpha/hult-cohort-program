@@ -5,6 +5,7 @@ export type TelemetryEventType =
   | "QUESTION_ANSWERED"
   | "EXPLANATION_VIEWED"
   | "REMATCH_STARTED"
+  | "SESSION_MODE_SET"
   | "SESSION_COMPLETED";
 
 export type SessionCompletePayload = {
@@ -24,6 +25,7 @@ export type SessionCompletePayload = {
     total: number;
   } | null;
   category: string;
+  deckMode?: string;
 };
 
 const JWT_STORAGE_KEY = "ludwitt_jwt";

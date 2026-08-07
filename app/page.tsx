@@ -11,16 +11,20 @@ import {
 import {
   countMastered,
   loadBestStreak,
+  loadDeckMode,
   loadMasteryMap,
   recordMastery,
   saveBestStreak,
+  saveDeckMode,
   type MasteryMap,
 } from "@/lib/persistence";
 import {
   createInitialSessionState,
+  hasStartedPractice,
   isSessionActive,
   sessionProgress,
   sessionReducer,
+  type DeckMode,
 } from "@/lib/session";
 import {
   completeSession,
@@ -57,12 +61,14 @@ export default function Home() {
 
     const savedBest = loadBestStreak();
     const savedMastery = loadMasteryMap();
+    const savedMode = loadDeckMode();
     masteryRef.current = savedMastery;
     setMasteryMap(savedMastery);
 
     dispatch({
       type: "INIT_SESSION",
       category: "All",
+      deckMode: savedMode,
       bestStreak: savedBest,
       mastery: savedMastery,
     });
@@ -71,6 +77,7 @@ export default function Home() {
       timestamp: new Date().toLocaleTimeString(),
       restoredBestStreak: savedBest,
       masteredCount: countMastered(savedMastery),
+      deckMode: savedMode,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
@@ -111,6 +118,7 @@ export default function Home() {
       rematchTotal: state.rematchTotal,
       composition: state.composition,
       category: state.selectedCategory,
+      deckMode: state.deckMode,
     };
 
     logEvent("SESSION_COMPLETED", payload);
@@ -118,14 +126,31 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- post once per summary signature
   }, [state.phase, state.practiceScore, state.rematchScore]);
 
-  const initSession = (category: CategoryFilter) => {
+  const initSession = (
+    category: CategoryFilter = state.selectedCategory,
+    deckMode: DeckMode = state.deckMode,
+  ) => {
     summaryPostedRef.current = null;
+    saveDeckMode(deckMode);
     dispatch({
       type: "INIT_SESSION",
       category,
+      deckMode,
       bestStreak: state.bestStreak,
       mastery: masteryRef.current,
     });
+    logEvent("SESSION_MODE_SET", { deckMode, category });
+  };
+
+  const switchDeckMode = (deckMode: DeckMode) => {
+    if (deckMode === state.deckMode) return;
+    if (
+      hasStartedPractice(state) &&
+      !window.confirm("Switch mode and start a new session?")
+    ) {
+      return;
+    }
+    initSession(state.selectedCategory, deckMode);
   };
 
   const handleResponse = (
@@ -182,7 +207,13 @@ export default function Home() {
   const masteredCount = countMastered(masteryMap);
   const active = isSessionActive(state);
   const modeLabel =
-    state.phase === "rematch" ? "Rematch Mode" : "Adaptive Mode";
+    state.phase === "rematch"
+      ? "Rematch Mode"
+      : state.deckMode === "explore"
+        ? "Explore Mode"
+        : "Adaptive Mode";
+  const sessionLocked =
+    state.phase === "rematch" || hasStartedPractice(state);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-6 bg-gradient-to-tr from-gray-950 via-slate-900 to-red-950 text-white font-sans">
@@ -230,12 +261,45 @@ export default function Home() {
       </div>
 
       <div className="max-w-2xl w-full bg-gray-950/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-gray-800/80 my-auto">
+        {active && state.phase === "practice" && (
+          <div className="flex gap-2 mb-3">
+            {(
+              [
+                ["adaptive", "Adaptive"],
+                ["explore", "Explore"],
+              ] as const
+            ).map(([mode, label]) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => switchDeckMode(mode)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition font-semibold ${
+                  state.deckMode === mode
+                    ? "bg-amber-500/20 border-amber-400 text-amber-200"
+                    : "bg-gray-900 border-gray-800 text-gray-400 hover:text-white"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {active && (
           <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-none">
             {CATEGORY_FILTERS.map((cat) => (
               <button
                 key={cat}
-                onClick={() => initSession(cat)}
+                onClick={() => {
+                  if (cat === state.selectedCategory) return;
+                  if (
+                    sessionLocked &&
+                    !window.confirm("Change category and restart this session?")
+                  ) {
+                    return;
+                  }
+                  initSession(cat, state.deckMode);
+                }}
                 disabled={state.phase === "rematch"}
                 className={`text-xs px-3 py-1.5 rounded-full border whitespace-nowrap transition font-medium ${
                   state.selectedCategory === cat
@@ -249,13 +313,22 @@ export default function Home() {
           </div>
         )}
 
+        {active && state.phase === "practice" && (
+          <p className="text-[11px] text-gray-400 mb-2 leading-relaxed">
+            {state.deckMode === "adaptive"
+              ? "Adaptive reviews your weak cards first, then due reviews, then a few new ones."
+              : "Explore shuffles randomly across the category so you can see more of the bank."}
+          </p>
+        )}
+
         {active &&
           state.phase === "practice" &&
           state.composition &&
           state.composition.total > 0 && (
             <p className="text-[11px] text-gray-500 mb-4">
-              Session mix: {state.composition.weak} weak ·{" "}
-              {state.composition.due} due · {state.composition.fresh} new
+              {state.deckMode === "explore" ? "Random draw" : "Session mix"}:{" "}
+              {state.composition.weak} weak · {state.composition.due} due ·{" "}
+              {state.composition.fresh} new
               {state.composition.strong > 0
                 ? ` · ${state.composition.strong} review`
                 : ""}
@@ -483,10 +556,13 @@ export default function Home() {
                 </button>
               )}
               <button
-                onClick={() => initSession(state.selectedCategory)}
+                onClick={() =>
+                  initSession(state.selectedCategory, state.deckMode)
+                }
                 className="bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-3.5 rounded-xl transition shadow-lg shadow-red-600/25"
               >
-                Practice Again (Adaptive) 🚀
+                Practice Again (
+                {state.deckMode === "explore" ? "Explore" : "Adaptive"}) 🚀
               </button>
             </div>
           </div>

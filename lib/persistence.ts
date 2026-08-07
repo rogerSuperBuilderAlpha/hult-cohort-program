@@ -14,6 +14,9 @@ export type MasteryMap = Record<string, MasteryEntry>;
 
 const BEST_STREAK_KEY = "triniiq_best_streak";
 const MASTERY_KEY = "triniiq_mastery";
+const DECK_MODE_KEY = "triniiq_deck_mode";
+
+export type StoredDeckMode = "adaptive" | "explore";
 
 function canUseStorage(): boolean {
   return typeof window !== "undefined" && typeof localStorage !== "undefined";
@@ -131,4 +134,15 @@ export function countDue(map: MasteryMap, now = Date.now()): number {
     const due = Date.parse(entry.dueAt);
     return Number.isFinite(due) && due <= now && entry.box < 3;
   }).length;
+}
+
+export function loadDeckMode(): StoredDeckMode {
+  if (!canUseStorage()) return "adaptive";
+  const raw = localStorage.getItem(DECK_MODE_KEY);
+  return raw === "explore" ? "explore" : "adaptive";
+}
+
+export function saveDeckMode(mode: StoredDeckMode): void {
+  if (!canUseStorage()) return;
+  localStorage.setItem(DECK_MODE_KEY, mode);
 }

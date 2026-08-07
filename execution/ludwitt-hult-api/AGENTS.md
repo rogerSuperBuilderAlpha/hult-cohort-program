@@ -6,6 +6,10 @@ Parent guide: [../../AGENTS.md](../../AGENTS.md)
 
 Reference **Express** server for Phase 2 learning/venture apps: app registration, JWT launch tokens, event ingestion, user metrics snapshots. Spec in [openapi.yaml](openapi.yaml).
 
+**This is a reference implementation, not a hosted service.** We run nothing at a public URL from this directory. Two integration paths are accepted — the hosted portal at [ludwitt.com/developers](https://www.ludwitt.com/developers) (gated; apps queue for review) or a self-run instance of this server. Read [README.md](README.md) before advising anyone on integration.
+
+⚠️ **Never cite `api.ludwitt.hult` or `sandbox.api.ludwitt.hult`.** Those hosts do not exist and never have; the docs published them in error and the Summer Pilot cohort lost Week 4 hours to it. The store is also in memory, so registrations die with the process.
+
 ## Commands
 
 ```bash

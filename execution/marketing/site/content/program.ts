@@ -253,7 +253,7 @@ export const programProjects: ProgramProject[] = [
     expectations: [
       'Venture documentation and production application — proof via merged pull request to `{repo}`',
       'At least one investor engagement documented in the pull request',
-      'Same external user metric standard as the Ludwitt learning week (≥25 qualified users)',
+      '≥25 qualified external users on the platform snapshot — cohort members and user ids containing your own handle do not count',
     ],
     submission: {
       repoPattern: '{repo}',

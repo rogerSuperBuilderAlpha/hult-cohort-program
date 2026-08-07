@@ -1,14 +1,24 @@
 openapi: 3.1.0
 info:
   title: Ludwitt/Hult Learning Platform API
-  version: 0.1.0
-  description: Cohort 1 MVP — student learning app integration
+  version: 0.2.0
+  description: >-
+    Cohort 1 MVP — student learning app integration.
+    This describes a REFERENCE IMPLEMENTATION, not a hosted service: no public
+    host is operated from this spec. Run the server yourself (npm run dev, or
+    deploy it) and point your client at that instance. Earlier versions listed
+    api.ludwitt.hult and sandbox.api.ludwitt.hult as servers — those hosts have
+    never existed and any client generated against them will fail to connect.
 
 servers:
-  - url: https://sandbox.api.ludwitt.hult/v1
-    description: Sandbox
-  - url: https://api.ludwitt.hult/v1
-    description: Production
+  - url: http://localhost:4000/v1
+    description: Reference implementation running locally (npm run dev)
+  - url: '{instanceBaseUrl}/v1'
+    description: Your own deployed instance of the reference implementation
+    variables:
+      instanceBaseUrl:
+        default: http://localhost:4000
+        description: Scheme and host of the instance you deployed, no trailing slash
 
 paths:
   /developer/apps:

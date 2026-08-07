@@ -2,6 +2,8 @@
 
 **Purpose:** How students build and integrate learning apps for Phase 2 Project 1. Platform architecture in [ludwitt-hult-platform.md](../../../partnerships/ludwitt-hult-platform.md).
 
+> **`{platform_base_url}` is not a placeholder we forgot to fill.** Two platforms are accepted and their hosts differ — the hosted portal at [ludwitt.com/developers](https://www.ludwitt.com/developers), or your own instance of the reference API. **Pick one first**, from [execution/ludwitt-hult-api/README.md](../../../execution/ludwitt-hult-api/README.md), then substitute its base URL throughout. Earlier drafts of this file hard-coded `https://api.ludwitt.hult`, which has never existed and cost the Summer Pilot cohort real time in Week 4.
+
 ---
 
 ## Integration checklist
@@ -43,7 +45,7 @@ Reject expired or invalid tokens → show "Launch from Ludwitt/Hult" message.
 ## Events API
 
 ```
-POST https://api.ludwitt.hult/v1/apps/{app_id}/events
+POST {platform_base_url}/v1/apps/{app_id}/events
 Authorization: Bearer {api_key}
 Content-Type: application/json
 ```
@@ -76,17 +78,17 @@ Submitted at registration:
 
 ## Testing
 
-1. Use sandbox keys in dev
-2. Platform provides test user accounts (10 synthetic users)
-3. Submit screen recording of learning flow + event log for review
+1. Use the seeded developer keys in dev (`sandbox_key_demo` / `prod_key_demo` on the reference API — shared, not personal)
+2. Mint your own test users. **The "10 synthetic user accounts" described in earlier drafts do not exist** in either platform; issue launch tokens for user IDs you control instead
+3. Capture the learning flow and event log as evidence in your pull request
 
 ---
 
 ## User count (your metric)
 
-**You do not self-count.** Platform exports official count at snapshot ([metrics.md](../../../assessment/metrics.md)):
+**You do not self-count.** The platform exports the official count at snapshot ([metrics.md](../../../assessment/metrics.md)).
 
-- **≥ 25 unique external users** by Fri Aug 19, 2026 (week 6)
+**Which week the count gates depends on the calendar you are running.** In the original eight-week programme the learning app sat in week 6, with a ≥25 external-user snapshot on Fri Aug 19. The compressed **Summer Pilot moved the learning app to Week 4 and carries no user-count condition there** — that gate was removed on 2026-08-04, because a two-and-a-half-week adoption target does not fit a six-day build week. The pilot's ≥25 gate lands on **Week 5 (venture)** instead. Check [content/program.ts](../../../execution/marketing/site/content/program.ts) for the week you are actually in; it is the source of truth over this file.
 
 Promote the **platform listing URL**, not raw Vercel URL, so users are authenticated and counted.
 

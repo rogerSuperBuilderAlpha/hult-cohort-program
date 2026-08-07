@@ -1,6 +1,8 @@
 # Phase 2 Project 1: Learning app (Week 6)
 
-**Success metric:** ≥ **25 unique external users** on Ludwitt/Hult by Fri Aug 19 ([metrics.md](../../../assessment/metrics.md)).
+**Success metric (eight-week calendar):** ≥ **25 unique external users** on Ludwitt/Hult by Fri Aug 19 ([metrics.md](../../../assessment/metrics.md)).
+
+> **Summer Pilot runs a different calendar.** The pilot compressed this project into **Week 4** and **removed the user-count condition there** on 2026-08-04; its ≥25 gate sits on Week 5 (venture) instead. [content/program.ts](../../../execution/marketing/site/content/program.ts) is the source of truth for the week you are in.
 
 ---
 

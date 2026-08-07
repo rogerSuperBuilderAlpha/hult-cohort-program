@@ -1,0 +1,39 @@
+# Hult Cohort Program
+
+> Open-source curriculum and Next.js cohort platform for the Hult Cohort Developer Program — GitHub-native, agent-first, six-week Summer Pilot.
+
+## Agent entry points
+
+- [AGENTS.md](AGENTS.md): Primary guide for AI coding agents — repo map, architecture, task routing
+- [CLAUDE.md](CLAUDE.md): Claude Code pointer to AGENTS.md
+- [CONTRIBUTING.md](CONTRIBUTING.md): Human contributor setup
+- [execution/marketing/site/AGENTS.md](execution/marketing/site/AGENTS.md): Next.js platform
+- [execution/ludwitt-hult-api/AGENTS.md](execution/ludwitt-hult-api/AGENTS.md): Phase 2 metrics API
+- [execution/admissions-take-home/AGENTS.md](execution/admissions-take-home/AGENTS.md): Applicant take-home
+- [execution/hult-cohort-mcp/](execution/hult-cohort-mcp/): MCP server — apply, peer reviews, votes
+
+## Vision & planning
+
+- [README.md](README.md): Repository overview
+- Live intro: https://site-nine-rouge-68.vercel.app/start
+- [docs/archive/PROPOSAL-evp-2026.md](docs/archive/PROPOSAL-evp-2026.md): Archived EVP proposal
+- [WORKPLAN.md](WORKPLAN.md): Tier status and locked decisions
+- [DEVPLAN.md](DEVPLAN.md): Production hardening checklist
+- [PLATFORM.md](PLATFORM.md): Platform architecture (👍/👎 voting, PR submissions)
+
+## Platform
+
+- [execution/marketing/FIREBASE.md](execution/marketing/FIREBASE.md): Firestore schema and auth
+- [execution/marketing/DEPLOY.md](execution/marketing/DEPLOY.md): Vercel deploy
+- Live site: https://site-nine-rouge-68.vercel.app
+- Site discovery: `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/manifest.webmanifest`
+
+## Curriculum
+
+- [curriculum/](curriculum/): six-week Summer Pilot program
+- [governance/](governance/): Voting, teams, credentials
+- [assessment/](assessment/): Metrics, pass/fail
+
+## License
+
+MIT — see [LICENSE](LICENSE)

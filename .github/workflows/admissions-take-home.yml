@@ -1,0 +1,29 @@
+name: Admissions take-home CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'execution/admissions-take-home/**'
+      - '.github/workflows/admissions-take-home.yml'
+  pull_request:
+    paths:
+      - 'execution/admissions-take-home/**'
+      - '.github/workflows/admissions-take-home.yml'
+
+defaults:
+  run:
+    working-directory: execution/admissions-take-home
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: execution/admissions-take-home/package-lock.json
+      - run: npm ci
+      - run: npm test

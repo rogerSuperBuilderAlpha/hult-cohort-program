@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -16,13 +17,16 @@
 # next.js
 /.next/
 /out/
+.next/
 
 # production
 /build
+dist/
 
 # misc
 .DS_Store
 *.pem
+*.log
 
 # debug
 npm-debug.log*
@@ -30,8 +34,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files / secrets
+.env
 .env*
+**/secrets/
+**/*firebase-adminsdk*.json
 
 # vercel
 .vercel

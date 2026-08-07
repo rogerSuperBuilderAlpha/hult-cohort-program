@@ -1,0 +1,33 @@
+{
+  "name": "@hult/cohort-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Hult Cohort Program — apply, peer reviews, and votes",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "hult-cohort-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "mcp.example.json"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "prepare": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.21",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

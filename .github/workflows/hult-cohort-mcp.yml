@@ -1,0 +1,29 @@
+name: Hult Cohort MCP CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'execution/hult-cohort-mcp/**'
+      - '.github/workflows/hult-cohort-mcp.yml'
+  pull_request:
+    paths:
+      - 'execution/hult-cohort-mcp/**'
+      - '.github/workflows/hult-cohort-mcp.yml'
+
+defaults:
+  run:
+    working-directory: execution/hult-cohort-mcp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: execution/hult-cohort-mcp/package-lock.json
+      - run: npm ci
+      - run: npm run build

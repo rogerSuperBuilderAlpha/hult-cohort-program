@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hult Cohort Program
 
-## Getting Started
+[![License: MIT](https://img.shields.io/badge/License-MIT-a81202.svg)](LICENSE)
+[![CI](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions/workflows/marketing-site.yml/badge.svg)](https://github.com/rogerSuperBuilderAlpha/hult-cohort-program/actions)
 
-First, run the development server:
+A for-credit developer elective within the Hult **Computer Science for Business** undergraduate degree—GitHub-native projects in a six-week Summer Pilot.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**Open source:** curriculum, governance docs, and platform code are published under the [MIT License](LICENSE). Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## What it is
+
+Students in the elective complete eight tracked deliverables on GitHub: peer review in Phase 1, external users and maintainers in the final sprint. The cohort platform tracks submissions, written reviews, and private votes.
+
+## Start here
+
+- **Live site:** https://site-nine-rouge-68.vercel.app/start — visual intro for newcomers
+- **[execution/marketing/site/content/program.ts](execution/marketing/site/content/program.ts)** — project copy (source of truth for weeks)
+- **[AGENTS.md](AGENTS.md)** — map for AI agents and contributors
+- **[WORKPLAN.md](WORKPLAN.md)** · **[DEVPLAN.md](DEVPLAN.md)** — launch status and production checklist
+- **Archive:** [docs/archive/PROPOSAL-evp-2026.md](docs/archive/PROPOSAL-evp-2026.md) (historical EVP proposal)
+
+Program design docs are expanded; **backend:** Firebase (Firestore + Auth). See [execution/marketing/FIREBASE.md](execution/marketing/FIREBASE.md).
+
+## Repository map
+
+Every leaf file states what's decided and carries a `To flesh out` checklist — each one is a self-contained work unit.
+
+```
+curriculum/                  The six-week Summer Pilot program
+  onboarding/                Week 1: agent setup, GitHub workflow, tooling
+  phase-1/                   Weeks 2–5: internal — the cohort builds its own stack
+    the-loop.md              The build → review → operate cycle
+    project-1-pm-platform/   Requirements, review rubric, operator handbook
+    project-2-comms-platform/
+    project-3-public-showcase/
+    ecosystem-unification.md Winners merge the three platforms
+  phase-2/                   Week 6: external — judged by the market
+    project-1-learning-app/  Build on Ludwitt/Hult; metric: users
+    project-2-venture/       Market research, plan, investor materials, app
+    project-3-open-source/   Merged PRs in large repos (continuous)
+
+governance/                  Winner voting, team formation (3 winners + 10% picks),
+                             removal/succession, Law Review-style credentials
+
+assessment/                  Metrics, peer review system, pass/fail,
+                             job-offer readiness
+
+business/                    ARCHIVED — retired standalone pricing/guarantee model (see ARCHIVED.md)
+
+partnerships/                Hiring partners, week-6 showcase event,
+                             Ludwitt/Hult platform readiness
+
+operations/                  Cohort lifecycle, admissions, calendar,
+                             cohort-owned tooling, repeat enrollment, staffing
+
+institutional/               Hult policy compatibility, legal and risk
+
+execution/                   Launch-ready artifacts (legal drafts, templates, admissions repo)
+  admissions-take-home/      "Fix the repo" task for applicants
+  ludwitt-hult-api/          OpenAPI spec for platform MVP
+  templates/                 Cohort GitHub template, venture, legal, showcase
+  checklists/                Cohort 1 launch checklist
+  partners/                  Partner pitch outline
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Working in this repo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Design phase:** complete — all curriculum, governance, assessment, and business docs are expanded.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Execution phase:** use [execution/](execution/) — includes a **runnable Next.js landing page** (`execution/marketing/site`), Ludwitt/Hult API, admissions take-home, and launch checklists.
 
-## Learn More
+**AI agents:** read [AGENTS.md](AGENTS.md) first.
 
-To learn more about Next.js, take a look at the following resources:
+Live demo: [site-nine-rouge-68.vercel.app](https://site-nine-rouge-68.vercel.app) (requires Firebase env on deploy).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Open source
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| | |
+|---|---|
+| **License** | [MIT](LICENSE) |
+| **Agents** | [AGENTS.md](AGENTS.md) · [llms.txt](llms.txt) · [.cursor/rules/](.cursor/rules/) |
+| **Hult Cohort MCP** | [execution/hult-cohort-mcp/AGENTS.md](execution/hult-cohort-mcp/AGENTS.md) — apply, reviews, votes via MCP |
+| **Site SEO** | Live: `/robots.txt`, `/sitemap.xml`, `/llms.txt`, OG images (see `execution/marketing/site/app/`) |
+| **Contribute** | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| **Conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
+| **Security** | [SECURITY.md](SECURITY.md) — report vulnerabilities privately |
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Fork, adapt, or reuse this curriculum for your own cohort. Student project repos in the cohort GitHub org use the MIT template in [execution/templates/cohort-project-template/](execution/templates/cohort-project-template/).

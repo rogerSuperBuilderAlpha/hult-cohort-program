@@ -1,0 +1,16 @@
+{
+  "name": "hult-admissions-task-board",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "test": "node --test tests/*.test.js",
+    "test:ci": "node scripts/verify-starter.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

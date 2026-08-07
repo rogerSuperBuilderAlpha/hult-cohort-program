@@ -1,0 +1,29 @@
+name: Ludwitt/Hult API CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'execution/ludwitt-hult-api/**'
+      - '.github/workflows/ludwitt-hult-api.yml'
+  pull_request:
+    paths:
+      - 'execution/ludwitt-hult-api/**'
+      - '.github/workflows/ludwitt-hult-api.yml'
+
+defaults:
+  run:
+    working-directory: execution/ludwitt-hult-api
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: execution/ludwitt-hult-api/package-lock.json
+      - run: npm ci
+      - run: npm test

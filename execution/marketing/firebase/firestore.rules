@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // All writes via Firebase Admin SDK (Vercel API) — no client writes
+    match /applications/{applicationId} {
+      allow read, write: if false;
+    }
+
+    match /roster/{cohortId}/members/{handle} {
+      allow read, write: if false;
+    }
+
+    match /submissions/{cohortId}/projects/{projectSlug}/entries/{handle} {
+      allow read, write: if false;
+    }
+
+    match /peerWrittenReviews/{cohortId}/projects/{projectSlug}/voters/{voter}/entries/{reviewee} {
+      allow read, write: if false;
+    }
+
+    match /peerRatings/{cohortId}/projects/{projectSlug}/voters/{voter} {
+      allow read, write: if false;
+    }
+  }
+}

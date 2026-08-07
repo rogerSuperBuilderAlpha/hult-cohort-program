@@ -1,0 +1,38 @@
+---
+description: Curriculum, governance, and assessment markdown conventions
+globs: curriculum/**/*,governance/**/*,assessment/**/*,business/**/*,partnerships/**/*,operations/**/*,institutional/**/*
+alwaysApply: false
+---
+
+# Curriculum & program docs
+
+Parent: [AGENTS.md](../../AGENTS.md)
+
+## Tone
+
+Direct, operational, no fluff. Each doc should state what's decided and what's still open.
+
+## Voting model (keep aligned)
+
+**Platform implements:** private 👍/👎 after written GitHub review per peer; winner = most 👍.
+
+When editing governance/assessment docs, prefer updating stale ranked-choice language to match the platform (see `execution/marketing/site/content/program.ts`).
+
+## Phase 1 projects
+
+1. PM platform (cohort infrastructure)
+2. Comms (replaces Discord)
+3. Public showcase (hiring partners)
+4. Unification (winners merge three)
+
+## Phase 2
+
+4. Learning app (≥25 users via Ludwitt/Hult API)
+5. Venture (deck + production app)
+6. Open source (≥1 merged PR; cursorboston.com, algorithmacy.org as starters)
+
+## Cross-links
+
+- Loop: `curriculum/phase-1/the-loop.md`
+- Pass/fail: `assessment/pass-fail.md`
+- Calendar: `operations/calendar.md`

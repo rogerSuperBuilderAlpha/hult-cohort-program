@@ -1,7 +1,9 @@
 import { randomUUID } from 'crypto';
 import { scoreRelevance } from '../bidmanager/relevance';
 import { qualifyOpportunity } from '../bidmanager/qualify';
-import { loadQualConfig } from '../bidmanager/config';
+import { extractRequirementsFromText, type ExtractedRequirement } from '../bidmanager/extract-requirements';
+import { buildGapReport, gapReportSummary, type RequirementEvidenceRow } from '../bidmanager/gap-report';
+import { loadHardGateConfig, loadQualConfig } from '../bidmanager/config';
 import { DEFAULT_PROFILE_KEYWORDS, PUBLIC_TENDER_SEEDS } from '../bidmanager/seed-public';
 import { SOURCE_REGISTRY } from '../bidmanager/sources';
 import type {
@@ -57,10 +59,21 @@ export type StoredEvent = {
   emittedAt: string;
 };
 
+export type StoredRequirement = Omit<ExtractedRequirement, 'humanVerified'> & {
+  id: string;
+  opportunityId: string;
+  humanVerified: boolean;
+  verifiedBy?: string;
+};
+
 type StoreState = {
   orgId: string;
   orgName: string;
   opportunities: Map<string, StoredOpportunity>;
+  requirements: Map<string, StoredRequirement>;
+  requirementEvidence: RequirementEvidenceRow[];
+  evidence: never[];
+  configSeeded: boolean;
   events: StoredEvent[];
   sourcePollState: Map<string, { lastPolledAt?: string; lastSuccessAt?: string }>;
 };
@@ -74,12 +87,40 @@ function getState(): StoreState {
       orgId,
       orgName: 'Demo Organization',
       opportunities: new Map(),
+      requirements: new Map(),
+      requirementEvidence: [],
+      evidence: [],
+      configSeeded: true,
       events: [],
       sourcePollState: new Map(),
     };
+    seedConfigTables();
     seedPublicOpportunities(g.__bidStore);
   }
   return g.__bidStore;
+}
+
+function seedConfigTables() {
+  void loadQualConfig();
+  void loadHardGateConfig();
+}
+
+function attachRequirements(state: StoreState, opportunityId: string, rawText: string) {
+  const extracted = extractRequirementsFromText(rawText);
+  for (const req of extracted) {
+    const id = randomUUID();
+    state.requirements.set(id, {
+      ...req,
+      id,
+      opportunityId,
+      humanVerified: false,
+    });
+    state.requirementEvidence.push({
+      requirementId: id,
+      coverage: 'gap',
+      note: 'No verified evidence in public demo library',
+    });
+  }
 }
 
 function seedPublicOpportunities(state: StoreState) {
@@ -111,6 +152,7 @@ function seedPublicOpportunities(state: StoreState) {
       status: rel.score >= config.relevanceThreshold ? 'screening' : 'new',
       discoveredAt: new Date().toISOString(),
     });
+    attachRequirements(state, id, seed.rawText);
   }
 }
 
@@ -261,7 +303,47 @@ export function createManualOpportunity(data: {
     opp.status = 'screening';
   }
   state.opportunities.set(id, opp);
+  attachRequirements(state, id, data.rawText);
   return opp;
+}
+
+export function listRequirements(opportunityId: string) {
+  return [...getState().requirements.values()].filter((r) => r.opportunityId === opportunityId);
+}
+
+export function listVerificationQueue() {
+  return [...getState().requirements.values()].filter((r) => !r.humanVerified);
+}
+
+/** Only UI verification path may set humanVerified true. */
+export function verifyRequirement(requirementId: string, verifiedBy: string) {
+  const req = getState().requirements.get(requirementId);
+  if (!req) throw new Error('Requirement not found');
+  req.humanVerified = true;
+  req.verifiedBy = verifiedBy;
+  getState().requirements.set(requirementId, req);
+  return req;
+}
+
+export function getGapReportForOpportunity(opportunityId: string) {
+  const reqs = listRequirements(opportunityId);
+  const links = getState().requirementEvidence.filter((l) =>
+    reqs.some((r) => r.id === l.requirementId)
+  );
+  const rows = buildGapReport(reqs, links);
+  return { rows, summary: gapReportSummary(rows) };
+}
+
+export function overrideStats() {
+  const opps = [...getState().opportunities.values()];
+  const overrides = opps.filter(
+    (o) => o.qualification?.overrideReason && o.qualification.overrideReason.length > 0
+  );
+  return {
+    total: overrides.length,
+    forcedBid: overrides.filter((o) => o.qualification?.decision === 'bid').length,
+    forcedNoBid: overrides.filter((o) => o.qualification?.decision === 'no_bid').length,
+  };
 }
 
 export function dashboardMetrics(): DashboardMetrics {

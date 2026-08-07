@@ -1,8 +1,9 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { readSession } from '@/lib/ludwitt/session';
-import { getOpportunity } from '@/lib/db/store';
+import { getOpportunity, getGapReportForOpportunity, listRequirements } from '@/lib/db/store';
 import { QualifyForm } from '@/components/QualifyForm';
+import { GapReportPanel } from '@/components/GapReportPanel';
 import { loadQualConfig } from '@/lib/bidmanager/config';
 
 type Props = { params: Promise<{ id: string }> };
@@ -17,6 +18,8 @@ export default async function OpportunityPage({ params }: Props) {
 
   const config = loadQualConfig();
   const isPlan = opp.stage === 'plan';
+  const gapReport = getGapReportForOpportunity(id);
+  const requirements = listRequirements(id);
 
   return (
     <div className="space-y-6">
@@ -46,6 +49,28 @@ export default async function OpportunityPage({ params }: Props) {
             </ul>
           </div>
         )}
+
+        <section className="mt-6 rounded-xl border border-indigo-200 bg-indigo-50/30 p-4 text-sm">
+          <h3 className="font-semibold text-indigo-900">Extracted requirements ({requirements.length})</h3>
+          <p className="mt-1 text-indigo-800/80">
+            {requirements.filter((r) => !r.humanVerified).length} awaiting human verification ·{' '}
+            <Link href="/verification" className="underline">
+              Open queue
+            </Link>
+          </p>
+          <ul className="mt-3 max-h-48 space-y-2 overflow-y-auto">
+            {requirements.slice(0, 8).map((r) => (
+              <li key={r.id} className="rounded border border-indigo-100 bg-white px-3 py-2 text-xs">
+                <span className="font-mono text-ceal-600">{r.ref}</span> · {r.category}
+                {r.isMandatory && ' · mandatory'}
+                {!r.humanVerified && ' · unverified'}
+                <p className="mt-1 text-ceal-900">{r.text.slice(0, 160)}{r.text.length > 160 ? '…' : ''}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <GapReportPanel rows={gapReport.rows} summary={gapReport.summary} />
 
         {isPlan ? (
           <p className="mt-6 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">

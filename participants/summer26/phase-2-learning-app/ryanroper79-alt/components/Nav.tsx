@@ -5,6 +5,7 @@ export function Nav() {
     { href: '/', label: 'Dashboard' },
     { href: '/finder', label: 'Finder' },
     { href: '/watchlist', label: 'Watchlist' },
+    { href: '/verification', label: 'Verification' },
     { href: '/opportunities/new', label: 'Manual entry' },
   ];
   return (

@@ -1,3 +1,5 @@
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { isAdminConfigured } from '@/lib/firebase/admin';
 import { cohortId } from '@/lib/cohort-config';
 import { rosterMemberRef } from '@/lib/firestore-paths';
@@ -63,14 +65,23 @@ export function resolveEnrollment(params: {
   };
 }
 
-export async function getRosterActive(githubHandle: string): Promise<boolean | null> {
-  if (!isAdminConfigured()) return null;
-
-  const doc = await rosterMemberRef(cohortId(), githubHandle).get();
-
+async function readRosterActive(githubHandle: string, id: string): Promise<boolean | null> {
+  const doc = await rosterMemberRef(id, githubHandle).get();
   if (!doc.exists) return null;
   return doc.data()?.active !== false;
 }
+
+/** Request-deduped + 60s cached roster membership check. */
+export const getRosterActive = cache(async (githubHandle: string): Promise<boolean | null> => {
+  if (!isAdminConfigured()) return null;
+  const id = cohortId();
+  const cached = unstable_cache(
+    () => readRosterActive(githubHandle, id),
+    ['roster-active', id, githubHandle.toLowerCase()],
+    { revalidate: 60, tags: [`roster-member:${id}:${githubHandle.toLowerCase()}`] }
+  );
+  return cached();
+});
 
 export async function requireActiveRosterMember(githubHandle: string): Promise<boolean> {
   const active = await getRosterActive(githubHandle);

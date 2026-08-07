@@ -10,10 +10,10 @@ Credentials are supplied by the founder and stored only in environment variables
 
 | Firebase product | Purpose |
 |------------------|---------|
-| **Firestore** | Applications, roster, submissions, peerWrittenReviews, peerRatings |
-| **Authentication** | GitHub sign-in for enrolled participants (voting, gated pages) |
+| **Firestore** | Applications, roster, survey/ack, published `projectOutcomes` (identity + announcements) |
+| **Authentication** | GitHub sign-in for enrolled participants (gated pages) |
 | **Admin SDK** | Next.js API routes write applications server-side (bypass client rules) |
-| **Cloud Functions** *(optional, later)* | Auto-reply email on apply, GitHub webhook → ballot feed |
+| **Cloud Functions** *(optional, later)* | Auto-reply email on apply |
 
 Hosting stays on **Vercel** (Next.js). Firebase is data + auth only.
 
@@ -30,14 +30,18 @@ Set in Vercel project settings and local `.env.local` (see [site/.env.example](s
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Client + server | Project ID |
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Client + server | Optional (avatars later) |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Client + server | FCM (optional) |
+| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | Client | Analytics (optional) |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Client + server | App ID |
 | `FIREBASE_SERVICE_ACCOUNT_JSON` | **Server only (Vercel)** | Admin SDK — full JSON string |
 | `FIREBASE_SERVICE_ACCOUNT_PATH` | **Server only (local)** | Path to gitignored key file, e.g. `secrets/firebase-service-account.json` |
-| `NEXT_PUBLIC_APPLY_URL` | Client | Default `/apply` (on-site form) |
 | `NEXT_PUBLIC_TAKE_HOME_REPO_URL` | Server | GitHub repo for admissions task |
-| `GITHUB_WEBHOOK_SECRET` | Server | Verify org webhooks (ballot feed) |
+| `GITHUB_TOKEN` | **Server only** | Contest state (PR list + issue Search) |
+| `GITHUB_WEBHOOK_SECRET` | **Server only** | Verify org webhooks (HMAC) |
+| `CRON_SECRET` | **Server only** | Bearer for `/api/cron/warm-contest` (required in prod) |
+| `UNSUBSCRIBE_SECRET` | **Server only** | HMAC for blast unsubscribe links |
+| `RESEARCH_HASH_SALT` | **Server only** | One-way participant ids for research surveys |
 
-⚠️ `FIREBASE_SERVICE_ACCOUNT_JSON` must **never** use the `NEXT_PUBLIC_` prefix.
+Full template: [site/.env.example](site/.env.example). ⚠️ `FIREBASE_SERVICE_ACCOUNT_JSON` must **never** use the `NEXT_PUBLIC_` prefix.
 
 ---
 
@@ -78,6 +82,22 @@ Written by `POST /api/applications` via Admin SDK.
 
 Staff update `status` and `takeHomePrUrl` manually or via script — no admin UI in cohort 1.
 
+### `cohortInterest/{cohortId}/interested/{githubHandle}`
+
+Lightweight next-cohort interest (not a full application).
+
+```typescript
+{
+  githubHandle: string;
+  firebaseUid?: string | null;
+  githubOAuthUid?: string | null;
+  indicatedAt: Timestamp;
+  updatedAt: Timestamp;
+}
+```
+
+Written by `POST /api/cohort-interest`. Shown on `/apply` and home apply section when `NEXT_PUBLIC_NEXT_COHORT_ID` is set.
+
 ### `roster/{cohortId}/members/{githubHandle}`
 
 Enrolled participants after week 1 roster lock.
@@ -96,69 +116,49 @@ Enrolled participants after week 1 roster lock.
 
 Used to gate participant APIs (`/api/program/*`, `/api/dashboard`).
 
-### `submissions/{cohortId}/projects/{projectSlug}/entries/{githubHandle}`
+### `submissions/...` (legacy — do not read or write)
 
-Tracks participant submission PRs (GitHub projection).
+Retired from the request path. Merged submissions are discovered from GitHub only (`lib/github-cohort-server.ts` / `lib/contest-state-server.ts`). Old entry docs may still exist; webhook no longer upserts them.
 
-```typescript
-{
-  githubHandle: string;
-  repo: string;
-  prNumber: number;
-  prUrl: string;
-  prTitle: string;
-  merged: boolean;
-  mergedAt?: Timestamp;
-  deployUrl?: string | null;
-  source?: 'webhook' | 'reconcile';
-}
-```
+### `roster/{cohortId}` (meta doc)
 
-Populated by `POST /api/github/webhook` on merged PRs matching `content/program.ts` title patterns. `deployUrl` parsed from PR body (`Production URL` label). Backstop: `scripts/reconcile-submissions.mjs` or `scripts/backfill-deploy-urls.mjs`.
-
-### `peerWrittenReviews/{cohortId}/projects/{projectSlug}/voters/{voterHandle}/entries/{revieweeHandle}`
-
-Written GitHub review URLs filed by voter on each peer.
+Denormalized enrolled count + active handles for cheap stats (refreshed by `admissions.mjs` admit/deactivate and on first cold read).
 
 ```typescript
 {
-  issueUrl: string;
-  voterHandle: string;
-  revieweeHandle: string;
+  enrolledCount: number;
+  activeHandles: string[];
   updatedAt: Timestamp;
 }
 ```
 
-### `peerRatings/{cohortId}/projects/{projectSlug}/voters/{voterHandle}`
+Members still live at `roster/{cohortId}/members/{githubHandle}`.
 
-Private 👍/👎 votes (one doc per voter).
+### `peerWrittenReviews/...` and `peerRatings/...` (legacy — do not read or write)
 
-```typescript
-{
-  ratings: Record<string, 'up' | 'down'>;  // revieweeHandle → rating
-  updatedAt: Timestamp;
-}
-```
-
-Vote requires prior written review for that peer. Staff tally: `tallyThumbsUp(projectSlug)` in [site/lib/tally-server.ts](site/lib/tally-server.ts) or `node scripts/tally-votes.mjs --project=<slug>`.
+Retired. Reviews and optional upvotes live on GitHub issues (`Review by @{voter}: @{reviewee}` with optional `Vote: up`). Discovery: `lib/contest-state-server.ts`. Staff tally: `npx tsx scripts/tally-votes.ts --project=<slug>`.
 
 ### Legacy (retired — do not write)
 
-`ballots/` and `votes/` collections were designed for ranked-choice voting and are **not used** by the platform. Firestore rules deny all client access.
+`ballots/`, `votes/`, `submissions/`, `peerWrittenReviews/`, `peerRatings/` are **not used** by the live request path. Firestore rules deny all client access.
 
 ---
 
 ## Security rules (summary)
 
-| Collection | Read | Write |
-|------------|------|-------|
-| `applications` | Deny all client | Admin SDK only |
-| `roster` | Deny all client | Admin SDK only |
-| `submissions` | Deny all client | Admin SDK / webhook |
-| `peerWrittenReviews` | Deny all client | Admin SDK only |
-| `peerRatings` | Deny all client | Admin SDK only |
+All listed collections are **deny-all for clients**; every read/write goes through the Admin SDK in Next.js API routes / staff scripts.
 
-Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when credentials wired)*.
+| Collection | Client access |
+|------------|---------------|
+| `applications` | Deny all |
+| `roster` (+ members) | Deny all |
+| `acknowledgments` | Deny all |
+| `projectOutcomes` | Deny all |
+| `submissions` (legacy) | Deny all — do not write |
+| `peerWrittenReviews` (legacy) | Deny all — do not write |
+| `peerRatings` (legacy) | Deny all — do not write |
+
+Full rules file: [firebase/firestore.rules](firebase/firestore.rules).
 
 ---
 
@@ -175,7 +175,7 @@ Full rules file: [firebase/firestore.rules](firebase/firestore.rules) *(add when
 
 1. Sign in with **GitHub** via Firebase Auth.
 2. API verifies `githubHandle` exists in `roster/{cohortId}/members` with `active: true`.
-3. Access `/dashboard` and `/program/[slug]` for progress, written reviews, and private 👍/👎 during review weeks.
+3. Access `/dashboard` and `/program/[slug]` for progress and personal peer-review status (GitHub discovery) during review weeks.
 
 ---
 

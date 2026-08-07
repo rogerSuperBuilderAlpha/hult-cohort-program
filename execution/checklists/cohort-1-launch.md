@@ -1,6 +1,6 @@
 # Cohort 1 launch checklist
 
-Target start: **Thursday, July 9, 2026 at 09:00 Eastern Time**
+Target start: **Monday, July 13, 2026 at 09:00 Eastern Time**
 
 ## Initial approvals (May 2026)
 
@@ -27,33 +27,33 @@ Target start: **Thursday, July 9, 2026 at 09:00 Eastern Time**
 
 ## Admissions closeout (July 2026)
 
-- [ ] Applications close Jul 8
-- [ ] Admissions decisions Jul 8
+- [ ] Applications close Jul 12
+- [ ] Admissions decisions Jul 12
 - [ ] Cohort ≥ 20 confirmed
 - [ ] Partner agreements: ≥ 3 signed (stretch: 5)
 - [ ] GitHub org `hult-cohort-fall26-boston` created
 - [ ] Cohort project template pushed to org
 
-## −1 week (Jul 2, 2026)
+## −1 week (Jul 6, 2026)
 
 - [ ] Pre-Cohort Setup email sent ([tooling-setup.md](../../curriculum/onboarding/tooling-setup.md))
 - [ ] Discord bootstrap server created
-- [ ] Tuition billing ready for Jul 9 charge
+- [ ] Tuition billing ready for Jul 13 charge
 
-## Week 1 (Jul 9, 2026)
+## Week 1 (Jul 13, 2026)
 
-- [ ] Tuition charged; roster locked Jul 15 after refund window
+- [ ] Tuition charged; roster locked Jul 19 after refund window
 - [ ] 100% tooling verification complete
 - [ ] Week 2 Project 1 kickoff ready
 
 ## Platform (parallel track)
 
-- [ ] Aug 6: Ludwitt/Hult JWT spec frozen
-- [ ] Aug 12: Sandbox + production API live ([ludwitt-hult-platform.md](../../partnerships/ludwitt-hult-platform.md))
-- [ ] Aug 13: First student app approved (smoke test)
+- [ ] Aug 10: Ludwitt/Hult JWT spec frozen
+- [ ] Aug 16: Sandbox + production API live ([ludwitt-hult-platform.md](../../partnerships/ludwitt-hult-platform.md))
+- [ ] Aug 17: First student app approved (smoke test)
 
-## Week 6 (Aug 19, 2026)
+## Week 6 (Aug 23, 2026)
 
 - [ ] Showcase event ([showcase-event.md](../../partnerships/showcase-event.md))
-- [ ] Pass/fail published Aug 19–20
+- [ ] Pass/fail published Aug 23–24
 - [ ] Placement window opens

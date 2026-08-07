@@ -1,6 +1,7 @@
 import type { CohortStats } from './cohort-stats-types';
 import type { SubmissionEntry } from './submissions-types';
 import type { EnrollmentInfo } from './enrollment-types';
+import type { ExpectationsAckRecord } from './expectations-ack-types';
 
 export type ApplicationStatus =
   | 'submitted'
@@ -31,6 +32,12 @@ export type ParticipantMe = {
     roles: string[];
     active: boolean;
   } | null;
+  nextCohortInterest: {
+    cohortId: string;
+    interested: boolean;
+    indicatedAt?: string;
+  } | null;
+  expectationsAcknowledgment: ExpectationsAckRecord | null;
 };
 
 export function isEnrolled(me: ParticipantMe | null): boolean {

@@ -6,88 +6,49 @@
 
 ## Voting method (canonical — implemented)
 
-**Private 👍/👎 per peer after a written GitHub review.**
+**Public optional upvote on GitHub after a written review. No downvotes.**
 
 | Step | Action |
 |------|--------|
-| 1 | File written review (GitHub issue `Review by @{you}`) on each eligible peer repo |
-| 2 | Save issue URL on cohort platform → unlocks vote for that peer |
-| 3 | Cast private 👍 or 👎 on platform (`peerRatings` in Firestore) |
-| 4 | Winner = repo with **most thumbs up** after review week closes |
+| 1 | File written review (GitHub issue `Review by @{you}: @{peer}`) on the **peer’s app/build repo** |
+| 2 | Optionally keep `Vote: up` in that issue body to upvote — or delete that section to abstain |
+| 3 | Platform discovers issues from GitHub (refresh progress); no paste-URL or platform 👍/👎 |
+| 4 | Winner = submission with **most upvotes** after review week closes (staff CLI) |
 
-Platform routes: `/program/{slug}` progress panel + `POST /api/program/{slug}/ratings`.
+Platform routes: `/program/{slug}` progress panel. Staff tally: `tallyThumbsUp` / `scripts/tally-votes.mjs`.
 
-**Not used:** ranked-choice top-3 ballots, `/vote/{project}`, or Firestore `votes`/`ballots` collections (legacy docs retired).
+**Not used:** private Firestore ballots, ranked-choice top-3, `/vote/{project}`, or downvotes.
 
 ---
 
 ## Self-votes
 
-**Cannot review or vote on own submission.** Enforced in UI and API.
+**Cannot review or vote on own submission.** Enforced in discovery (self pairs ignored).
 
 ---
 
-## Ballot privacy
+## Ballot visibility
 
 | Aspect | Policy |
 |--------|--------|
-| Individual votes | **Private** — each voter sees only their own 👍/👎 |
-| Live tallies | **Never shown** during review week |
-| Aggregate results | **Staff-only** until winner announced (`tallyThumbsUp` server helper) |
-| Written reviews | **Public** on peer GitHub repos |
+| Written reviews | **Public** on GitHub |
+| Upvotes (`Vote: up`) | **Public** on GitHub |
+| Live / final tallies on site | **Never shown** — browse cohort repos to count if desired |
+| Aggregate results | **Staff CLI** until winner announced |
 
 ---
 
-## Rubric vs vote relationship
+## Tie-break (staff)
 
-**Reviews inform; votes decide.**
-
-- Written reviews use 5-dimension rubric ([peer-review-system.md](../assessment/peer-review-system.md))
-- Votes are **not rubric-weighted**
-- Tie-break: higher **median total rubric score** across written reviews
-- Staff may publish rubric leaderboard as reference; it does not override vote
+Most upvotes wins. If tied: earliest submission `mergedAt`, then handle sort. Persistent ties: rubric median per staff judgment.
 
 ---
 
-## Eligibility to receive votes
-
-A peer appears in your review/vote list only when **both**:
-
-1. Active on cohort roster (`roster/{cohort}/members/{handle}`)
-2. **Submission PR merged** before deadline (`submissions/.../entries/{handle}`)
-
-Pass-gate denominator = **count of eligible peers**, not roster size − 1. If peers have not merged yet, your required count shrinks accordingly.
-
-Ineligible (unmerged) builds: excluded from vote list; student may still pass if they complete reviews/votes on all **eligible** peers.
-
-Primary ingestion: GitHub webhook → `POST /api/github/webhook`. Backstop: `scripts/reconcile-submissions.mjs`.
-
----
-
-## Tie-break procedure
-
-1. Most thumbs up wins
-2. If tied: higher **median total rubric score** (sum of 5 dimensions) across peer written reviews
-3. If still tied: program director selects by production readiness (documented public note)
-
----
-
-## Multiple wins
-
-One student may win more than one Phase 1 project. Operator obligations stack per [credentials.md](credentials.md).
-
----
-
-## Staff tally
-
-After review week closes, staff run the thumbs-up tally:
+## Staff commands
 
 ```bash
 cd execution/marketing/site
-node scripts/tally-votes.mjs --project=phase-1-project-1
-node scripts/tally-votes.mjs --all --json   # export for records
+npx tsx scripts/tally-votes.ts --project=phase-1-project-1
+npx tsx scripts/tally-votes.ts --all --json
+npx tsx scripts/tally-votes.ts --project=phase-1-project-1 --publish --confirm
 ```
-
-Server helper: `tallyThumbsUp()` in `execution/marketing/site/lib/tally-server.ts`.
-
-Publish winner + aggregate thumbs-up count in cohort comms. Do not publish individual ballots (there are none — only per-voter maps).

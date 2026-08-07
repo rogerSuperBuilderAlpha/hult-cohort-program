@@ -1,30 +1,12 @@
-import { isAdminConfigured } from '@/lib/firebase/admin';
+import { revalidateTag } from 'next/cache';
 import { cohortId } from '@/lib/cohort-config';
-import { submissionEntryRef } from '@/lib/firestore-paths';
-import {
-  buildSubmissionEntry,
-  matchMergedPullRequest,
-  type ParsedSubmissionPr,
-} from '@/lib/submission-ingest-server';
+import { clearGithubSubmissionCache } from '@/lib/github-cohort-server';
+import { matchMergedPullRequest } from '@/lib/submission-ingest-server';
 
-export async function upsertSubmissionEntry(
-  parsed: ParsedSubmissionPr,
-  mergedAt: Date,
-  source: 'webhook' | 'reconcile',
-  prBody?: string | null
-): Promise<void> {
-  const entry = buildSubmissionEntry(parsed, mergedAt, source, prBody);
-  const ref = submissionEntryRef(cohortId(), parsed.projectSlug, parsed.githubHandle);
-
-  await ref.set(
-    {
-      ...entry,
-      updatedAt: new Date(),
-    },
-    { merge: true }
-  );
-}
-
+/**
+ * Recognize a merged cohort submission PR and bust GitHub/contest caches.
+ * Does not write Firestore — GitHub is the canonical submission source.
+ */
 export async function ingestMergedPullRequest(params: {
   repoFullName: string;
   prTitle: string;
@@ -34,15 +16,32 @@ export async function ingestMergedPullRequest(params: {
   merged: boolean;
   mergedAt: Date;
   source: 'webhook' | 'reconcile';
+  baseRef?: string;
+  headRef?: string;
+  authorLogin?: string | null;
 }): Promise<{ ingested: boolean; projectSlug?: string; handle?: string }> {
-  if (!isAdminConfigured()) {
-    throw new Error('Admin SDK not configured');
-  }
-
   const parsed = matchMergedPullRequest(params);
   if (!parsed) return { ingested: false };
 
-  await upsertSubmissionEntry(parsed, params.mergedAt, params.source, params.prBody);
+  if (params.authorLogin?.trim()) {
+    const author = params.authorLogin.trim().toLowerCase();
+    const expected = parsed.githubHandle.toLowerCase();
+    if (author !== expected) {
+      console.warn('[submission-ingest] PR author does not match title handle', {
+        authorLogin: params.authorLogin,
+        titleHandle: parsed.githubHandle,
+        prNumber: params.prNumber,
+        prTitle: params.prTitle,
+      });
+      return { ingested: false };
+    }
+  }
+
+  clearGithubSubmissionCache();
+  const id = cohortId();
+  revalidateTag(`peers:${id}:${parsed.projectSlug}`);
+  revalidateTag(`contest:${id}:${parsed.projectSlug}`);
+
   return {
     ingested: true,
     projectSlug: parsed.projectSlug,

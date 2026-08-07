@@ -1,0 +1,30 @@
+{
+  "name": "Relay 65 \u2014 Hult Cohort Communications",
+  "short_name": "Relay 65",
+  "description": "Async-first, realtime cohort communication without the noise.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#10131b",
+  "theme_color": "#10131b",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "assets/relay-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/relay-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/relay-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

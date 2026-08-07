@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "cohort", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "githubHandle", "order": "ASCENDING" },
+        { "fieldPath": "cohort", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

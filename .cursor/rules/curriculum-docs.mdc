@@ -14,7 +14,7 @@ Direct, operational, no fluff. Each doc should state what's decided and what's s
 
 ## Voting model (keep aligned)
 
-**Platform implements:** private 👍/👎 after written GitHub review per peer; winner = most 👍.
+**Platform implements:** written GitHub review per peer + optional public `Vote: up` (or abstain); winner = most upvotes (staff CLI).
 
 When editing governance/assessment docs, prefer updating stale ranked-choice language to match the platform (see `execution/marketing/site/content/program.ts`).
 

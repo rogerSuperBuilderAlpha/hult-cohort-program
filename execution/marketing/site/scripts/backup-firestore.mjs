@@ -10,7 +10,7 @@ import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
+const COHORT = process.env.COHORT_ID?.trim() || 'summer26';
 
 function loadServiceAccount() {
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();

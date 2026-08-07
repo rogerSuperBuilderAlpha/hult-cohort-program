@@ -14,7 +14,7 @@ import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
+const COHORT = process.env.COHORT_ID?.trim() || 'summer26';
 const REPO = process.env.NEXT_PUBLIC_COHORT_REPO?.trim() || 'rogerSuperBuilderAlpha/hult-cohort-program';
 const ORG = process.env.NEXT_PUBLIC_COHORT_ORG?.trim() || REPO.split('/')[0] || 'rogerSuperBuilderAlpha';
 

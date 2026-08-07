@@ -1,0 +1,76 @@
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
+import { FieldValue } from 'firebase-admin/firestore';
+import { isAdminConfigured } from '@/lib/firebase/admin';
+import { rosterMembersRef } from '@/lib/firestore-paths';
+import { getAdminDb } from '@/lib/firebase/admin';
+
+export class RosterUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RosterUnavailableError';
+  }
+}
+
+function rosterMetaRef(cohortId: string) {
+  return getAdminDb().collection('roster').doc(cohortId);
+}
+
+async function scanActiveHandles(cohortId: string): Promise<string[]> {
+  const snap = await rosterMembersRef(cohortId).get();
+  return snap.docs.filter((doc) => doc.data().active !== false).map((doc) => doc.id);
+}
+
+/** Write denormalized roster meta (1-doc stats). Call after admit/deactivate. */
+export async function refreshRosterMeta(cohortId: string): Promise<string[]> {
+  if (!isAdminConfigured()) {
+    throw new RosterUnavailableError(
+      'Firebase Admin is not configured (set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_PATH).'
+    );
+  }
+  const handles = await scanActiveHandles(cohortId);
+  await rosterMetaRef(cohortId).set(
+    {
+      enrolledCount: handles.length,
+      activeHandles: handles,
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
+  return handles;
+}
+
+/** Uncached roster handles — staff scripts / contest builder outside Next request context. */
+export async function loadActiveRosterHandles(cohortId: string): Promise<string[]> {
+  if (!isAdminConfigured()) {
+    throw new RosterUnavailableError(
+      'Firebase Admin is not configured (set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_PATH).'
+    );
+  }
+  try {
+    const meta = await rosterMetaRef(cohortId).get();
+    const handles = meta.data()?.activeHandles;
+    if (Array.isArray(handles) && handles.every((h) => typeof h === 'string')) {
+      return handles as string[];
+    }
+    return await refreshRosterMeta(cohortId);
+  } catch (err) {
+    if (err instanceof RosterUnavailableError) throw err;
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error('[loadActiveRosterHandles]', detail);
+    throw new RosterUnavailableError(`Failed to load active roster: ${detail}`);
+  }
+}
+
+/**
+ * Active roster GitHub handles. Prefers roster/{cohortId} meta doc (1 read);
+ * falls back to members scan + backfill. Request-deduped + 60s cross-request cache.
+ */
+export const getActiveRosterHandles = cache(async (cohortId: string): Promise<string[]> => {
+  const cached = unstable_cache(
+    () => loadActiveRosterHandles(cohortId),
+    ['active-roster-handles-v3', cohortId],
+    { revalidate: 60, tags: [`roster-handles:${cohortId}`] }
+  );
+  return cached();
+});

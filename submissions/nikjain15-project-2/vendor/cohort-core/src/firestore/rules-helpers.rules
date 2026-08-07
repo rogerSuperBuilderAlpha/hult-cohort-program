@@ -1,0 +1,38 @@
+// @cohort/core — canonical Firestore rule helpers (proven in Pulse, Week 1).
+//
+// Firestore's rules language has no import mechanism, so this file is the SINGLE SOURCE and
+// each app copies these helper functions verbatim into its own `firestore.rules`. Keeping the
+// canonical text here means the anti-gaming reasoning lives in one place and both apps' rules
+// tests assert against the same guarantees.
+//
+// The load-bearing pair is togglesOnlySelf + noDuplicates: Firestore arrays allow duplicates,
+// and every count in these products is `array.length`, not set size. Without noDuplicates,
+// [] -> [me, me, me] has a symmetric difference of {me} and would pass — letting anyone inflate
+// kudos / recognitions / reactions to any number by repeating their own uid.
+
+function signedIn() {
+  return request.auth != null;
+}
+
+function isSelf(uid) {
+  return signedIn() && request.auth.uid == uid;
+}
+
+// Fields a request is trying to change.
+function changed() {
+  return request.resource.data.diff(resource.data).affectedKeys();
+}
+
+// A list whose set has the same size holds no repeats.
+function noDuplicates(list) {
+  return list.toSet().size() == list.size();
+}
+
+// Proves a member only ever toggles *themselves* in a uid list. noDuplicates is what makes
+// the set reasoning and the length reasoning agree — see the header note.
+function togglesOnlySelf(before, after) {
+  return noDuplicates(after)
+         && after.toSet().difference(before.toSet())
+              .union(before.toSet().difference(after.toSet()))
+              .hasOnly([request.auth.uid]);
+}

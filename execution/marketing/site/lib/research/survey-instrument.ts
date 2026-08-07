@@ -264,7 +264,7 @@ export const SURVEY_WAVES: SurveyWave[] = [
   {
     id: 'w1',
     label: 'Baseline survey',
-    shortLabel: 'Baseline (before Project 1)',
+    shortLabel: 'Baseline (before week 1)',
     intro:
       'These questions ask how you work and how you read the tools and people you work with. There are no right answers. Answer for how things are for you as you begin the program. The wording is the same across all three surveys so we can measure change on the same scale.',
     // Opens before week 1; stays completable through Project 1's submission window because it gates
@@ -277,24 +277,25 @@ export const SURVEY_WAVES: SurveyWave[] = [
   {
     id: 'w2',
     label: 'Midpoint survey',
-    shortLabel: 'Midpoint (week 3)',
+    shortLabel: 'Midpoint (after week 3)',
     intro:
-      'You have now built a project and gone through review once. Answer for how things are for you now.',
-    // Opens after the first review; stays completable through Project 2's submission window because it
-    // gates access to Project 2 (see SURVEY_GATES). Keeping it open avoids a permanent lock-out.
-    opensAt: '2026-07-23T18:00:00.000Z',
-    closesAt: '2026-07-29T21:00:00.000Z',
+      'You have completed the three Phase 1 contest weeks. Answer for how things are for you now.',
+    // Opens after week 3 review closes; stays completable through Week 4 (learning app) submission
+    // because it gates that project (see SURVEY_GATES). Keeping it open avoids a permanent lock-out.
+    opensAt: '2026-08-03T18:00:00.000Z',
+    closesAt: '2026-08-09T21:00:00.000Z',
     estimatedMinutes: 13,
     sections: [sec.acs(), sec.sa(), sec.ti(), sec.au(), sec.po(), sec.tms(), sec.su(), sec.be()],
   },
   {
     id: 'w3',
     label: 'End-of-session survey',
-    shortLabel: 'End of session (week 6)',
+    shortLabel: 'End of session (after week 6)',
     intro:
       'This is the last survey. Answer for how things are for you now, at the end of the program.',
-    opensAt: '2026-08-17T13:00:00.000Z',
-    closesAt: '2026-08-20T03:59:00.000Z',
+    // Opens after week 6 submission close (pilot end). Not used as a project gate.
+    opensAt: '2026-08-23T21:00:00.000Z',
+    closesAt: '2026-08-27T03:59:00.000Z',
     estimatedMinutes: 15,
     sections: [
       sec.acs(), sec.sa(), sec.ti(), sec.au(), sec.po(), sec.tms(), sec.su(), sec.be(), sec.se(),
@@ -344,10 +345,10 @@ export function waveItemIds(wave: SurveyWave): string[] {
 // ----------------------------------------------------------------------------------------
 
 export const SURVEY_GATES: Record<string, SurveyWaveId> = {
-  // The baseline survey must be addressed before the Phase 1 project-management build (Project 1).
+  // Baseline (before week 1) — address before Project 1.
   'phase-1-project-1': 'w1',
-  // The week-4 (midpoint) survey must be addressed before the next Phase 1 build (Project 2).
-  'phase-1-project-2': 'w2',
+  // Midpoint (after week 3) — address before Week 4 learning app. Week 2/3 projects are not gated.
+  'phase-2-learning-app': 'w2',
 };
 
 /** The wave that gates a project, if any. */

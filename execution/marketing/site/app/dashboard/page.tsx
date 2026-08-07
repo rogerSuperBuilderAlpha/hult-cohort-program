@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { AccountSection } from '@/components/AccountSection';
+import { ExpectationsAcknowledgmentPanel } from '@/components/ExpectationsAcknowledgmentPanel';
 import { programProjects } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import type { ParticipantMe } from '@/lib/participant-status';
 import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
 import { formatScheduleDate } from '@/lib/program-schedule';
+import { personalizeProgramText } from '@/lib/personalize-program';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import { GITHUB_REPO_URL } from '@/lib/site-config';
 import type { DashboardSummary } from '@/lib/dashboard-server';
@@ -17,46 +19,28 @@ import styles from '../page.module.css';
 function ParticipantDashboard({
   me,
   summary,
+  survey,
   getIdToken,
   signOut,
   deleteAccount,
   onAccountDeleted,
+  onAckSigned,
 }: {
   me: ParticipantMe;
   summary: DashboardSummary;
+  survey: {
+    consented: boolean;
+    openWaveId: string | null;
+    waves: { id: string; shortLabel: string; status: string; completed: boolean }[];
+  } | null;
   getIdToken: () => Promise<string | null>;
   signOut: () => void;
   deleteAccount: () => Promise<{ ok: boolean; error?: string }>;
   onAccountDeleted: () => void;
+  onAckSigned: () => void;
 }) {
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [downloadError, setDownloadError] = useState('');
-  const [survey, setSurvey] = useState<{
-    consented: boolean;
-    openWaveId: string | null;
-    waves: { id: string; shortLabel: string; status: string; completed: boolean }[];
-  } | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const idToken = await getIdToken();
-      if (!idToken) return;
-      try {
-        const res = await fetch('/api/research/survey', {
-          headers: { Authorization: `Bearer ${idToken}` },
-        });
-        if (!res.ok) return;
-        const json = await res.json();
-        if (!cancelled) setSurvey(json);
-      } catch {
-        // Non-blocking: the dashboard works without the survey banner.
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [getIdToken]);
 
   const openWaveSummary = survey?.waves.find((w) => w.id === survey.openWaveId) ?? null;
   const surveyActionable = Boolean(openWaveSummary && !openWaveSummary.completed);
@@ -64,7 +48,17 @@ function ParticipantDashboard({
   const greetingName = name.split(/\s+/).filter(Boolean)[0] || me.githubHandle;
   const stats = me.cohortStats;
   const active = summary.schedule.activeProject;
+  const activeProjects = summary.schedule.activeProjects;
+  const activeSlugs = new Set(activeProjects.map((p) => p.slug));
   const submittedCount = summary.projects.filter((p) => p.submissionMerged).length;
+
+  // Platform-tracked pass-gate: merged submission + written reviews (upvotes optional).
+  const isTrackedComplete = (p: DashboardSummary['projects'][number]) =>
+    p.submissionMerged &&
+    (p.reviewsRequired == null ||
+      p.reviewsRequired === 0 ||
+      (p.reviewsWritten ?? 0) >= p.reviewsRequired);
+  const trackedCompleteCount = summary.projects.filter(isTrackedComplete).length;
 
   async function downloadMyData() {
     setDownloadStatus('loading');
@@ -76,7 +70,7 @@ function ParticipantDashboard({
       return;
     }
     try {
-      const res = await fetch('/api/me', {
+      const res = await fetch('/api/me?include=submissions', {
         headers: { Authorization: `Bearer ${idToken}` },
       });
       if (!res.ok) throw new Error('Could not fetch your data.');
@@ -116,16 +110,42 @@ function ParticipantDashboard({
         </div>
       ) : null}
 
+      {!summary.expectationsAcknowledgmentSigned ? (
+        <ExpectationsAcknowledgmentPanel getIdToken={getIdToken} onSigned={onAckSigned} />
+      ) : null}
+
+      {summary.schedule.activePhase === 'phase-2' ? (
+        <div className={styles.callout}>
+          <p style={{ marginTop: 0 }}>
+            <strong>External sprint weeks (4–6).</strong> One focus per week: Ludwitt learning
+            integration, startup / entrepreneurship, then open-source swarm. Staff verify outcome
+            metrics — self-reported counts are not accepted.
+          </p>
+          <p className={styles.formNote} style={{ marginBottom: 0 }}>
+            <Link href="/program/phase-2-learning-app">Week 4 · Ludwitt</Link>
+            {' · '}
+            <Link href="/program/phase-2-venture">Week 5 · Startup</Link>
+            {' · '}
+            <Link href="/program/phase-2-open-source">Week 6 · OSS swarm</Link>
+          </p>
+        </div>
+      ) : null}
+
       {summary.schedule.cohortWeek ? (
         <p className={styles.formNote}>
           Cohort week {summary.schedule.cohortWeek}
-          {active ? (
+          {activeProjects.length > 0 ? (
             <>
               {' '}
-              · Active focus:{' '}
-              <Link href={`/program/${active.slug}`}>
-                {active.phaseLabel} — {active.title}
-              </Link>
+              · Active {activeProjects.length > 1 ? 'projects' : 'focus'}:{' '}
+              {activeProjects.map((p, i) => (
+                <span key={p.slug}>
+                  {i > 0 ? ', ' : ''}
+                  <Link href={`/program/${p.slug}`}>
+                    {p.phaseLabel} — {p.title}
+                  </Link>
+                </span>
+              ))}
             </>
           ) : (
             ' · Between project windows — see upcoming deadlines below'
@@ -157,17 +177,18 @@ function ParticipantDashboard({
       <h2 className={styles.participantHeading}>Project progress</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
         {submittedCount} of {programProjects.length} projects with merged submission pull requests.
+        Open a project to see its requirements, deadline, and how to submit your pull request.
       </p>
       <ul className={styles.onboardingChecklist}>
         {summary.projects.map((project) => {
           const meta = programProjects.find((p) => p.slug === project.slug);
-          const isActiveProject = active?.slug === project.slug;
+          const isActiveProject = activeSlugs.has(project.slug);
           return (
             <li
               key={project.slug}
               className={isActiveProject ? styles.dashboardProjectActive : styles.dashboardProjectItem}
             >
-              <Link href={`/program/${project.slug}`}>
+              <Link href={`/program/${project.slug}`} className={styles.dashboardProjectLink}>
                 <strong>{project.phaseLabel}</strong> — {project.title}
               </Link>
               {isActiveProject ? <span className={styles.activeProjectBadge}>Active this week</span> : null}
@@ -176,11 +197,14 @@ function ParticipantDashboard({
                 <>
                   {' '}
                   · reviews {project.reviewsWritten}/{project.reviewsRequired}
-                  · votes {project.votesCast}/{project.reviewsRequired}
+                  · upvotes {project.votesCast}/{project.reviewsRequired} (optional)
                   {project.awaitingMerge && project.awaitingMerge > 0
                     ? ` · ${project.awaitingMerge} peer submission(s) pending merge`
                     : ''}
                 </>
+              ) : null}
+              {project.outcome?.winnerHandle ? (
+                <> · winner @{project.outcome.winnerHandle}</>
               ) : null}
               {meta?.schedule.reviewCloses ? (
                 <> · review deadline {formatScheduleDate(meta.schedule.reviewCloses)}</>
@@ -189,6 +213,43 @@ function ParticipantDashboard({
           );
         })}
       </ul>
+
+      <h2 className={styles.participantHeading}>Completion standing</h2>
+      <p className={styles.formNote} style={{ marginTop: 0 }}>
+        {trackedCompleteCount} of {summary.projects.length} projects have every platform-tracked
+        requirement complete (merged submission, plus all written reviews and votes on contest
+        weeks).
+      </p>
+      <ul className={styles.onboardingChecklist}>
+        {summary.projects.map((project) => {
+          const meta = programProjects.find((p) => p.slug === project.slug);
+          if (!meta) return null;
+          const done = isTrackedComplete(project);
+          return (
+            <li
+              key={project.slug}
+              className={styles.dashboardProjectItem}
+              aria-label={`${meta.title}: ${done ? 'complete' : 'incomplete'}`}
+            >
+              <span aria-hidden>{done ? '✓' : '○'}</span>{' '}
+              <Link href={`/program/${project.slug}`} className={styles.dashboardProjectLink}>
+                {meta.title}
+              </Link>
+              {' — pass gate: '}
+              {meta.passGate
+                .map((gate) => personalizeProgramText(gate, me.githubHandle, undefined, stats))
+                .join('; ')}
+            </li>
+          );
+        })}
+      </ul>
+      <p className={styles.formNote}>
+        Staff-verified gates — Phase 2 outcome metrics (qualified users, investor touches, upstream
+        merges) — are confirmed by staff and are not tracked live on this page. Expectations
+        Acknowledgment is tracked here once you sign above. Final pass/fail standing is issued after
+        week 6. Questions:{' '}
+        <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
+      </p>
 
       <h2 className={styles.participantHeading}>Data export</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
@@ -213,12 +274,15 @@ function ParticipantDashboard({
             Open active project
           </Link>
         ) : (
-          <Link href="/program/onboarding" className={styles.primaryBtn}>
+          <Link href="/program/phase-1-project-1" className={styles.primaryBtn}>
             Browse program
           </Link>
         )}
         <Link href="/program" className={styles.secondaryBtn}>
           View all projects
+        </Link>
+        <Link href="/history" className={styles.secondaryBtn}>
+          Submission history
         </Link>
       </div>
 
@@ -249,26 +313,43 @@ export default function DashboardPage() {
     Boolean(profile)
   );
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [survey, setSurvey] = useState<{
+    consented: boolean;
+    openWaveId: string | null;
+    waves: { id: string; shortLabel: string; status: string; completed: boolean }[];
+  } | null>(null);
   const [summaryError, setSummaryError] = useState('');
+
+  async function loadBootstrap() {
+    const idToken = await getIdToken();
+    if (!idToken) {
+      setSummaryError('Could not read your session. Refresh the page to try again.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/bootstrap', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const json = (await res.json()) as {
+        dashboard?: DashboardSummary;
+        survey?: typeof survey;
+        error?: string;
+      };
+      if (!res.ok) throw new Error(json.error || 'Could not load dashboard.');
+      setSummary(json.dashboard ?? null);
+      setSurvey(json.survey ?? null);
+      setSummaryError('');
+    } catch (err) {
+      setSummaryError(err instanceof Error ? err.message : 'Could not load dashboard.');
+    }
+  }
 
   useEffect(() => {
     if (!profile || !isEnrolled(me)) return;
     let cancelled = false;
     void (async () => {
-      const idToken = await getIdToken();
-      if (!idToken) return;
-      try {
-        const res = await fetch('/api/dashboard', {
-          headers: { Authorization: `Bearer ${idToken}` },
-        });
-        const json = (await res.json()) as DashboardSummary & { error?: string };
-        if (!res.ok) throw new Error(json.error || 'Could not load dashboard.');
-        if (!cancelled) setSummary(json);
-      } catch (err) {
-        if (!cancelled) {
-          setSummaryError(err instanceof Error ? err.message : 'Could not load dashboard.');
-        }
-      }
+      await loadBootstrap();
+      if (cancelled) return;
     })();
     return () => {
       cancelled = true;
@@ -312,6 +393,12 @@ export default function DashboardPage() {
                 Participant tools will become available shortly.{' '}
                 <Link href="/apply">Check Apply for status →</Link>
               </p>
+            ) : me?.enrollment.state === 'inactive' ? (
+              <p>
+                <strong>Enrollment deactivated.</strong> Your participation in this cohort has
+                been paused by staff. If you believe this is an error, contact{' '}
+                <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
+              </p>
             ) : me?.application?.status === 'waitlisted' ? (
               <p>
                 <strong>Waitlisted.</strong> You will be notified by email if a place becomes
@@ -327,6 +414,8 @@ export default function DashboardPage() {
               <p>
                 <strong>Not enrolled.</strong>{' '}
                 <Link href="/apply">Apply for the Summer Pilot →</Link>
+                {' · '}
+                <Link href="/history">View your submission history →</Link>
               </p>
             )}
           </div>
@@ -338,10 +427,15 @@ export default function DashboardPage() {
           <ParticipantDashboard
             me={me}
             summary={summary}
+            survey={survey}
             getIdToken={getIdToken}
             signOut={() => void signOut()}
             deleteAccount={deleteAccount}
             onAccountDeleted={() => void refresh()}
+            onAckSigned={() => {
+              void loadBootstrap();
+              void refresh();
+            }}
           />
         )}
 

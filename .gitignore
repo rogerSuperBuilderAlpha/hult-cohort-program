@@ -37,6 +37,8 @@ yarn-error.log*
 # env files / secrets
 .env
 .env*
+.env.local
+.env.vercel*
 **/secrets/
 **/*firebase-adminsdk*.json
 

@@ -17,7 +17,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = 'fall26';
+const COHORT = process.env.COHORT_ID?.trim() || 'summer26';
 
 // Mirrors programProjects slugs in content/program.ts
 const PROJECT_SLUGS = [

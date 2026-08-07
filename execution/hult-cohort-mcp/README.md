@@ -1,6 +1,8 @@
 # Hult Cohort MCP Server
 
-[MCP](https://modelcontextprotocol.io) server so students and agents can **apply**, **file written peer reviews**, and **cast private votes** from Cursor, Claude Desktop, or any MCP client — using the same APIs as [the cohort website](https://site-nine-rouge-68.vercel.app).
+[MCP](https://modelcontextprotocol.io) server so students and agents can **apply**, **check progress**, and **prepare peer review issues** from Cursor, Claude Desktop, or any MCP client — using the same APIs as [the cohort website](https://site-nine-rouge-68.vercel.app).
+
+**Reviews and upvotes are GitHub-native.** File a GitHub issue `Review by @{you}: @{peer}` (optional `Vote: up` in the body). The site discovers it on refresh — there is no platform POST to save reviews or cast private votes.
 
 ## Tools
 
@@ -10,12 +12,12 @@
 | `auth_status` | Optional | Verify token works |
 | `get_cohort_stats` | No | Live roster size / review count |
 | `list_program_projects` | No | All project slugs and summaries |
-| `get_me` | Yes | Application + roster + submissions |
-| `get_project_progress` | Yes | Peers, reviews, votes for a project |
+| `get_me` | Yes | Application + roster status |
+| `get_project_progress` | Yes | Peers + personal review/upvote status |
 | `submit_application` | Yes | Apply for Summer Pilot 2026 |
 | `prepare_review_issue` | Yes | GitHub issue template + peer links |
-| `save_written_review` | Yes | Save issue URL (unlocks vote) |
-| `cast_peer_vote` | Yes | Private 👍/👎 after review |
+| `save_written_review` | — | **Retired** (returns guidance; APIs are 410) |
+| `cast_peer_vote` | — | **Retired** (returns guidance; APIs are 410) |
 
 **Prompt:** `peer_review_workflow` — guided steps for one peer.
 
@@ -78,10 +80,8 @@ Ask your agent:
 ## Peer review flow (same as the website)
 
 1. `prepare_review_issue` → open deploy, read PR, file GitHub issue  
-2. `save_written_review` → paste issue URL  
-3. `cast_peer_vote` → `up` or `down` (private)
-
-Written review must exist before voting (403 otherwise).
+2. Optionally keep `Vote: up` in the issue body (or delete that section to abstain)  
+3. Refresh progress on the site / call `get_project_progress` — personal status only
 
 ## Development
 
@@ -101,7 +101,7 @@ This server proxies the cohort platform REST API:
 - `GET /api/me`
 - `GET /api/program/{slug}/progress`
 - `POST /api/applications`
-- `POST /api/program/{slug}/written-reviews`
-- `POST /api/program/{slug}/ratings`
+
+Retired (410 on platform): `POST .../written-reviews`, `POST .../ratings`.
 
 Parent docs: [../../AGENTS.md](../../AGENTS.md)

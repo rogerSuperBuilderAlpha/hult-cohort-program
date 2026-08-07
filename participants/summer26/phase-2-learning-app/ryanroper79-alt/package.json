@@ -1,0 +1,30 @@
+{
+  "name": "cealgreen-bid-manager",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "smoke-test": "node --experimental-strip-types scripts/smoke-test.mts",
+    "register-app": "node --experimental-strip-types scripts/register-app.mts"
+  },
+  "dependencies": {
+    "jose": "^6.0.11",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.4"
+  }
+}

@@ -74,7 +74,7 @@ describe('Ludwitt/Hult API', () => {
     assert.equal(metrics.body.qualified_users, 1);
   });
 
-  it('blocks cohort member user_ids from counting', async () => {
+  it('blocks exact cohort member user_ids from counting', async () => {
     const reg = await api('POST', '/v1/developer/apps', {
       title: 'Learn SQL',
       description: 'C'.repeat(100),
@@ -86,11 +86,16 @@ describe('Ludwitt/Hult API', () => {
 
     await api('POST', `/v1/apps/${app_id}/events`, {
       event: 'lesson_started',
+      user_id: 'alice',
+      session_id: 'sess-self',
+    });
+    await api('POST', `/v1/apps/${app_id}/events`, {
+      event: 'lesson_started',
       user_id: 'alice-friend',
       session_id: 'sess-x',
     });
 
     const metrics = await api('GET', `/v1/apps/${app_id}/metrics`);
-    assert.equal(metrics.body.qualified_users, 0);
+    assert.equal(metrics.body.qualified_users, 1);
   });
 });

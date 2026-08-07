@@ -3,13 +3,23 @@
  * Usage: npx tsx scripts/verify-submission-titles.ts
  */
 
-import { matchMergedPullRequest } from '../lib/submission-ingest-server';
+import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import {
+  extractAppRepo,
+  extractDeployUrl,
+  matchMergedPullRequest,
+} from '../lib/submission-ingest-server';
+import { programProjects } from '../content/program';
 import {
   normalizeSubmissionTitle,
   resolveHandleFromSubmissionTitle,
   submissionTitlesMatch,
 } from '../lib/submission-title-match';
+import { issueHasUpvote, parseReviewIssueTitle } from '../lib/contest-state-format';
 
+process.env.COHORT_ID = process.env.COHORT_ID || 'summer26';
 process.env.NEXT_PUBLIC_COHORT_REPO =
   process.env.NEXT_PUBLIC_COHORT_REPO || 'rogerSuperBuilderAlpha/hult-cohort-program';
 process.env.NEXT_PUBLIC_COHORT_ORG =
@@ -45,14 +55,40 @@ assert(
 );
 assert(
   normalizeSubmissionTitle('[Project 1] Submission — alice') ===
-    '[Project 1] Submission — alice',
-  'canonical em dash preserved'
+    '[project 1] submission — alice',
+  'canonical em dash preserved (case-folded)'
+);
+assert(
+  normalizeSubmissionTitle('[Project 1] Submission — paramjeet-singh-neu') ===
+    '[project 1] submission — paramjeet-singh-neu',
+  'hyphens inside handles preserved'
 );
 
 // Handle extraction
 assert(resolveHandleFromSubmissionTitle('[Project 1] Submission - alice') === 'alice', 'handle from hyphen title');
+assert(
+  resolveHandleFromSubmissionTitle('[Project 1] Submission — paramjeet-singh-neu') ===
+    'paramjeet-singh-neu',
+  'hyphenated handle extracted'
+);
+assert(
+  resolveHandleFromSubmissionTitle('[Project 1] Submission — CodingWCal') === 'codingwcal',
+  'handle case folded'
+);
+assert(
+  resolveHandleFromSubmissionTitle('[Project 1] Submission update — joes9987 (EudaPM)') ===
+    'joes9987',
+  'handle with parenthetical note'
+);
 assert(resolveHandleFromSubmissionTitle('[Project 1] Submission') === null, 'no handle without dash');
 assert(resolveHandleFromSubmissionTitle('[Project 1] Submission — invalid handle!') === null, 'invalid handle rejected');
+assert(
+  submissionTitlesMatch(
+    '[Project 1] Submission — CodingWCal',
+    '[Project 1] Submission — codingwcal'
+  ),
+  'title match is case-insensitive'
+);
 
 // Full matcher
 const variants = [
@@ -87,5 +123,111 @@ const notMerged = matchMergedPullRequest({
   merged: false,
 });
 assert(notMerged === null, 'unmerged PR ignored');
+
+process.env.ALLOW_LEGACY_MAIN_SUBMISSIONS = 'false';
+const wrongBase = matchMergedPullRequest({
+  ...BASE,
+  prTitle: '[Project 1] Submission — alice',
+  baseRef: 'main',
+});
+assert(wrongBase === null, 'main base rejected when legacy disabled');
+
+const correctBase = matchMergedPullRequest({
+  ...BASE,
+  prTitle: '[Project 1] Submission — alice',
+  baseRef: 'projects/summer26/phase-1-project-1',
+});
+assert(correctBase?.projectSlug === 'phase-1-project-1', 'project branch base accepted');
+
+process.env.ALLOW_LEGACY_MAIN_SUBMISSIONS = 'true';
+const legacyMain = matchMergedPullRequest({
+  ...BASE,
+  prTitle: '[Project 1] Submission — alice',
+  baseRef: 'main',
+});
+assert(legacyMain?.projectSlug === 'phase-1-project-1', 'legacy main base accepted when enabled');
+
+assert(
+  extractDeployUrl('Production URL: https://app.example.com') === 'https://app.example.com',
+  'deploy url inline'
+);
+assert(
+  extractDeployUrl('**Production URL**\nhttps://app.example.com') === 'https://app.example.com',
+  'deploy url on next line'
+);
+assert(
+  extractDeployUrl('## Production URL\n\nhttps://pm.example.vercel.app') ===
+    'https://pm.example.vercel.app',
+  'deploy url under markdown heading'
+);
+assert(
+  extractDeployUrl('- Production URL: https://ship.example.vercel.app/') ===
+    'https://ship.example.vercel.app/',
+  'deploy url in list item'
+);
+assert(
+  extractDeployUrl('## Production URL\nhttps://momentum.example.vercel.app**') ===
+    'https://momentum.example.vercel.app',
+  'deploy url strips trailing markdown bold'
+);
+assert(extractDeployUrl('no url here') === null, 'no deploy url');
+
+assert(
+  extractAppRepo(
+    'App repo: https://github.com/RAVEN-dubgub/pm-RAVEN-dubgub\n',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === 'RAVEN-dubgub/pm-RAVEN-dubgub',
+  'app repo label'
+);
+assert(
+  extractAppRepo(
+    'Build repo: https://github.com/joes9987/pm-joes9987\n',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === 'joes9987/pm-joes9987',
+  'build repo label'
+);
+assert(
+  extractAppRepo(
+    'git clone https://github.com/frankgomezdev/pm-frankgomezdev.git\n',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === 'frankgomezdev/pm-frankgomezdev',
+  'clone url app repo'
+);
+assert(
+  extractAppRepo(
+    '`git clone https://github.com/frankgomezdev/pm-frankgomezdev && cd pm-frankgomezdev`',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === 'frankgomezdev/pm-frankgomezdev',
+  'clone url before &&'
+);
+assert(
+  extractAppRepo(
+    'See https://github.com/rogerSuperBuilderAlpha/hult-cohort-program\n',
+    'rogerSuperBuilderAlpha/hult-cohort-program'
+  ) === null,
+  'cohort monorepo excluded'
+);
+
+assert(
+  parseReviewIssueTitle('Review by @alice: @bob')?.voter === 'alice' &&
+    parseReviewIssueTitle('Review by @alice: @bob')?.reviewee === 'bob',
+  'review title parse'
+);
+assert(issueHasUpvote('## Vote\n\nVote: up\n') === true, 'vote up detected');
+assert(issueHasUpvote('## Vote\n\nVote: down\n') === false, 'down not counted');
+assert(issueHasUpvote('no vote here') === false, 'abstain has no upvote');
+
+const voteWeekFromProgram = programProjects.filter((p) => p.voteWeek).map((p) => p.slug);
+const voteWeekFromJson = JSON.parse(
+  readFileSync(
+    path.join(path.dirname(fileURLToPath(import.meta.url)), '../content/vote-week-projects.json'),
+    'utf8'
+  )
+) as string[];
+assert(
+  voteWeekFromProgram.length === voteWeekFromJson.length &&
+    voteWeekFromProgram.every((slug) => voteWeekFromJson.includes(slug)),
+  'vote-week-projects.json matches program.ts voteWeek flags'
+);
 
 console.log('All submission title checks passed.');

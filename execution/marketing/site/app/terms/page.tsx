@@ -53,7 +53,7 @@ export default function TermsPage() {
           <p>You agree not to:</p>
           <ul>
             <li>Submit false information on applications or progress records</li>
-            <li>Attempt to access other participants&apos; private votes or unauthorized data</li>
+            <li>Attempt to access unauthorized private data or disrupt cohort systems</li>
             <li>Disrupt the platform, scrape enrolled-only APIs, or bypass authentication</li>
             <li>Use the platform for harassment, spam, or illegal activity</li>
             <li>Automate votes or reviews in violation of program rules</li>
@@ -63,17 +63,17 @@ export default function TermsPage() {
         <section className={styles.overviewBlock}>
           <h2>Program terms</h2>
           <p>
-            Academic requirements, credit, and pass/fail rules follow your course syllabus and
-            Hult policies. The platform tracks submissions, written peer reviews, and private votes
-            per published program criteria in the{' '}
+            Pass/fail rules are published on each project page and in the{' '}
             <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
               open-source repository
             </a>
-            .
+            . The platform tracks enrollment and progress; submissions, written peer reviews, and optional upvotes live on GitHub per those
+            criteria. Summer Pilot 2026 is an open-access community cohort—formal academic credit
+            and certificates are not issued through this platform.
           </p>
           <p>
-            Website copy is informational. In the event of a conflict, official university policies
-            and your course syllabus take precedence.
+            Website copy is informational. In the event of a conflict, published program criteria
+            in the repository take precedence.
           </p>
         </section>
 
@@ -81,8 +81,8 @@ export default function TermsPage() {
           <h2>Intellectual property</h2>
           <ul>
             <li>
-              Student project code is yours, subject to the Program Agreement and open-source
-              requirements of each project.
+              Participant project code is yours, subject to open-source requirements of each
+              project.
             </li>
             <li>
               This website&apos;s source code is{' '}
@@ -111,9 +111,7 @@ export default function TermsPage() {
           <h2>Limitation of liability</h2>
           <p>
             To the fullest extent permitted by law, Hult is not liable for indirect, incidental, or
-            consequential damages arising from use of the platform. Our total liability for platform
-            use claims is limited to direct tuition you paid to Hult for this course in the twelve
-            months preceding the claim, where applicable law permits such a cap.
+            consequential damages arising from use of the platform.
           </p>
         </section>
 

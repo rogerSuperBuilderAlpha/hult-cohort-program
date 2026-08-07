@@ -10,7 +10,7 @@ export function useAuthedFetch<T>(
   fallbackError: string
 ) {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState('');
 
   const refresh = useCallback(async () => {
@@ -36,8 +36,9 @@ export function useAuthedFetch<T>(
   }, [enabled, fallbackError, getIdToken, url]);
 
   useEffect(() => {
+    if (enabled) setLoading(true);
     void refresh();
-  }, [refresh]);
+  }, [refresh, enabled]);
 
   return { data, loading, error, refresh };
 }

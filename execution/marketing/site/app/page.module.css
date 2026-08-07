@@ -4,6 +4,66 @@
   padding: 0 24px 80px;
 }
 
+.headerStack {
+  display: flex;
+  flex-direction: column;
+}
+
+.sessionBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  background: var(--hult-black);
+  color: #f7f4ef;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.sessionBannerText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sessionBannerText strong {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.sessionBannerLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  background: var(--accent);
+  color: white !important;
+  font-weight: 600;
+  border-radius: var(--radius-xxs);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sessionBannerLink:hover {
+  background: var(--accent-hover);
+  color: white !important;
+}
+
+.sessionBannerSecondary {
+  color: #d8d2c8 !important;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.sessionBannerSecondary:hover {
+  color: white !important;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -17,7 +77,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: 4px;
   text-decoration: none;
   color: inherit;
 }
@@ -26,12 +86,20 @@
   color: inherit;
 }
 
+.logoImage {
+  display: block;
+  width: auto;
+  height: 52px;
+  object-fit: contain;
+  object-position: left center;
+}
+
 .logoMark {
   font-family: var(--serif);
   font-size: 1.625rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--hult-black);
+  color: var(--hult-ink);
   line-height: 1.1;
 }
 
@@ -54,14 +122,14 @@
 }
 
 .nav a:hover {
-  color: var(--hult-black);
+  color: var(--hult-ink);
 }
 
 .navCta {
   padding: 10px 20px;
   background: var(--accent);
   color: white !important;
-  border-radius: 2px;
+  border-radius: var(--radius-xxs);
   font-weight: 600;
   letter-spacing: 0.02em;
   transition: background 0.2s, box-shadow 0.2s;
@@ -95,7 +163,7 @@
   line-height: 1.15;
   letter-spacing: -0.02em;
   margin-bottom: 24px;
-  color: var(--hult-black);
+  color: var(--hult-ink);
 }
 
 .headline em {
@@ -124,7 +192,7 @@
   background: var(--accent);
   color: white;
   font-weight: 600;
-  border-radius: 2px;
+  border-radius: var(--radius-xxs);
   transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
   border: none;
   cursor: pointer;
@@ -162,8 +230,8 @@
   display: inline-block;
   padding: 14px 28px;
   border: 1px solid var(--border-strong);
-  border-radius: 2px;
-  color: var(--hult-black);
+  border-radius: var(--radius-xxs);
+  color: var(--hult-ink);
   font-weight: 500;
   background: var(--bg-elevated);
   transition: border-color 0.2s, background 0.2s;
@@ -173,8 +241,8 @@
 }
 
 .secondaryBtn:hover {
-  border-color: var(--hult-black);
-  color: var(--hult-black);
+  border-color: var(--hult-ink);
+  color: var(--hult-ink);
   background: white;
 }
 
@@ -251,7 +319,7 @@
 .phaseCard {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 2px;
+  border-radius: var(--radius-xxs);
   padding: 32px;
   box-shadow: var(--shadow-sm);
 }
@@ -404,14 +472,15 @@
 
 .apply {
   padding: 80px 0;
-  text-align: center;
+  text-align: left;
   border-top: 1px solid var(--border);
 }
 
 .apply h2 {
   font-family: var(--serif);
   font-size: 2.5rem;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  max-width: 680px;
 }
 
 .steps {
@@ -427,6 +496,58 @@
 .apply p {
   margin-bottom: 28px;
   color: var(--text-muted);
+}
+
+.applyGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  gap: 20px;
+  align-items: stretch;
+  margin-top: 28px;
+}
+
+.applyCard,
+.applyCardPrimary {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 28px;
+  text-align: left;
+}
+
+.applyCardPrimary {
+  border-top: 4px solid var(--accent);
+}
+
+.applyCard {
+  border-top: 4px solid var(--border-strong);
+}
+
+.applyCard h3,
+.applyCardPrimary h3 {
+  font-family: var(--serif);
+  font-size: 1.55rem;
+  line-height: 1.2;
+  margin: 10px 0 12px;
+}
+
+.applyCard p,
+.applyCardPrimary p {
+  margin-bottom: 18px;
+}
+
+.interestInline {
+  color: var(--text-muted);
+}
+
+.interestInline p {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 760px) {
+  .applyGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .footer {
@@ -608,13 +729,42 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 12px;
-  padding: 16px 0;
+  padding: 16px 12px;
+  margin: 0 -12px;
   border-bottom: 1px solid var(--border);
+  border-radius: 8px;
   color: var(--text);
+  transition: background 0.15s ease;
 }
 
-.programLink:hover .programTitle {
+.programLink::after {
+  content: "→";
+  margin-left: auto;
+  align-self: center;
+  font-family: var(--mono);
+  color: var(--text-muted);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.programLink:hover,
+.programLink:focus-visible {
+  background: var(--accent-dim);
+}
+
+.programLink:hover .programTitle,
+.programLink:focus-visible .programTitle {
   color: var(--accent);
+}
+
+.programLink:hover::after,
+.programLink:focus-visible::after {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+.programLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .programWeeks {
@@ -654,7 +804,7 @@
   margin-bottom: 32px;
   background: var(--success-dim);
   border: 1px solid var(--success-border);
-  border-radius: 2px;
+  border-radius: var(--radius-xxs);
   color: var(--text);
 }
 
@@ -893,6 +1043,15 @@
   max-width: 640px;
 }
 
+.projectViewLoading {
+  max-width: 640px;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 48px 0;
+}
+
 .participantHeading {
   font-family: var(--serif);
   font-size: 1.35rem;
@@ -914,6 +1073,62 @@
   border: 1px solid rgba(116, 133, 124, 0.35);
   border-radius: 6px;
   background: rgba(116, 133, 124, 0.08);
+}
+
+.projectTabs {
+  margin-top: 8px;
+}
+
+.projectTabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0 0 28px;
+  border-bottom: 1px solid var(--border);
+  /* overflow-x:auto alone promotes overflow-y to auto too — kills the stray scrollbar */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.projectTab,
+.projectTabActive {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 12px 16px;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.projectTab:hover {
+  color: var(--text);
+}
+
+.projectTab:focus-visible,
+.projectTabActive:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.projectTabActive {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.projectTabPanel {
+  min-height: 120px;
+}
+
+.projectTabPanel[hidden] {
+  display: none;
 }
 
 .participantBannerEyebrow {
@@ -955,8 +1170,15 @@
   color: var(--text);
 }
 
-.dashboardProjectActive a {
-  color: var(--text);
+.dashboardProjectLink {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboardProjectLink:hover,
+.dashboardProjectLink:focus-visible {
+  text-decoration: underline;
 }
 
 .activeProjectBadge {
@@ -1068,7 +1290,7 @@
 }
 
 .reviewHowTo {
-  padding: 14px 16px;
+  padding: 18px 18px 16px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg-subtle);
@@ -1079,6 +1301,69 @@
   font-size: 0.95rem;
   color: var(--text-muted);
   line-height: 1.6;
+}
+
+.reviewHowToGoal {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.6;
+  background: var(--surface-muted, rgba(0, 0, 0, 0.03));
+  border-left: 3px solid var(--accent, #c2185b);
+  border-radius: 6px;
+}
+
+.reviewHowToSublead {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.reviewHowToSteps {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.reviewHowToStep {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.reviewHowToStepNum {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.reviewHowToStepTitle {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--hult-ink);
+  margin-bottom: 4px;
+}
+
+.reviewHowToStepBody {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.55;
 }
 
 .reviewProgressBar {
@@ -1244,7 +1529,7 @@
   color: var(--text);
   background: var(--bg-subtle);
   border-left: 3px solid var(--hult-sage);
-  border-radius: 2px;
+  border-radius: var(--radius-xxs);
   line-height: 1.45;
 }
 
@@ -1450,7 +1735,7 @@
   min-width: 200px;
   padding: 8px 10px;
   border: 1px solid var(--border);
-  border-radius: 2px;
+  border-radius: var(--radius-xxs);
   background: var(--bg-elevated);
   color: var(--text);
   font-family: var(--mono);
@@ -1491,6 +1776,12 @@
 }
 
 @media (max-width: 640px) {
+  .sessionBanner {
+    margin-top: 12px;
+    padding: 10px 12px;
+    gap: 8px 12px;
+  }
+
   .header {
     flex-wrap: wrap;
     gap: 12px;
@@ -1611,7 +1902,7 @@
   background: var(--accent);
   color: white;
   border: none;
-  border-radius: 2px;
+  border-radius: var(--radius-xxs);
   font-weight: 600;
   font-family: var(--sans);
   letter-spacing: 0.02em;

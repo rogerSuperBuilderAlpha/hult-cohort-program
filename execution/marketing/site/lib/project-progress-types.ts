@@ -1,17 +1,17 @@
-export type PeerRating = 'up' | 'down';
+import type { ProjectOutcome } from './project-outcomes-types';
 
 export type PeerRatingTarget = {
   handle: string;
+  /** Peer app/build repo (`owner/name`) — where review issues are filed */
   repo: string;
   repoUrl: string;
   prUrl: string;
   deployUrl: string | null;
-  /** GitHub issue review filed on peer repo */
+  /** GitHub issue review filed on the peer's app repo */
   reviewFiled: boolean;
   reviewIssueUrl: string | null;
-  /** Private 👍/👎 after written review */
-  rated: boolean;
-  myRating: PeerRating | null;
+  /** True when review issue body contains Vote: up */
+  upvoted: boolean;
 };
 
 export type ProjectProgress = {
@@ -22,7 +22,15 @@ export type ProjectProgress = {
     deployUrl?: string | null;
     repo: string;
     repoUrl: string;
+    baseBranch?: string;
   };
+  schedule: {
+    submissionWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
+    submissionOpensFormatted?: string;
+    submissionClosesFormatted?: string;
+    deadlineNote?: string;
+  } | null;
+  outcome: ProjectOutcome | null;
   reviews: {
     /** Eligible peers with merged submissions — pass-gate denominator */
     required: number;
@@ -32,18 +40,18 @@ export type ProjectProgress = {
     awaitingMerge: number;
     /** GitHub issue reviews filed */
     writtenCompleted: number;
-    /** Private thumbs up/down submitted */
-    ratingsCompleted: number;
+    /** Optional upvotes recorded (Vote: up in issue) */
+    upvotesCompleted: number;
     dueNote: string;
     dueAt: string;
     dueAtFormatted: string;
     peers: PeerRatingTarget[];
     orgReposUrl: string;
     voteWeek: boolean;
-    /** When GITHUB_TOKEN is set, issue URLs are verified via GitHub API */
-    githubVerification: boolean;
     reviewWindowStatus: 'none' | 'not-yet' | 'open' | 'closed';
     reviewOpensFormatted?: string;
     reviewClosesFormatted?: string;
+    /** GitHub Search partially failed — review list may be incomplete */
+    dataDegraded?: boolean;
   } | null;
 };

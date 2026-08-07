@@ -90,3 +90,35 @@ export function surveyResponsesRef(cohortId: string, waveId: string) {
 export function surveyResponseRef(cohortId: string, waveId: string, pid: string) {
   return surveyResponsesRef(cohortId, waveId).doc(pid);
 }
+
+/** Lightweight next-cohort interest list (not a full application). */
+export function cohortInterestRef(cohortId: string, githubHandle: string) {
+  return db().collection('cohortInterest').doc(cohortId).collection('interested').doc(githubHandle);
+}
+
+export function expectationsAcknowledgmentRef(cohortId: string, githubHandle: string) {
+  return db()
+    .collection('acknowledgments')
+    .doc(cohortId)
+    .collection('members')
+    .doc(githubHandle);
+}
+
+export function projectOutcomeRef(cohortId: string, projectSlug: string) {
+  return db()
+    .collection('projectOutcomes')
+    .doc(cohortId)
+    .collection('projects')
+    .doc(projectSlug);
+}
+
+/**
+ * Cache of the authoritative GitHub numeric-id → login mapping. Keyed by the
+ * immutable numeric id so a handle rename is picked up only on a fresh lookup,
+ * never guessed. Lets sign-in resolve a handle without hitting the GitHub API on
+ * every request (the unauthenticated API is capped at 60 req/hour per IP, which
+ * Vercel's shared egress IPs exhaust quickly and would otherwise break login).
+ */
+export function githubIdentityRef(githubUserId: string) {
+  return db().collection('githubIdentities').doc(githubUserId);
+}

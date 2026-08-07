@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         <p className={styles.eyebrow}>Legal</p>
         <h1 className={styles.sectionTitle}>Privacy Policy</h1>
         <p className={styles.overviewLead}>
-          Last updated: June 2026 · Contact:{' '}
+          Last updated: July 2026 · Contact:{' '}
           <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>
         </p>
 
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong>Program activity</strong> — After enrollment: submission pull request links,
-              deployment URLs, written peer review issue URLs, and private votes tied to your
+              deployment URLs and progress status. Written peer reviews and optional upvotes live on GitHub tied to your
               GitHub handle.
             </li>
             <li>
@@ -76,9 +76,11 @@ export default function PrivacyPage() {
           <h2>Public by design</h2>
           <p>
             This program requires public work on GitHub. Your code, pull requests, written peer
-            reviews (GitHub issues), and deployment URLs are public by program requirement. Private
-            votes are stored in Firestore and are not visible to other participants. Hiring partners
-            and the public may inspect your GitHub contributions independently of this platform.
+            reviews (GitHub issues titled <code>Review by @you: @peer</code>), optional upvotes
+            (<code>Vote: up</code> in that issue body), and deployment URLs are public by program
+            requirement. The site shows only your personal review status — never a live scoreboard.
+            Hiring partners and the public may inspect your GitHub contributions independently of
+            this platform.
           </p>
         </section>
 
@@ -123,9 +125,10 @@ export default function PrivacyPage() {
               account).
             </li>
             <li>
-              This permanently removes your application, enrollment record, submissions, written
-              reviews, votes, and sign-in record from this platform. You may also request deletion
-              by emailing <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
+              This permanently removes your application, enrollment record, and sign-in record from
+              this platform. Public GitHub reviews and upvotes you authored remain on GitHub (see
+              below). You may also request deletion by emailing{' '}
+              <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
             </li>
             <li>
               Public GitHub repositories, issues, and pull requests you created remain on GitHub

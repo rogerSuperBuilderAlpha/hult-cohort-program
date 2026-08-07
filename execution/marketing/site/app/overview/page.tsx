@@ -7,14 +7,14 @@ import { formatPeerReviewsPerProject, operatorRoleCount } from '@/lib/cohort-sta
 export const metadata = {
   title: 'Program Overview | Hult Cohort',
   description:
-    'Stakeholder summary: six-week Summer Pilot structure, peer review model, and July 2026 timeline.',
+    'Stakeholder summary: six-week Summer Pilot structure, production software outcomes, and July 2026 timeline.',
 };
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function OverviewPage() {
   const cohortStats = await getCohortStats();
-  const peerReviewLine = formatPeerReviewsPerProject(cohortStats);
+  const peerReviewLine = formatPeerReviewsPerProject();
   const operators =
     cohortStats.enrolledCount > 0
       ? `${operatorRoleCount(cohortStats.enrolledCount)} of ${cohortStats.enrolledCount} students`
@@ -26,14 +26,16 @@ export default async function OverviewPage() {
         links={[
           { href: '/', label: 'Home' },
           { href: '/start', label: 'Visual intro' },
+          { href: '/program', label: 'Program' },
+          { href: '/winning-guide', label: 'Winning guide' },
         ]}
       />
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Stakeholder overview · Summer Pilot 2026</p>
-        <h1 className={styles.sectionTitle}>CS for Business elective · GitHub-native six-week pilot</h1>
+        <h1 className={styles.sectionTitle}>Open community program · production software pilot</h1>
         <p className={styles.overviewLead}>
-          For a quick visual map, send students to{' '}
+          For a quick visual map, send participants to{' '}
           <Link href="/start">What is this program?</Link>. This page is a longer summary for faculty
           and partners.
         </p>
@@ -41,50 +43,50 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Outcome</h2>
           <p>
-            Participants complete eight tracked deliverables with work recorded on GitHub. Assessment is
-            pass/fail on published criteria; credit follows degree enrollment.
+            Participants complete six weekly deliverables by building, deploying, reviewing, and
+            operating production-grade software. Assessment is pass/fail on published criteria.
+            Summer Pilot 2026 is open-access—formal academic credit and certificates are deferred.
           </p>
         </section>
 
         <section className={styles.overviewBlock}>
-          <h2>Phase 1 · Weeks 2–5</h2>
+          <h2>Weeks 1–3 · Contests</h2>
           <ol>
             <li>Each participant builds and deploys a production application.</li>
             <li>
-              Written GitHub review on every peer submission ({peerReviewLine}).
+              Written technical review on every peer submission ({peerReviewLine}).
             </li>
             <li>
-              Private 👍/👎 after each review. Most 👍 operates the platform for the cohort.
+              Optional public upvotes on GitHub (or abstain) determine which system operates for the
+              cohort — tallies are not shown on this site.
             </li>
-            <li>Non-winners contribute on the winning platform via PRs and QA.</li>
+            <li>Non-winners contribute to the selected platform through review, QA, and follow-on changes.</li>
           </ol>
           <ul>
             <li>
-              <strong>Project 1:</strong> Project management platform
+              <strong>Week 1:</strong> Project management platform
             </li>
             <li>
-              <strong>Project 2:</strong> Internal communications platform
+              <strong>Week 2:</strong> Internal communications platform
             </li>
             <li>
-              <strong>Project 3:</strong> Public showcase
+              <strong>Week 3:</strong> Vibe marketing platform
             </li>
           </ul>
-          <p>
-            Winners unify the three platforms. Operator roles (~10% each): {operators}.
-          </p>
+          <p>Operator roles (~10% each winning platform): {operators}.</p>
         </section>
 
         <section className={styles.overviewBlock}>
-          <h2>Final sprint · Week 6</h2>
+          <h2>Weeks 4–6 · External sprints</h2>
           <ul>
             <li>
-              <strong>Learning app</strong> — Ludwitt/Hult metrics; external users
+              <strong>Week 4:</strong> Learning engineer integration to Ludwitt — verified external users
             </li>
             <li>
-              <strong>Venture</strong> — plan, materials, production app
+              <strong>Week 5:</strong> Startup / entrepreneurship — deck, plan, production app
             </li>
             <li>
-              <strong>Open source</strong> — merged upstream PRs
+              <strong>Week 6:</strong> Open source swarm — merged upstream contribution
             </li>
           </ul>
         </section>
@@ -92,9 +94,9 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>For hiring partners</h2>
           <ul>
-            <li>Public showcase built in week 4 and unified in week 5</li>
-            <li>Week 6 hiring showcase (Boston anchor)</li>
-            <li>Inspect GitHub history directly—no self-reported claims</li>
+            <li>Vibe marketing platform ships in week 3</li>
+            <li>End-of-pilot hiring showcase (Boston anchor)</li>
+            <li>Review deployed systems, technical documentation, and contribution history directly</li>
           </ul>
           <p>
             Contact: <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>
@@ -104,7 +106,7 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Timeline</h2>
           <p>
-            <strong>Start:</strong> July 9, 2026 at 09:00 Eastern Time · <strong>Showcase:</strong>{' '}
+            <strong>Start:</strong> July 13, 2026 at 09:00 Eastern Time · <strong>Showcase:</strong>{' '}
             August 19, 2026
           </p>
         </section>

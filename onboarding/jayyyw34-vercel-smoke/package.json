@@ -1,0 +1,11 @@
+{
+  "name": "jayyyw34-vercel-smoke",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "deploy": "vercel --prod --yes"
+  },
+  "devDependencies": {
+    "vercel": "^50.0.0"
+  }
+}

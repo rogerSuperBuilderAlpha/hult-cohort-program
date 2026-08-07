@@ -6,9 +6,20 @@ import styles from '../app/page.module.css';
 type Props = {
   prompt: string;
   personalized?: boolean;
+  title?: string;
+  lead?: string;
 };
 
-export function AgentPromptHarness({ prompt, personalized = true }: Props) {
+const DEFAULT_LEAD =
+  'Copy this prompt into Cursor, Claude Code, or another agent tool. It will gather ' +
+  'required details, prepare the repository work, and open the pull request.';
+
+export function AgentPromptHarness({
+  prompt,
+  personalized = true,
+  title = 'Agent prompt template',
+  lead = DEFAULT_LEAD,
+}: Props) {
   const [copied, setCopied] = useState(false);
 
   const copy = useCallback(async () => {
@@ -25,11 +36,8 @@ export function AgentPromptHarness({ prompt, personalized = true }: Props) {
     <section className={styles.overviewBlock}>
       <div className={styles.harnessHeader}>
         <div>
-          <h2 className={styles.participantHeading}>Agent prompt template</h2>
-          <p className={styles.harnessLead}>
-            Copy this prompt into Cursor, Claude Code, or another agent tool. It will gather
-            required details, prepare the repository work, and open the pull request.
-          </p>
+          <h2 className={styles.participantHeading}>{title}</h2>
+          <p className={styles.harnessLead}>{lead}</p>
         </div>
         <button type="button" className={styles.copyHarnessBtn} onClick={() => void copy()}>
           {copied ? 'Copied' : 'Copy prompt'}

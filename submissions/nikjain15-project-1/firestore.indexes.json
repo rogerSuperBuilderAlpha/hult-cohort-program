@@ -1,0 +1,35 @@
+{
+  "indexes": [
+    {
+      "//": "subscribeToIntroductions: where(helperUid ==) + orderBy(createdAt desc). Without this the helper's live-intro listener fails in prod with FAILED_PRECONDITION and the whole Broker surface silently never loads.",
+      "collectionGroup": "introductions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "helperUid", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "claimTasks with a handle: where(toApp ==)+where(status ==)+where(handle ==)+orderBy(createdAt asc). The starvation-free claim query the cross-app inbox uses.",
+      "collectionGroup": "agentTasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "toApp", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "handle", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "//": "claimTasks without a handle: where(toApp ==)+where(status ==)+orderBy(createdAt asc).",
+      "collectionGroup": "agentTasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "toApp", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

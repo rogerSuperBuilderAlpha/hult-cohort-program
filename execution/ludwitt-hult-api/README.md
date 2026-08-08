@@ -27,6 +27,28 @@ If the portal *does* open, expect your app to sit "In review" before live OAuth 
 
 ---
 
+## What Ludwitt actually publishes
+
+Sourced 2026-08-08 from Ludwitt's own agent files — [llms.txt](https://pitchrise.ludwitt.com/llms.txt) and [llms-full.txt](https://pitchrise.ludwitt.com/llms-full.txt). These are public, machine-readable, and authoritative. Read them before trusting anything in this repo.
+
+**"For Developers Building on Ludwitt"**, verbatim in substance:
+
+| | |
+|---|---|
+| API base URL | `https://pitchrise.ludwitt.com/api/` |
+| Authentication | Firebase ID token in the `Authorization` header (routes validate via Firebase Admin SDK) |
+| Rate limit | 100 requests/minute, authenticated |
+| Webhooks | Zapier-compatible: progress updates, achievement unlocks, subscription changes, credit transactions |
+| LMS | Custom API integration available now; LTI 1.3 and SCORM planned |
+
+**There is no public app-submission or app-directory programme.** Ludwitt's sitemap lists 27 public pages and exactly one developer page, `/alc`. Nothing published describes submitting an app for listing. So when our PR template asks for a "production listing URL", that means **your own deployed application URL** — not a URL on a Ludwitt directory, which does not exist publicly.
+
+**The `/developers` portal is unlocked by the ALC track, not by paying.** Ludwitt's Developer Training (AI Learning Center) track is a 19-step journey: 3 shared setup steps, 5 steps on a chosen path (Cursor, Claude Code, or OpenClaw), then 11 shared post-path steps including an open-source PR to cursorboston.com, a Loom showcase video, and a 5-year technology vision document. The portal's "5 ALC Projects / Deployment Verified" counters track that work. A $10,000 bypass is offered alongside it. **Nobody in this cohort should pay it** — if the portal will not open, use the reference API and say so in your pull request.
+
+Everything the gated portal exposes beyond this — OAuth 2.0 with PKCE, `le_…` client IDs, `/api/oauth/authorize`, `/api/oauth/userinfo`, the hosted-data API at `PUT /api/v1/data/{collection}/{doc}`, the `profile` / `credits:read` / `credits:spend` scopes, and the "In review" queue with Test Mode — is real but undocumented publicly. We know it because Summer Pilot participants integrated against it and pasted their actual requests and responses into merged pull requests (#256, #257, #258).
+
+---
+
 ## Running the reference API
 
 ```bash

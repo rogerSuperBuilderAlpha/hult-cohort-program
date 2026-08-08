@@ -1,4 +1,4 @@
-import { describe, it, before, beforeEach } from 'node:test';
+import { describe, it, before, beforeEach, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { app, _resetForTests } from '../src/server.js';
 import { _seedDeveloper } from '../src/store.js';
@@ -8,6 +8,18 @@ let server;
 before(() => {
   process.env.NODE_ENV = 'test';
   server = app.listen(0);
+});
+
+// Without this the run never exits. `app.listen` holds the event loop open, and
+// `fetch` keeps its sockets alive, so a bare server.close() waits forever on
+// connections that nobody is going to end — the process hangs after the last
+// assertion passes. Destroy the sockets first, then close.
+after(async () => {
+  if (!server) return;
+  server.closeAllConnections?.();
+  await new Promise((resolve, reject) => {
+    server.close((err) => (err ? reject(err) : resolve()));
+  });
 });
 
 beforeEach(() => {

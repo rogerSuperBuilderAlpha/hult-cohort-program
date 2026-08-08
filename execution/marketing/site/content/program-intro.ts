@@ -45,7 +45,7 @@ export const introTimeline: TimelineSegment[] = [
     id: 'w4',
     label: 'Ludwitt learning',
     weeks: 'Week 4',
-    detail: 'Learning engineer integration to Ludwitt — verified external users.',
+    detail: 'Learning engineer integration to Ludwitt — a registered, working, instrumented app.',
   },
   {
     id: 'w5',

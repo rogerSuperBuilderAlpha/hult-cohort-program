@@ -50,10 +50,9 @@ function extraInterviewQuestions(project: ProgramProject): string[] {
       ];
     case 'phase-2-learning-app':
       return [
-        'Ludwitt/Hult app ID?',
-        'Production listing URL?',
-        'Promotion channels used (links or names)?',
-        'Date for metrics API snapshot?',
+        'Ludwitt/Hult app ID? (hosted portal gives an le_… client id; the reference API gives a UUID)',
+        'Production listing URL? (your own deployed app URL — Ludwitt publishes no app directory)',
+        'Integration evidence: a real sign-in or launch token completing, and at least one non-heartbeat event landing?',
       ];
     case 'phase-2-venture':
       return [

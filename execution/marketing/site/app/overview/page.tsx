@@ -80,7 +80,7 @@ export default async function OverviewPage() {
           <h2>Weeks 4–6 · External sprints</h2>
           <ul>
             <li>
-              <strong>Week 4:</strong> Learning engineer integration to Ludwitt — verified external users
+              <strong>Week 4:</strong> Learning engineer integration to Ludwitt — a registered, working, instrumented app
             </li>
             <li>
               <strong>Week 5:</strong> Startup / entrepreneurship — deck, plan, production app

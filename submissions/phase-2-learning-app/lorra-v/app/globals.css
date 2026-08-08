@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+:root {
+  --tef-ink: #173f35;
+  --tef-bg: #eaf4f4;
+  --tef-accent: #d56f3e;
+  --tef-sage: #5e8c78;
+  --tef-gold: #c7a65a;
+  --tef-surface: #ffffff;
+  --tef-muted: #4a6b60;
+  --background: var(--tef-bg);
+  --foreground: var(--tef-ink);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-source-sans);
+  --font-serif: var(--font-source-serif);
+}
+
+body {
+  background: var(--tef-bg);
+  color: var(--tef-ink);
+  font-family: var(--font-source-sans), "Segoe UI", sans-serif;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-source-serif), Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+a {
+  color: var(--tef-ink);
+}
+
+a:hover {
+  color: var(--tef-accent);
+}
+
+.tef-btn {
+  display: inline-block;
+  background: var(--tef-accent);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tef-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tef-btn-secondary {
+  background: transparent;
+  color: var(--tef-ink);
+  border: 1px solid var(--tef-ink);
+}
+
+.tef-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid currentColor;
+}
+
+.tef-badge-full {
+  color: var(--tef-accent);
+}
+
+.tef-badge-preview {
+  color: var(--tef-sage);
+}
+
+.tef-prose h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.35rem;
+}
+
+.tef-prose h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.tef-prose p {
+  margin: 0.75rem 0;
+}
+
+.tef-prose ul,
+.tef-prose ol {
+  margin: 0.75rem 0;
+  padding-left: 1.25rem;
+}
+
+.tef-prose li {
+  margin: 0.25rem 0;
+}
+
+.tef-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.tef-prose th,
+.tef-prose td {
+  border: 1px solid var(--tef-sage);
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.tef-prose th {
+  background: #dceceb;
+}
+
+.tef-prose strong {
+  font-weight: 600;
+}
+
+.tef-option {
+  display: block;
+  border: 1px solid var(--tef-sage);
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  cursor: pointer;
+  background: var(--tef-surface);
+}
+
+.tef-option:has(input:checked) {
+  border-color: var(--tef-accent);
+  background: #fff8f4;
+}
+
+.tef-option input {
+  margin-right: 0.65rem;
+}

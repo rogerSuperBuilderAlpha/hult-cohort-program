@@ -10,9 +10,11 @@
 
 Two paths exist. **Both counted for Summer Pilot Week 4** (ruled 2026-08-07). Pick with open eyes.
 
+`www.ludwitt.com` and `pitchrise.ludwitt.com` serve the **same deployment** (verified 2026-08-08: identical Vercel deployment id on both hosts). `/developers` is one portal reachable at either domain — they are not two systems, and an app registered through one is the same app at the other.
+
 | | Hosted platform | Reference API (this package) |
 |---|---|---|
-| **Where** | https://www.ludwitt.com/developers | Wherever you run it — localhost or your own deploy |
+| **Where** | https://www.ludwitt.com/developers (= pitchrise.ludwitt.com/developers) | Wherever you run it — localhost or your own deploy |
 | **Registration** | Real developer portal, app queued for review | `POST /v1/developer/apps` against your instance |
 | **App ID looks like** | `le_aa66000f7ab45563e7b4dd` | a UUID |
 | **Auth** | OAuth 2.0 + PKCE | Bearer `api_key`, HS256 launch JWT |

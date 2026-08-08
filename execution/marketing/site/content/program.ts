@@ -206,15 +206,15 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Build a learning application and integrate it with Ludwitt; success is a working, registered, instrumented app.',
     description:
-      'Week 4: act as a learning engineer. Choose a subject — algorithms, finance, language, interview prep, or another topic — and ship a production learning application registered on the Ludwitt/Hult platform. Wire JWT auth and event tracking so the platform can see real sessions. The week 4 bar is the integration itself: a registered app, a working launch flow, and events landing on the platform. There is no user-count condition on this week — external adoption is measured later in the program, from the platform snapshot, and is not something you must clear to merge on Sunday.',
+      'Week 4: act as a learning engineer. Choose a subject — algorithms, finance, language, interview prep, or another topic — and ship a production learning application registered on the Ludwitt/Hult platform. Two integration routes are accepted, and they work differently. The hosted platform at ludwitt.com/developers (same portal as pitchrise.ludwitt.com) uses OAuth 2.0 with PKCE: users sign in with their Ludwitt account, and your app reads them back from the userinfo endpoint. The reference implementation in execution/ludwitt-hult-api uses an HS256 launch token passed to your /launch route. Wire whichever one you registered against, and make sure sessions produce real events. The week 4 bar is the integration itself: a registered app, a working sign-in or launch flow, and events landing. There is no user-count condition on this week — external adoption is measured later in the program, from the platform snapshot, and is not something you must clear to merge on Sunday.',
     voteWeek: false,
     schedule: {
       submissionOpens: '2026-08-03T13:00:00.000Z',
       submissionCloses: '2026-08-09T21:00:00.000Z',
     },
     expectations: [
-      'Register the application via the Ludwitt/Hult developer portal; JWT authentication and event tracking operational',
-      'Verify the integration end to end — a launch token validates and at least one non-heartbeat event lands per session',
+      'Register the application — hosted portal at ludwitt.com/developers (OAuth 2.0 + PKCE), or your own instance of the reference API (HS256 launch token). Both count.',
+      'Verify the integration end to end — a real sign-in or launch token completes, invalid ones fail closed, and at least one non-heartbeat event lands per session',
       'Submit a proof-of-work pull request with the app ID and listing URL filled in the PR template',
     ],
     submission: {
@@ -225,13 +225,13 @@ export const programProjects: ProgramProject[] = [
       prBodyMustInclude: [
         'Ludwitt/Hult app ID',
         'Production listing URL',
-        'Integration evidence (launch flow + events firing)',
+        'Integration evidence (sign-in or launch flow + events firing)',
       ],
       deadlineNote:
         'Merge bar: fill every required PR body section, then merge by Sunday week 4, 17:00 Eastern Time. No user-count condition applies to this merge — a registered, working, instrumented app is the bar.',
     },
     passGate: [
-      'Registered Ludwitt/Hult app with working JWT launch and event tracking',
+      'Registered Ludwitt/Hult app with a working sign-in or launch flow and event tracking',
       'Merged proof-of-work pull request',
     ],
   },

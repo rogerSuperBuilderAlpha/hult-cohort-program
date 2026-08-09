@@ -13,6 +13,9 @@ export type ShellState = {
   index: Set<string>;
   commits: Commit[];
   nextCommit: number;
+  headCommitId: string | null;
+  currentBranch: string | null;
+  branches: Record<string, string | null>;
 };
 
 export type ShellLine = { kind: 'out' | 'err'; text: string };
@@ -84,7 +87,31 @@ function snapshotFiles(state: ShellState): Record<string, string> {
 }
 
 function cloneState(state: ShellState): ShellState {
-  return JSON.parse(JSON.stringify(state)) as ShellState;
+  const next = JSON.parse(JSON.stringify(state)) as ShellState;
+  next.index = new Set(state.index);
+  return next;
+}
+
+function getCommit(state: ShellState, id: string | null): Commit | null {
+  if (!id) return null;
+  return state.commits.find((c) => c.id === id) ?? null;
+}
+
+function applyFilesToTree(state: ShellState, files: Record<string, string>) {
+  state.tree = { type: 'dir', children: {} };
+  for (const [filePath, content] of Object.entries(files)) {
+    const parts = filePath.split('/').filter(Boolean);
+    if (!parts.length) continue;
+    ensureFile(state, parts);
+    const dirParts = parts.slice(0, -1);
+    const leaf = parts[parts.length - 1];
+    const dir = getDir(state, dirParts);
+    if (dir) (dir.children[leaf] as { type: 'file'; content: string }).content = content;
+  }
+}
+
+function branchLabel(state: ShellState) {
+  return state.currentBranch ?? 'main';
 }
 
 export function createInitialState(): ShellState {
@@ -95,6 +122,9 @@ export function createInitialState(): ShellState {
     index: new Set(),
     commits: [],
     nextCommit: 1,
+    headCommitId: null,
+    currentBranch: null,
+    branches: {},
   };
 }
 
@@ -103,6 +133,9 @@ export function hydrateState(raw: ShellState): ShellState {
   return {
     ...raw,
     index: new Set(Array.isArray(raw.index) ? raw.index : []),
+    branches: raw.branches ?? {},
+    headCommitId: raw.headCommitId ?? null,
+    currentBranch: raw.currentBranch ?? null,
   };
 }
 
@@ -123,7 +156,6 @@ export function runCommand(state: ShellState, line: string): { state: ShellState
   const args = parts.slice(1).map(unquote);
   const lines: ShellLine[] = [];
   const next = cloneState(state);
-  next.index = new Set(state.index);
 
   const fail = (msg: string) => ({ state, lines: [{ kind: 'err' as const, text: msg }] });
 
@@ -204,6 +236,9 @@ export function runCommand(state: ShellState, line: string): { state: ShellState
     const sub = args[0];
     if (sub === 'init') {
       next.gitInitialized = true;
+      next.currentBranch = 'main';
+      next.branches = { main: null };
+      next.headCommitId = null;
       lines.push({ kind: 'out', text: 'Initialized empty Git repository' });
       return { state: next, lines };
     }
@@ -215,7 +250,7 @@ export function runCommand(state: ShellState, line: string): { state: ShellState
       const untracked = Object.keys(files)
         .filter((f) => !next.index.has(f) && files[f] !== '')
         .sort();
-      const out = ['On branch main', staged.length ? 'Changes to be committed:' : ''];
+      const out = [`On branch ${branchLabel(next)}`, staged.length ? 'Changes to be committed:' : ''];
       for (const f of staged) out.push(`  new file:   ${f}`);
       if (untracked.length) {
         out.push('', 'Untracked files:');
@@ -237,6 +272,45 @@ export function runCommand(state: ShellState, line: string): { state: ShellState
       return { state: next, lines };
     }
 
+    if (sub === 'restore' && args[1] === '--staged') {
+      const name = args[2];
+      if (!name) return fail('git restore: missing path');
+      const resolved = resolvePath(next, name);
+      if (!resolved) return fail(`fatal: pathspec '${name}' did not match any files`);
+      const key = pathKey(resolved);
+      if (!next.index.has(key)) return fail(`fatal: pathspec '${name}' did not match staged files`);
+      next.index.delete(key);
+      return { state: next, lines };
+    }
+
+    if (sub === 'branch') {
+      const name = args[1];
+      if (!name) {
+        const listing = Object.keys(next.branches)
+          .sort()
+          .map((b) => (b === next.currentBranch ? `* ${b}` : `  ${b}`));
+        lines.push({ kind: 'out', text: listing.join('\n') });
+        return { state: next, lines };
+      }
+      if (next.branches[name] !== undefined) return fail(`fatal: A branch named '${name}' already exists.`);
+      next.branches[name] = next.headCommitId;
+      return { state: next, lines };
+    }
+
+    if (sub === 'checkout') {
+      const name = args[1];
+      if (!name) return fail('git checkout: missing branch name');
+      if (next.branches[name] === undefined) return fail(`error: pathspec '${name}' did not match any file(s) known to git`);
+      next.currentBranch = name;
+      next.headCommitId = next.branches[name];
+      next.index.clear();
+      const commit = getCommit(next, next.headCommitId);
+      if (commit) applyFilesToTree(next, commit.files);
+      else next.tree = { type: 'dir', children: {} };
+      lines.push({ kind: 'out', text: `Switched to branch '${name}'` });
+      return { state: next, lines };
+    }
+
     if (sub === 'commit') {
       const mIdx = args.indexOf('-m');
       const message = mIdx >= 0 ? args.slice(mIdx + 1).join(' ') : '';
@@ -247,8 +321,10 @@ export function runCommand(state: ShellState, line: string): { state: ShellState
       for (const p of next.index) files[p] = all[p] ?? '';
       const id = String(next.nextCommit++);
       next.commits.push({ id, message, files });
+      next.headCommitId = id;
+      if (next.currentBranch) next.branches[next.currentBranch] = id;
       next.index.clear();
-      lines.push({ kind: 'out', text: `[main ${id}] ${message}` });
+      lines.push({ kind: 'out', text: `[${branchLabel(next)} ${id}] ${message}` });
       return { state: next, lines };
     }
 
@@ -298,10 +374,10 @@ export const FIRST_COMMIT_CHALLENGE: ChallengeSpec = {
   id: 'first-commit',
   title: 'First Commit',
   prompt:
-    'Initialize git, create notes.txt with your first note, stage it, and commit with message "Initial commit". You have 90 seconds.',
+    'Initialize git, stage notes.txt, and commit with message "Initial commit". You have 90 seconds.',
   parSeconds: 45,
   parCommands: 4,
-  setup: (state) => {
+  setup: () => {
     const s = createInitialState();
     if (s.tree.type === 'dir') {
       s.tree.children['notes.txt'] = { type: 'file', content: 'My first Git note\n' };
@@ -315,6 +391,67 @@ export const FIRST_COMMIT_CHALLENGE: ChallengeSpec = {
     return Object.prototype.hasOwnProperty.call(commit.files, 'notes.txt');
   },
 };
+
+export const UNSTAGE_CHALLENGE: ChallengeSpec = {
+  id: 'unstage-redo',
+  title: 'Unstage and Re-commit',
+  prompt:
+    'Git is initialized and README.md exists. Stage it, unstage with git restore --staged, re-stage, and commit with message "Add README".',
+  parSeconds: 50,
+  parCommands: 5,
+  setup: () => {
+    const s = createInitialState();
+    if (s.tree.type === 'dir') {
+      s.tree.children['README.md'] = { type: 'file', content: '# Git Arcade\n' };
+    }
+    s.gitInitialized = true;
+    s.currentBranch = 'main';
+    s.branches = { main: null };
+    return s;
+  },
+  assert: (state) => {
+    const commit = state.commits.find((c) => c.message === 'Add README');
+    if (!commit) return false;
+    return Object.prototype.hasOwnProperty.call(commit.files, 'README.md');
+  },
+};
+
+export const BRANCH_CHALLENGE: ChallengeSpec = {
+  id: 'branch-out',
+  title: 'Branch Out',
+  prompt:
+    'On the initialized repo with app.js present: commit it on main as "Base", create branch feature, checkout feature, add feature.txt, and commit as "Feature work".',
+  parSeconds: 60,
+  parCommands: 7,
+  setup: () => {
+    const s = createInitialState();
+    if (s.tree.type === 'dir') {
+      s.tree.children['app.js'] = { type: 'file', content: 'console.log("hi");\n' };
+    }
+    s.gitInitialized = true;
+    s.currentBranch = 'main';
+    s.branches = { main: null };
+    return s;
+  },
+  assert: (state) => {
+    if (state.currentBranch !== 'feature') return false;
+    const featureCommit = state.commits.find((c) => c.message === 'Feature work');
+    if (!featureCommit) return false;
+    return Object.prototype.hasOwnProperty.call(featureCommit.files, 'feature.txt');
+  },
+};
+
+export const CHALLENGES: Record<string, ChallengeSpec> = {
+  'first-commit': FIRST_COMMIT_CHALLENGE,
+  'unstage-redo': UNSTAGE_CHALLENGE,
+  'branch-out': BRANCH_CHALLENGE,
+};
+
+export const CHALLENGE_LIST = Object.values(CHALLENGES);
+
+export function getChallenge(id: string): ChallengeSpec | null {
+  return CHALLENGES[id] ?? null;
+}
 
 export function scoreChallenge(
   spec: ChallengeSpec,

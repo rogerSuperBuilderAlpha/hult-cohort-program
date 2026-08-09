@@ -10,6 +10,7 @@
     "test": "node --test tests/api.test.js"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
     "uuid": "^11.0.3"

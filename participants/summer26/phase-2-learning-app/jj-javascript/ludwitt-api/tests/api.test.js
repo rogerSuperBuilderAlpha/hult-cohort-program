@@ -10,8 +10,8 @@ before(() => {
   server = app.listen(0);
 });
 
-beforeEach(() => {
-  _resetForTests();
+beforeEach(async () => {
+  await _resetForTests();
   _seedDeveloper({
     id: 'dev-test',
     handle: 'alice',

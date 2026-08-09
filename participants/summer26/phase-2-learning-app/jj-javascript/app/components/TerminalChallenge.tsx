@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
-  FIRST_COMMIT_CHALLENGE,
+  getChallenge,
   createInitialState,
   runCommand,
   type ShellLine,
@@ -16,10 +16,10 @@ function formatLines(lines: ShellLine[]) {
   return lines.map((l) => (l.kind === 'err' ? l.text : l.text)).join('\n');
 }
 
-export function TerminalChallenge() {
-  const initial = useMemo(() => FIRST_COMMIT_CHALLENGE.setup(createInitialState()), []);
+export function TerminalChallenge({ challengeId }: { challengeId: string }) {
+  const spec = useMemo(() => getChallenge(challengeId)!, [challengeId]);
+  const initial = useMemo(() => spec.setup(createInitialState()), [spec]);
   const [state, setState] = useState<ShellState>(initial);
-  const [history, setHistory] = useState<string[]>([]);
   const [output, setOutput] = useState('Welcome to Git Arcade.\nType commands below. Submit when done.\n');
   const [input, setInput] = useState('');
   const [elapsed, setElapsed] = useState(0);
@@ -27,6 +27,17 @@ export function TerminalChallenge() {
   const [result, setResult] = useState<{ passed: boolean; stars: number } | null>(null);
   const commandsRef = useRef<string[]>([]);
   const startRef = useRef(Date.now());
+
+  useEffect(() => {
+    setState(spec.setup(createInitialState()));
+    setOutput('Welcome to Git Arcade.\nType commands below. Submit when done.\n');
+    setInput('');
+    setElapsed(0);
+    setRunning(true);
+    setResult(null);
+    commandsRef.current = [];
+    startRef.current = Date.now();
+  }, [spec]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -45,7 +56,6 @@ export function TerminalChallenge() {
       commandsRef.current.push(trimmed);
       const { state: next, lines } = runCommand(state, trimmed);
       setState(next);
-      setHistory((h) => [...h, trimmed]);
       setOutput((o) => `${o}$ ${trimmed}\n${formatLines(lines)}\n`);
     },
     [state]
@@ -57,6 +67,7 @@ export function TerminalChallenge() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        challengeId,
         commands: commandsRef.current,
         elapsedSec: elapsed,
       }),
@@ -75,8 +86,8 @@ export function TerminalChallenge() {
   return (
     <main className="page">
       <Link href="/">← Home</Link>
-      <h1>{FIRST_COMMIT_CHALLENGE.title}</h1>
-      <p>{FIRST_COMMIT_CHALLENGE.prompt}</p>
+      <h1>{spec.title}</h1>
+      <p>{spec.prompt}</p>
       <div className="meta">
         <span>Time: {elapsed}s / {LIMIT_SEC}s</span>
         <span>Commands: {commandsRef.current.length}</span>
@@ -99,7 +110,7 @@ export function TerminalChallenge() {
                 runLine(line);
               }
             }}
-            placeholder={running ? 'git init' : 'Time is up'}
+            placeholder={running ? 'git status' : 'Time is up'}
             autoFocus
           />
         </div>

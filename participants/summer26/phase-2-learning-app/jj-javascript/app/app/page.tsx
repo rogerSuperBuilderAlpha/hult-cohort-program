@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { readSession } from '@/lib/ludwitt/session';
+import { CHALLENGE_LIST } from '@/lib/shell/engine';
 
 export default async function HomePage({
   searchParams,
@@ -23,11 +24,7 @@ export default async function HomePage({
       {params.launched ? <div className="banner">Session started. Good luck.</div> : null}
 
       <div className="actions">
-        {session ? (
-          <Link className="btn primary" href="/challenge">
-            Start challenge
-          </Link>
-        ) : (
+        {session ? null : (
           <form action="/api/demo-launch" method="post">
             <button className="btn primary" type="submit">
               Demo launch
@@ -37,9 +34,20 @@ export default async function HomePage({
       </div>
 
       {session ? (
-        <p style={{ marginTop: '1.5rem' }}>
-          Signed in as <strong>{session.email}</strong>
-        </p>
+        <>
+          <p style={{ marginTop: '1.5rem' }}>
+            Signed in as <strong>{session.email}</strong>
+          </p>
+          <ul className="challenge-list">
+            {CHALLENGE_LIST.map((c) => (
+              <li key={c.id}>
+                <Link className="btn" href={`/challenge/${c.id}`}>
+                  {c.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
       ) : (
         <p style={{ marginTop: '1.5rem', opacity: 0.85 }}>
           Production users arrive with a Ludwitt launch token on <code>/launch?token=…</code>.

@@ -1,5 +1,5 @@
 /**
- * Production smoke: launch token → session cookie → challenge events → metrics
+ * Production smoke: demo-launch → session cookie → challenge events → metrics
  */
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
@@ -13,9 +13,18 @@ function loadEnv() {
   if (!existsSync(envPath)) return;
   for (const line of readFileSync(envPath, 'utf8').split('\n')) {
     const trimmed = line.trim().replace(/^\uFEFF/, '');
+    if (!trimmed || trimmed.startsWith('#')) continue;
     const m = trimmed.match(/^([A-Z0-9_]+)=(.*)$/);
-    if (m) process.env[m[1]] = m[2];
+    if (m) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
   }
+}
+
+function parseSetCookie(raw: string | null): { name: string; value: string } | null {
+  if (!raw) return null;
+  const first = raw.split(',')[0]?.trim();
+  const eq = first?.indexOf('=');
+  if (!eq || eq <= 0) return null;
+  return { name: first.slice(0, eq), value: first.slice(eq + 1) };
 }
 
 async function main() {
@@ -27,27 +36,25 @@ async function main() {
 
   if (!appId) throw new Error('Run npm run register-app first');
 
-  const tokenRes = await fetch(`${baseUrl}/auth/launch-token`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${devKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      app_id: appId,
-      user_id: 'external-smoke-user-1',
-      email: 'smoke.external@example.com',
-    }),
-  });
-  const tokenBody = (await tokenRes.json()) as { launch_url?: string };
-  if (!tokenRes.ok || !tokenBody.launch_url) throw new Error(JSON.stringify(tokenBody));
+  // Demo launch path (what real visitors use)
+  const demoRes = await fetch(`${appUrl}/api/demo-launch`, { method: 'POST', redirect: 'manual' });
+  if (demoRes.status !== 303) throw new Error(`demo-launch expected 303, got ${demoRes.status}`);
+  const launchUrl = demoRes.headers.get('location');
+  if (!launchUrl) throw new Error('demo-launch missing Location header');
 
-  const launchRes = await fetch(tokenBody.launch_url, { redirect: 'manual' });
-  const cookie = launchRes.headers.get('set-cookie') || '';
-  if (!cookie.includes('git_arcade_session')) throw new Error('launch did not set session cookie');
+  const launchRes = await fetch(launchUrl, { redirect: 'manual' });
+  const cookieRaw = launchRes.headers.get('set-cookie') || '';
+  if (!cookieRaw.includes('git_arcade_session')) throw new Error('launch did not set session cookie');
 
-  const cookieHeader = cookie.split(';')[0];
+  const parsed = parseSetCookie(cookieRaw);
+  if (!parsed) throw new Error('could not parse session cookie');
+  const cookieHeader = `${parsed.name}=${parsed.value}`;
+
   const submitRes = await fetch(`${appUrl}/api/challenge/submit`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Cookie: cookieHeader },
     body: JSON.stringify({
+      challengeId: 'first-commit',
       commands: ['git init', 'git add notes.txt', 'git commit -m "Initial commit"'],
       elapsedSec: 30,
     }),
@@ -59,12 +66,13 @@ async function main() {
     headers: { Authorization: `Bearer ${devKey}` },
   });
   const metrics = await metricsRes.json();
+  if (!metricsRes.ok) throw new Error(JSON.stringify(metrics));
 
   console.log(
     JSON.stringify(
       {
         ok: true,
-        launch: tokenBody.launch_url,
+        demoLaunch: { status: demoRes.status, launchUrl },
         submit: submitBody,
         metrics,
       },

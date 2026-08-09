@@ -1,0 +1,120 @@
+:root {
+  --cream: #fffae7;
+  --magenta: #cc164c;
+  --ink: #2b2b2b;
+  --green: #1a7f37;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: var(--cream);
+  color: var(--ink);
+}
+
+a {
+  color: var(--magenta);
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+}
+
+.hero p {
+  line-height: 1.6;
+  max-width: 60ch;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.65rem 1rem;
+  border: 2px solid var(--ink);
+  background: white;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: var(--magenta);
+  border-color: var(--magenta);
+  color: white;
+}
+
+.banner {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--ink);
+  background: white;
+}
+
+.banner.error {
+  border-color: var(--magenta);
+  color: var(--magenta);
+}
+
+.terminal {
+  margin-top: 1rem;
+  border: 2px solid var(--ink);
+  background: #111;
+  color: #e6edf3;
+  padding: 1rem;
+  min-height: 320px;
+}
+
+.terminal-output {
+  white-space: pre-wrap;
+  min-height: 200px;
+  margin-bottom: 0.75rem;
+}
+
+.terminal-input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.prompt {
+  color: var(--green);
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+
+.meta {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.stars {
+  color: var(--magenta);
+  font-weight: 700;
+}

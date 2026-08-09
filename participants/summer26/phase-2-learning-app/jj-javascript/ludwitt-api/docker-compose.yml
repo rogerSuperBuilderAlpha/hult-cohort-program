@@ -1,0 +1,9 @@
+services:
+  api:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - ADMIN_KEY=${ADMIN_KEY:-dev-admin-key}
+    restart: unless-stopped

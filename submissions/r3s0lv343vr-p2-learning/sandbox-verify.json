@@ -1,0 +1,29 @@
+{
+  "verified_at": "2026-08-09T20:23:25Z",
+  "mode": "Ludwitt Creator sandbox/test access token (1h, free AI calls)",
+  "results": {
+    "userinfo": { "http": 200, "has_sub": true, "has_email": true },
+    "credits_balance": {
+      "http": 200,
+      "spendableCents": 0,
+      "balanceCents": 500,
+      "note": "Matches docs: free/promo balance is not spendable in third-party apps"
+    },
+    "ai_proxy": {
+      "http": 200,
+      "model": "claude-sonnet-4-6",
+      "chargedCostCents": 0,
+      "test": true,
+      "sample": "Diversification in investing means spreading your money across different assets..."
+    },
+    "hosted_data": {
+      "put_progress": { "http": 200 },
+      "get_progress": { "http": 200 },
+      "put_event_log": { "http": 200 },
+      "usage_meta": {
+        "http": 400,
+        "note": "Ludwitt returned invalid_collection for _meta on this token/path; CRUD collections work"
+      }
+    }
+  }
+}

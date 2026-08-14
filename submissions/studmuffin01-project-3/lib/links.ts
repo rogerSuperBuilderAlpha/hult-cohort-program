@@ -14,10 +14,28 @@ export function firesideUrl(path = ""): string {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+/** Production canonical origin when env is unset (OG / sitemap / metadataBase). */
+export const DEFAULT_SITE_ORIGIN = "https://lighthouse-studmuffin01.vercel.app";
+
+export function siteOrigin(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (fromEnv) return fromEnv;
+
+  const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.replace(
+    /\/$/,
+    ""
+  );
+  if (vercelHost) {
+    return vercelHost.startsWith("http") ? vercelHost : `https://${vercelHost}`;
+  }
+
+  return process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : DEFAULT_SITE_ORIGIN;
+}
+
 export function siteUrl(path = ""): string {
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "http://localhost:3000";
+  const base = siteOrigin();
   if (!path) return base;
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }

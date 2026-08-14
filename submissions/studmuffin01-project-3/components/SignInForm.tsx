@@ -9,7 +9,7 @@ function enterAs(
   profile: { name: string; email: string }
 ) {
   setDemoUser(profile);
-  router.push("/home");
+  router.push("/");
 }
 
 export function SignInForm() {

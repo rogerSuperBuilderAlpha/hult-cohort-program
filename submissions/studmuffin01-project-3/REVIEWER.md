@@ -33,18 +33,19 @@ Sample / fictional directory fillers, testimonials, and industry partners are ba
 
 ## Smoke test (no auth)
 
-1. Open `/` — sign in or **Continue as guest** (no account) → `/home`
-2. Open `/home` — brand **Lighthouse**, 3 CTAs, activity feed, journey, narrative, PM snapshot (labeled demo)
-3. `/projects` and `/projects/forth` — Problem / Solution / Proof / Deploy
-4. `/live` — cohort activity feed (real profiles + project signals)
-5. `/developers` — confirm ≥4 real profiles without Sample badge; open `studmuffin01`, `nikjain15`, `lorra-v`, `kiaracaesar5627`
-6. Confirm Why I’m Here, build log, project showcase; CTA → Partners (not inline form)
-7. `/developers/elise` — private placeholder (directory only; sample)
-8. `/people` and `/people/studmuffin01` — redirect to `/developers…`
-9. `/partners` — intro form lists only real public handles; sample partners badged
-10. `/testimonials` — quotes badged as sample data
-11. `/rsvp` — submit test RSVP
-12. Mobile width — Cohort Live bottom strip readable
+1. Open `/` — public showcase first: brand **Lighthouse**, 3 CTAs, seeded activity preview, journey, roster signal (real vs sample)
+2. Optional `/signin` — demo identity / guest; redirects into the showcase (does not gate content)
+3. `/home` — redirects to `/`
+4. `/projects` and `/projects/forth` — Problem / Solution / Proof / Deploy
+5. `/live` — **Sample data** badge; seeded feed (not live webhooks)
+6. `/developers` — ≥9 real profiles without Sample badge; open a sample profile and confirm **no stranger social/repo links**
+7. Confirm Why I’m Here, build log, project showcase on a real profile; CTA → Partners
+8. `/developers/elise` — private placeholder (directory only; sample)
+9. `/people` and `/people/studmuffin01` — redirect to `/developers…`
+10. `/partners` — intro form lists only real public handles; sample partners badged
+11. `/testimonials` — quotes badged as sample data
+12. `/rsvp` — submit test RSVP
+13. Mobile width — Cohort Live bottom strip readable (“Demo counters”)
 
 ## Rubric mapping (curriculum)
 
@@ -62,3 +63,9 @@ Sample / fictional directory fillers, testimonials, and industry partners are ba
 - Intro/RSVP notify via server `console` until email provider is wired
 - PM panel is an illustrative snapshot file, not a live Forth API
 - Cohort Live intro/RSVP counters are session-local, not a backend sync
+
+## SEO smoke
+
+- `/robots.txt` — allow public routes, disallow `/api/`, points at sitemap
+- `/sitemap.xml` — home, developers, projects, partners, etc.
+- Root `metadataBase` resolves OG/canonical URLs to the production site origin

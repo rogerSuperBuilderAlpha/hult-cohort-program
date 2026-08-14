@@ -103,7 +103,14 @@ export function DeveloperProfile({ person }: { person: Person }) {
               Links
             </h2>
             <div className="mt-3 flex flex-col gap-2">
-              <ExtLink href={links.github} label="GitHub" />
+              {links.github ? (
+                <ExtLink href={links.github} label="GitHub" />
+              ) : person.isDemo ? (
+                <p className="text-sm text-[var(--ink-muted)]">
+                  No social links on sample profiles (avoids linking to real
+                  strangers).
+                </p>
+              ) : null}
               {links.linkedin ? (
                 <ExtLink href={links.linkedin} label="LinkedIn" />
               ) : null}
@@ -150,72 +157,86 @@ export function DeveloperProfile({ person }: { person: Person }) {
                 </p>
               </div>
 
-              <div>
-                <h4 className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.14em] text-[var(--signal)]">
-                  Solution
-                </h4>
-                <ul className="mt-3 space-y-3">
-                  {project.solutionItems.map((item) => (
-                    <li
-                      key={item.label}
-                      className="border border-[var(--line)] bg-[var(--bg)] p-3"
-                    >
-                      <p className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.1em] text-[var(--ink-faint)]">
-                        {MEDIA_KIND_LABEL[item.kind] ?? item.kind}
-                      </p>
-                      <p className="mt-1 text-sm font-medium">{item.label}</p>
-                      {item.description ? (
-                        <p className="mt-1 text-sm text-[var(--ink-muted)]">
-                          {item.description}
+              {project.solutionItems.length > 0 ? (
+                <div>
+                  <h4 className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.14em] text-[var(--signal)]">
+                    Solution
+                  </h4>
+                  <ul className="mt-3 space-y-3">
+                    {project.solutionItems.map((item) => (
+                      <li
+                        key={item.label}
+                        className="border border-[var(--line)] bg-[var(--bg)] p-3"
+                      >
+                        <p className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.1em] text-[var(--ink-faint)]">
+                          {MEDIA_KIND_LABEL[item.kind] ?? item.kind}
                         </p>
-                      ) : null}
-                      {item.href ? (
-                        <a
-                          href={item.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-block text-sm text-[var(--signal)] underline"
-                        >
-                          Open
-                        </a>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.14em] text-[var(--signal)]">
-                  Proof of Work
-                </h4>
-                <ul className="mt-3 space-y-2">
-                  {project.proofOfWork.map((item) => (
-                    <li key={item.label} className="text-sm">
-                      <span className="font-medium text-[var(--ink)]">
-                        {item.label}
-                      </span>
-                      <span className="text-[var(--ink-muted)]"> — {item.detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.14em] text-[var(--signal)]">
-                  Deployment
-                </h4>
-                <div className="mt-3 space-y-2">
-                  {project.liveAppUrl ? (
-                    <DeployRow label="Live app" href={project.liveAppUrl} />
-                  ) : null}
-                  {project.repoUrl ? (
-                    <DeployRow label="Repo" href={project.repoUrl} />
-                  ) : null}
-                  {project.docsUrl ? (
-                    <DeployRow label="Docs" href={project.docsUrl} />
-                  ) : null}
+                        <p className="mt-1 text-sm font-medium">{item.label}</p>
+                        {item.description ? (
+                          <p className="mt-1 text-sm text-[var(--ink-muted)]">
+                            {item.description}
+                          </p>
+                        ) : null}
+                        {item.href ? (
+                          <a
+                            href={item.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-block text-sm text-[var(--signal)] underline"
+                          >
+                            Open
+                          </a>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
+              ) : null}
+
+              {project.proofOfWork.length > 0 ? (
+                <div>
+                  <h4 className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.14em] text-[var(--signal)]">
+                    Proof of Work
+                  </h4>
+                  <ul className="mt-3 space-y-2">
+                    {project.proofOfWork.map((item) => (
+                      <li key={item.label} className="text-sm">
+                        <span className="font-medium text-[var(--ink)]">
+                          {item.label}
+                        </span>
+                        <span className="text-[var(--ink-muted)]">
+                          {" "}
+                          — {item.detail}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : person.isDemo ? (
+                <p className="text-sm text-[var(--ink-muted)]">
+                  Sample profiles do not claim proof of work or fabricated
+                  repos.
+                </p>
+              ) : null}
+
+              {project.liveAppUrl || project.repoUrl || project.docsUrl ? (
+                <div>
+                  <h4 className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.14em] text-[var(--signal)]">
+                    Deployment
+                  </h4>
+                  <div className="mt-3 space-y-2">
+                    {project.liveAppUrl ? (
+                      <DeployRow label="Live app" href={project.liveAppUrl} />
+                    ) : null}
+                    {project.repoUrl ? (
+                      <DeployRow label="Repo" href={project.repoUrl} />
+                    ) : null}
+                    {project.docsUrl ? (
+                      <DeployRow label="Docs" href={project.docsUrl} />
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </section>
 

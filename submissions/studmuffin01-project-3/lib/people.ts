@@ -137,6 +137,19 @@ function defaultFeatured(
   };
 }
 
+/** Sample profiles: no fake repos, PoW, or social URLs that resolve to strangers. */
+function demoFeatured(name: string): FeaturedProject {
+  return {
+    title: `${name.split(" ")[0]}'s sample profile`,
+    tagline: "Directory filler for UX walkthroughs — not a real cohort submission.",
+    problem:
+      "Partners need enough rows to exercise filters and layout without mistaking fiction for peer work.",
+    solutionItems: [],
+    proofOfWork: [],
+    status: "beta",
+  };
+}
+
 function makePerson(input: {
   handle: string;
   name: string;
@@ -154,7 +167,11 @@ function makePerson(input: {
   activity?: ActivityItem[];
   projects?: ProjectLink[];
 }): Person {
-  const github = githubProfileUrl(input.handle);
+  const isDemo = Boolean(input.isDemo);
+  const github = isDemo
+    ? input.links?.github
+    : (input.links?.github ?? githubProfileUrl(input.handle));
+
   return {
     handle: input.handle,
     name: input.name,
@@ -166,25 +183,44 @@ function makePerson(input: {
     privacy: input.privacy ?? "public",
     photoInitials: input.initials,
     isDemo: input.isDemo,
-    links: {
-      github,
-      linkedin: input.links?.linkedin ?? `https://www.linkedin.com/in/${input.handle}`,
-      x: input.links?.x ?? `https://x.com/${input.handle}`,
-      portfolio: input.links?.portfolio ?? github,
-      deployment: input.links?.deployment ?? forthUrl(),
-    },
-    buildLog: input.buildLog ?? defaultBuildLog(input.role),
+    links: isDemo
+      ? {
+          github,
+          linkedin: input.links?.linkedin,
+          x: input.links?.x,
+          portfolio: input.links?.portfolio,
+          deployment: input.links?.deployment,
+        }
+      : {
+          github,
+          linkedin:
+            input.links?.linkedin ??
+            `https://www.linkedin.com/in/${input.handle}`,
+          x: input.links?.x ?? `https://x.com/${input.handle}`,
+          portfolio: input.links?.portfolio ?? github,
+          deployment: input.links?.deployment ?? forthUrl(),
+        },
+    buildLog: input.buildLog ?? (isDemo
+      ? [
+          {
+            week: "Sample",
+            title: "Illustrative build log — not real cohort work",
+          },
+        ]
+      : defaultBuildLog(input.role)),
     featuredProject:
       input.featuredProject ??
-      defaultFeatured(
-        input.handle,
-        input.name,
-        `${input.name.split(" ")[0]}'s cohort build`,
-        "Production work partners can inspect on GitHub.",
-        "Hiring partners need evidence, not résumés. This build turns weekly ship pressure into a public trail of deploys, reviews, and operator-ready docs."
-      ),
-    activity: input.activity ?? defaultActivity(input.handle),
-    projects: input.projects ?? projectBundle(input.handle),
+      (isDemo
+        ? demoFeatured(input.name)
+        : defaultFeatured(
+            input.handle,
+            input.name,
+            `${input.name.split(" ")[0]}'s cohort build`,
+            "Production work partners can inspect on GitHub.",
+            "Hiring partners need evidence, not résumés. This build turns weekly ship pressure into a public trail of deploys, reviews, and operator-ready docs."
+          )),
+    activity: input.activity ?? (isDemo ? [] : defaultActivity(input.handle)),
+    projects: input.projects ?? (isDemo ? [] : projectBundle(input.handle)),
   };
 }
 
@@ -944,13 +980,6 @@ export const PEOPLE: Person[] = [
     whyImHere:
       "I want hiring partners to see operational clarity — status that matches the GitHub trail, not slides that age overnight.",
     skills: ["Product", "Ops", "React", "Facilitation"],
-    featuredProject: defaultFeatured(
-      "mayachen",
-      "Maya Chen",
-      "Review Week Ops Board",
-      "Keeping peer review and vote windows visible under pressure.",
-      "Cohorts lose signal when review work is scattered across chats. This board surfaces deadlines, blockers, and written-review completion so operators can intervene early."
-    ),
   }),
   makePerson({
     handle: "jblake",

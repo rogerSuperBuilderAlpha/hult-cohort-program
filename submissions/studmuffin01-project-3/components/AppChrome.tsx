@@ -8,11 +8,10 @@ const AUTH_PREFIXES = ["/signin", "/auth"];
 
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAuth =
-    pathname === "/" ||
-    AUTH_PREFIXES.some(
-      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-    );
+  // Sign-in only — public showcase at `/` should show Cohort Live.
+  const isAuth = AUTH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
   const metrics = getLiveMetrics();
 
   return (

@@ -59,7 +59,7 @@ Also:
 
 ## Test plan
 
-- [ ] Open https://lighthouse-studmuffin01.vercel.app → sign in / guest → `/home` narrative + PM snapshot
+- [ ] Open https://lighthouse-studmuffin01.vercel.app → public showcase at `/` (optional `/signin` does not gate)
 - [ ] Browse Developers + project pages; open sample profiles
 - [ ] Partners → request intro (interest type)
 - [ ] Live feed + Testimonials

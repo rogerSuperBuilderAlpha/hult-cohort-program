@@ -1,0 +1,4 @@
+{
+    "buildCommand": "npx -y npm@10.9.0 install --package-lock=false --no-audit --no-fund && npx -y npm@10.9.0 run build",
+    "installCommand": "npx -y npm@10.9.0 install --package-lock=false --no-audit --no-fund"
+}

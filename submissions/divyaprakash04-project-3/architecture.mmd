@@ -1,0 +1,14 @@
+flowchart TD
+    A[User visits VibeHub] --> B[Next.js App Router]
+    B --> C[Home Page]
+    B --> D[Participants Pages]
+    B --> E[Projects Pages]
+    C --> F[Hero + Cohort Stats + Narrative]
+    D --> G[Participant Cards + Deep Profiles]
+    E --> H[Project Cards + Detail Views]
+    I[src/data/cohort.ts] --> G
+    I --> H
+    J[Tailwind + Framer Motion] --> B
+    K[Vercel Deployment] --> B
+    G --> L[GitHub / LinkedIn / Deploy Links]
+    H --> M[Live Demo + Source Code Links]

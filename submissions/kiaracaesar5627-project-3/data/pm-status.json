@@ -1,0 +1,55 @@
+{
+  "source": "FlexiFlow PM snapshot (daily sync)",
+  "syncedAt": "2026-07-28T12:00:00.000Z",
+  "note": "Read-only cohort project status mirrored from the PM platform. Refresh this file (or hit GET /api/pm-status) to demonstrate live ecosystem wiring before week-5 unification.",
+  "projects": [
+    {
+      "id": "p1-flexiflow",
+      "name": "FlexiFlow adoption — cohort workspaces",
+      "status": "shipped",
+      "ownerHandle": "kiaracaesar5627",
+      "progress": 100,
+      "updatedAt": "2026-07-22T21:00:00.000Z"
+    },
+    {
+      "id": "p2-huddle",
+      "name": "Huddle channels + announcements cutover",
+      "status": "on-track",
+      "ownerHandle": "kiaracaesar5627",
+      "progress": 82,
+      "updatedAt": "2026-07-28T09:30:00.000Z"
+    },
+    {
+      "id": "p3-signal",
+      "name": "Trailmark public showcase for hiring partners",
+      "status": "on-track",
+      "ownerHandle": "kiaracaesar5627",
+      "progress": 74,
+      "updatedAt": "2026-07-28T11:00:00.000Z"
+    },
+    {
+      "id": "uni-planning",
+      "name": "Week 5 ecosystem unification planning",
+      "status": "at-risk",
+      "ownerHandle": "demo-alex-rivera-01",
+      "progress": 35,
+      "updatedAt": "2026-07-27T18:00:00.000Z"
+    },
+    {
+      "id": "partner-pipeline",
+      "name": "Hiring partner outreach — first 10 agreements",
+      "status": "on-track",
+      "ownerHandle": "demo-priya-patel-04",
+      "progress": 48,
+      "updatedAt": "2026-07-26T16:00:00.000Z"
+    },
+    {
+      "id": "showcase-event",
+      "name": "Aug 19 hiring partner showcase logistics",
+      "status": "blocked",
+      "ownerHandle": "demo-marcus-johnson-05",
+      "progress": 20,
+      "updatedAt": "2026-07-25T14:00:00.000Z"
+    }
+  ]
+}

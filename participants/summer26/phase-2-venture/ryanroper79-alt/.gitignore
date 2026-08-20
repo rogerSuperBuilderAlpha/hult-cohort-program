@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.env.local
+.env*.local
+vercel-env-checklist.txt
+*.log
+.vercel
+.env*
+data/crm/*.jsonl
+data/crm/leads-export-*.json
+launch-links-batch.txt

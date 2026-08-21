@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DocsAI — Investor Deck (Aug 2026)</title>
+<style>
+  :root {
+    --background: #faf6ef;
+    --surface: #ffffff;
+    --ink: #1c1a23;
+    --muted: #6e6a72;
+    --accent: #ff7a3d;
+    --accent-2: #2f7d60;
+    --border: rgba(28, 26, 35, 0.12);
+    --shadow: 0 1px 3px rgba(28, 26, 35, 0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--background);
+    color: var(--ink);
+    font-family: "Georgia", "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 1.55;
+  }
+  .mono { font-family: "Courier New", monospace; }
+  .sans { font-family: "Segoe UI", system-ui, sans-serif; }
+
+  .deck { max-width: 1120px; margin: 0 auto; padding: 24px; }
+  .slide {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: clamp(28px, 4.5vw, 64px);
+    margin: 0 0 24px;
+  }
+  .kicker {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    margin-bottom: 22px;
+  }
+  h2 {
+    font-size: clamp(1.3rem, 2.4vw, 1.9rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 18px;
+  }
+  p { color: var(--ink); margin-bottom: 14px; max-width: 62ch; }
+  .muted { color: var(--muted); }
+  .accent { color: var(--accent); }
+  .accent2 { color: var(--accent-2); }
+  .grid { display: grid; gap: 18px; }
+  .g2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .g3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    background: var(--background);
+  }
+  .card .big { font-size: 1.7rem; font-weight: 700; }
+  .pill {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 999px;
+    margin: 4px 4px 4px 0;
+  }
+  .pill.alt { background: var(--accent-2); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-family: "Segoe UI", Arial, sans-serif; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .foot {
+    margin-top: 26px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-family: "Courier New", monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .deck-pagination { display: none; }
+    .slide {
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      margin: 0;
+      padding: 28px;
+      page-break-after: always;
+      min-height: 100vh;
+    }
+    .slide:last-child { page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- 01 Cover -->
+  <section class="slide">
+    <div class="kicker">DocsAI · Investor deck · Aug 2026</div>
+    <h1>Put a knowledgeable copy of your business on every page of your website — in five minutes.</h1>
+    <p>A customer-facing AI answer widget for local businesses: grounded in the owner's own content, source link always shown, and a <strong>zero-cost, keyless default</strong> that works the moment you paste a snippet.</p>
+    <p class="muted sans" style="margin-top:18px;">Built and demoed live for the Hult Cohort Summer 2026 startup sprint — <span class="accent">25+ verified external users</span> by program deadline (date-stamped metrics from our self-hosted reference instance).</p>
+    <div class="foot mono"><span>docsai.vercel.app</span><span>@codingwcal · Aug 8 2026</span></div>
+  </section>
+
+  <!-- 2 Problem -->
+  <section class="slide">
+    <div class="kicker">01 · Problem</div>
+    <h2>The owner's day is a repeat-question machine.</h2>
+    <p>Small businesses miss <strong>20–35% of inbound calls during business hours</strong> and ~62% after hours; missed calls cost US SMBs <strong>&gt;$81B/yr</strong> — $40k–$100k per owner. Owners "get asked the same 10–15 questions hundreds of times": <em>hours? do you do X? how much is Y? do you deliver?</em></p>
+    <div class="grid g3">
+      <div class="card"><div class="big">20–35%</div><div class="muted">of in-hours calls missed by 1–50-person SMBs <span class="mono">(Ruby 2025)</span></div></div>
+      <div class="card"><div class="big">85%</div><div class="muted">of callers who don't get through never call back <span class="mono">(MIT/InsideSales)</span></div></div>
+      <div class="card"><div class="big">3–4 hrs</div><div class="muted">per day a solo owner spends on web/DM/email Q&amp;A <span class="mono">(r/smallbusiness, Feb 2026)</span></div></div>
+    </div>
+    <p class="muted">Every replier has a trigger: right answer pulled from own content, one click after a real visitor question.</p>
+  </section>
+
+  <!-- 3 Solution -->
+  <section class="slide">
+    <div class="kicker">02 · Solution</div>
+    <h2>Paste a URL. Drop a script tag. Visitors get grounded answers.</h2>
+    <div class="grid g3">
+      <div class="card"><div class="big sans accent">1</div><p><strong>Paste your website</strong> — we crawl, chunk, and index your pages.</p></div>
+      <div class="card"><div class="big sans accent">2</div><p><strong>Copy one script tag</strong> to your site — no signups for your customers, no credentials on the page.</p></div>
+      <div class="card"><div class="big sans accent">3</div><p><strong>Answers with the source</strong> — visitors see the exact page the answer came from. Accurate by construction.</p></div>
+    </div>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card">
+        <span class="pill">Keyless · always works</span>
+        <p class="muted" style="margin-bottom:0">BM25-lite retrieval + template answer = instant, zero-cost, no API key. LLM upgrades when the owner adds one.</p>
+      </div>
+      <div class="card">
+        <span class="pill alt">Guardrails by default</span>
+        <p class="muted" style="margin-bottom:0">20 calls/assistant/day cap, 400-token answers, 30-day retention — no hallucination floor, no invoice shock.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 Market -->
+  <section class="slide">
+    <div class="kicker">03 · Market</div>
+    <h2>A $1.6–4.5B/yr US wedge inside a $9.3B global category.</h2>
+    <div class="grid g3">
+      <div class="card"><div class="big">$9.3B→$11.45B</div><div class="muted">global chatbot market 2025→2026E, ~23% CAGR, $32B by 2031 <span class="mono">(Mordor 2026)</span></div></div>
+      <div class="card"><div class="big">36.2M</div><div class="muted">US small businesses; ~6.4M with employees; 83% have a website <span class="mono">(SBA, Clutch 2025)</span></div></div>
+      <div class="card"><div class="big">63–68%</div><div class="muted">of SMBs already use AI — but only ~9% for customer service <span class="mono">(NFIB, SBE 2025–26)</span></div></div>
+    </div>
+    <p style="margin-top:18px"><strong>TAM ≈ $1.6–4.5B/yr</strong> (US employer SMBs online, $29–99/mo). <strong>SAM ≈ $0.5B/yr</strong> (food, retail, beauty/health, auto, home services). <strong>SOM</strong> = $2.5k MRR in 12 months — deliberately small, defensible, and in reach this sprint.</p>
+  </section>
+
+  <!-- 5 Competition -->
+  <section class="slide">
+    <div class="kicker">04 · Competition</div>
+    <h2>Enterprise suites and site-AI builders — both wrong for a café.</h2>
+    <table>
+      <tr><th>Tool</th><th>Model</th><th>Cost you feel at month one</th></tr>
+      <tr><td>Zendesk / Freshdesk</td><td>per-agent helpdesk</td><td>$55–115/agent + AI add-ons — 5–20× a solo shop's budget</td></tr>
+      <tr><td>Intercom (Salesforce Fin)</td><td>messenger + per-resolution AI</td><td>$39/seat + ~$0.99 per resolution — surprise bills</td></tr>
+      <tr><td>HubSpot Breeze</td><td>CRM-bundled, per-resolution</td><td>$0.50 per resolved + Service Hub seats</td></tr>
+      <tr><td>SiteGPT / Chatbase class</td><td>"chat with your site" builders</td><td>$36–400/mo with LLM cost baked in — no $0 mode</td></tr>
+      <tr><td><strong>DocsAI</strong></td><td><strong>widget, flat monthly</strong></td><td><strong>$0 keyless path; $19–49 paid; cited answers, caps by design</strong></td></tr>
+    </table>
+    <p style="margin-top:16px" class="muted">Pricing from published vendor pages + guides, checked Aug 8 2026 (see <span class="mono">docs/market-research.md</span> §4, §7).</p>
+  </section>
+
+  <!-- 6 Business model -->
+  <section class="slide">
+    <div class="kicker">05 · Business model</div>
+    <h2>Flat, predictable SaaS — priced for the person who answers the phone.</h2>
+    <div class="grid g3">
+      <div class="card"><span class="pill">Free</span><p><strong>$0</strong> — 1 assistant, 1 site, 50 visitor Qs/mo (seeds the widget loop)</p></div>
+      <div class="card"><span class="pill">Coffee Shop</span><p><strong>$19/mo</strong> — unlimited sites**, both answer modes, no caps</p></div>
+      <div class="card"><span class="pill alt">Main Street</span><p><strong>$49/mo</strong> — 3 assistants, any-domain embed, owner + manager seat</p></div>
+    </div>
+    <p style="margin-top:16px">Blended ARPU ≈ $58/mo · gross margin 92–97% · CAC ≈ $0 (demo-driven) · target: <strong>125 owners → ~$7.5k MRR at M12</strong>; worst case $2.5k MRR. No usage meters, no per-resolution — the anti-enterprise promise.</p>
+  </section>
+
+  <!-- 7 Traction & why now -->
+  <section class="slide">
+    <div class="kicker">06 · Traction &amp; timing</div>
+    <h2>Real users, real snapshots — this week.</h2>
+    <div class="grid g3">
+      <div class="card"><div class="big accent2">≥25</div><div class="muted">verified external owners by program deadline (Aug 18)</div></div>
+      <div class="card"><div class="big accent2">1</div><div class="muted">investor conversation staged this week (redacted evidence)</div></div>
+      <div class="card"><div class="big accent2">$0</div><div class="muted">LLM invoice possible — keyless path is the product's floor</div></div>
+    </div>
+    <p style="margin-top:18px"><strong>Why now:</strong> adoption tipped (63–68% of SMBs use AI); receptionist wave proved the price ceiling; "same 10–15 questions" is now mainstream owner vocabulary; costs of grounding are trivial. The AI agents wait on our offer: enterprise-grade answers, coffee-shop price.</p>
+  </section>
+
+  <!-- 8 Roadmap -->
+  <section class="slide">
+    <div class="kicker">07 · Roadmap</div>
+    <h2>Six hard phases, one sprint.</h2>
+    <table>
+      <tr><th>Phase</th><th>Scope</th><th>·</th></tr>
+      <tr><td>1 · Venture packet</td><td>research, plan, deck, email</td><td class="accent2">done <span class="mono">Aug 8–9</span></td></tr>
+      <tr><td>2 · App scaffold + accounts</td><td>signup, session, dashboard</td><td>Aug 9–10</td></tr>
+      <tr><td>3 · Engine + widget</td><td>crawl→chunk→BM25/lite→cited answers; script tag</td><td>Aug 10–11</td></tr>
+      <tr><td>4 · Events + snapshot</td><td>reference-API events; date-stamped metrics file</td><td>Aug 11–12</td></tr>
+      <tr><td>5 · Outreach</td><td>≥25 owners; investor email</td><td>Aug 12–17</td></tr>
+      <tr><td>6 · Submission</td><td>PR + merge by deadline (window opens Mon Aug 10 9am EDT)</td><td>by Aug 18</td></tr>
+    </table>
+  </section>
+
+  <!-- 9 Ask -->
+  <section class="slide">
+    <div class="kicker">08 · The ask</div>
+    <h2>We are not asking for money this week.</h2>
+    <p>We are asking for <strong>30 minutes and a warm intro</strong>: feedback on the widget story from someone who has financed or built local-business software, and an introduction to one café/salon/gym owner to prove the funnel.</p>
+    <p>We raise a small pre-seed ($25–100k) only after 100 owners on the pod. Until then the product must <em>pitch itself</em> — five minutes, your content, answers with the source shown.</p>
+    <div class="foot mono"><span>docsai.vercel.app</span><span>@codingwcal · Aug 2026 · v1</span></div>
+  </section>
+
+  <p class="muted sans" style="font-size:0.78rem; padding:0 4px 40px;">Figures: see <span class="mono">docs/market-research.md</span> (compiled Aug 8, 2026; all market sizes sourced &amp; dated; unverified estimates flagged). Print via browser → save as PDF (16:9; slides auto-break).</p>
+</div>
+</body>
+</html>

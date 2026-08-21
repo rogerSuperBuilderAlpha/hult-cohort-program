@@ -1,0 +1,38 @@
+{
+  "name": "cealgreen-energy-auditor",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "smoke-test": "node --experimental-strip-types scripts/smoke-test.mts",
+    "register-app": "node --experimental-strip-types scripts/register-app.mts",
+    "setup-production": "node --experimental-strip-types scripts/setup-production.mts",
+    "export-metrics": "node --experimental-strip-types scripts/export-metrics.mts",
+    "generate-pr-body": "node --experimental-strip-types scripts/generate-pr-body.mts",
+    "generate-launch-link": "node --experimental-strip-types scripts/generate-launch-link.mts",
+    "generate-launch-links-batch": "node --experimental-strip-types scripts/generate-launch-links-batch.mts",
+    "export-crm": "node --experimental-strip-types scripts/export-crm.mts",
+    "test-crm-webhook": "node --experimental-strip-types scripts/test-crm-webhook.mts",
+    "setup-event": "node --experimental-strip-types scripts/setup-event.mts"
+  },
+  "dependencies": {
+    "jose": "^6.0.11",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.4"
+  }
+}

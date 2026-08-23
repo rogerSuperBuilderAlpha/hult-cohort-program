@@ -12,7 +12,18 @@ https://github.com/rogerSuperBuilderAlpha/cursor-boston/pull/1711
 
 ## Merge status
 
-**Open, not yet merged.** Upstream PR targets `develop`. Issue #1710 claimed with a comment before the PR. AppShell unit tests (19) and eslint on the changed files passed locally; DCO-signed commit. Will update this file when maintainers merge.
+**Merged** — merged 2026-08-22 by @rogerSuperBuilderAlpha into `develop`.
+
+| Check | Status |
+|-------|--------|
+| PR state | **MERGED** |
+| Merged at | 2026-08-22T18:17:40Z |
+| Merged by | @rogerSuperBuilderAlpha |
+| Review | **Approved** — collapsed nav names, Escape-to-close, slugged nav-group ids; tests cover the a11y behavior |
+| CI — Lint, Test, E2E, DCO, REUSE, CodeQL | **Pass** |
+| CI — Security Scanning | Fail (pre-existing `npm audit` — not introduced by this PR) |
+| CI — Vercel | Fail (fork authorization — not a merge gate for `develop`) |
+| Issue #1710 | **Closed** (closed with PR merge) |
 
 ## Contribution summary
 
@@ -53,7 +64,7 @@ https://github.com/rogerSuperBuilderAlpha/cursor-boston/issues/1710
 - [x] Escape closes the mobile drawer and restores focus to Open menu
 - [x] Nav group ids are slugged (`nav-group-needs-work`)
 - [x] Upstream PR targets `develop` with DCO sign-off
-- [ ] Upstream PR merged (update this packet when it lands)
+- [x] Upstream PR merged (cursor-boston#1711, 2026-08-22T18:17:40Z)
 
 ## Program page
 

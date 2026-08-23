@@ -12,7 +12,17 @@ https://github.com/rogerSuperBuilderAlpha/cursor-boston/pull/1709
 
 ## Merge status
 
-**Open, not yet merged.** Full WCAG AA contrast audit completed and fixed across `QuestionsListing.tsx`, `QuestionDetail.tsx`, and `ResearchCard.tsx` — 10 failing elements identified and corrected (audit table in PR description), re-verified passing in both light and dark mode after the fix. `TagFilter.tsx` and `Modal.tsx` audited and confirmed already passing, left untouched per scope. Lint, type-check, and build all clean; DCO-signed commit.
+**Merged** — merged 2026-08-22 by @rogerSuperBuilderAlpha into `develop`.
+
+| Check | Status |
+|-------|--------|
+| PR state | **MERGED** |
+| Merged at | 2026-08-22T18:20:10Z |
+| Merged by | @rogerSuperBuilderAlpha |
+| Review | **Approved** — smallest muted-text step that clears AA on the questions and research surfaces |
+| Issue #1699 | **Closed** (closed with PR merge) |
+
+Tracking PR #309 was merged while upstream #1709 was still open; this update reflects the confirmed upstream merge.
 
 ## Issue claimed
 
@@ -26,6 +36,13 @@ Filed and claimed issue #1699 (Color Contrast, from the repo's beginner-friendly
 
 https://site-nine-rouge-68.vercel.app/program/phase-2-open-source
 
+## Test plan
+
+- [x] WCAG AA contrast audit on scoped surfaces (questions listing, question detail, research cards)
+- [x] 10 failing elements corrected; re-verified in light and dark mode
+- [x] Lint, type-check, and build clean on upstream PR
+- [x] Upstream PR merged (cursor-boston#1709, 2026-08-22T18:20:10Z)
+
 ## Deadline
 
-Upstream merge required by **Sun Aug 23, 2026, 5:00 PM ET**.
+Upstream merge required by **Sun Aug 23, 2026, 5:00 PM ET** — **met** (merged 2026-08-22).

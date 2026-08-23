@@ -12,19 +12,26 @@ Accompanying three-year financial model: [`investor/TEF_Three_Year_Financial_Mod
 ## App URL + user metrics
 **Production app:** https://tef-deploy.vercel.app
 **Metrics source:** own instance of the Ludwitt/Hult reference API (Railway), same instance used for Week 4's evidence — https://ludwitt-hult-api-production.up.railway.app, app_id d548f419-afc3-47c7-822e-c04e489a93cc
-**Snapshot:** August 16, 2026, ~4:44pm ET — Ludwitt/Hult API reports `qualified_users: 11`. Two are founder test accounts (`external.learner.506589@example.com`, `webblywebpro@gmail.com`) — excluded. **Real external qualified users: 11 minus 2**.
+**Snapshot file:** [`investor/metrics-snapshot-2026-08-17.json`](./investor/metrics-snapshot-2026-08-17.json) — raw `GET /v1/apps/{app_id}/metrics` response from 2026-08-17 (`qualified_users: 12`). **Real confirmed qualifying users: 8**, verified row-by-row against `progress` / `profile_results`. Separately, **1 profile-only** engaged user completed the assessment but fired no Ludwitt qualifying event. Full breakdown: [`investor/user-verification.md`](./investor/user-verification.md).
 
 ## Investor touch log
-Reached out directly to a Venture Capital Resident and Director at a regional founder-support organization (contact redacted), sharing the live product and requesting feedback on venture viability. He reviewed the pitch and responded substantively — noting genuine interest in the problem space, and offering a structured paid advisory session (rather than an informal chat). Given founder budget constraints at this stage, the paid session wasn't booked; the relationship remains open, and he indicated he would flag relevant introductions from his network after reviewing the product further.
+One qualified investor touchpoint (direct outreach + pitch review). Structured entry: [`INVESTOR_LOG.md`](./INVESTOR_LOG.md).
 
-Two additional practitioners completed the product and provided written feedback:
+## Customer discovery feedback
+Two additional practitioners completed the product and provided written feedback (not investor engagement):
 
-> "My profile scores definitely captured how I feel about using AI to support clearly defined organisational objectives." — Curt P. Wellington, Faculty/Consultant, Arthur Lok Jack Graduate School of Business (usefulness 4/5, would continue using it)
+> "My profile scores definitely captured how I feel about using AI to support clearly defined organisational objectives." — Faculty, regional business school (usefulness 4/5, would continue using it)
 
-> "Yes. I sent it around, asking others to complete it as well." — Gwendolyn McLaren, HR Consultant, GCO Consulting
+> "Yes. I sent it around, asking others to complete it as well." — HR consultant
+
+> "What a brilliant course; so well designed and accessible. I completely enjoyed it and learned so much from that module... The module makes clear distinctions about the value of the human element in understanding a problem through observation, lived experience and curiosity... AI generations are largely permutations of existing data and not necessarily real innovation. Beautifully written generative outcomes do not mean it's a correct solution." — Tracy Farrag, Business Development Representative, Media & Editorial Projects Ltd (rated the module 5/5)
+
+> "I think the course is critical for everyone who uses AI because it addresses the inherent dangers if we don't understand our purpose in assigning a task to AI..." — on why the full programme is worth paying for
+
+Tracy has since referred two additional contacts for review: an author who has written on AI and the enduring value of human judgment, and a senior lecturer at UWI (University of the West Indies).
 
 ## Test plan
 - [x] Investor deck committed in repo
 - [x] Business plan committed in repo
 - [ ] ≥25 qualified external users, date-stamped snapshot
-- [ ] At least one documented investor engagement (PII redacted)
+- [x] At least one documented investor engagement (PII redacted)

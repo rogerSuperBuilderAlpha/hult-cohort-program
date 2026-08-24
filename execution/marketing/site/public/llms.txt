@@ -8,6 +8,7 @@
 - [Program overview](https://site-nine-rouge-68.vercel.app/overview): Full participant journey
 - [All projects](https://site-nine-rouge-68.vercel.app/program): Every phase and project
 - [Apply](https://site-nine-rouge-68.vercel.app/apply): Summer Pilot application
+- [Trustabl hackathon track](https://site-nine-rouge-68.vercel.app/hackathon/trustabl): Open contribution guide for today's in-person OSS swarm (Aug 24, 2026)
 - [Sitemap](https://site-nine-rouge-68.vercel.app/sitemap.xml)
 - [Robots](https://site-nine-rouge-68.vercel.app/robots.txt)
 

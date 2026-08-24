@@ -286,7 +286,7 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Contribute as a swarm: land at least one merged pull request in a qualified open-source project before pilot end.',
     description:
-      'Week 6: open source swarm. Select an upstream repository, submit a pull request, and get it merged. Track progress through a pull request to `{repo}` linking upstream work.\n\n**Suggested starting targets:**\n- [cursorboston.com](https://cursorboston.com) — community site; suitable for a first merge\n- [algorithmacy.org](https://algorithmacy.org) — research and education; docs, server-side, or repo-only work\n\nYou may also target major repositories (≥1,000 stars) or staff-approved equivalents. The pass gate is one merged upstream pull request before the pilot closes.',
+      'Week 6: open source swarm. Select an upstream repository, submit a pull request, and get it merged. Track progress through a pull request to `{repo}` linking upstream work.\n\n**Suggested starting targets:**\n- [Trustabl hackathon track](/hackathon/trustabl) — agent-security rules (YAML + rationale docs + tests); open to everyone at today\'s in-person swarm\n- [cursorboston.com](https://cursorboston.com) — community site; suitable for a first merge\n- [algorithmacy.org](https://algorithmacy.org) — research and education; docs, server-side, or repo-only work\n\nYou may also target major repositories (≥1,000 stars) or staff-approved equivalents. The pass gate is one merged upstream pull request before the pilot closes.',
     voteWeek: false,
     schedule: {
       submissionOpens: '2026-08-17T13:00:00.000Z',

@@ -42,5 +42,5 @@ export async function POST(request: Request) {  const session = await getSession
   }
 
   const result = await recordLearningEvent(session, event, body.metadata);
-  return NextResponse.json({ ok: result.ok, ...result });
+  return NextResponse.json(result);
 }

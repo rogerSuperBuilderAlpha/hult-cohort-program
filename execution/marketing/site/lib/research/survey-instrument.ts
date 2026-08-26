@@ -294,8 +294,9 @@ export const SURVEY_WAVES: SurveyWave[] = [
     intro:
       'This is the last survey. Answer for how things are for you now, at the end of the program.',
     // Opens after week 6 submission close (pilot end). Not used as a project gate.
+    // Extended from Aug 26 so the end-of-summer blast can still point people at it.
     opensAt: '2026-08-23T21:00:00.000Z',
-    closesAt: '2026-08-27T03:59:00.000Z',
+    closesAt: '2026-09-01T03:59:00.000Z',
     estimatedMinutes: 15,
     sections: [
       sec.acs(), sec.sa(), sec.ti(), sec.au(), sec.po(), sec.tms(), sec.su(), sec.be(), sec.se(),

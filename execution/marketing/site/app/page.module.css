@@ -2122,3 +2122,202 @@
   line-height: 1.45;
   color: var(--text-muted);
 }
+
+.eosOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(25, 25, 25, 0.55);
+}
+
+.eosModal {
+  display: flex;
+  flex-direction: column;
+  width: min(680px, 100%);
+  max-height: min(92vh, 820px);
+  background: var(--hult-cream);
+  color: var(--hult-ink);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.eosHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  padding: 20px 20px 12px;
+}
+
+.eosEyebrow {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.eosTitle {
+  margin: 0 0 6px;
+  font-family: var(--serif);
+  font-size: 1.65rem;
+  line-height: 1.15;
+}
+
+.eosLead {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.eosClose {
+  appearance: none;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--hult-white);
+  color: var(--hult-ink);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.eosClose:hover {
+  border-color: var(--border-strong);
+}
+
+.eosTabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 0 20px 12px;
+}
+
+.eosTab,
+.eosTabActive {
+  appearance: none;
+  margin: 0;
+  padding: 10px 14px;
+  border: 2px solid var(--hult-ink);
+  border-radius: 4px;
+  background: var(--hult-white);
+  color: var(--hult-ink);
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.eosTab:hover {
+  background: var(--bg-subtle-hover);
+}
+
+.eosTab:focus-visible,
+.eosTabActive:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.eosTabActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.eosPanel {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 20px 16px;
+}
+
+.eosPanel h3 {
+  margin: 0 0 10px;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.eosPanel p,
+.eosPanel li {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.eosPanel ul,
+.eosPanel ol {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.eosPanel li {
+  margin-bottom: 8px;
+}
+
+.eosPanel a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.eosPanel code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+}
+
+.eosPanel .primaryBtn {
+  display: inline-block;
+  margin: 4px 0 8px;
+  color: #fff;
+}
+
+.eosFooter {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 20px 20px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .eosOverlay {
+    padding: 8px;
+  }
+
+  .eosModal {
+    max-height: 96vh;
+  }
+
+  .eosHeader,
+  .eosTabList,
+  .eosPanel,
+  .eosFooter {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .eosTitle {
+    font-size: 1.35rem;
+  }
+
+  .eosTab,
+  .eosTabActive {
+    padding: 9px 11px;
+    font-size: 0.82rem;
+  }
+}

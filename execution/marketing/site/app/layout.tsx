@@ -5,6 +5,7 @@ import { AppProviders } from '@/components/AppProviders';
 import { JsonLdOrganization } from '@/components/JsonLdOrganization';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ConsentGate } from '@/components/ConsentGate';
+import { EndOfSummerModal } from '@/components/EndOfSummerModal';
 import {
   DEFAULT_OG_DESCRIPTION,
   getSiteUrl,
@@ -117,6 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <JsonLdOrganization />
           <div id="main-content">{children}</div>
           <SiteFooter />
+          <EndOfSummerModal />
           <ConsentGate />
         </AppProviders>
       </body>

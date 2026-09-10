@@ -132,7 +132,7 @@ export function takeHomeRepoFullName(): string {
   return 'rogerSuperBuilderAlpha/admissions-task-board-fall26';
 }
 
-/** Participant-facing label — repo slug may say fall26 while active cohort is summer26. */
+/** Participant-facing label for the admissions take-home repository. */
 export function takeHomeDisplayLabel(): string {
-  return 'Summer Pilot admissions take-home (GitHub)';
+  return 'Fall 2026 admissions take-home (GitHub)';
 }

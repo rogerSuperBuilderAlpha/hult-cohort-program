@@ -5,7 +5,6 @@ import { AppProviders } from '@/components/AppProviders';
 import { JsonLdOrganization } from '@/components/JsonLdOrganization';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ConsentGate } from '@/components/ConsentGate';
-import { EndOfSummerModal } from '@/components/EndOfSummerModal';
 import {
   DEFAULT_OG_DESCRIPTION,
   getSiteUrl,
@@ -47,14 +46,14 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SITE_NAME} | Summer Pilot 2026`,
+    default: `${SITE_NAME} | Fall 2026`,
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_OG_DESCRIPTION,
   keywords: [
     'Hult',
     'developer cohort',
-    'Summer Pilot 2026',
+    'Fall 2026',
     'software engineering',
     'production software',
     'engineering practice',
@@ -118,7 +117,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <JsonLdOrganization />
           <div id="main-content">{children}</div>
           <SiteFooter />
-          <EndOfSummerModal />
           <ConsentGate />
         </AppProviders>
       </body>

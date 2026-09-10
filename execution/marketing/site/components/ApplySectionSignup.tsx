@@ -7,8 +7,9 @@ import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import styles from '../app/page.module.css';
 
-const NEXT_OPEN = Boolean(process.env.NEXT_PUBLIC_NEXT_COHORT_ID?.trim());
-const NEXT_COHORT_ID = process.env.NEXT_PUBLIC_NEXT_COHORT_ID?.trim() || 'fall26';
+const NEXT_COHORT_ID = process.env.NEXT_PUBLIC_NEXT_COHORT_ID?.trim() || '';
+/** Hide interest capture while Fall 2026 applications are the live apply path. */
+const NEXT_OPEN = Boolean(NEXT_COHORT_ID) && NEXT_COHORT_ID !== 'fall26';
 
 /** Apply section on the home page — current cohort + next cohort interest. */
 export function ApplySectionSignup() {
@@ -34,8 +35,8 @@ export function ApplySectionSignup() {
       </div>
       {NEXT_OPEN ? (
         <div className={styles.applyCard}>
-          <span className={styles.phaseTag}>Fall 2026</span>
-          <h3>Not ready for July?</h3>
+          <span className={styles.phaseTag}>{NEXT_COHORT_ID}</span>
+          <h3>Later cohort</h3>
           <NextCohortInterestPanel
             interest={nextInterest}
             onInterestUpdated={() => void refresh()}

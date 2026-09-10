@@ -1,17 +1,17 @@
 /** Public copy for /start — newcomer intro (single source of truth). */
 
 export const programIntro = {
-  eyebrow: 'Open community · Summer Pilot 2026',
+  eyebrow: 'Open community · Fall 2026',
   title: 'What is this program?',
   lead:
     'A six-week, open-access community program where participants build production-grade software using professional frameworks, deployment practices, review workflows, and operational expectations. Peers review the early platforms; external users, investors, and maintainers judge the later weeks.',
   communityNote:
-    'Anyone can apply. Admission is through a short take-home and staff review—no degree enrollment required for Summer Pilot 2026.',
+    'Anyone can apply. Admission is through a short take-home and staff review—no degree enrollment required for Fall 2026.',
   enrollmentNote:
     'Complete platform onboarding (apply, take-home, staff approval) to unlock project pages and submissions.',
   toolingNote:
     'Cursor and Claude Code are required from week 1 (~$400/month combined). Participants work in modern development environments and production delivery workflows.',
-  ctaApply: 'Apply for Summer Pilot',
+  ctaApply: 'Apply for Fall 2026',
   ctaProgram: 'Project list',
 } as const;
 
@@ -101,6 +101,6 @@ export const introFaq: { q: string; a: string }[] = [
   },
   {
     q: 'Do I need to be a Hult student?',
-    a: 'No for Summer Pilot 2026. Apply on the platform, complete the take-home, and get admitted to the roster. Academic credit and formal certificates are not part of this open-access cohort.',
+    a: 'No for Fall 2026. Apply on the platform, complete the take-home, and get admitted to the roster. Academic credit and formal certificates are not part of this open-access cohort.',
   },
 ];

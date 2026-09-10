@@ -1,5 +1,6 @@
 'use client';
 
+import { cohortMarketing } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { isEnrolled } from '@/lib/participant-status';
 import { useParticipantStatus } from '@/lib/use-participant-status';
@@ -18,6 +19,6 @@ export function useEnrollmentHub() {
     signedIn: Boolean(profile),
     href: enrolled ? '/dashboard' : '/apply',
     label: loading ? '…' : enrolled ? 'Dashboard' : 'Apply',
-    heroLabel: loading ? '…' : enrolled ? 'Open dashboard' : 'Apply for Summer Pilot',
+    heroLabel: loading ? '…' : enrolled ? 'Open dashboard' : `Apply for ${cohortMarketing.label}`,
   };
 }

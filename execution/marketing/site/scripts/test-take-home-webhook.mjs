@@ -14,7 +14,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = process.env.COHORT_ID?.trim() || 'summer26';
+const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
 const WEBHOOK_URL =
   process.env.WEBHOOK_TEST_URL?.trim() ||
   'https://cohorts.algorithmacy.org/api/github/webhook';

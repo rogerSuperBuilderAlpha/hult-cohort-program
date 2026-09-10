@@ -65,7 +65,7 @@ import { extractAppRepo, parseGithubRepoFullName } from './app-repo.mjs';
 export { extractDeployUrl, extractAppRepo, parseGithubRepoFullName };
 
 const EMPTY_STATS: CohortStats = {
-  cohortId: 'summer26',
+  cohortId: 'fall26',
   enrolledCount: 0,
   peerReviewCount: 0,
   available: true,

@@ -8,7 +8,7 @@ import styles from '../page.module.css';
 export const metadata = {
   title: 'What is this program? | Hult Cohort',
   description:
-    'Visual intro to the open-access Summer Pilot: six-week timeline, Phase 1 peer review loop, and how to apply.',
+    'Visual intro to the open-access Fall 2026 cohort: six-week timeline, Phase 1 peer review loop, and how to apply.',
 };
 
 export default function StartPage() {

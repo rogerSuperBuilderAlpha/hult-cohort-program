@@ -46,7 +46,7 @@ export function getSiteDisplayLabel(): string {
 
 export const SITE_NAME = 'Hult Cohort Developer Program';
 
-export const SITE_TAGLINE = 'Open community · Summer Pilot 2026';
+export const SITE_TAGLINE = 'Open community · Fall 2026';
 
 export const GITHUB_REPO_URL =
   'https://github.com/rogerSuperBuilderAlpha/hult-cohort-program';

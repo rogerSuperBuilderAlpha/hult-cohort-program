@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import styles from '../page.module.css';
+import { cohortMarketing } from '@/content/program';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { formatPeerReviewsPerProject, operatorRoleCount } from '@/lib/cohort-stats-format';
 
 export const metadata = {
   title: 'Program Overview | Hult Cohort',
   description:
-    'Stakeholder summary: six-week Summer Pilot structure, production software outcomes, and July 2026 timeline.',
+    'Stakeholder summary: six-week Fall 2026 structure, production software outcomes, and October 2026 timeline.',
 };
 
 export const revalidate = 60;
@@ -32,7 +33,7 @@ export default async function OverviewPage() {
       />
 
       <article className={styles.overview}>
-        <p className={styles.eyebrow}>Stakeholder overview · Summer Pilot 2026</p>
+        <p className={styles.eyebrow}>Stakeholder overview · Fall 2026</p>
         <h1 className={styles.sectionTitle}>Open community program · production software pilot</h1>
         <p className={styles.overviewLead}>
           For a quick visual map, send participants to{' '}
@@ -45,7 +46,7 @@ export default async function OverviewPage() {
           <p>
             Participants complete six weekly deliverables by building, deploying, reviewing, and
             operating production-grade software. Assessment is pass/fail on published criteria.
-            Summer Pilot 2026 is open-access—formal academic credit and certificates are deferred.
+            Fall 2026 is open-access—formal academic credit and certificates are deferred.
           </p>
         </section>
 
@@ -106,8 +107,8 @@ export default async function OverviewPage() {
         <section className={styles.overviewBlock}>
           <h2>Timeline</h2>
           <p>
-            <strong>Start:</strong> July 13, 2026 at 09:00 Eastern Time · <strong>Showcase:</strong>{' '}
-            August 19, 2026
+            <strong>Start:</strong> {cohortMarketing.cohortStart} at 09:00 Eastern Time ·{' '}
+            <strong>Showcase:</strong> {cohortMarketing.showcase}
           </p>
         </section>
 

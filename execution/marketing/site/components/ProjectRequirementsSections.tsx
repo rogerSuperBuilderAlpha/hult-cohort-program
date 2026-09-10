@@ -2,7 +2,7 @@
 
 import type { ProgramProject } from '@/content/program';
 import type { CohortStats } from '@/lib/cohort-stats-types';
-import { cohortSubmissionRepo, participantBranch, projectBranch } from '@/lib/cohort-config';
+import { cohortId, cohortSubmissionRepo, participantBranch, projectBranch } from '@/lib/cohort-config';
 import { cohortRepoUrl } from '@/lib/github-urls';
 import type { ProjectProgress } from '@/lib/project-progress-types';
 import styles from '../app/page.module.css';
@@ -22,7 +22,7 @@ export function ProjectRequirementsSections({
   variant,
   progress,
 }: Props) {
-  const activeCohortId = stats?.cohortId?.trim() || 'summer26';
+  const activeCohortId = stats?.cohortId?.trim() || cohortId();
   const headingClass =
     variant === 'enrolled' ? styles.participantHeading : undefined;
 

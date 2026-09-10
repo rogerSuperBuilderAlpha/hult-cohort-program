@@ -68,7 +68,7 @@ export default function TermsPage() {
               open-source repository
             </a>
             . The platform tracks enrollment and progress; submissions, written peer reviews, and optional upvotes live on GitHub per those
-            criteria. Summer Pilot 2026 is an open-access community cohort—formal academic credit
+            criteria. Fall 2026 is an open-access community cohort—formal academic credit
             and certificates are not issued through this platform.
           </p>
           <p>

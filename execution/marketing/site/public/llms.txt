@@ -1,13 +1,13 @@
 # Hult Cohort Developer Program
 
-> Production software curriculum and cohort platform — engineering practice, deployment, review, and operations for Summer Pilot 2026.
+> Production software curriculum and cohort platform — engineering practice, deployment, review, and operations for Fall 2026.
 
 ## Public site
 
 - [Home](https://site-nine-rouge-68.vercel.app/): Landing page and apply CTA
 - [Program overview](https://site-nine-rouge-68.vercel.app/overview): Full participant journey
 - [All projects](https://site-nine-rouge-68.vercel.app/program): Every phase and project
-- [Apply](https://site-nine-rouge-68.vercel.app/apply): Summer Pilot application
+- [Apply](https://site-nine-rouge-68.vercel.app/apply): Fall 2026 application
 - [Trustabl hackathon track](https://site-nine-rouge-68.vercel.app/hackathon/trustabl): Open contribution guide for today's in-person OSS swarm (Aug 24, 2026)
 - [Sitemap](https://site-nine-rouge-68.vercel.app/sitemap.xml)
 - [Robots](https://site-nine-rouge-68.vercel.app/robots.txt)

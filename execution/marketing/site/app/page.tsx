@@ -24,7 +24,7 @@ export default async function Home() {
       />
 
       <section className={styles.hero}>
-        <p className={`${styles.eyebrow} animate-in`}>Open community · Summer 2026</p>
+        <p className={`${styles.eyebrow} animate-in`}>Open community · Fall 2026</p>
         <h1 className={`${styles.headline} animate-in delay-1`}>
           Build the software your<br />
           cohort actually runs on.
@@ -43,7 +43,7 @@ export default async function Home() {
         <div className={`${styles.heroMeta} animate-in delay-4`}>
           <span>Starts {cohortMarketing.cohortStart}</span>
           <span>Six weeks</span>
-          <span>Applications open {cohortMarketing.applicationsOpen.replace(', 2026', '')}</span>
+          <span>Apply by {cohortMarketing.applicationDeadline.replace(', 2026', '')}</span>
         </div>
       </section>
 
@@ -89,7 +89,7 @@ export default async function Home() {
 
       <section id="apply" className={styles.apply}>
         <p className={styles.sectionLabel}>Applications</p>
-        <h2>Summer 2026 is open.</h2>
+        <h2>Fall 2026 is open.</h2>
         <p>{cohortSizeLine} · Starts {cohortMarketing.cohortStart} · Apply by {cohortMarketing.applicationDeadline.replace(', 2026', '')}</p>
         <ApplySectionSignup />
       </section>

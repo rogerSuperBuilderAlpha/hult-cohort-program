@@ -27,7 +27,7 @@ import {
 import { sendEmail } from '../lib/mailer.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = process.env.COHORT_ID?.trim() || 'summer26';
+const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
 
 const VALID_STATUSES = [
   'submitted',

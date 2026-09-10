@@ -25,7 +25,7 @@ export default function ResearchSurveyPage() {
       />
 
       <article className={styles.overview}>
-        <p className={styles.eyebrow}>Summer Pilot 2026 · Research</p>
+        <p className={styles.eyebrow}>Research survey</p>
         <h1 className={styles.sectionTitle}>Cohort research survey</h1>
         <p className={styles.overviewLead}>
           A voluntary research study, approved by the Bentley University Institutional Review Board, on how
@@ -58,7 +58,7 @@ export default function ResearchSurveyPage() {
               </p>
             ) : (
               <p>
-                <strong>Enrolled participants only.</strong> <Link href="/apply">Apply for the Summer Pilot →</Link>
+                <strong>Enrolled participants only.</strong> <Link href="/apply">Apply for Fall 2026 →</Link>
               </p>
             )}
           </div>

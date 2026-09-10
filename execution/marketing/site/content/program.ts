@@ -4,10 +4,10 @@
  * - Review on GitHub; optional public Vote: up in the same issue (or abstain)
  * - "Peer" (not "classmate"); "required" (not "mandatory")
  * - Post-admission state: "Enrolled" (admission moment only on /apply)
- * - Money: ~$400/mo tooling; ~$800 (~2 months) combined for the Summer Pilot
+ * - Money: ~$400/mo tooling; ~$800 (~2 months) combined for the six-week cohort
  * - Tone: serious, professional, academic — no sales language or insider jargon
  *
- * Summer Pilot 2026 week map (source of truth):
+ * Fall 2026 week map (source of truth):
  * 1 PM platform · 2 Comms · 3 Vibe marketing · 4 Ludwitt learning · 5 Startup · 6 OSS swarm
  */
 export type ProjectSchedule = {
@@ -47,7 +47,9 @@ export type ProgramProject = {
 };
 
 /**
- * Six sequential weeks. Cohort start Mon Jul 13, 2026 (ET).
+ * Six sequential weeks. Cohort start Thu Oct 15, 2026 (ET).
+ * Week 1 is a 10-day first contest (Thu open → following Sunday close) so the
+ * Thursday kickoff is not a four-day sprint. Weeks 2–6 are Mon–Sun.
  * Vote weeks: merge by Sunday 17:00 ET; review window through Monday 17:00 ET.
  */
 export const programProjects: ProgramProject[] = [
@@ -63,11 +65,11 @@ export const programProjects: ProgramProject[] = [
       'Week 1 is the first contest. Each participant builds and deploys a production project management platform in one week. Motivation is the key variable: the system must be a solid snapshot of where someone — and the cohort — stands, and it must inspire people to work hard and deliver their best. The selected submission becomes live cohort infrastructure. Non-winners contribute pull requests to the winning build in later weeks.',
     voteWeek: true,
     schedule: {
-      submissionOpens: '2026-07-13T13:00:00.000Z',
-      submissionCloses: '2026-07-19T21:00:00.000Z',
-      reviewOpens: '2026-07-19T21:00:00.000Z',
-      /** Mon Jul 20, 2026 · 17:00 Eastern — aligned with participant comms (was 14:00 ET / closed early). */
-      reviewCloses: '2026-07-20T21:00:00.000Z',
+      submissionOpens: '2026-10-15T13:00:00.000Z',
+      submissionCloses: '2026-10-25T21:00:00.000Z',
+      reviewOpens: '2026-10-25T21:00:00.000Z',
+      /** Mon Oct 26, 2026 · 17:00 Eastern */
+      reviewCloses: '2026-10-26T21:00:00.000Z',
     },
     expectations: [
       'Cursor and Claude Code active (~$400/mo); Expectations Acknowledgment signed on the dashboard',
@@ -117,11 +119,11 @@ export const programProjects: ProgramProject[] = [
       'Week 2 contest: a production communications platform for the cohort — channels, direct messages, notifications, or asynchronous threads. It must support every enrolled participant and integrate with the selected project management platform where appropriate (deep links, shared authentication, task notifications). The winning submission operates cohort communications for the remainder of the pilot.',
     voteWeek: true,
     schedule: {
-      submissionOpens: '2026-07-20T13:00:00.000Z',
-      submissionCloses: '2026-07-26T21:00:00.000Z',
-      reviewOpens: '2026-07-26T21:00:00.000Z',
-      /** Mon Jul 27, 2026 · 17:00 Eastern — reviews close 17:00 ET, not 14:00 (matches Project 1). */
-      reviewCloses: '2026-07-27T21:00:00.000Z',
+      submissionOpens: '2026-10-26T13:00:00.000Z',
+      submissionCloses: '2026-11-01T22:00:00.000Z',
+      reviewOpens: '2026-11-01T22:00:00.000Z',
+      /** Mon Nov 2, 2026 · 17:00 Eastern (EST after Nov 1 DST end) */
+      reviewCloses: '2026-11-02T22:00:00.000Z',
     },
     expectations: [
       'Build and deploy a communications platform; integrate with the winning PM platform where appropriate',
@@ -161,10 +163,10 @@ export const programProjects: ProgramProject[] = [
       'Week 3 contest: a public-facing vibe marketing platform for the cohort. This is not a dry portfolio dump — it should make the work feel alive, credible, and worth following. Include participant profiles, project evidence, deployment links, and partner-facing narrative. The winning submission becomes the cohort\'s public marketing surface for the rest of the pilot.',
     voteWeek: true,
     schedule: {
-      submissionOpens: '2026-07-27T13:00:00.000Z',
-      submissionCloses: '2026-08-02T21:00:00.000Z',
-      reviewOpens: '2026-08-02T21:00:00.000Z',
-      reviewCloses: '2026-08-03T21:00:00.000Z',
+      submissionOpens: '2026-11-02T14:00:00.000Z',
+      submissionCloses: '2026-11-08T22:00:00.000Z',
+      reviewOpens: '2026-11-08T22:00:00.000Z',
+      reviewCloses: '2026-11-09T22:00:00.000Z',
     },
     expectations: [
       'Ship a production marketing site with strong visual and narrative vibe',
@@ -215,8 +217,8 @@ export const programProjects: ProgramProject[] = [
       '**Ludwitt publishes no public app directory**, so "production listing URL" means your own deployed app URL, not a listing on a Ludwitt store. Its own agent files at [pitchrise.ludwitt.com/llms.txt](https://pitchrise.ludwitt.com/llms.txt) and [llms-full.txt](https://pitchrise.ludwitt.com/llms-full.txt) are the most accurate documentation available — feed them to your coding agent before you start.',
     voteWeek: false,
     schedule: {
-      submissionOpens: '2026-08-03T13:00:00.000Z',
-      submissionCloses: '2026-08-09T21:00:00.000Z',
+      submissionOpens: '2026-11-09T14:00:00.000Z',
+      submissionCloses: '2026-11-15T22:00:00.000Z',
     },
     expectations: [
       'Register the application — hosted portal at ludwitt.com/developers (OAuth 2.0 + PKCE), or your own instance of the reference API (HS256 launch token). Both count.',
@@ -254,8 +256,8 @@ export const programProjects: ProgramProject[] = [
       '**Unlike week 4, the user count is a real gate here** — so decide early where your number comes from and say so in the pull request. Either source is accepted: metrics from the hosted Ludwitt platform, or from your own instance of the reference API. State which one, and date-stamp the snapshot. Self-reported counts with no traceable source are not accepted, and cohort members and user ids containing your own handle never count.',
     voteWeek: false,
     schedule: {
-      submissionOpens: '2026-08-10T13:00:00.000Z',
-      submissionCloses: '2026-08-16T21:00:00.000Z',
+      submissionOpens: '2026-11-16T14:00:00.000Z',
+      submissionCloses: '2026-11-22T22:00:00.000Z',
     },
     expectations: [
       'Venture documentation and production application — proof via merged pull request to `{repo}`',
@@ -289,8 +291,8 @@ export const programProjects: ProgramProject[] = [
       'Week 6: open source swarm. Select an upstream repository, submit a pull request, and get it merged. Track progress through a pull request to `{repo}` linking upstream work.\n\n**Suggested starting targets:**\n- [Trustabl hackathon track](/hackathon/trustabl) — agent-security rules (YAML + rationale docs + tests); open to everyone at today\'s in-person swarm\n- [cursorboston.com](https://cursorboston.com) — community site; suitable for a first merge\n- [algorithmacy.org](https://algorithmacy.org) — research and education; docs, server-side, or repo-only work\n\nYou may also target major repositories (≥1,000 stars) or staff-approved equivalents. The pass gate is one merged upstream pull request before the pilot closes.',
     voteWeek: false,
     schedule: {
-      submissionOpens: '2026-08-17T13:00:00.000Z',
-      submissionCloses: '2026-08-23T21:00:00.000Z',
+      submissionOpens: '2026-11-23T14:00:00.000Z',
+      submissionCloses: '2026-11-29T22:00:00.000Z',
     },
     expectations: [
       'Open a tracking pull request in `{repo}` linking the upstream repository and pull request',
@@ -321,17 +323,18 @@ export function getProject(slug: string): ProgramProject | undefined {
 
 /** Participant-facing admissions dates (single source for marketing copy). */
 export const cohortMarketing = {
-  label: 'Summer 2026',
-  applicationsOpen: 'June 15, 2026',
-  applicationDeadline: 'July 12, 2026',
-  cohortStart: 'July 13, 2026',
+  label: 'Fall 2026',
+  applicationsOpen: 'September 10, 2026',
+  applicationDeadline: 'October 14, 2026',
+  cohortStart: 'October 15, 2026',
+  showcase: 'December 2, 2026',
 } as const;
 
 /** Live cohort session — shown in the site header for accepted participants. */
 export const cohortLiveSession = {
-  label: 'Week 3 winner + Week 4 kickoff',
-  when: 'Mon Aug 3 · 6:00 PM ET',
-  zoomUrl: 'https://bentley.zoom.us/j/91058003725',
-  meetingId: '910 5800 3725',
+  label: '',
+  when: '',
+  zoomUrl: '',
+  meetingId: '',
   agendaUrl: '',
 } as const;

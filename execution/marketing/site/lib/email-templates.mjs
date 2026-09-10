@@ -21,7 +21,7 @@ export function buildApplicationConfirmationHtml({
 
   return `
     <p>Hi ${safeFirst},</p>
-    <p>We received your application for the Summer Pilot Cohort Developer Program.</p>
+    <p>We received your application for the Fall 2026 Cohort Developer Program.</p>
     <p><strong>Next step:</strong> Complete the 48-hour take-home.</p>
     <ul>
       <li>Repo: <a href="${safeRepo}">${safeRepo}</a></li>
@@ -47,7 +47,7 @@ export function buildAdmissionConfirmationHtml({
 
   return `
     <p>Hi ${safeFirst},</p>
-    <p>You're admitted to the <strong>Summer Pilot Cohort Developer Program</strong> (CS for Business elective).</p>
+    <p>You're admitted to the <strong>Fall 2026 Cohort Developer Program</strong>.</p>
     <p><strong>Your GitHub:</strong> @${safeHandle}</p>
     <p><strong>Participant dashboard:</strong> <a href="${dashboardUrl}">${dashboardUrl}</a></p>
     <p>Sign in with the same GitHub account you used to apply. Project pages, submission tracking, and peer review tools unlock immediately.</p>
@@ -82,7 +82,7 @@ export function buildApplicationNotificationHtml({
     : `@${safeHandle}`;
 
   return `
-    <p>New application for the Summer Pilot Cohort.</p>
+    <p>New application for the Fall 2026 Cohort.</p>
     ${row('Name', `${escapeHtml(firstName)} ${escapeHtml(lastName)}`)}
     ${row('Email', `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>`)}
     ${row('GitHub', githubLink)}
@@ -135,5 +135,5 @@ export function buildBlastHtml({ bodyHtml, unsubscribeUrl, fromName, physicalAdd
 }
 
 export const APPLICATION_EMAIL_SUBJECT = 'Hult Cohort — application received';
-export const ADMISSION_EMAIL_SUBJECT = "You're in — Hult Cohort Summer Pilot";
+export const ADMISSION_EMAIL_SUBJECT = "You're in — Hult Cohort Fall 2026";
 export const APPLICATION_NOTIFICATION_SUBJECT = 'New Hult Cohort application';

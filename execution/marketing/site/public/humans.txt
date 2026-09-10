@@ -9,6 +9,6 @@ Cursor Boston cohort model
 Contributors and peer reviewers
 
 /* SITE */
-Last update: 2026-06-12
+Last update: 2026-09-10
 Standards: HTML5, CSS3, Next.js App Router
 Components: Firebase Auth, Firestore, Vercel

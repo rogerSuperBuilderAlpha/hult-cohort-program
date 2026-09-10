@@ -261,9 +261,9 @@ export default function ApplyPage() {
     ? 'Apply'
     : pendingRoster
       ? 'Admitted'
-      : 'Apply for Summer 2026';
+      : `Apply for ${cohortMarketing.label}`;
   const pageLead = pendingRoster
-    ? 'You have been admitted to the Summer Pilot. Enrollment is being finalized; participant tools will become available shortly.'
+    ? `You have been admitted to the ${cohortMarketing.label} cohort. Enrollment is being finalized; participant tools will become available shortly.`
     : `Complete the application form for the ${cohortMarketing.cohortStart.replace(', 2026', '')} cohort. After you submit, you receive a focused 48-hour technical take-home before admission decisions are made.`;
 
   return (
@@ -272,7 +272,7 @@ export default function ApplyPage() {
 
       <article className={styles.overview}>
         <p className={styles.eyebrow}>
-          Summer Pilot 2026 · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : `Applications open ${cohortMarketing.applicationsOpen.replace(', 2026', '')}`}
+          {cohortMarketing.label} · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : `Apply by ${cohortMarketing.applicationDeadline.replace(', 2026', '')}`}
         </p>
         <h1 className={styles.sectionTitle}>{pageTitle}</h1>
         <p className={styles.overviewLead}>{pageLead}</p>

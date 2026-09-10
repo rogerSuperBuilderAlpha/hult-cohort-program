@@ -36,7 +36,7 @@ import {
 } from '../lib/blast-server.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const COHORT = process.env.COHORT_ID?.trim() || 'summer26';
+const COHORT = process.env.COHORT_ID?.trim() || 'fall26';
 
 // Minimal .env.local loader so EMAIL_ and AWS_ vars are present without extra deps.
 function loadDotEnv() {

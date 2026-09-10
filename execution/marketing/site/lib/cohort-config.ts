@@ -14,16 +14,17 @@ export type CohortContext = {
 
 const DEFAULT_COHORT_REPO = 'rogerSuperBuilderAlpha/hult-cohort-program';
 
-/** Active cohort document id in Firestore (Summer 2026 · starts July 13). */
+/** Active cohort document id in Firestore (Fall 2026 · starts October 15). */
 export function cohortId(): string {
-  return process.env.COHORT_ID?.trim() || 'summer26';
+  return process.env.COHORT_ID?.trim() || 'fall26';
 }
 
-/** Upcoming cohort id for interest sign-ups (Fall 2026). */
+/** Upcoming cohort id for interest sign-ups (unset while applications are open). */
 export function nextCohortId(): string | null {
   const id =
     process.env.NEXT_PUBLIC_NEXT_COHORT_ID?.trim() || process.env.NEXT_COHORT_ID?.trim();
-  return id || null;
+  if (!id || id === cohortId()) return null;
+  return id;
 }
 
 /** Participant-facing cohort name from internal id. */
@@ -44,7 +45,7 @@ export function knownCohortIds(): string[] {
   if (fromEnv) {
     return fromEnv.split(',').map((id) => id.trim()).filter(Boolean);
   }
-  return [cohortId()];
+  return ['summer26', 'fall26'];
 }
 
 /** Integration branch for a cohort (not used as PR base — avoids ref prefix conflicts). */

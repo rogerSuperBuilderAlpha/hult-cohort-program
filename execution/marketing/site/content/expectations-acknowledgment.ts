@@ -1,4 +1,4 @@
-/** Community-program Expectations Acknowledgment (Summer Pilot 2026). */
+/** Community-program Expectations Acknowledgment (Fall 2026). */
 
 export const expectationsAcknowledgment = {
   title: 'Expectations Acknowledgment',
@@ -17,5 +17,5 @@ export const expectationsAcknowledgment = {
   showcaseOptOutLabel:
     'Opt out of public marketing profile (you cannot operate the vibe marketing platform if checked)',
   confirmLabel:
-    'I have read and agree to these expectations for the Summer Pilot 2026 community cohort.',
+    'I have read and agree to these expectations for the Fall 2026 community cohort.',
 } as const;

@@ -140,7 +140,7 @@ export function buildProjectAgentPrompt(
   const workflow = workflowSteps(project, handle, org, activeCohortId);
 
   const lines: string[] = [
-    `You are my agent for the Hult Cohort Developer Program Summer Pilot 2026.`,
+    `You are my agent for the Hult Cohort Developer Program Fall 2026.`,
     ``,
     `## Project`,
     `- **${project.phaseLabel}:** ${project.title}`,

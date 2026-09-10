@@ -53,7 +53,7 @@ type GithubPull = {
 };
 
 const EMPTY_STATS: CohortStats = {
-  cohortId: 'summer26',
+  cohortId: 'fall26',
   enrolledCount: 0,
   peerReviewCount: 0,
   available: true,

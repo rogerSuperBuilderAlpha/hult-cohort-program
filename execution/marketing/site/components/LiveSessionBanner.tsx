@@ -15,6 +15,7 @@ export function LiveSessionBanner() {
   if (!isEnrolled(me) && !isAdmittedPendingRoster(me)) return null;
 
   const session = cohortLiveSession;
+  if (!session.zoomUrl.trim()) return null;
 
   return (
     <div className={styles.sessionBanner} role="status">

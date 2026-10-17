@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { AccountSection } from '@/components/AccountSection';
 import { ExpectationsAcknowledgmentPanel } from '@/components/ExpectationsAcknowledgmentPanel';
-import { programProjects } from '@/content/program';
+import { cohortMarketing, programProjects } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import type { ParticipantMe } from '@/lib/participant-status';
 import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
@@ -163,13 +163,7 @@ function ParticipantDashboard({
         <dt>Campus</dt>
         <dd>{me.roster?.campus ?? me.application?.campus ?? '—'}</dd>
         <dt>Cohort</dt>
-        <dd>
-          {stats.available && stats.enrolledCount > 0 ? (
-            <>{stats.enrolledCount} enrolled</>
-          ) : (
-            'Enrollment in progress'
-          )}
-        </dd>
+        <dd>{cohortMarketing.label}</dd>
         <dt>Status</dt>
         <dd>Enrolled</dd>
       </dl>

@@ -14,7 +14,7 @@ export function personalizeProgramText(
   text: string,
   handle: string,
   org = cohortOrg(),
-  stats?: CohortStats | null,
+  _stats?: CohortStats | null,
   reviewTarget?: number | null
 ): string {
   const repo = cohortSubmissionRepo();
@@ -35,8 +35,7 @@ export function personalizeProgramText(
     typeof reviewTarget === 'number' && reviewTarget > 0
       ? String(reviewTarget)
       : 'every peer with a merged submission';
-  const cohortLabel =
-    stats && stats.enrolledCount > 0 ? String(stats.enrolledCount) : 'the cohort';
+  const cohortLabel = 'the cohort';
   const reviewRequirement = formatPeerReviewRequirement(reviewTarget);
 
   result = result

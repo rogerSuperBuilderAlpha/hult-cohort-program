@@ -2,8 +2,7 @@ import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import styles from '../page.module.css';
 import { cohortMarketing } from '@/content/program';
-import { getCohortStats } from '@/lib/cohort-stats-server';
-import { formatPeerReviewsPerProject, operatorRoleCount } from '@/lib/cohort-stats-format';
+import { formatPeerReviewsPerProject } from '@/lib/cohort-stats-format';
 
 export const metadata = {
   title: 'Program Overview | Hult Cohort',
@@ -11,15 +10,9 @@ export const metadata = {
     'Stakeholder summary: six-week Fall 2026 structure, production software outcomes, and October 2026 timeline.',
 };
 
-export const revalidate = 60;
-
-export default async function OverviewPage() {
-  const cohortStats = await getCohortStats();
+export default function OverviewPage() {
   const peerReviewLine = formatPeerReviewsPerProject();
-  const operators =
-    cohortStats.enrolledCount > 0
-      ? `${operatorRoleCount(cohortStats.enrolledCount)} of ${cohortStats.enrolledCount} students`
-      : 'roughly 10% of the cohort per winning platform';
+  const operators = 'roughly 10% of the cohort per winning platform';
 
   return (
     <main className={styles.main}>

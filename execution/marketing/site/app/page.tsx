@@ -1,18 +1,9 @@
 import Link from 'next/link';
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
-import { ApplySectionSignup } from '@/components/ApplySectionSignup';
 import { SiteHeader } from '@/components/SiteHeader';
-import { getCohortStats } from '@/lib/cohort-stats-server';
-import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
-import { cohortMarketing } from '@/content/program';
 
-export const revalidate = 60;
-
-export default async function Home() {
-  const cohortStats = await getCohortStats();
-  const cohortSizeLine = formatCohortSizeLine(cohortStats);
-
+export default function Home() {
   return (
     <main className={styles.main}>
       <SiteHeader
@@ -41,9 +32,8 @@ export default async function Home() {
           </Link>
         </div>
         <div className={`${styles.heroMeta} animate-in delay-4`}>
-          <span>Starts {cohortMarketing.cohortStart}</span>
+          <span>The Fall 2026 cohort is underway.</span>
           <span>Six weeks</span>
-          <span>Apply by {cohortMarketing.applicationDeadline.replace(', 2026', '')}</span>
         </div>
       </section>
 
@@ -89,9 +79,10 @@ export default async function Home() {
 
       <section id="apply" className={styles.apply}>
         <p className={styles.sectionLabel}>Applications</p>
-        <h2>Fall 2026 is open.</h2>
-        <p>{cohortSizeLine} · Starts {cohortMarketing.cohortStart} · Apply by {cohortMarketing.applicationDeadline.replace(', 2026', '')}</p>
-        <ApplySectionSignup />
+        <h2>The Fall 2026 cohort is underway.</h2>
+        <p>
+          <Link href="/apply">Join the interest list for the next cohort.</Link>
+        </p>
       </section>
     </main>
   );

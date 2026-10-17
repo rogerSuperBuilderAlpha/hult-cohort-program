@@ -243,7 +243,6 @@ function EnrolledView({
       <div className={styles.participantBanner}>
         <p className={styles.participantBannerEyebrow}>
           Enrolled · Fall 2026 · @{handle}
-          {stats && stats.enrolledCount > 0 ? ` · Cohort ${stats.enrolledCount}` : ''}
         </p>
         <p className={styles.participantBannerLead}>
           {project.voteWeek ? (
@@ -305,17 +304,8 @@ function PublicView({
           <ProgramDescription text={descriptionText} />
           <p className={styles.formNote} style={{ marginTop: 0 }}>
             Template placeholders <code>{'{repo}'}</code>, <code>{'{org}'}</code>, and{' '}
-            <code>{'{handle}'}</code> are replaced after enrollment.
-            {stats && stats.enrolledCount > 0 ? (
-              <>
-                {' '}
-                Current cohort: <strong>{stats.enrolledCount}</strong> enrolled. You review one
-                merged submission per peer who ships — the count is set by submissions, not
-                roster size.
-              </>
-            ) : (
-              <> You review one merged submission per peer who ships.</>
-            )}
+            <code>{'{handle}'}</code> are replaced after enrollment. You review one merged
+            submission per peer who ships.
             {applicantInFlight ? (
               <>
                 {' '}

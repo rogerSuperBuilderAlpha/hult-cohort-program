@@ -1,13 +1,14 @@
-import { DEFAULT_OG_DESCRIPTION } from '@/lib/site-config';
+import { OG_IMAGE_SIZE } from '@/lib/og-image-size';
 import { ogImageJsx, pngImageResponse } from '@/lib/og-image';
+import { OG_IMAGE_ALT, RUNS_ON_LUDWITT_LINE } from '@/lib/site-config';
 
-export const alt = 'Hult Cohort Developer Program — Fall 2026';
-export const size = { width: 1200, height: 630 };
+export const alt = OG_IMAGE_ALT;
+export const size = OG_IMAGE_SIZE;
 export const contentType = 'image/png';
 
 export default function OpenGraphImage() {
   return pngImageResponse(
-    ogImageJsx('A six-week developer pilot evaluated on verifiable work.', DEFAULT_OG_DESCRIPTION),
+    ogImageJsx('Build, deploy, and review production software.', RUNS_ON_LUDWITT_LINE),
     size.width,
     size.height
   );

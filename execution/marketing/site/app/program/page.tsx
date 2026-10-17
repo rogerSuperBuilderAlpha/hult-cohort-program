@@ -3,12 +3,9 @@ import { PageFrame } from '@/components/PageFrame';
 import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import styles from '../page.module.css';
 import { programProjects } from '../../content/program';
+import { metadataForPath } from '@/lib/page-metadata';
 
-export const metadata = {
-  title: 'Program | Hult Cohort Developer Program',
-  description:
-    'Project requirements, submission standards, and assessment criteria for each week of the cohort.',
-};
+export const metadata = metadataForPath('/program');
 
 export default function ProgramIndexPage() {
   const phase1 = programProjects.filter((p) => p.phase === 'phase-1');

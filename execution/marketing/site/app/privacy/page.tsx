@@ -1,12 +1,10 @@
 import Link from 'next/link';
 import { PageFrame } from '@/components/PageFrame';
+import { metadataForPath } from '@/lib/page-metadata';
 import { getSiteDisplayLabel, getSiteUrl } from '@/lib/site-config';
 import styles from '../page.module.css';
 
-export const metadata = {
-  title: 'Privacy Policy',
-  description: 'How the Hult Cohort Developer Program collects, uses, and stores your data.',
-};
+export const metadata = metadataForPath('/privacy');
 
 export default function PrivacyPage() {
   const siteUrl = getSiteUrl();

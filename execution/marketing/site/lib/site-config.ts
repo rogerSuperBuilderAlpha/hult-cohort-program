@@ -1,4 +1,25 @@
+import { PITCHRISE_URL } from '@/content/pitchrise';
+
 const FALLBACK_SITE_URL = 'https://site-nine-rouge-68.vercel.app';
+
+/** Production origin for canonical, Open Graph, sitemap, and robots URLs. */
+export const CANONICAL_SITE_ORIGIN = 'https://cohorts.algorithmacy.org';
+
+/** Absolute URL on the production host, without a trailing slash. */
+export function canonicalUrl(path = '/'): string {
+  if (path === '/' || path === '') return CANONICAL_SITE_ORIGIN;
+  const suffix = path.startsWith('/') ? path : `/${path}`;
+  return `${CANONICAL_SITE_ORIGIN}${suffix.replace(/\/$/, '')}`;
+}
+
+/** Public brand used in titles, Open Graph, and Twitter tags. */
+export const METADATA_SITE_NAME = 'Algorithmacy Cohorts';
+
+/** Host of the Ludwitt platform this cohort runs on (Pitchrise). */
+export const PITCHRISE_HOST = new URL(PITCHRISE_URL).host;
+
+/** Shared preview sentence. Pitchrise stays the on-page section title. */
+export const RUNS_ON_LUDWITT_LINE = `The program runs on Ludwitt (${PITCHRISE_HOST}).`;
 
 let warnedSiteUrlFallback = false;
 
@@ -59,4 +80,12 @@ export const ALGORITHMACY_LAB_URL =
 export const ALGORITHMACY_CONFERENCE_URL = 'https://algorithmacy.org';
 
 export const DEFAULT_OG_DESCRIPTION =
-  'Open-access community program: build, deploy, review, and operate production-grade software in six weeks.';
+  `Open-access community program: build, deploy, review, and operate production-grade software in six weeks. ${RUNS_ON_LUDWITT_LINE}`;
+
+export const OG_IMAGE_ALT = `${METADATA_SITE_NAME}. ${RUNS_ON_LUDWITT_LINE}`;
+
+export function withRunsOnLudwitt(description: string): string {
+  const trimmed = description.trim();
+  if (trimmed.includes(PITCHRISE_HOST)) return trimmed;
+  return `${trimmed} ${RUNS_ON_LUDWITT_LINE}`;
+}

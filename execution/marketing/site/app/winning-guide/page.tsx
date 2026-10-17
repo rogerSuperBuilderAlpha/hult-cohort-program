@@ -1,13 +1,10 @@
 import Link from 'next/link';
 import { PageFrame } from '@/components/PageFrame';
 import { winningGuide } from '@/content/winning-guide';
+import { metadataForPath } from '@/lib/page-metadata';
 import styles from '../page.module.css';
 
-export const metadata = {
-  title: 'What Winning Means | Hult Cohort',
-  description:
-    'A practical guide for future cohort winners on maintaining a repo after it becomes the shared platform for everyone else.',
-};
+export const metadata = metadataForPath('/winning-guide');
 
 export default function WinningGuidePage() {
   return (

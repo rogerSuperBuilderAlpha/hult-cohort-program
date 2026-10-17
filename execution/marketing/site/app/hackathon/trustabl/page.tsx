@@ -1,13 +1,10 @@
 import Link from 'next/link';
 import { PageFrame } from '@/components/PageFrame';
 import { hackathonTrustabl } from '@/content/hackathon-trustabl';
+import { metadataForPath } from '@/lib/page-metadata';
 import styles from '../../page.module.css';
 
-export const metadata = {
-  title: 'Trustabl Hackathon Track | Hult Cohort',
-  description:
-    'Archive of the August 24, 2026 Trustabl contribution guide: detection rules, threat-model docs, and test fixtures. Repositories remain open for remote work.',
-};
+export const metadata = metadataForPath('/hackathon/trustabl');
 
 export default function HackathonTrustablPage() {
   const content = hackathonTrustabl;

@@ -6,12 +6,9 @@ import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import styles from '../page.module.css';
 import { cohortMarketing } from '@/content/program';
 import { formatPeerReviewsPerProject } from '@/lib/cohort-stats-format';
+import { metadataForPath } from '@/lib/page-metadata';
 
-export const metadata = {
-  title: 'Program Overview | Hult Cohort',
-  description:
-    'Stakeholder summary: six-week Fall 2026 structure, production software outcomes, and October 2026 timeline.',
-};
+export const metadata = metadataForPath('/overview');
 
 export default function OverviewPage() {
   const peerReviewLine = formatPeerReviewsPerProject();

@@ -1,13 +1,11 @@
 import type { MetadataRoute } from 'next';
-import { getSiteUrl, SITE_NAME, SITE_TAGLINE } from '@/lib/site-config';
+import { CANONICAL_SITE_ORIGIN, DEFAULT_OG_DESCRIPTION, METADATA_SITE_NAME } from '@/lib/site-config';
 
 export default function manifest(): MetadataRoute.Manifest {
-  const base = getSiteUrl();
-
   return {
-    name: SITE_NAME,
-    short_name: 'Hult Cohort',
-    description: SITE_TAGLINE,
+    name: METADATA_SITE_NAME,
+    short_name: 'Algorithmacy',
+    description: DEFAULT_OG_DESCRIPTION,
     start_url: '/',
     display: 'standalone',
     background_color: '#FFFAE7',
@@ -28,7 +26,7 @@ export default function manifest(): MetadataRoute.Manifest {
     related_applications: [
       {
         platform: 'web',
-        url: base,
+        url: CANONICAL_SITE_ORIGIN,
       },
     ],
   };

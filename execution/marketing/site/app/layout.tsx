@@ -5,11 +5,11 @@ import { AppProviders } from '@/components/AppProviders';
 import { JsonLdOrganization } from '@/components/JsonLdOrganization';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ConsentGate } from '@/components/ConsentGate';
+import { metadataForPath } from '@/lib/page-metadata';
 import {
-  DEFAULT_OG_DESCRIPTION,
-  getSiteUrl,
+  CANONICAL_SITE_ORIGIN,
   GITHUB_REPO_URL,
-  SITE_NAME,
+  METADATA_SITE_NAME,
 } from '@/lib/site-config';
 import './globals.css';
 
@@ -41,16 +41,18 @@ const efCircular = localFont({
   fallback: ['Helvetica', 'Open Sans', 'Gill Sans MT', 'Gill Sans', 'Corbel', 'Arial', 'sans-serif'],
 });
 
-const siteUrl = getSiteUrl();
+const homeMeta = metadataForPath('/');
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(CANONICAL_SITE_ORIGIN),
   title: {
-    default: `${SITE_NAME} | Fall 2026`,
-    template: `%s | ${SITE_NAME}`,
+    default: METADATA_SITE_NAME,
+    template: `%s | ${METADATA_SITE_NAME}`,
   },
-  description: DEFAULT_OG_DESCRIPTION,
+  description: homeMeta.description,
   keywords: [
+    'Algorithmacy Cohorts',
+    'Ludwitt',
     'Hult',
     'developer cohort',
     'Fall 2026',
@@ -59,29 +61,21 @@ export const metadata: Metadata = {
     'engineering practice',
   ],
   authors: [{ name: 'Hult International Business School' }],
-  creator: SITE_NAME,
+  creator: METADATA_SITE_NAME,
   openGraph: {
-    title: SITE_NAME,
-    description: DEFAULT_OG_DESCRIPTION,
-    url: siteUrl,
-    siteName: SITE_NAME,
+    ...homeMeta.openGraph,
     locale: 'en_US',
-    type: 'website',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: SITE_NAME,
-    description: DEFAULT_OG_DESCRIPTION,
-  },
+  twitter: homeMeta.twitter,
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true },
   },
   alternates: {
-    canonical: siteUrl,
+    canonical: homeMeta.alternates?.canonical,
     types: {
-      'application/llms.txt': `${siteUrl}/llms.txt`,
+      'application/llms.txt': `${CANONICAL_SITE_ORIGIN}/llms.txt`,
     },
   },
   manifest: '/manifest.webmanifest',

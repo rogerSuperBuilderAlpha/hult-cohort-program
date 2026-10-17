@@ -4,7 +4,7 @@ import { ProgramProjectView } from '@/components/ProgramProjectView';
 import { PageFrame } from '@/components/PageFrame';
 import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { getCohortStats } from '@/lib/cohort-stats-server';
-import { getSiteUrl } from '@/lib/site-config';
+import { projectPageMetadata } from '@/lib/page-metadata';
 import styles from '../../page.module.css';
 import { getProject, programProjects } from '../../../content/program';
 
@@ -16,21 +16,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const project = getProject(slug);
-  if (!project) return { title: 'Not found' };
+  if (!project) return { title: 'Not found', robots: { index: false, follow: false } };
 
-  const url = `${getSiteUrl()}/program/${slug}`;
-
-  return {
-    title: project.title,
-    description: project.summary,
-    openGraph: {
-      title: `${project.title} | Hult Cohort Program`,
-      description: project.summary,
-      url,
-      type: 'article',
-    },
-    alternates: { canonical: url },
-  };
+  return projectPageMetadata(project);
 }
 
 export default async function ProgramProjectPage({

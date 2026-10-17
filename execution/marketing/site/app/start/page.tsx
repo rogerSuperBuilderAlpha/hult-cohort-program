@@ -6,13 +6,10 @@ import { ProgramIntroLoop } from '@/components/ProgramIntroLoop';
 import { ProgramIntroTimeline } from '@/components/ProgramIntroTimeline';
 import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { introFaq, programIntro } from '@/content/program-intro';
+import { metadataForPath } from '@/lib/page-metadata';
 import styles from '../page.module.css';
 
-export const metadata = {
-  title: 'What is this program? | Hult Cohort',
-  description:
-    'Visual intro to the open-access Fall 2026 cohort: six-week timeline, Phase 1 peer review loop, and how to apply.',
-};
+export const metadata = metadataForPath('/start');
 
 export default function StartPage() {
   return (

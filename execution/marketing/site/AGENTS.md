@@ -98,11 +98,11 @@ Deploy: `vercel deploy --prod` from this directory (project `hult-cohort`).
 
 | Route / file | Purpose |
 |--------------|---------|
-| `app/robots.ts` | `/robots.txt` — allow public pages, disallow `/api/` |
-| `app/sitemap.ts` | `/sitemap.xml` — home, overview, program, apply, all project slugs |
+| `app/robots.ts` | `/robots.txt` — allow public pages, disallow `/api/` and `/dashboard` |
+| `app/sitemap.ts` | `/sitemap.xml` — public pages and project slugs on cohorts.algorithmacy.org; omits `/dashboard` |
 | `app/manifest.ts` | Web app manifest |
 | `app/icon.tsx`, `apple-icon.tsx` | Favicons |
 | `app/opengraph-image.tsx` | Default OG/Twitter card |
 | `public/llms.txt` | LLM/crawler index |
 | `public/.well-known/security.txt` | Security contact |
-| `lib/site-config.ts` | `NEXT_PUBLIC_SITE_URL`, canonical base URL |
+| `lib/site-config.ts` | Canonical origin `https://cohorts.algorithmacy.org` for titles, OG, sitemap |

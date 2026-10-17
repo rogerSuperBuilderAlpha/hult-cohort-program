@@ -6,6 +6,7 @@ import { getNextCohortInterest } from '@/lib/cohort-interest-server';
 import { resolveEnrollment } from '@/lib/enrollment-server';
 import { rosterMemberRef } from '@/lib/firestore-paths';
 import { getParticipantSubmissions } from '@/lib/submissions-server';
+import { getSurveyState } from '@/lib/research/survey-server';
 import type { ApplicationStatus, ParticipantMe } from '@/lib/participant-status';
 import type { SubmissionEntry } from '@/lib/submissions-types';
 
@@ -42,13 +43,14 @@ export async function buildParticipantMe(
     rosterActive,
   });
 
-  const [expectationsAcknowledgment, submissions] = await Promise.all([
+  const [expectationsAcknowledgment, submissions, survey] = await Promise.all([
     enrollment.canAccessEnrolledUi
       ? getExpectationsAcknowledgment(githubHandle, id)
       : Promise.resolve(null),
     includeSubmissions
       ? getParticipantSubmissions(id, githubHandle)
       : Promise.resolve([] as SubmissionEntry[]),
+    includeSubmissions ? getSurveyState(githubHandle) : Promise.resolve(null),
   ]);
 
   return {
@@ -78,6 +80,17 @@ export async function buildParticipantMe(
       : null,
     nextCohortInterest,
     expectationsAcknowledgment,
+    ...(includeSubmissions
+      ? {
+          research: survey
+            ? {
+                consented: survey.consented,
+                declined: survey.declined,
+                completedWaveIds: survey.waves.filter((wave) => wave.completed).map((wave) => wave.id),
+              }
+            : null,
+        }
+      : {}),
   };
 }
 

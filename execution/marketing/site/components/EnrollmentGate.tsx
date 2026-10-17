@@ -10,8 +10,10 @@ type EnrollmentGateProps = {
   unconfiguredMessage?: string;
   loadingMessage?: string;
   signedOut: ReactNode;
-  notEnrolled: ReactNode;
-  enrolled: ReactNode;
+  notEnrolled?: ReactNode;
+  enrolled?: ReactNode;
+  /** Any signed-in user. When set, the enrolled split is not used. */
+  signedIn?: ReactNode;
 };
 
 export function EnrollmentGate({
@@ -20,6 +22,7 @@ export function EnrollmentGate({
   signedOut,
   notEnrolled,
   enrolled,
+  signedIn,
 }: EnrollmentGateProps) {
   const { configured, profile, loading: authLoading, getIdToken } = useGithubAuth();
   const { me, loading: statusLoading } = useParticipantStatus(getIdToken, Boolean(profile));
@@ -34,6 +37,10 @@ export function EnrollmentGate({
 
   if (!profile) {
     return <>{signedOut}</>;
+  }
+
+  if (signedIn !== undefined) {
+    return <>{signedIn}</>;
   }
 
   if (!isEnrolled(me)) {

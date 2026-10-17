@@ -51,9 +51,9 @@ export function buildAdmissionConfirmationHtml({
     <p><strong>Your GitHub:</strong> @${safeHandle}</p>
     <p><strong>Participant dashboard:</strong> <a href="${dashboardUrl}">${dashboardUrl}</a></p>
     <p>Sign in with the same GitHub account you used to apply. Project pages, submission tracking, and peer review tools unlock immediately.</p>
-    <p><strong>Before week 1 (${COHORT_WEEK1_START_LABEL}):</strong></p>
+    <p><strong>First session:</strong> ${COHORT_WEEK1_START_LABEL}.</p>
     <ul>
-      <li>Register for the elective through Hult (dual enrollment required)</li>
+      <li><a href="https://bentley.zoom.us/j/95089006059">Join Zoom</a> — Meeting ID 950 8900 6059</li>
       <li>Review project expectations on the <a href="${programUrl}">program page</a></li>
       <li>Budget ~$400/month for Cursor and Claude Code from week 1</li>
     </ul>

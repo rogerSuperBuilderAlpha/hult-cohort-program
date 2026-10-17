@@ -7,6 +7,7 @@ import {
   ALGORITHMACY_LAB_URL,
   GITHUB_REPO_URL,
 } from '@/lib/site-config';
+import { clearStoredConsent } from '@/lib/cookie-consent';
 import { useEnrollmentHub } from '@/lib/use-enrollment-hub';
 import styles from '../app/page.module.css';
 
@@ -23,6 +24,7 @@ export function SiteFooter() {
           </div>
           <nav className={styles.footerLinks} aria-label="Site">
             <Link href="/program">Program</Link>
+            <Link href="/overview">Overview</Link>
             <Link href="/winning-guide">Winning guide</Link>
             <Link href={hub.href}>{hub.loading ? '…' : hub.enrolled ? 'Dashboard' : 'Apply'}</Link>
             {hub.signedIn ? <Link href="/history">History</Link> : null}
@@ -36,6 +38,9 @@ export function SiteFooter() {
             </a>
             <Link href="/llms.txt">llms.txt</Link>
             <Link href="/sitemap.xml">Sitemap</Link>
+            <button type="button" className={styles.navSignOut} onClick={() => clearStoredConsent()}>
+              Cookie preferences
+            </button>
           </nav>
         </div>
 

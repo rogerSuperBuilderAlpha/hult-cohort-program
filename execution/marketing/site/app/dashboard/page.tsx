@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { SiteHeader } from '@/components/SiteHeader';
+import { useCallback, useEffect, useState } from 'react';
+import { PageFrame } from '@/components/PageFrame';
 import { AccountSection } from '@/components/AccountSection';
 import { ExpectationsAcknowledgmentPanel } from '@/components/ExpectationsAcknowledgmentPanel';
-import { programProjects } from '@/content/program';
+import { UnificationWinnersPanel } from '@/components/ProjectOutcomeBanner';
+import { cohortMarketing, programProjects } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import type { ParticipantMe } from '@/lib/participant-status';
 import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
@@ -148,7 +149,7 @@ function ParticipantDashboard({
               ))}
             </>
           ) : (
-            ' · Between project windows — see upcoming deadlines below'
+            ' · Between project windows — open a project for its deadline'
           )}
         </p>
       ) : null}
@@ -163,16 +164,12 @@ function ParticipantDashboard({
         <dt>Campus</dt>
         <dd>{me.roster?.campus ?? me.application?.campus ?? '—'}</dd>
         <dt>Cohort</dt>
-        <dd>
-          {stats.available && stats.enrolledCount > 0 ? (
-            <>{stats.enrolledCount} enrolled</>
-          ) : (
-            'Enrollment in progress'
-          )}
-        </dd>
+        <dd>{cohortMarketing.label}</dd>
         <dt>Status</dt>
         <dd>Enrolled</dd>
       </dl>
+
+      <UnificationWinnersPanel outcomes={summary.phase1Outcomes} />
 
       <h2 className={styles.participantHeading}>Project progress</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
@@ -217,8 +214,8 @@ function ParticipantDashboard({
       <h2 className={styles.participantHeading}>Completion standing</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
         {trackedCompleteCount} of {summary.projects.length} projects have every platform-tracked
-        requirement complete (merged submission, plus all written reviews and votes on contest
-        weeks).
+        requirement complete: a merged submission, plus every required written review on contest
+        weeks. Upvotes are optional and are not part of this count.
       </p>
       <ul className={styles.onboardingChecklist}>
         {summary.projects.map((project) => {
@@ -253,8 +250,10 @@ function ParticipantDashboard({
 
       <h2 className={styles.participantHeading}>Data export</h2>
       <p className={styles.formNote} style={{ marginTop: 0 }}>
-        Download a JSON export of data held by this platform. Account deletion is available in the
-        Account section. See the <Link href="/privacy">Privacy Policy</Link> for details.
+        Download a JSON export of identity and submission data held by this platform. The file
+        includes a research summary (consent, decline, and completed waves) and does not include
+        survey item answers. Account deletion is available in the Account section. See the{' '}
+        <Link href="/privacy">Privacy Policy</Link> for details.
       </p>
       <div className={styles.participantActions} style={{ marginTop: 0, marginBottom: 24 }}>
         <button
@@ -274,7 +273,7 @@ function ParticipantDashboard({
             Open active project
           </Link>
         ) : (
-          <Link href="/program/phase-1-project-1" className={styles.primaryBtn}>
+          <Link href="/program" className={styles.primaryBtn}>
             Browse program
           </Link>
         )}
@@ -320,8 +319,12 @@ export default function DashboardPage() {
   } | null>(null);
   const [summaryError, setSummaryError] = useState('');
 
-  async function loadBootstrap() {
+  const enrolled = isEnrolled(me);
+  const handle = me?.githubHandle ?? '';
+
+  const loadBootstrap = useCallback(async (isCancelled?: () => boolean) => {
     const idToken = await getIdToken();
+    if (isCancelled?.()) return;
     if (!idToken) {
       setSummaryError('Could not read your session. Refresh the page to try again.');
       return;
@@ -330,36 +333,34 @@ export default function DashboardPage() {
       const res = await fetch('/api/bootstrap', {
         headers: { Authorization: `Bearer ${idToken}` },
       });
+      if (isCancelled?.()) return;
       const json = (await res.json()) as {
         dashboard?: DashboardSummary;
         survey?: typeof survey;
         error?: string;
       };
+      if (isCancelled?.()) return;
       if (!res.ok) throw new Error(json.error || 'Could not load dashboard.');
       setSummary(json.dashboard ?? null);
       setSurvey(json.survey ?? null);
       setSummaryError('');
     } catch (err) {
+      if (isCancelled?.()) return;
       setSummaryError(err instanceof Error ? err.message : 'Could not load dashboard.');
     }
-  }
+  }, [getIdToken]);
 
   useEffect(() => {
-    if (!profile || !isEnrolled(me)) return;
+    if (!profile || !enrolled) return;
     let cancelled = false;
-    void (async () => {
-      await loadBootstrap();
-      if (cancelled) return;
-    })();
+    void loadBootstrap(() => cancelled);
     return () => {
       cancelled = true;
     };
-  }, [profile, me, getIdToken]);
+  }, [profile, enrolled, handle, loadBootstrap]);
 
   return (
-    <main className={styles.main}>
-      <SiteHeader links={[{ href: '/program', label: 'Program' }, { href: '/', label: 'Home' }]} />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Fall 2026 · Participant dashboard</p>
         <h1 className={styles.sectionTitle}>Dashboard</h1>
@@ -380,6 +381,7 @@ export default function DashboardPage() {
             {authError ? <p className={styles.formError}>{authError}</p> : null}
           </div>
         ) : !isEnrolled(me) ? (
+          <>
           <div className={styles.callout}>
             {isApplicantInFlight(me) ? (
               <p>
@@ -419,8 +421,22 @@ export default function DashboardPage() {
               </p>
             )}
           </div>
+          {me ? (
+            <AccountSection
+              handle={me.githubHandle}
+              onSignOut={() => void signOut()}
+              onDelete={deleteAccount}
+              onDeleted={() => void refresh()}
+            />
+          ) : null}
+          </>
         ) : summaryError ? (
-          <p className={styles.formError}>{summaryError}</p>
+          <>
+            <p className={styles.formError}>{summaryError}</p>
+            <button type="button" className={styles.secondaryBtn} onClick={() => void loadBootstrap()}>
+              Try again
+            </button>
+          </>
         ) : !summary || !me ? (
           <p className={styles.formNote}>Loading your progress…</p>
         ) : (
@@ -441,6 +457,6 @@ export default function DashboardPage() {
 
         {statusError ? <p className={styles.formError}>{statusError}</p> : null}
       </article>
-    </main>
+    </PageFrame>
   );
 }

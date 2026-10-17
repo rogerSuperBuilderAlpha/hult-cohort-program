@@ -13,3 +13,8 @@ export function storeConsent(value: CookieConsentValue): void {
   window.localStorage.setItem(COOKIE_CONSENT_KEY, value);
   window.dispatchEvent(new CustomEvent('cookie-consent-updated', { detail: value }));
 }
+
+export function clearStoredConsent(): void {
+  window.localStorage.removeItem(COOKIE_CONSENT_KEY);
+  window.dispatchEvent(new CustomEvent('cookie-consent-updated', { detail: null }));
+}

@@ -30,7 +30,7 @@ export function ConsentGate() {
     if (stored === 'accepted') initAnalyticsOnce();
 
     const onUpdate = (event: Event) => {
-      const value = (event as CustomEvent<CookieConsentValue>).detail;
+      const value = (event as CustomEvent<CookieConsentValue | null>).detail;
       setConsent(value);
       if (value === 'accepted') initAnalyticsOnce();
     };

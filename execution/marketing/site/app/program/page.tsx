@@ -1,6 +1,6 @@
 import Link from 'next/link';
+import { PageFrame } from '@/components/PageFrame';
 import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
-import { SiteHeader } from '@/components/SiteHeader';
 import styles from '../page.module.css';
 import { programProjects } from '../../content/program';
 
@@ -15,9 +15,7 @@ export default function ProgramIndexPage() {
   const phase2 = programProjects.filter((p) => p.phase === 'phase-2');
 
   return (
-    <main className={styles.main}>
-      <SiteHeader links={[{ href: '/', label: 'Home' }]} />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Participant journey</p>
         <h1 className={styles.sectionTitle}>Six weeks · projects, requirements, assessment</h1>
@@ -34,7 +32,7 @@ export default function ProgramIndexPage() {
         <Section title="Weeks 4–6 · External sprints" projects={phase2} />
         <RunsOnPitchrise layout="overview" />
       </article>
-    </main>
+    </PageFrame>
   );
 }
 

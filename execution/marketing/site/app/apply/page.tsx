@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { SiteHeader } from '@/components/SiteHeader';
-import { cohortMarketing } from '@/content/program';
+import { PageFrame } from '@/components/PageFrame';
+import { cohortMarketing, isPastApplicationDeadline } from '@/content/program';
 import { AccountSection } from '@/components/AccountSection';
 import { EducatorPilotCta } from '@/components/EducatorPilotCta';
 import { PITCHRISE_TAGLINE } from '@/content/pitchrise';
@@ -74,17 +74,25 @@ function CharCountTextarea({
 }) {
   const [length, setLength] = useState(0);
 
+  const countId = `${name}-count`;
+
   return (
-    <label>
-      {label} ({length}/{maxLength} characters)
-      <textarea
-        name={name}
-        required={required}
-        rows={rows}
-        maxLength={maxLength}
-        onInput={(e) => setLength(e.currentTarget.value.length)}
-      />
-    </label>
+    <div>
+      <label>
+        {label}
+        <textarea
+          name={name}
+          required={required}
+          rows={rows}
+          maxLength={maxLength}
+          aria-describedby={countId}
+          onInput={(e) => setLength(e.currentTarget.value.length)}
+        />
+      </label>
+      <span id={countId} className={styles.formNote} style={{ marginTop: 4 }} aria-live="polite">
+        {length}/{maxLength} characters
+      </span>
+    </div>
   );
 }
 
@@ -93,8 +101,9 @@ function ApplicationSubmittedPanel({ takeHomeUrl }: { takeHomeUrl: string }) {
     <div className={styles.participantPanel}>
       <div className={styles.calloutSuccess}>
         <p style={{ marginTop: 0 }}>
-          <strong>Application submitted.</strong> Check your email for the take-home link, or open
-          the repository below.
+          <strong>Application submitted.</strong> Open the take-home repository below and start the
+          pull request. A confirmation email is also sent. If it does not arrive, the repository
+          link is enough to continue.
         </p>
       </div>
       <p className={styles.formNote}>
@@ -198,9 +207,7 @@ export default function ApplyPage() {
     me?.application?.takeHomeRepoUrl ||
     process.env.NEXT_PUBLIC_TAKE_HOME_REPO_URL ||
     DEFAULT_TAKE_HOME_REPO_URL;
-  const terminalApplication =
-    me?.application?.status === 'waitlisted' || me?.application?.status === 'rejected';
-  const showAccountSection = Boolean(me?.githubHandle) && !terminalApplication;
+  const showAccountSection = Boolean(me?.githubHandle);
 
   useEffect(() => {
     if (enrolled) router.replace('/dashboard');
@@ -208,14 +215,13 @@ export default function ApplyPage() {
 
   if (profile && (statusLoading || enrolled)) {
     return (
-      <main className={styles.main} id="main-content">
-        <SiteHeader links={[{ href: '/program', label: 'Program' }, { href: '/', label: 'Home' }]} />
+      <PageFrame>
         <article className={styles.overview}>
           <p className={styles.formNote}>
             {enrolled ? 'Redirecting to your dashboard…' : 'Loading your account…'}
           </p>
         </article>
-      </main>
+      </PageFrame>
     );
   }
 
@@ -259,22 +265,32 @@ export default function ApplyPage() {
     }
   }
 
+  const lateApplications = isPastApplicationDeadline();
   const pageTitle = enrolled
     ? 'Apply'
     : pendingRoster
       ? 'Admitted'
-      : `Apply for ${cohortMarketing.label}`;
+      : lateApplications
+        ? `Late application · ${cohortMarketing.label}`
+        : `Apply for ${cohortMarketing.label}`;
   const pageLead = pendingRoster
     ? `You have been admitted to the ${cohortMarketing.label} cohort. Enrollment is being finalized; participant tools will become available shortly.`
-    : `Complete the application form for the ${cohortMarketing.cohortStart.replace(', 2026', '')} cohort. After you submit, you receive a focused 48-hour technical take-home before admission decisions are made.`;
+    : lateApplications
+      ? `Late applications for the ${cohortMarketing.cohortStart.replace(', 2026', '')} cohort are still being accepted. The published deadline was ${cohortMarketing.applicationDeadline}. After you submit, you receive a focused 48-hour technical take-home before admission decisions are made.`
+      : `Complete the application form for the ${cohortMarketing.cohortStart.replace(', 2026', '')} cohort. After you submit, you receive a focused 48-hour technical take-home before admission decisions are made.`;
 
   return (
-    <main className={styles.main} id="main-content">
-      <SiteHeader links={[{ href: '/program', label: 'Program' }, { href: '/', label: 'Home' }]} />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>
-          {cohortMarketing.label} · {enrolled ? 'Redirecting…' : pendingRoster ? 'Admitted' : `Apply by ${cohortMarketing.applicationDeadline.replace(', 2026', '')}`}
+          {cohortMarketing.label} ·{' '}
+          {enrolled
+            ? 'Redirecting…'
+            : pendingRoster
+              ? 'Admitted'
+              : lateApplications
+                ? `Late applications · published deadline was ${cohortMarketing.applicationDeadline}`
+                : `Apply by ${cohortMarketing.applicationDeadline.replace(', 2026', '')}`}
         </p>
         <h1 className={styles.sectionTitle}>{pageTitle}</h1>
         <p className={styles.overviewLead}>{pageLead}</p>
@@ -380,8 +396,27 @@ export default function ApplyPage() {
                 />
                 <label>
                   Timezone
-                  <input name="timezone" type="text" required placeholder="America/New_York" />
+                  <input
+                    name="timezone"
+                    type="text"
+                    required
+                    placeholder="America/New_York"
+                    list="timezone-suggestions"
+                    autoComplete="off"
+                  />
                 </label>
+                <p className={styles.formNote} style={{ marginTop: 0 }}>
+                  Use an IANA zone such as America/New_York. Other zones are accepted.
+                </p>
+                <datalist id="timezone-suggestions">
+                  <option value="America/New_York" />
+                  <option value="America/Chicago" />
+                  <option value="America/Denver" />
+                  <option value="America/Los_Angeles" />
+                  <option value="Europe/London" />
+                  <option value="Asia/Dubai" />
+                  <option value="UTC" />
+                </datalist>
                 <label>
                   Preferred campus
                   <select name="campus" required defaultValue="">
@@ -426,12 +461,13 @@ export default function ApplyPage() {
                     I understand that my code, reviews, and project work will be visible for
                     assessment and partner review.
                   </label>
-                  <label className={styles.checkboxLabel}>
-                    <input name="confirmPolicies" type="checkbox" required />
-                    I agree to the{' '}
-                    <Link href="/terms">Terms of Service</Link> and{' '}
-                    <Link href="/privacy">Privacy Policy</Link>.
+                  <label className={styles.checkboxLabel} htmlFor="confirmPolicies">
+                    <input id="confirmPolicies" name="confirmPolicies" type="checkbox" required />
+                    I agree to the Terms of Service and Privacy Policy.
                   </label>
+                  <p className={styles.formNote} style={{ marginTop: 0 }}>
+                    <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
+                  </p>
                 </fieldset>
 
                 <label className={styles.honeypot} aria-hidden="true">
@@ -471,6 +507,6 @@ export default function ApplyPage() {
 
         <ApplyNextCohortSection />
       </article>
-    </main>
+    </PageFrame>
   );
 }

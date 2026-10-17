@@ -38,6 +38,12 @@ export type ParticipantMe = {
     indicatedAt?: string;
   } | null;
   expectationsAcknowledgment: ExpectationsAckRecord | null;
+  /** Present only on data export (`include=submissions`). No item-level answers. */
+  research?: {
+    consented: boolean;
+    declined: boolean;
+    completedWaveIds: string[];
+  } | null;
 };
 
 export function isEnrolled(me: ParticipantMe | null): boolean {

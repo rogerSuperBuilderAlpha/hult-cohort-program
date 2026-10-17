@@ -39,6 +39,22 @@ const REQUIRED: (keyof Omit<ApplicationInput, 'hultStudentId' | 'confirmations' 
     'referralSource',
   ];
 
+const FIELD_LABELS: Record<(typeof REQUIRED)[number], string> = {
+  firstName: 'First name',
+  lastName: 'Last name',
+  email: 'Email',
+  motivation: 'Why this program',
+  project1Idea: 'Project 1 PM platform idea',
+  timezone: 'Timezone',
+  campus: 'Preferred campus',
+  referralSource: 'How did you hear about us?',
+};
+
+export function missingFieldMessage(field: string): string {
+  const label = FIELD_LABELS[field as (typeof REQUIRED)[number]];
+  return label ? `Enter ${label}.` : `Enter ${field}.`;
+}
+
 export function parseGithubUrlHandle(url: string): string | null {
   const match = url.trim().match(/^https:\/\/github\.com\/([a-zA-Z0-9-]+)\/?$/i);
   return match ? match[1].toLowerCase() : null;
@@ -67,7 +83,7 @@ export function validateApplication(
 ): ApplicationInput {
   for (const field of REQUIRED) {
     if (!body[field]?.trim()) {
-      throw new Error(`Missing field: ${field}`);
+      throw new Error(missingFieldMessage(field));
     }
   }
   const githubUrl = options.githubUrl.trim();

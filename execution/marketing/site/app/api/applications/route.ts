@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { after } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
+import { isPastApplicationDeadline } from '@/content/program';
 import {
   applicationDocId,
   buildApplicationRecord,
@@ -108,6 +109,7 @@ async function handlePost(request: Request) {
       updatedAt: FieldValue.serverTimestamp(),
     };
     if (!doc.hultStudentId) delete doc.hultStudentId;
+    if (isPastApplicationDeadline()) doc.submittedAfterDeadline = true;
 
     try {
       // create() fails if the doc exists — closes the concurrent double-submit race

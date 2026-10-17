@@ -19,7 +19,6 @@ const REPO = process.env.NEXT_PUBLIC_COHORT_REPO?.trim() || 'rogerSuperBuilderAl
 const ORG = process.env.NEXT_PUBLIC_COHORT_ORG?.trim() || REPO.split('/')[0] || 'rogerSuperBuilderAlpha';
 
 const PROJECTS = [
-  { slug: 'onboarding', prTitle: (h) => `[Onboarding] Tooling checklist — ${h}`, ballot: false },
   { slug: 'phase-1-project-1', prTitle: (h) => `[Project 1] Submission — ${h}`, ballot: true },
   { slug: 'phase-1-project-2', prTitle: (h) => `[Project 2] Submission — ${h}`, ballot: true },
   { slug: 'phase-1-project-3', prTitle: (h) => `[Project 3] Submission — ${h}`, ballot: true },
@@ -166,10 +165,7 @@ async function main() {
       const prNumber = 100 + projectIndex * 10 + (toAdd.indexOf(student) % 10);
       const repo = REPO;
       const prUrl = `https://github.com/${repo}/pull/${prNumber}`;
-      const deployUrl =
-        project.slug === 'onboarding'
-          ? undefined
-          : `https://${student.handle}-${project.slug}.demo.hult-cohort.test`;
+      const deployUrl = `https://${student.handle}-${project.slug}.demo.hult-cohort.test`;
       const mergedAt = mergedAtForProject(projectIndex);
 
       ops.push((batch) => {

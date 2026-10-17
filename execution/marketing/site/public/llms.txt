@@ -4,25 +4,25 @@
 
 ## Public site
 
-- [Home](https://site-nine-rouge-68.vercel.app/): Landing page and apply CTA
-- [Program overview](https://site-nine-rouge-68.vercel.app/overview): Full participant journey
-- [All projects](https://site-nine-rouge-68.vercel.app/program): Every phase and project
-- [Apply](https://site-nine-rouge-68.vercel.app/apply): Fall 2026 application
+- [Home](https://cohorts.algorithmacy.org/): Landing page and apply CTA
+- [Program overview](https://cohorts.algorithmacy.org/overview): Full participant journey
+- [All projects](https://cohorts.algorithmacy.org/program): Every phase and project
+- [Apply](https://cohorts.algorithmacy.org/apply): Fall 2026 application
 - [Pitchrise](https://pitchrise.ludwitt.com): Platform this cohort runs on. Week 4 is the Ludwitt integration. Docs: https://pitchrise.ludwitt.com/docs
-- [Trustabl hackathon track](https://site-nine-rouge-68.vercel.app/hackathon/trustabl): Open contribution guide for today's in-person OSS swarm (Aug 24, 2026)
-- [Sitemap](https://site-nine-rouge-68.vercel.app/sitemap.xml)
-- [Robots](https://site-nine-rouge-68.vercel.app/robots.txt)
+- [Trustabl hackathon track](https://cohorts.algorithmacy.org/hackathon/trustabl): Open contribution guide for the in-person OSS swarm held Aug 24, 2026
+- [Sitemap](https://cohorts.algorithmacy.org/sitemap.xml)
+- [Robots](https://cohorts.algorithmacy.org/robots.txt)
 
 ## Program projects
 
-- [Onboarding](https://site-nine-rouge-68.vercel.app/program/onboarding)
-- [Project 1 — PM platform](https://site-nine-rouge-68.vercel.app/program/phase-1-project-1)
-- [Project 2 — Comms](https://site-nine-rouge-68.vercel.app/program/phase-1-project-2)
-- [Project 3 — Public showcase](https://site-nine-rouge-68.vercel.app/program/phase-1-project-3)
-- [Phase 1 unification](https://site-nine-rouge-68.vercel.app/program/phase-1-unification)
-- [Project 4 — Learning app](https://site-nine-rouge-68.vercel.app/program/phase-2-learning-app)
-- [Project 5 — Venture](https://site-nine-rouge-68.vercel.app/program/phase-2-venture)
-- [Project 6 — Open source](https://site-nine-rouge-68.vercel.app/program/phase-2-open-source)
+- [Onboarding](https://cohorts.algorithmacy.org/program/onboarding)
+- [Project 1 — PM platform](https://cohorts.algorithmacy.org/program/phase-1-project-1)
+- [Project 2 — Comms](https://cohorts.algorithmacy.org/program/phase-1-project-2)
+- [Project 3 — Public showcase](https://cohorts.algorithmacy.org/program/phase-1-project-3)
+- [Phase 1 unification](https://cohorts.algorithmacy.org/program/phase-1-unification)
+- [Project 4 — Learning app](https://cohorts.algorithmacy.org/program/phase-2-learning-app)
+- [Project 5 — Venture](https://cohorts.algorithmacy.org/program/phase-2-venture)
+- [Project 6 — Open source](https://cohorts.algorithmacy.org/program/phase-2-open-source)
 
 ## Open-source repository
 

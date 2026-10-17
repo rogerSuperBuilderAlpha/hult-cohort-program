@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ProgramProjectView } from '@/components/ProgramProjectView';
+import { PageFrame } from '@/components/PageFrame';
 import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
-import { SiteHeader } from '@/components/SiteHeader';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { getSiteUrl } from '@/lib/site-config';
 import styles from '../../page.module.css';
@@ -52,9 +52,7 @@ export default async function ProgramProjectPage({
   const initialStats = await getCohortStats();
 
   return (
-    <main className={styles.main}>
-      <SiteHeader links={[{ href: '/program', label: 'Program' }]} />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>{project.phaseLabel}</p>
         <h1 className={styles.sectionTitle}>{project.title}</h1>
@@ -75,6 +73,6 @@ export default async function ProgramProjectPage({
           <Link href="/program">← All projects</Link>
         </p>
       </article>
-    </main>
+    </PageFrame>
   );
 }

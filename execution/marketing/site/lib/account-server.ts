@@ -9,6 +9,7 @@ import {
   writtenReviewEntriesRef,
   writtenReviewVoterRef,
 } from '@/lib/firestore-paths';
+import { researchDeletionTargets } from '@/lib/research-deletion-targets';
 
 export type AccountDeletionResult = {
   applicationsDeleted: number;
@@ -17,15 +18,16 @@ export type AccountDeletionResult = {
   writtenReviewsDeleted: number;
   ratingsDeleted: number;
   cohortInterestRemoved: boolean;
+  researchRecordsDeleted: number;
   authUserDeleted: boolean;
 };
 
 /**
- * Deletes all platform-held data authored by a participant: their application(s),
- * roster membership, submission entries, authored written reviews, and authored peer
- * ratings, plus the Firebase Auth user. Aggregate votes cast by other participants
- * (which reference this handle as a key) are intentionally preserved for contest
- * integrity; the handle is the user's public GitHub identity, not private PII.
+ * Deletes platform-held data for a participant: application(s), roster membership,
+ * legacy submission entries, authored written reviews, authored peer ratings,
+ * expectations acknowledgment, research consent, and survey responses (by coded id),
+ * plus the Firebase Auth user. Public GitHub repositories, pull requests, and issues
+ * are not touched. Aggregate votes cast by other participants are preserved.
  */
 export async function deleteParticipantAccount(params: {
   githubHandle: string;
@@ -42,6 +44,7 @@ export async function deleteParticipantAccount(params: {
     writtenReviewsDeleted: 0,
     ratingsDeleted: 0,
     cohortInterestRemoved: false,
+    researchRecordsDeleted: 0,
     authUserDeleted: false,
   };
 
@@ -97,6 +100,10 @@ export async function deleteParticipantAccount(params: {
       result.cohortInterestRemoved = true;
     }
   }
+
+  const researchTargets = researchDeletionTargets(id, githubHandle);
+  await Promise.all(researchTargets.map((target) => db.doc(target.path).delete()));
+  result.researchRecordsDeleted = researchTargets.length;
 
   if (firebaseUid) {
     try {

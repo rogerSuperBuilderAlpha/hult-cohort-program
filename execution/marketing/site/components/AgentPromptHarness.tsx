@@ -21,14 +21,17 @@ export function AgentPromptHarness({
   lead = DEFAULT_LEAD,
 }: Props) {
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
 
   const copy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(prompt);
+      setCopyError(false);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
+      setCopyError(true);
     }
   }, [prompt]);
 
@@ -40,7 +43,7 @@ export function AgentPromptHarness({
           <p className={styles.harnessLead}>{lead}</p>
         </div>
         <button type="button" className={styles.copyHarnessBtn} onClick={() => void copy()}>
-          {copied ? 'Copied' : 'Copy prompt'}
+          {copied ? 'Copied' : copyError ? 'Could not copy' : 'Copy prompt'}
         </button>
       </div>
       {!personalized && (

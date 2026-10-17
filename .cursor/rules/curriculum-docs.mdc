@@ -23,12 +23,11 @@ When editing governance/assessment docs, prefer updating stale ranked-choice lan
 1. PM platform (cohort infrastructure)
 2. Comms (replaces Discord)
 3. Public showcase (hiring partners)
-4. Unification (winners merge three)
 
 ## Phase 2
 
-4. Learning app (≥25 users via Ludwitt/Hult API)
-5. Venture (deck + production app)
+4. Learning app (registered + instrumented on Ludwitt; no user-count condition to merge)
+5. Venture (deck + production app; ≥25 users and ≥1 investor touch)
 6. Open source (≥1 merged PR; cursorboston.com, algorithmacy.org as starters)
 
 ## Cross-links

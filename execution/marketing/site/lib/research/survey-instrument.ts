@@ -269,8 +269,9 @@ export const SURVEY_WAVES: SurveyWave[] = [
       'These questions ask how you work and how you read the tools and people you work with. There are no right answers. Answer for how things are for you as you begin the program. The wording is the same across all three surveys so we can measure change on the same scale.',
     // Opens before week 1; stays completable through Project 1's submission window because it gates
     // access to Project 1 (see SURVEY_GATES). Keeping it open avoids a permanent lock-out.
-    opensAt: '2026-07-09T04:00:00.000Z',
-    closesAt: '2026-07-22T21:00:00.000Z',
+    // Fall 2026: open on the application deadline, close with Project 1 submissions (Sun Oct 25, 17:00 ET).
+    opensAt: '2026-10-14T13:00:00.000Z',
+    closesAt: '2026-10-25T21:00:00.000Z',
     estimatedMinutes: 12,
     sections: [sec.acs(), sec.ti(), sec.au(), sec.su(), sec.be(), sec.se(), { title: 'Background', intro: 'All optional.', scale: 'CAT', items: DEM_ITEMS }],
   },
@@ -280,10 +281,10 @@ export const SURVEY_WAVES: SurveyWave[] = [
     shortLabel: 'Midpoint (after week 3)',
     intro:
       'You have completed the three Phase 1 contest weeks. Answer for how things are for you now.',
-    // Opens after week 3 review closes; stays completable through Week 4 (learning app) submission
-    // because it gates that project (see SURVEY_GATES). Keeping it open avoids a permanent lock-out.
-    opensAt: '2026-08-03T18:00:00.000Z',
-    closesAt: '2026-08-09T21:00:00.000Z',
+    // Dashboard prompt only — Week 4 is not survey-gated (see SURVEY_GATES).
+    // Opens with Week 4 (Mon Nov 9, 09:00 ET) and stays open through that submission close.
+    opensAt: '2026-11-09T14:00:00.000Z',
+    closesAt: '2026-11-15T22:00:00.000Z',
     estimatedMinutes: 13,
     sections: [sec.acs(), sec.sa(), sec.ti(), sec.au(), sec.po(), sec.tms(), sec.su(), sec.be()],
   },
@@ -293,10 +294,9 @@ export const SURVEY_WAVES: SurveyWave[] = [
     shortLabel: 'End of session (after week 6)',
     intro:
       'This is the last survey. Answer for how things are for you now, at the end of the program.',
-    // Opens after week 6 submission close (pilot end). Not used as a project gate.
-    // Extended from Aug 26 so the end-of-summer blast can still point people at it.
-    opensAt: '2026-08-23T21:00:00.000Z',
-    closesAt: '2026-09-01T03:59:00.000Z',
+    // Opens after week 6 submission close (Sun Nov 29, 17:00 ET). Not used as a project gate.
+    opensAt: '2026-11-29T22:00:00.000Z',
+    closesAt: '2026-12-07T04:59:00.000Z',
     estimatedMinutes: 15,
     sections: [
       sec.acs(), sec.sa(), sec.ti(), sec.au(), sec.po(), sec.tms(), sec.su(), sec.be(), sec.se(),

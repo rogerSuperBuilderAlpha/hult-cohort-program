@@ -23,7 +23,7 @@ Pass requires **all** of the following:
 
 | Unit | Gate |
 |------|------|
-| Learning app | ≥ 25 external users (platform snapshot) |
+| Learning app | Registered Ludwitt/Hult app with a working sign-in or launch flow and event tracking; merged proof PR. No user-count condition. |
 | Venture | ≥ 25 users + ≥ 1 investor touchpoint |
 | Open source | ≥ 1 merged PR in qualified repo |
 
@@ -43,7 +43,7 @@ Pass requires **all** of the following:
 | | Pass | Job-offer ready |
 |---|------|-----------------|
 | **Gate** | Metric thresholds above | Pass + [job-offer-readiness.md](job-offer-readiness.md) checklist |
-| **When** | Week 6 (Aug 19) | Week 6 + rolling |
+| **When** | Week 6 close (Sun Nov 29, 2026) | Week 6 + rolling |
 | **Effect** | Certificate + placement pool | Active partner promotion |
 
 Student may **pass but not yet ready** — still in placement pool, guarantee active.
@@ -67,9 +67,9 @@ No partial pass certificate cohort 1.
 
 | When | Action |
 |------|--------|
-| Aug 19, 18:00 | Private email: pass or fail + metric breakdown |
-| Aug 20 | Re-enrollment form link (next cohort) |
-| Aug 20 | Pass students: placement kickoff calendar invite |
+| Nov 30, 18:00 ET | Private email: pass or fail + metric breakdown |
+| Dec 1 | Re-enrollment form link (next cohort) |
+| Dec 2 | Pass students: placement kickoff; hiring partner showcase |
 
 Appeals: 48 hr window; program director reviews only for metric collection errors (GitHub API bug, etc.).
 

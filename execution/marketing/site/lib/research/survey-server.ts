@@ -50,6 +50,8 @@ export type SurveyState = {
   declined: boolean;
   waves: WaveSummary[];
   openWaveId: SurveyWaveId | null;
+  /** Saved items for the open wave when it is already completed. Omitted otherwise. No answers for other waves. */
+  openWaveAnswers: Record<string, number | string> | null;
 };
 
 async function consentRecord(
@@ -127,6 +129,18 @@ export async function getSurveyState(githubHandle: string, now = new Date()): Pr
   }));
 
   const open = openWave(now);
+  let openWaveAnswers: Record<string, number | string> | null = null;
+  if (open && completed.has(open.id)) {
+    const saved = await surveyResponseRef(cohortId(), open.id, pid).get();
+    const items = saved.data()?.items;
+    if (items && typeof items === 'object') {
+      const cleaned: Record<string, number | string> = {};
+      for (const [key, value] of Object.entries(items as Record<string, unknown>)) {
+        if (typeof value === 'number' || typeof value === 'string') cleaned[key] = value;
+      }
+      openWaveAnswers = cleaned;
+    }
+  }
 
   return {
     consentVersion: CONSENT_VERSION,
@@ -134,6 +148,7 @@ export async function getSurveyState(githubHandle: string, now = new Date()): Pr
     declined: consent.exists && !consent.consented,
     waves,
     openWaveId: open?.id ?? null,
+    openWaveAnswers,
   };
 }
 

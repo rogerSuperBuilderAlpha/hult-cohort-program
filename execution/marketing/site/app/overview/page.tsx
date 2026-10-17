@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { EducatorPilotCta } from '@/components/EducatorPilotCta';
+import { ParticipantCta } from '@/components/ParticipantCta';
+import { PageFrame } from '@/components/PageFrame';
 import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
-import { SiteHeader } from '@/components/SiteHeader';
 import styles from '../page.module.css';
 import { cohortMarketing } from '@/content/program';
-import { getCohortStats } from '@/lib/cohort-stats-server';
-import { formatPeerReviewsPerProject, operatorRoleCount } from '@/lib/cohort-stats-format';
+import { formatPeerReviewsPerProject } from '@/lib/cohort-stats-format';
 
 export const metadata = {
   title: 'Program Overview | Hult Cohort',
@@ -13,27 +13,12 @@ export const metadata = {
     'Stakeholder summary: six-week Fall 2026 structure, production software outcomes, and October 2026 timeline.',
 };
 
-export const revalidate = 60;
-
-export default async function OverviewPage() {
-  const cohortStats = await getCohortStats();
+export default function OverviewPage() {
   const peerReviewLine = formatPeerReviewsPerProject();
-  const operators =
-    cohortStats.enrolledCount > 0
-      ? `${operatorRoleCount(cohortStats.enrolledCount)} of ${cohortStats.enrolledCount} students`
-      : 'roughly 10% of the cohort per winning platform';
+  const operators = 'roughly 10% of the cohort per winning platform';
 
   return (
-    <main className={styles.main}>
-      <SiteHeader
-        links={[
-          { href: '/', label: 'Home' },
-          { href: '/start', label: 'Visual intro' },
-          { href: '/program', label: 'Program' },
-          { href: '/winning-guide', label: 'Winning guide' },
-        ]}
-      />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Stakeholder overview · Fall 2026</p>
         <h1 className={styles.sectionTitle}>Open community program · production software pilot</h1>
@@ -117,15 +102,13 @@ export default async function OverviewPage() {
         </section>
 
         <div className={styles.heroActions}>
-          <Link href="/apply" className={styles.primaryBtn}>
-            Apply
-          </Link>
+          <ParticipantCta />
           <EducatorPilotCta />
           <Link href="/start" className={styles.secondaryBtn}>
             Student intro
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

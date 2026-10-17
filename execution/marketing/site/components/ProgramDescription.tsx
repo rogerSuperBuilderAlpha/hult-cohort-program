@@ -47,7 +47,7 @@ function formatInline(text: string): ReactNode[] {
       parts.push(<strong key={key++}>{token.slice(2, -2)}</strong>);
     } else {
       const linkMatch = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(token);
-      if (linkMatch) {
+      if (linkMatch && /^https?:\/\//i.test(linkMatch[2])) {
         parts.push(
           <a key={key++} href={linkMatch[2]} target="_blank" rel="noopener noreferrer">
             {linkMatch[1]}

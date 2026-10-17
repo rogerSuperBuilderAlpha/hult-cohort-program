@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
 import { EducatorPilotCta } from '@/components/EducatorPilotCta';
+import { ParticipantCta } from '@/components/ParticipantCta';
+import { PageFrame } from '@/components/PageFrame';
 import { ProgramIntroLoop } from '@/components/ProgramIntroLoop';
 import { ProgramIntroTimeline } from '@/components/ProgramIntroTimeline';
 import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
@@ -15,15 +16,7 @@ export const metadata = {
 
 export default function StartPage() {
   return (
-    <main className={styles.main}>
-      <SiteHeader
-        links={[
-          { href: '/', label: 'Home' },
-          { href: '/program', label: 'Program' },
-          { href: '/winning-guide', label: 'Winning guide' },
-        ]}
-      />
-
+    <PageFrame>
       <article className={styles.introPage}>
         <p className={styles.eyebrow}>{programIntro.eyebrow}</p>
         <h1 className={styles.sectionTitle}>{programIntro.title}</h1>
@@ -66,15 +59,13 @@ export default function StartPage() {
         </section>
 
         <div className={styles.heroActions}>
-          <Link href="/apply" className={styles.primaryBtn}>
-            {programIntro.ctaApply}
-          </Link>
+          <ParticipantCta />
           <EducatorPilotCta />
           <Link href="/program" className={styles.secondaryBtn}>
             {programIntro.ctaProgram}
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

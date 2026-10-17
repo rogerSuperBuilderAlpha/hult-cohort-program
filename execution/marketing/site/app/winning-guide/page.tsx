@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { PageFrame } from '@/components/PageFrame';
 import { winningGuide } from '@/content/winning-guide';
 import styles from '../page.module.css';
 
@@ -11,15 +11,7 @@ export const metadata = {
 
 export default function WinningGuidePage() {
   return (
-    <main className={styles.main}>
-      <SiteHeader
-        links={[
-          { href: '/', label: 'Home' },
-          { href: '/program', label: 'Program' },
-          { href: '/winning-guide', label: 'Winning guide' },
-        ]}
-      />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>{winningGuide.eyebrow}</p>
         <h1 className={styles.sectionTitle}>{winningGuide.title}</h1>
@@ -96,6 +88,6 @@ export default function WinningGuidePage() {
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

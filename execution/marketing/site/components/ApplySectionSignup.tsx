@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { NextCohortInterestPanel } from '@/components/NextCohortInterestPanel';
 import { cohortMarketing } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
+import { useEnrollmentHub } from '@/lib/use-enrollment-hub';
 import { useParticipantStatus } from '@/lib/use-participant-status';
 import styles from '../app/page.module.css';
 
@@ -15,6 +16,7 @@ const NEXT_OPEN = Boolean(NEXT_COHORT_ID) && NEXT_COHORT_ID !== 'fall26';
 export function ApplySectionSignup() {
   const { profile, getIdToken } = useGithubAuth();
   const { me, refresh } = useParticipantStatus(getIdToken, Boolean(profile));
+  const hub = useEnrollmentHub();
   const nextInterest = me?.nextCohortInterest ?? {
     cohortId: NEXT_COHORT_ID,
     interested: false,
@@ -29,8 +31,8 @@ export function ApplySectionSignup() {
           Complete the application, then the 48-hour technical take-home. Admitted students join the
           active six-week pilot.
         </p>
-        <Link href="/apply" className={styles.primaryBtn}>
-          Start application
+        <Link href={hub.href} className={styles.primaryBtn}>
+          {hub.loading ? '…' : hub.enrolled ? 'Open dashboard' : 'Start application'}
         </Link>
       </div>
       {NEXT_OPEN ? (

@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { PageFrame } from '@/components/PageFrame';
 import styles from './page.module.css';
 
 export default function NotFound() {
   return (
-    <main className={styles.main}>
-      <SiteHeader links={[{ href: '/', label: 'Home' }]} />
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>404</p>
         <h1 className={styles.sectionTitle}>Page not found</h1>
@@ -21,6 +20,6 @@ export default function NotFound() {
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

@@ -1,10 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { SiteHeader } from '@/components/SiteHeader';
+import { useCallback, useEffect, useState } from 'react';
+import { EnrollmentGate } from '@/components/EnrollmentGate';
+import { PageFrame } from '@/components/PageFrame';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import type { UserHistorySummary } from '@/lib/history-types';
+import { isEnrolled } from '@/lib/participant-status';
+import { useParticipantStatus } from '@/lib/use-participant-status';
 import styles from '../page.module.css';
 
 function formatDate(iso: string): string {
@@ -20,44 +23,46 @@ function formatDate(iso: string): string {
 }
 
 export default function HistoryPage() {
-  const { configured, profile, loading, authError, signIn, getIdToken } = useGithubAuth();
+  const { profile, authError, signIn, getIdToken } = useGithubAuth();
+  const { me } = useParticipantStatus(getIdToken, Boolean(profile));
+  const enrolled = isEnrolled(me);
   const [summary, setSummary] = useState<UserHistorySummary | null>(null);
   const [error, setError] = useState('');
+
+  const loadHistory = useCallback(async (isCancelled?: () => boolean) => {
+    const idToken = await getIdToken();
+    if (isCancelled?.()) return;
+    if (!idToken) {
+      setError('Your session expired. Sign in again.');
+      return;
+    }
+    setError('');
+    try {
+      const res = await fetch('/api/history', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (isCancelled?.()) return;
+      const json = (await res.json()) as UserHistorySummary & { error?: string };
+      if (!res.ok) throw new Error(json.error || 'Could not load history.');
+      if (!isCancelled?.()) setSummary(json);
+    } catch (err) {
+      if (!isCancelled?.()) {
+        setError(err instanceof Error ? err.message : 'Could not load history.');
+      }
+    }
+  }, [getIdToken]);
 
   useEffect(() => {
     if (!profile) return;
     let cancelled = false;
-    void (async () => {
-      const idToken = await getIdToken();
-      if (!idToken) return;
-      try {
-        const res = await fetch('/api/history', {
-          headers: { Authorization: `Bearer ${idToken}` },
-        });
-        const json = (await res.json()) as UserHistorySummary & { error?: string };
-        if (!res.ok) throw new Error(json.error || 'Could not load history.');
-        if (!cancelled) setSummary(json);
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Could not load history.');
-        }
-      }
-    })();
+    void loadHistory(() => cancelled);
     return () => {
       cancelled = true;
     };
-  }, [profile, getIdToken]);
+  }, [profile, loadHistory]);
 
   return (
-    <main className={styles.main}>
-      <SiteHeader
-        links={[
-          { href: '/dashboard', label: 'Dashboard' },
-          { href: '/program', label: 'Program' },
-          { href: '/', label: 'Home' },
-        ]}
-      />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Work track record</p>
         <h1 className={styles.sectionTitle}>Submission history</h1>
@@ -65,20 +70,25 @@ export default function HistoryPage() {
           Merged submission pull requests across cohort terms, discovered from GitHub.
         </p>
 
-        {!configured ? (
-          <div className={styles.callout}>History unavailable — platform services not configured.</div>
-        ) : loading ? (
-          <p className={styles.formNote}>Loading…</p>
-        ) : !profile ? (
-          <div className={styles.authGate}>
-            <p className={styles.authGateLead}>Sign in with GitHub to view your submission history.</p>
-            <button type="button" className={styles.githubSignInBtn} onClick={() => void signIn()}>
-              Sign in with GitHub
+        <EnrollmentGate
+          unconfiguredMessage="History unavailable — platform services not configured."
+          signedOut={
+            <div className={styles.authGate}>
+              <p className={styles.authGateLead}>Sign in with GitHub to view your submission history.</p>
+              <button type="button" className={styles.githubSignInBtn} onClick={() => void signIn()}>
+                Sign in with GitHub
+              </button>
+              {authError ? <p className={styles.formError}>{authError}</p> : null}
+            </div>
+          }
+          signedIn={
+            error ? (
+          <>
+            <p className={styles.formError}>{error}</p>
+            <button type="button" className={styles.secondaryBtn} onClick={() => void loadHistory()}>
+              Try again
             </button>
-            {authError ? <p className={styles.formError}>{authError}</p> : null}
-          </div>
-        ) : error ? (
-          <p className={styles.formError}>{error}</p>
+          </>
         ) : !summary ? (
           <p className={styles.formNote}>Loading your history…</p>
         ) : (
@@ -123,16 +133,24 @@ export default function HistoryPage() {
             )}
 
             <div className={styles.participantActions}>
-              <Link href="/dashboard" className={styles.primaryBtn}>
-                Current cohort dashboard
-              </Link>
+              {enrolled ? (
+                <Link href="/dashboard" className={styles.primaryBtn}>
+                  Current cohort dashboard
+                </Link>
+              ) : (
+                <Link href="/apply" className={styles.primaryBtn}>
+                  Apply
+                </Link>
+              )}
               <Link href="/program" className={styles.secondaryBtn}>
                 Browse program
               </Link>
             </div>
           </>
-        )}
+            )
+          }
+        />
       </article>
-    </main>
+    </PageFrame>
   );
 }

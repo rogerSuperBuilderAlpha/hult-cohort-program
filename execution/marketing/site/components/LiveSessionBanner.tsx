@@ -16,6 +16,8 @@ export function LiveSessionBanner() {
 
   const session = cohortLiveSession;
   if (!session.zoomUrl.trim()) return null;
+  const until = new Date(session.visibleUntil);
+  if (Number.isNaN(until.getTime()) || Date.now() > until.getTime()) return null;
 
   return (
     <div className={styles.sessionBanner} role="status">

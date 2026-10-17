@@ -858,7 +858,8 @@
 .applyForm input:focus,
 .applyForm textarea:focus,
 .applyForm select:focus {
-  outline: none;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
   border-color: var(--accent);
 }
 

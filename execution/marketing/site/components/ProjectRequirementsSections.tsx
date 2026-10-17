@@ -116,23 +116,9 @@ export function ProjectRequirementsSections({
                   </span>
                   {progress.reviews.writtenCompleted}/{progress.reviews.required} written reviews
                 </li>
-                <li
-                  className={
-                    progress.reviews.upvotesCompleted > 0
-                      ? styles.progressItemDone
-                      : styles.progressItemPending
-                  }
-                >
-                  <span
-                    className={
-                      progress.reviews.upvotesCompleted > 0
-                        ? styles.progressIconDone
-                        : styles.progressIconPending
-                    }
-                  >
-                    {progress.reviews.upvotesCompleted > 0 ? '✓' : '○'}
-                  </span>
-                  {progress.reviews.upvotesCompleted}/{progress.reviews.required} optional upvotes
+                <li>
+                  Optional upvotes: {progress.reviews.upvotesCompleted}/{progress.reviews.required}.
+                  These do not affect the pass gate.
                 </li>
               </>
             ) : null}

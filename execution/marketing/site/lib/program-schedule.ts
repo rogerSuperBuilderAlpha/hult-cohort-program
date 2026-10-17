@@ -68,10 +68,19 @@ export function reviewWindowStatus(
 /** Fall 2026 kickoff Thu Oct 15, 2026 at 09:00 Eastern Time — week 1 */
 const COHORT_START = parseIso('2026-10-15T13:00:00.000Z');
 
+/**
+ * Week number follows each project's submission open, not a 7-day floor.
+ * Week 1 is 10 days (Thu Oct 15 through Sun Oct 25), so Oct 22–25 stay week 1.
+ */
 export function cohortWeekNumber(now = new Date()): number | null {
   if (now < COHORT_START) return null;
-  const ms = now.getTime() - COHORT_START.getTime();
-  return Math.floor(ms / (7 * 24 * 60 * 60 * 1000)) + 1;
+  let week: number | null = null;
+  programProjects.forEach((project, index) => {
+    const opens = getProjectSchedule(project)?.submissionOpens;
+    if (!opens) return;
+    if (now >= parseIso(opens)) week = index + 1;
+  });
+  return week;
 }
 
 export function resolveScheduleContext(now = new Date()): ScheduleContext {

@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { ParticipantCta } from '@/components/ParticipantCta';
+import { PageFrame } from '@/components/PageFrame';
 import styles from '../page.module.css';
 import { cohortMarketing } from '@/content/program';
 import { getCohortStats } from '@/lib/cohort-stats-server';
@@ -22,16 +23,7 @@ export default async function OverviewPage() {
       : 'roughly 10% of the cohort per winning platform';
 
   return (
-    <main className={styles.main}>
-      <SiteHeader
-        links={[
-          { href: '/', label: 'Home' },
-          { href: '/start', label: 'Visual intro' },
-          { href: '/program', label: 'Program' },
-          { href: '/winning-guide', label: 'Winning guide' },
-        ]}
-      />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Stakeholder overview · Fall 2026</p>
         <h1 className={styles.sectionTitle}>Open community program · production software pilot</h1>
@@ -113,14 +105,12 @@ export default async function OverviewPage() {
         </section>
 
         <div className={styles.heroActions}>
-          <Link href="/apply" className={styles.primaryBtn}>
-            Apply
-          </Link>
+          <ParticipantCta />
           <Link href="/start" className={styles.secondaryBtn}>
             Student intro
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

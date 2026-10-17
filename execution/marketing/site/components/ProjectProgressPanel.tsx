@@ -126,8 +126,8 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 <a href={progress.submission.repoUrl} target="_blank" rel="noopener noreferrer">
                   {progress.submission.repo}
                 </a>
-                , fill every required PR body section, and merge before the deadline. No real cohort
-                signup quota before merge.
+                , fill every required PR body section, and merge before the deadline. You do not need
+                real cohort signups before merging — peers use your deploy during review week.
               </p>
             )}
           </div>
@@ -147,8 +147,7 @@ export function ProjectProgressPanel({ project, progress, handle }: Props) {
                 </div>
               </li>
             ) : reviews.reviewWindowStatus === 'closed' ? (
-              <li className={styles.progressItemPending} aria-label="Review week: closed">
-                <StatusIcon done={false} />
+              <li aria-label="Review week: closed">
                 <div>
                   <strong>Review week closed</strong>
                   <p className={styles.progressDetail}>

@@ -149,7 +149,7 @@ export function PeerReviewCard({
                     className={styles.reviewActionBtn}
                   >
                     {reviewWindowOpen
-                      ? 'Open GitHub → write review & submit issue'
+                      ? 'File review + optional upvote on GitHub'
                       : 'Preview GitHub issue template →'}
                   </a>
                   <p className={styles.reviewStepHint}>

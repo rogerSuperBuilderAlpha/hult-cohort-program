@@ -19,7 +19,7 @@ import {
 } from '../lib/submission-title-match';
 import { issueHasUpvote, parseReviewIssueTitle } from '../lib/contest-state-format';
 
-process.env.COHORT_ID = process.env.COHORT_ID || 'summer26';
+process.env.COHORT_ID = 'summer26';
 process.env.NEXT_PUBLIC_COHORT_REPO =
   process.env.NEXT_PUBLIC_COHORT_REPO || 'rogerSuperBuilderAlpha/hult-cohort-program';
 process.env.NEXT_PUBLIC_COHORT_ORG =
@@ -132,12 +132,28 @@ const wrongBase = matchMergedPullRequest({
 });
 assert(wrongBase === null, 'main base rejected when legacy disabled');
 
+process.env.COHORT_ID = 'summer26';
 const correctBase = matchMergedPullRequest({
   ...BASE,
   prTitle: '[Project 1] Submission — alice',
   baseRef: 'projects/summer26/phase-1-project-1',
 });
-assert(correctBase?.projectSlug === 'phase-1-project-1', 'project branch base accepted');
+assert(correctBase?.projectSlug === 'phase-1-project-1', 'summer26 project branch base accepted');
+
+process.env.COHORT_ID = 'fall26';
+const fallBase = matchMergedPullRequest({
+  ...BASE,
+  prTitle: '[Project 1] Submission — alice',
+  baseRef: 'projects/fall26/phase-1-project-1',
+});
+assert(fallBase?.projectSlug === 'phase-1-project-1', 'fall26 project branch base accepted');
+const fallRejectsSummer = matchMergedPullRequest({
+  ...BASE,
+  prTitle: '[Project 1] Submission — alice',
+  baseRef: 'projects/summer26/phase-1-project-1',
+});
+assert(fallRejectsSummer === null, 'summer26 base rejected when cohort is fall26');
+process.env.COHORT_ID = 'summer26';
 
 process.env.ALLOW_LEGACY_MAIN_SUBMISSIONS = 'true';
 const legacyMain = matchMergedPullRequest({

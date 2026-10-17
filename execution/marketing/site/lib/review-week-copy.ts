@@ -60,9 +60,3 @@ export const REVIEW_HOW_TO_STEPS: ReviewHowToStep[] = [
     body: 'Come back to this page and click “Refresh status” on that peer’s card (or reload the page). When the platform finds your issue, the status changes to Reviewed (abstained) or Upvoted. Discovery can take up to about a minute after you submit on GitHub.',
   },
 ];
-
-/** Compact one-liner still used where a full block does not fit. */
-export const REVIEW_HOW_TO = REVIEW_HOW_TO_LEAD;
-
-export const REVIEW_PUBLIC_BLURB =
-  'For each peer: evaluate their deployment, read their submission pull request, then open a GitHub issue titled Review by @{you}: @{peer} on their app repo. Optionally keep Vote: up in the issue body to upvote, or delete that section to abstain. Click Submit new issue on GitHub, then return here and refresh. This site shows your personal status only — not cohort tallies.';

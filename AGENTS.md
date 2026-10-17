@@ -10,8 +10,8 @@ Instructions for AI coding agents (Cursor, Claude Code, Copilot, etc.) working i
 
 One web surface where applicants apply, admitted participants see every project with clear expectations, submit work as **GitHub PRs**, file **written peer reviews** on GitHub, and optionally upvote with a public `Vote: up` in that review issue (or abstain). Winner = most upvotes after review week — counted by **staff CLI**, never shown as a site scoreboard.
 
-**Live deploy:** https://site-nine-rouge-68.vercel.app (Vercel project `hult-cohort`)  
-**Firebase project:** `hult-cohorts` · **Cohort id:** `summer26`
+**Live deploy:** https://cohorts.algorithmacy.org (Vercel project `hult-cohort`)  
+**Firebase project:** `hult-cohorts` · **Cohort id:** `fall26` (starts October 15, 2026)
 
 ---
 
@@ -122,13 +122,11 @@ Legacy Firestore paths (do not write): submissions/, peerWrittenReviews/, peerRa
 
 | Slug | What students build |
 |------|---------------------|
-| `onboarding` | Tooling + first PR in roster repo |
-| `phase-1-project-1` | PM platform for the cohort (vote week) |
-| `phase-1-project-2` | Internal comms platform (vote week) |
-| `phase-1-project-3` | Public showcase website (vote week) |
-| `phase-1-unification` | Winners merge the three platforms |
+| `phase-1-project-1` | PM platform for the cohort (review week) |
+| `phase-1-project-2` | Internal comms platform (review week) |
+| `phase-1-project-3` | Public showcase website (review week) |
 | `phase-2-learning-app` | Learning app registered + instrumented on Ludwitt (no user-count condition to merge) |
-| `phase-2-venture` | Startup deck + production platform |
+| `phase-2-venture` | Startup deck + production platform (≥25 users, ≥1 investor touch) |
 | `phase-2-open-source` | ≥1 merged upstream PR; starter targets include cursorboston.com, algorithmacy.org |
 
 Full copy: [content/program.ts](execution/marketing/site/content/program.ts).

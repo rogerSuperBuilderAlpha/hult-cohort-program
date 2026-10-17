@@ -1,27 +1,19 @@
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { PageFrame } from '@/components/PageFrame';
 import { hackathonTrustabl } from '@/content/hackathon-trustabl';
 import styles from '../../page.module.css';
 
 export const metadata = {
   title: 'Trustabl Hackathon Track | Hult Cohort',
   description:
-    'Open contribution guide for Trustabl: new detection rules, threat-model docs, and test fixtures. Accessible to everyone — in-person Aug 24, 2026 and remote.',
+    'Archive of the August 24, 2026 Trustabl contribution guide: detection rules, threat-model docs, and test fixtures. Repositories remain open for remote work.',
 };
 
 export default function HackathonTrustablPage() {
   const content = hackathonTrustabl;
 
   return (
-    <main className={styles.main}>
-      <SiteHeader
-        links={[
-          { href: '/', label: 'Home' },
-          { href: '/program', label: 'Program' },
-          { href: '/hackathon/trustabl', label: 'Hackathon' },
-        ]}
-      />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>{content.eyebrow}</p>
         <h1 className={styles.sectionTitle}>{content.title}</h1>
@@ -41,7 +33,7 @@ export default function HackathonTrustablPage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Register on Luma →
+            {content.event.lumaCta} →
           </a>
         </section>
 
@@ -114,8 +106,8 @@ export default function HackathonTrustablPage() {
             )}
           </ol>
           <p>
-            Happy to support a focused hackathon track around rule authoring + rationale docs. That
-            is the highest-leverage way to contribute in a single session.
+            Rule authoring and rationale docs were the highest-leverage way to contribute in that
+            session, and they are still the best place to start a remote pull request.
           </p>
         </section>
 
@@ -133,6 +125,6 @@ export default function HackathonTrustablPage() {
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

@@ -17,7 +17,12 @@ import { cohortOrg } from '@/lib/cohort-config';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { buildProjectAgentPrompt, buildPublicAgentPrompt } from '@/lib/project-agent-prompt';
 import { buildPeerReviewAgentPrompt } from '@/lib/peer-review-agent-prompt';
-import { isEnrolled, isAdmittedPendingRoster, isApplicantInFlight } from '@/lib/participant-status';
+import {
+  isEnrolled,
+  isAdmittedPendingRoster,
+  isApplicantInFlight,
+  type ParticipantMe,
+} from '@/lib/participant-status';
 import { personalizeProgramText } from '@/lib/personalize-program';
 import { useProjectProgress } from '@/lib/use-project-progress';
 import { useParticipantStatus } from '@/lib/use-participant-status';
@@ -125,7 +130,7 @@ function EnrolledView({
   descriptionText: string;
 }) {
   const org = cohortOrg();
-  const { survey, loading: surveyLoading } = useSurveyState(getIdToken, true);
+  const { survey, loading: surveyLoading, error: surveyError } = useSurveyState(getIdToken, true);
   const gate = projectSurveyGate(project.slug, survey);
   const surveyReady = !surveyLoading;
   const progressEnabled = surveyReady && !gate.locked;
@@ -264,18 +269,59 @@ function EnrolledView({
         </p>
       </div>
 
+      {surveyError ? <p className={styles.formError}>{surveyError}</p> : null}
       <ProjectTabs tabs={tabs} defaultTab="overview" />
       <ProjectNavActions prevSlug={prevSlug} nextSlug={nextSlug} />
     </div>
   );
 }
 
-function ApplicantInFlightBanner() {
+function SignedInStatus({ me }: { me: ParticipantMe | null }) {
+  if (isApplicantInFlight(me)) {
+    return (
+      <div className={styles.callout}>
+        <p>
+          <strong>Application under review.</strong> Complete your take-home pull request.{' '}
+          <Link href="/apply">Continue on Apply →</Link>
+        </p>
+      </div>
+    );
+  }
+  if (me?.enrollment.state === 'inactive') {
+    return (
+      <div className={styles.callout}>
+        <p>
+          <strong>Enrollment deactivated.</strong> Your participation in this cohort has been paused
+          by staff. If you believe this is an error, contact{' '}
+          <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
+        </p>
+      </div>
+    );
+  }
+  if (me?.application?.status === 'waitlisted') {
+    return (
+      <div className={styles.callout}>
+        <p>
+          <strong>Waitlisted.</strong> You will be notified by email if a place becomes available.
+          For questions, contact <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
+        </p>
+      </div>
+    );
+  }
+  if (me?.application?.status === 'rejected') {
+    return (
+      <div className={styles.callout}>
+        <p>
+          <strong>Not admitted this cycle.</strong> Thank you for your application. You may reapply
+          in a future cohort.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className={styles.callout}>
       <p>
-        <strong>Application under review</strong> — complete your take-home pull request.{' '}
-        <Link href="/dashboard">Return to dashboard →</Link>
+        <strong>Not enrolled.</strong> <Link href="/apply">Apply for Fall 2026 →</Link>
       </p>
     </div>
   );
@@ -284,12 +330,12 @@ function ApplicantInFlightBanner() {
 function PublicView({
   project,
   stats,
-  applicantInFlight,
+  signedIn,
   descriptionText,
 }: {
   project: ProgramProject;
   stats: CohortStats | null;
-  applicantInFlight?: boolean;
+  signedIn: boolean;
   descriptionText: string;
 }) {
   const p = (text: string) =>
@@ -316,10 +362,10 @@ function PublicView({
             ) : (
               <> You review one merged submission per peer who ships.</>
             )}
-            {applicantInFlight ? (
+            {signedIn ? (
               <>
                 {' '}
-                <Link href="/dashboard">Back to dashboard</Link>.
+                <Link href="/apply">Continue on Apply</Link>.
               </>
             ) : (
               <>
@@ -384,7 +430,6 @@ export function ProgramProjectView({ project, prevSlug, nextSlug, initialStats =
 
   const loading = authLoading || (Boolean(profile) && statusLoading);
   const enrolled = isEnrolled(me);
-  const inFlight = isApplicantInFlight(me);
   const pendingRoster = isAdmittedPendingRoster(me);
   const handle = me?.githubHandle;
   const stats = me?.cohortStats ?? initialStats;
@@ -433,11 +478,11 @@ export function ProgramProjectView({ project, prevSlug, nextSlug, initialStats =
 
   return (
     <>
-      {inFlight ? <ApplicantInFlightBanner /> : null}
+      {profile ? <SignedInStatus me={me} /> : null}
       <PublicView
         project={project}
         stats={stats}
-        applicantInFlight={inFlight}
+        signedIn={Boolean(profile)}
         descriptionText={descriptionText}
       />
     </>

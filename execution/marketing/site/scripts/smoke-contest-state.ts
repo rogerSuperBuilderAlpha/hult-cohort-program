@@ -3,6 +3,7 @@ import { ensureStaffFirebaseEnv } from '../lib/script-env';
 ensureStaffFirebaseEnv(import.meta.url);
 
 import { isAdminConfigured } from '../lib/firebase/admin';
+import { cohortId } from '../lib/cohort-config';
 import { listMergedProjectSubmissions } from '../lib/github-cohort-server';
 import { buildContestState } from '../lib/contest-state-server';
 
@@ -14,7 +15,7 @@ async function main() {
     process.exit(1);
   }
 
-  const rows = await listMergedProjectSubmissions('summer26', 'phase-1-project-1');
+  const rows = await listMergedProjectSubmissions(cohortId(), 'phase-1-project-1');
   console.log('submissions', rows.length, rows.map((r) => r.githubHandle).join(', '));
   const state = await buildContestState('phase-1-project-1');
   console.log('contest submissions', state.submissions.length);

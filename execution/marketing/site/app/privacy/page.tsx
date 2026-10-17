@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { PageFrame } from '@/components/PageFrame';
 import { getSiteDisplayLabel, getSiteUrl } from '@/lib/site-config';
 import styles from '../page.module.css';
 
@@ -13,14 +13,12 @@ export default function PrivacyPage() {
   const siteLabel = getSiteDisplayLabel();
 
   return (
-    <main className={styles.main}>
-      <SiteHeader links={[{ href: '/', label: 'Home' }]} />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Legal</p>
         <h1 className={styles.sectionTitle}>Privacy Policy</h1>
         <p className={styles.overviewLead}>
-          Last updated: July 2026 · Contact:{' '}
+          Last updated: October 17, 2026 · Contact:{' '}
           <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>
         </p>
 
@@ -110,8 +108,11 @@ export default function PrivacyPage() {
           <ul>
             <li>
               <strong>Access and export</strong> — Enrolled participants can download a JSON export
-              of platform-held data from the{' '}
-              <Link href="/dashboard">participant dashboard</Link>.
+              of platform-held identity and submission data from the{' '}
+              <Link href="/dashboard">participant dashboard</Link>. The file includes a research
+              summary (whether you consented, declined, and which survey waves are complete). It does
+              not include survey item answers. Those answers are stored under a coded identifier,
+              separate from your name and email, and are deleted with your account.
             </li>
             <li>
               <strong>Correction</strong> — Email{' '}
@@ -119,15 +120,17 @@ export default function PrivacyPage() {
               enrollment details.
             </li>
             <li>
-              <strong>Deletion</strong> — While your application is in progress, delete your account
-              from the <Link href="/apply">Apply</Link> page (Account → Delete account). When
-              enrolled, delete from the <Link href="/dashboard">Dashboard</Link> (Account → Delete
-              account).
+              <strong>Deletion</strong> — Delete your account from the{' '}
+              <Link href="/apply">Apply</Link> page or the{' '}
+              <Link href="/dashboard">Dashboard</Link> (Account → Delete account), whether or not you
+              are enrolled.
             </li>
             <li>
-              This permanently removes your application, enrollment record, and sign-in record from
-              this platform. Public GitHub reviews and upvotes you authored remain on GitHub (see
-              below). You may also request deletion by emailing{' '}
+              This permanently removes your application, enrollment record, expectations
+              acknowledgment, research consent, survey responses, and sign-in record from this
+              platform. Survey responses are deleted using the same coded identifier used to store
+              them. Public GitHub repositories, pull requests, issues, and reviews you authored
+              remain on GitHub (see below). You may also request deletion by emailing{' '}
               <a href="mailto:cohort@hult.edu">cohort@hult.edu</a>.
             </li>
             <li>
@@ -174,6 +177,6 @@ export default function PrivacyPage() {
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

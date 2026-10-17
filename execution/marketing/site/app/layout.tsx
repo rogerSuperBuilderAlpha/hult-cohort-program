@@ -110,12 +110,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="author" href="/humans.txt" />
       </head>
       <body>
-        <a href="#main-content" className="skipLink">
+        <a href="#page-content" className="skipLink">
           Skip to content
         </a>
         <AppProviders>
           <JsonLdOrganization />
-          <div id="main-content">{children}</div>
+          {children}
           <SiteFooter />
           <ConsentGate />
         </AppProviders>

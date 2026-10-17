@@ -1,16 +1,18 @@
-/** Public hackathon track — Trustabl rule authoring (Aug 24, 2026 in-person swarm). */
+/** Archive of the Aug 24, 2026 Trustabl in-person track. Repos stay open for remote work. */
 
 export const hackathonTrustabl = {
-  eyebrow: 'Open hackathon track · Aug 24, 2026',
+  eyebrow: 'Past event · Aug 24, 2026',
   title: 'Trustabl contribution guide',
   lead:
-    'Trustabl is an agent-security scanner. The highest-leverage contribution path is new detection rules — YAML definitions, threat-model docs, and test fixtures across three repos. This page is open to everyone at today\'s in-person hackathon and anyone contributing remotely.',
+    'Trustabl is an agent-security scanner. The highest-leverage contribution path is new detection rules — YAML definitions, threat-model docs, and test fixtures across three repos. This page archives the guide from the August 24 in-person hackathon. The repositories are still open for remote contributions.',
   event: {
-    label: 'In-person OSS swarm',
-    when: 'Monday, August 24 · afternoon',
+    label: 'In-person OSS swarm (past)',
+    when: 'Monday, August 24, 2026 · afternoon',
     where: 'Hult International Business School, 1 Education St, Cambridge, MA',
     lumaUrl: 'https://luma.com/s5wuujzl',
-    lumaNote: 'Register on Luma before you arrive — approval is required for campus access.',
+    lumaCta: 'Event record on Luma',
+    lumaNote:
+      'The in-person session has ended. The Luma page is the event record. Remote contributions do not need campus registration.',
   },
   repos: [
     {

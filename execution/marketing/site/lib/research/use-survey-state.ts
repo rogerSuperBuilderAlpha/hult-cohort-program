@@ -26,32 +26,47 @@ export type SurveyStateClient = {
 export function useSurveyState(
   getIdToken: () => Promise<string | null>,
   enabled: boolean
-): { survey: SurveyStateClient | null; loading: boolean } {
+): { survey: SurveyStateClient | null; loading: boolean; error: string } {
   const [survey, setSurvey] = useState<SurveyStateClient | null>(null);
   const [loading, setLoading] = useState(enabled);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!enabled) {
       setLoading(false);
+      setError('');
       return;
     }
     let cancelled = false;
     setLoading(true);
+    setError('');
     void (async () => {
       try {
         const idToken = await getIdToken();
-        if (!idToken) return;
+        if (!idToken) {
+          if (!cancelled) {
+            setError('Could not check the research survey. Coursework stays available.');
+          }
+          return;
+        }
         // no-store: a participant who has just submitted must not be shown a cached
         // "not completed" state, which is what a stale response looks like in the UI.
         const res = await fetch('/api/research/survey', {
           cache: 'no-store',
           headers: { Authorization: `Bearer ${idToken}` },
         });
-        if (!res.ok) return;
+        if (!res.ok) {
+          if (!cancelled) {
+            setError('Could not check the research survey. Coursework stays available.');
+          }
+          return;
+        }
         const json = (await res.json()) as SurveyStateClient;
         if (!cancelled) setSurvey(json);
       } catch {
-        // Fail open — leave survey null.
+        if (!cancelled) {
+          setError('Could not check the research survey. Coursework stays available.');
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -61,7 +76,7 @@ export function useSurveyState(
     };
   }, [getIdToken, enabled]);
 
-  return { survey, loading };
+  return { survey, loading, error };
 }
 
 export type ProjectGate = {

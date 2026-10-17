@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { PageFrame } from '@/components/PageFrame';
 import { GITHUB_REPO_URL } from '@/lib/site-config';
 import styles from '../page.module.css';
 
@@ -10,9 +10,7 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className={styles.main}>
-      <SiteHeader links={[{ href: '/', label: 'Home' }]} />
-
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Legal</p>
         <h1 className={styles.sectionTitle}>Terms of Service</h1>
@@ -142,6 +140,6 @@ export default function TermsPage() {
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

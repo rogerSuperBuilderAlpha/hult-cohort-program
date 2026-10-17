@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { PageFrame } from '@/components/PageFrame';
 import styles from './page.module.css';
 
-export default function GlobalError({
+export default function RouteError({
   error,
   reset,
 }: {
@@ -12,8 +12,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <main className={styles.main}>
-      <SiteHeader links={[{ href: '/', label: 'Home' }]} />
+    <PageFrame>
       <article className={styles.overview}>
         <p className={styles.eyebrow}>Error</p>
         <h1 className={styles.sectionTitle}>Something went wrong</h1>
@@ -31,6 +30,6 @@ export default function GlobalError({
           </Link>
         </div>
       </article>
-    </main>
+    </PageFrame>
   );
 }

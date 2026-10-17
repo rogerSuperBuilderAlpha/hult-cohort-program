@@ -27,8 +27,10 @@ type WaveSummary = {
 type SurveyState = {
   consentVersion: string;
   consented: boolean;
+  declined: boolean;
   waves: WaveSummary[];
   openWaveId: SurveyWaveId | null;
+  openWaveAnswers: Record<string, number | string> | null;
 };
 
 type AnswerValue = number | string;
@@ -160,6 +162,7 @@ export function ResearchSurvey({ getIdToken }: { getIdToken: () => Promise<strin
   const [submitError, setSubmitError] = useState('');
   const [consentBusy, setConsentBusy] = useState(false);
   const [declined, setDeclined] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -239,6 +242,7 @@ export function ResearchSurvey({ getIdToken }: { getIdToken: () => Promise<strin
         },
         'Could not save your responses.'
       );
+      setEditing(false);
       await refresh();
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Could not save your responses.');
@@ -274,7 +278,19 @@ export function ResearchSurvey({ getIdToken }: { getIdToken: () => Promise<strin
     );
   }
 
-  if (openSummary.completed) {
+  if (declined || state.declined) {
+    return (
+      <div className={page.callout}>
+        <p>
+          Your choice not to take part is recorded. This does not affect anything else in the program.
+          Declining is final for the study. Questions about that choice go to the principal investigator:{' '}
+          {CONSENT.piLine}.
+        </p>
+      </div>
+    );
+  }
+
+  if (openSummary.completed && !editing) {
     return (
       <div>
         <div className={page.calloutSuccess}>
@@ -289,23 +305,13 @@ export function ResearchSurvey({ getIdToken }: { getIdToken: () => Promise<strin
             type="button"
             className={page.secondaryBtn}
             onClick={() => {
-              setAnswers({});
+              setAnswers(state.openWaveAnswers ?? {});
+              setEditing(true);
             }}
           >
             Review or update my answers
           </button>
         </div>
-      </div>
-    );
-  }
-
-  if (declined) {
-    return (
-      <div className={page.callout}>
-        <p>
-          Your choice not to take part is recorded. This does not affect anything else in the program. If
-          you change your mind while a survey is open, reload this page.
-        </p>
       </div>
     );
   }
@@ -385,7 +391,7 @@ export function ResearchSurvey({ getIdToken }: { getIdToken: () => Promise<strin
           disabled={submitting || answeredCount === 0}
           onClick={() => void submitSurvey()}
         >
-          {submitting ? 'Submitting…' : 'Submit responses'}
+          {submitting ? 'Submitting…' : editing ? 'Save updates' : 'Submit responses'}
         </button>
         <span className={s.progress}>You can submit now and update later while the window is open.</span>
       </div>

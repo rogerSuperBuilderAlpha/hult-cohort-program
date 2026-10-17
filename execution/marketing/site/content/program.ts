@@ -288,7 +288,7 @@ export const programProjects: ProgramProject[] = [
     summary:
       'Contribute as a swarm: land at least one merged pull request in a qualified open-source project before pilot end.',
     description:
-      'Week 6: open source swarm. Select an upstream repository, submit a pull request, and get it merged. Track progress through a pull request to `{repo}` linking upstream work.\n\n**Suggested starting targets:**\n- [Trustabl hackathon track](/hackathon/trustabl) — agent-security rules (YAML + rationale docs + tests); open to everyone at today\'s in-person swarm\n- [cursorboston.com](https://cursorboston.com) — community site; suitable for a first merge\n- [algorithmacy.org](https://algorithmacy.org) — research and education; docs, server-side, or repo-only work\n\nYou may also target major repositories (≥1,000 stars) or staff-approved equivalents. The pass gate is one merged upstream pull request before the pilot closes.',
+      'Week 6: open source swarm. Select an upstream repository, submit a pull request, and get it merged. Track progress through a pull request to `{repo}` linking upstream work.\n\n**Suggested starting targets:**\n- [Trustabl hackathon track](/hackathon/trustabl) — agent-security rules (YAML + rationale docs + tests); open to everyone in the cohort\n- [cursorboston.com](https://cursorboston.com) — community site; suitable for a first merge\n- [algorithmacy.org](https://algorithmacy.org) — research and education; docs, server-side, or repo-only work\n\nYou may also target major repositories (≥1,000 stars) or staff-approved equivalents. The pass gate is one merged upstream pull request before the pilot closes.',
     voteWeek: false,
     schedule: {
       submissionOpens: '2026-11-23T14:00:00.000Z',
@@ -326,15 +326,23 @@ export const cohortMarketing = {
   label: 'Fall 2026',
   applicationsOpen: 'September 10, 2026',
   applicationDeadline: 'October 14, 2026',
+  /** End of the published deadline day, US Eastern. */
+  applicationDeadlineEnd: '2026-10-14T23:59:59-04:00',
   cohortStart: 'October 15, 2026',
   showcase: 'December 2, 2026',
 } as const;
 
-/** Live cohort session — shown in the site header for accepted participants. */
+/** True after the published application deadline. Late applications are still accepted. */
+export function isPastApplicationDeadline(now = new Date()): boolean {
+  return now.getTime() > new Date(cohortMarketing.applicationDeadlineEnd).getTime();
+}
+
+/** Live cohort session — shown in the site header for accepted participants until visibleUntil. */
 export const cohortLiveSession = {
-  label: '',
-  when: '',
-  zoomUrl: '',
-  meetingId: '',
+  label: 'First session',
+  when: 'Thu Oct 15, 9:00 AM ET',
+  zoomUrl: 'https://bentley.zoom.us/j/95089006059',
+  meetingId: '950 8900 6059',
   agendaUrl: '',
+  visibleUntil: '2026-10-15T23:59:59-04:00',
 } as const;

@@ -1,3 +1,4 @@
+import { PITCHRISE_URL } from '@/content/pitchrise';
 import { getSiteUrl, GITHUB_REPO_URL, SITE_NAME } from '@/lib/site-config';
 
 export function JsonLdOrganization() {
@@ -10,7 +11,7 @@ export function JsonLdOrganization() {
     url: siteUrl,
     description:
       'A six-week Fall 2026 developer cohort at Hult International Business School. Participants build, deploy, review, and operate production-grade software.',
-    sameAs: [GITHUB_REPO_URL],
+    sameAs: [GITHUB_REPO_URL, PITCHRISE_URL],
   };
 
   return (

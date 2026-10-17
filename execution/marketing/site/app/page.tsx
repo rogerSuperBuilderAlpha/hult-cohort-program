@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
+import { EducatorPilotCta } from '@/components/EducatorPilotCta';
+import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { PageFrame } from '@/components/PageFrame';
 
 export default function Home() {
@@ -19,6 +21,7 @@ export default function Home() {
         </p>
         <div className={`${styles.heroActions} animate-in delay-3`}>
           <ParticipantCta />
+          <EducatorPilotCta />
           <Link href="/start" className={styles.secondaryBtn}>
             How it works
           </Link>
@@ -48,6 +51,8 @@ export default function Home() {
         </p>
       </section>
 
+      <RunsOnPitchrise />
+
       <section id="journey" className={styles.gridSection}>
         <div className={styles.phaseCard}>
           <span className={styles.phaseTag}>What you build</span>
@@ -75,6 +80,7 @@ export default function Home() {
         <p>
           <Link href="/apply">Join the interest list for the next cohort.</Link>
         </p>
+        <EducatorPilotCta />
       </section>
     </PageFrame>
   );

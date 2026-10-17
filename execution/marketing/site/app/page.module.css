@@ -498,6 +498,49 @@
   color: var(--text-muted);
 }
 
+.pitchriseBody {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 640px;
+  margin-bottom: 16px;
+}
+
+.pitchriseBody a,
+.pitchriseLinks a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pitchriseBody a:hover,
+.pitchriseLinks a:hover {
+  color: var(--accent-hover);
+}
+
+.pitchriseLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 16px;
+}
+
+.pitchriseLine,
+.overviewBlock .pitchriseLine {
+  max-width: 40rem;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  line-height: 1.45;
+  color: var(--hult-ink);
+}
+
+.educatorAside {
+  max-width: 640px;
+  margin: 0 0 28px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
 .applyGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);

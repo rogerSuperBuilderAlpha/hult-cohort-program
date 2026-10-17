@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { EducatorPilotCta } from '@/components/EducatorPilotCta';
 import { ParticipantCta } from '@/components/ParticipantCta';
 import { PageFrame } from '@/components/PageFrame';
+import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import styles from '../page.module.css';
 import { cohortMarketing } from '@/content/program';
 import { formatPeerReviewsPerProject } from '@/lib/cohort-stats-format';
@@ -77,6 +79,8 @@ export default function OverviewPage() {
           </ul>
         </section>
 
+        <RunsOnPitchrise layout="overview" />
+
         <section className={styles.overviewBlock}>
           <h2>For hiring partners</h2>
           <ul>
@@ -99,6 +103,7 @@ export default function OverviewPage() {
 
         <div className={styles.heroActions}>
           <ParticipantCta />
+          <EducatorPilotCta />
           <Link href="/start" className={styles.secondaryBtn}>
             Student intro
           </Link>

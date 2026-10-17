@@ -1,19 +1,9 @@
 import Link from 'next/link';
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
-import { ApplySectionSignup } from '@/components/ApplySectionSignup';
 import { PageFrame } from '@/components/PageFrame';
-import { getCohortStats } from '@/lib/cohort-stats-server';
-import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
-import { cohortMarketing, isPastApplicationDeadline } from '@/content/program';
 
-export const revalidate = 60;
-
-export default async function Home() {
-  const cohortStats = await getCohortStats();
-  const cohortSizeLine = formatCohortSizeLine(cohortStats);
-  const lateApplications = isPastApplicationDeadline();
-
+export default function Home() {
   return (
     <PageFrame>
       <section className={styles.hero}>
@@ -34,13 +24,8 @@ export default async function Home() {
           </Link>
         </div>
         <div className={`${styles.heroMeta} animate-in delay-4`}>
-          <span>Starts {cohortMarketing.cohortStart}</span>
+          <span>The Fall 2026 cohort is underway.</span>
           <span>Six weeks</span>
-          <span>
-            {lateApplications
-              ? 'Late applications open'
-              : `Apply by ${cohortMarketing.applicationDeadline.replace(', 2026', '')}`}
-          </span>
         </div>
       </section>
 
@@ -86,14 +71,10 @@ export default async function Home() {
 
       <section id="apply" className={styles.apply}>
         <p className={styles.sectionLabel}>Applications</p>
-        <h2>{lateApplications ? 'Late applications are open.' : 'Fall 2026 is open.'}</h2>
+        <h2>The Fall 2026 cohort is underway.</h2>
         <p>
-          {cohortSizeLine} · Starts {cohortMarketing.cohortStart}
-          {lateApplications
-            ? ` · The published deadline was ${cohortMarketing.applicationDeadline}. Late applications are still being accepted.`
-            : ` · Apply by ${cohortMarketing.applicationDeadline.replace(', 2026', '')}`}
+          <Link href="/apply">Join the interest list for the next cohort.</Link>
         </p>
-        <ApplySectionSignup />
       </section>
     </PageFrame>
   );

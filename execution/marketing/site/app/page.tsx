@@ -2,6 +2,8 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
 import { ApplySectionSignup } from '@/components/ApplySectionSignup';
+import { EducatorPilotCta } from '@/components/EducatorPilotCta';
+import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { formatCohortSizeLine } from '@/lib/cohort-stats-format';
@@ -36,6 +38,7 @@ export default async function Home() {
         </p>
         <div className={`${styles.heroActions} animate-in delay-3`}>
           <ParticipantCta />
+          <EducatorPilotCta />
           <Link href="/start" className={styles.secondaryBtn}>
             How it works
           </Link>
@@ -65,6 +68,8 @@ export default async function Home() {
           <Link href="/start">See the full week-by-week breakdown →</Link>
         </p>
       </section>
+
+      <RunsOnPitchrise />
 
       <section id="journey" className={styles.gridSection}>
         <div className={styles.phaseCard}>

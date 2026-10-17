@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ProgramProjectView } from '@/components/ProgramProjectView';
+import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getCohortStats } from '@/lib/cohort-stats-server';
 import { getSiteUrl } from '@/lib/site-config';
@@ -58,6 +59,10 @@ export default async function ProgramProjectPage({
         <p className={styles.eyebrow}>{project.phaseLabel}</p>
         <h1 className={styles.sectionTitle}>{project.title}</h1>
         <p className={styles.overviewLead}>{project.summary}</p>
+
+        {slug === 'phase-2-learning-app' ? (
+          <RunsOnPitchrise layout="overview" weekLink={false} />
+        ) : null}
 
         <ProgramProjectView
           project={project}

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { PITCHRISE_URL } from '@/content/pitchrise';
 import {
   ALGORITHMACY_CONFERENCE_URL,
   ALGORITHMACY_LAB_URL,
@@ -29,6 +30,9 @@ export function SiteFooter() {
             <Link href="/terms">Terms</Link>
             <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
               GitHub
+            </a>
+            <a href={PITCHRISE_URL} target="_blank" rel="noopener noreferrer">
+              Pitchrise
             </a>
             <Link href="/llms.txt">llms.txt</Link>
             <Link href="/sitemap.xml">Sitemap</Link>

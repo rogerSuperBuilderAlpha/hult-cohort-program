@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
+import { EducatorPilotCta } from '@/components/EducatorPilotCta';
 import { ProgramIntroLoop } from '@/components/ProgramIntroLoop';
 import { ProgramIntroTimeline } from '@/components/ProgramIntroTimeline';
+import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { introFaq, programIntro } from '@/content/program-intro';
 import styles from '../page.module.css';
 
@@ -32,6 +34,8 @@ export default function StartPage() {
           <h2 className={styles.introSectionTitle}>Six weeks at a glance</h2>
           <ProgramIntroTimeline />
         </section>
+
+        <RunsOnPitchrise layout="intro" />
 
         <section className={styles.introSection}>
           <h2 className={styles.introSectionTitle}>Phase 1 repeats this loop</h2>
@@ -65,6 +69,7 @@ export default function StartPage() {
           <Link href="/apply" className={styles.primaryBtn}>
             {programIntro.ctaApply}
           </Link>
+          <EducatorPilotCta />
           <Link href="/program" className={styles.secondaryBtn}>
             {programIntro.ctaProgram}
           </Link>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { SiteHeader } from '@/components/SiteHeader';
 import styles from '../page.module.css';
 import { programProjects } from '../../content/program';
@@ -31,6 +32,7 @@ export default function ProgramIndexPage() {
 
         <Section title="Weeks 1–3 · Contests (review weeks)" projects={phase1} />
         <Section title="Weeks 4–6 · External sprints" projects={phase2} />
+        <RunsOnPitchrise layout="overview" />
       </article>
     </main>
   );

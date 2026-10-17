@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { EducatorPilotCta } from '@/components/EducatorPilotCta';
+import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { SiteHeader } from '@/components/SiteHeader';
 import styles from '../page.module.css';
 import { cohortMarketing } from '@/content/program';
@@ -92,6 +94,8 @@ export default async function OverviewPage() {
           </ul>
         </section>
 
+        <RunsOnPitchrise layout="overview" />
+
         <section className={styles.overviewBlock}>
           <h2>For hiring partners</h2>
           <ul>
@@ -116,6 +120,7 @@ export default async function OverviewPage() {
           <Link href="/apply" className={styles.primaryBtn}>
             Apply
           </Link>
+          <EducatorPilotCta />
           <Link href="/start" className={styles.secondaryBtn}>
             Student intro
           </Link>

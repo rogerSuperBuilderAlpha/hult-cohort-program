@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { SiteHeader } from '@/components/SiteHeader';
 import { cohortMarketing } from '@/content/program';
 import { AccountSection } from '@/components/AccountSection';
+import { EducatorPilotCta } from '@/components/EducatorPilotCta';
+import { PITCHRISE_TAGLINE } from '@/content/pitchrise';
 import { ApplyNextCohortSection } from '@/components/ApplyNextCohortSection';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import {
@@ -276,6 +278,10 @@ export default function ApplyPage() {
         </p>
         <h1 className={styles.sectionTitle}>{pageTitle}</h1>
         <p className={styles.overviewLead}>{pageLead}</p>
+        <p className={styles.educatorAside}>{PITCHRISE_TAGLINE}</p>
+        <div className={styles.heroActions}>
+          <EducatorPilotCta />
+        </div>
 
         {!configured ? (
           <div className={styles.callout}>

@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { EducatorPilotCta } from '@/components/EducatorPilotCta';
 import { NextCohortInterestPanel } from '@/components/NextCohortInterestPanel';
+import { PITCHRISE_TAGLINE } from '@/content/pitchrise';
 import { cohortMarketing } from '@/content/program';
 import { useGithubAuth } from '@/lib/firebase/use-github-auth';
 import { useParticipantStatus } from '@/lib/use-participant-status';
@@ -32,6 +34,12 @@ export function ApplySectionSignup() {
         <Link href="/apply" className={styles.primaryBtn}>
           Start application
         </Link>
+      </div>
+      <div className={styles.applyCard}>
+        <span className={styles.phaseTag}>Educators</span>
+        <h3>Run a free pilot cohort</h3>
+        <p>{PITCHRISE_TAGLINE}</p>
+        <EducatorPilotCta />
       </div>
       {NEXT_OPEN ? (
         <div className={styles.applyCard}>

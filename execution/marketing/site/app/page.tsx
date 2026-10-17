@@ -4,6 +4,9 @@ import { ParticipantCta } from '@/components/ParticipantCta';
 import { EducatorPilotCta } from '@/components/EducatorPilotCta';
 import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
 import { PageFrame } from '@/components/PageFrame';
+import { metadataForPath } from '@/lib/page-metadata';
+
+export const metadata = metadataForPath('/');
 
 export default function Home() {
   return (

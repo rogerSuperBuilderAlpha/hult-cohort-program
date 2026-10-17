@@ -46,12 +46,9 @@ export function ogImageJsx(title: string, subtitle: string) {
         color: '#2B2B2B',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
-        <span style={{ fontSize: 48, fontWeight: 700, color: '#CC164C', fontFamily: 'Georgia, serif' }}>
-          Hult
-        </span>
-        <span style={{ fontSize: 22, fontFamily: 'system-ui, sans-serif', color: '#5C5C5C' }}>
-          Developer Program
+      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+        <span style={{ fontSize: 42, fontWeight: 700, color: '#CC164C', fontFamily: 'Georgia, serif' }}>
+          Algorithmacy Cohorts
         </span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 900 }}>

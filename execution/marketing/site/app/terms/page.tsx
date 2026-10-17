@@ -1,12 +1,10 @@
 import Link from 'next/link';
 import { PageFrame } from '@/components/PageFrame';
+import { metadataForPath } from '@/lib/page-metadata';
 import { GITHUB_REPO_URL } from '@/lib/site-config';
 import styles from '../page.module.css';
 
-export const metadata = {
-  title: 'Terms of Service',
-  description: 'Terms governing use of the Hult Cohort Developer Program platform.',
-};
+export const metadata = metadataForPath('/terms');
 
 export default function TermsPage() {
   return (

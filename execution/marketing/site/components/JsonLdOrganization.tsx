@@ -1,18 +1,7 @@
-import { PITCHRISE_URL } from '@/content/pitchrise';
-import { getSiteUrl, GITHUB_REPO_URL, SITE_NAME } from '@/lib/site-config';
+import { programStructuredData } from '@/lib/program-jsonld';
 
 export function JsonLdOrganization() {
-  const siteUrl = getSiteUrl();
-
-  const data = {
-    '@context': 'https://schema.org',
-    '@type': 'EducationalOrganization',
-    name: SITE_NAME,
-    url: siteUrl,
-    description:
-      'A six-week Fall 2026 developer cohort at Hult International Business School. Participants build, deploy, review, and operate production-grade software.',
-    sameAs: [GITHUB_REPO_URL, PITCHRISE_URL],
-  };
+  const data = programStructuredData();
 
   return (
     <script

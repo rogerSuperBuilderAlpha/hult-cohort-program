@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import type { Metadata } from 'next';
 import { describe, expect, it } from 'vitest';
+import { EDUCATOR_PILOT_CTA, PITCHRISE_ALC_LINE, PITCHRISE_TAGLINE } from '@/content/pitchrise';
 import { programProjects } from '@/content/program';
 import robots from '@/app/robots';
 import sitemap from '@/app/sitemap';
@@ -181,11 +182,42 @@ describe('OG image', () => {
   });
 });
 
-describe('Runs on Pitchrise', () => {
-  it('keeps the merged section title', () => {
-    const source = readFileSync(path.join(siteRoot, 'components/RunsOnPitchrise.tsx'), 'utf8');
-    expect(source).toContain('Runs on Pitchrise');
-    expect(source).not.toContain('Runs on Ludwitt');
+describe('Runs on Ludwitt', () => {
+  it('names Ludwitt as the platform and Pitchrise as the ALC process', () => {
+    const source = readFileSync(path.join(siteRoot, 'components/RunsOnLudwitt.tsx'), 'utf8');
+    expect(source).toContain('Runs on Ludwitt');
+    expect(source).not.toContain('Runs on Pitchrise');
+    expect(source).toContain('PITCHRISE_ALC_LINE');
+    expect(PITCHRISE_ALC_LINE).toBe('Pitchrise, the ALC process in Ludwitt');
+    expect(source).toContain('pitchrise.ludwitt.com');
     expect(PITCHRISE_HOST).toBe('pitchrise.ludwitt.com');
+    expect(PITCHRISE_TAGLINE).toBe(
+      'Run your venture or pitch cohort on Ludwitt — the curriculum from Algorithmacy Cohorts.'
+    );
+    expect(PITCHRISE_TAGLINE).not.toMatch(/on Pitchrise/);
+    expect(EDUCATOR_PILOT_CTA).toBe('Run a free pilot cohort');
+
+    const llms = readFileSync(path.join(siteRoot, 'public/llms.txt'), 'utf8');
+    expect(llms).toContain(
+      '[Ludwitt](https://pitchrise.ludwitt.com): Platform this cohort runs on.'
+    );
+    expect(llms).toContain(PITCHRISE_ALC_LINE);
+    expect(llms).toContain('https://pitchrise.ludwitt.com/alc');
+    expect(llms).not.toContain('[Pitchrise](');
+
+    const footer = readFileSync(path.join(siteRoot, 'components/SiteFooter.tsx'), 'utf8');
+    expect(footer).toMatch(/>\s*Ludwitt\s*</);
+    expect(footer).not.toMatch(/>\s*Pitchrise\s*</);
+
+    const week4 = programProjects.find((project) => project.slug === 'phase-2-learning-app');
+    expect(week4?.description).toContain(PITCHRISE_ALC_LINE);
+    expect(week4?.description).toContain('https://pitchrise.ludwitt.com/alc');
+    expect(week4?.description).toContain('pitchrise.ludwitt.com');
+
+    const data = programStructuredData();
+    const serialized = JSON.stringify(data);
+    expect(serialized).toContain(RUNS_ON_LUDWITT_LINE);
+    expect(serialized).toContain('https://pitchrise.ludwitt.com');
+    expect(serialized).not.toContain('Pitchrise');
   });
 });

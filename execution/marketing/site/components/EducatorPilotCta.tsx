@@ -1,7 +1,7 @@
 import { EDUCATOR_PILOT_CTA, PITCHRISE_URL } from '@/content/pitchrise';
 import styles from '../app/page.module.css';
 
-/** Educator action beside the student application. Opens Pitchrise. */
+/** Educator action beside the student application. Opens Ludwitt. */
 export function EducatorPilotCta({
   className,
 }: {

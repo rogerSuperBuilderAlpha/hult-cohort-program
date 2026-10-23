@@ -1,3 +1,5 @@
+import { PITCHRISE_ALC_LINE, PITCHRISE_ALC_URL } from '@/content/pitchrise';
+
 /**
  * Messaging standards (canonical vocabulary for participant-facing copy):
  * - "Review week" (not "vote week") for Phase 1 assessment mechanics
@@ -213,7 +215,7 @@ export const programProjects: ProgramProject[] = [
       '**Two routes are accepted, and they work differently.**\n\n' +
       '- **Hosted platform** — [ludwitt.com/developers](https://www.ludwitt.com/developers), the same portal as pitchrise.ludwitt.com. OAuth 2.0 with PKCE: users sign in with their Ludwitt account and your app reads them back from the userinfo endpoint. Client ids look like le_… and new apps sit in review before live sign-in works; verify through Test Mode meanwhile.\n' +
       '- **Reference API** — run your own instance of execution/ludwitt-hult-api. An HS256 launch token hits your /launch route, and you post events to it. Deploy it somewhere long-lived: its store is in memory, so a restart destroys your registration.\n\n' +
-      '**If the portal will not open for you, that is the ALC gate, not a fault of yours.** Ludwitt gates /developers behind its Developer Training track and offers a paid bypass alongside it. **Do not buy the bypass.** Use the reference API and say so in your pull request — that route counts.\n\n' +
+      `**If the portal will not open for you, that is the ALC gate, not a fault of yours.** [${PITCHRISE_ALC_LINE}](${PITCHRISE_ALC_URL}) gates /developers behind its Developer Training track and offers a paid bypass alongside it. **Do not buy the bypass.** Use the reference API and say so in your pull request — that route counts.\n\n` +
       '**Ludwitt publishes no public app directory**, so "production listing URL" means your own deployed app URL, not a listing on a Ludwitt store. Its own agent files at [pitchrise.ludwitt.com/llms.txt](https://pitchrise.ludwitt.com/llms.txt) and [llms-full.txt](https://pitchrise.ludwitt.com/llms-full.txt) are the most accurate documentation available — feed them to your coding agent before you start.',
     voteWeek: false,
     schedule: {

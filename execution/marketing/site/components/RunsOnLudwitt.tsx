@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import {
+  PITCHRISE_ALC_LINE,
+  PITCHRISE_ALC_URL,
   PITCHRISE_DOCS_URL,
   PITCHRISE_TAGLINE,
   PITCHRISE_URL,
@@ -9,10 +11,10 @@ import styles from '../app/page.module.css';
 type Layout = 'home' | 'intro' | 'overview';
 
 /**
- * Short public note that the cohort runs on Pitchrise, tied to week 4
- * (Ludwitt learning integration).
+ * Short public note that the cohort runs on Ludwitt, tied to week 4
+ * (learning integration). Pitchrise is the ALC process, not the platform.
  */
-export function RunsOnPitchrise({
+export function RunsOnLudwitt({
   layout = 'home',
   weekLink = true,
 }: {
@@ -34,15 +36,19 @@ export function RunsOnPitchrise({
         : styles.sectionTitle;
 
   return (
-    <section className={sectionClass} aria-labelledby="runs-on-pitchrise">
+    <section className={sectionClass} aria-labelledby="runs-on-ludwitt">
       {layout === 'home' ? <div className={styles.sectionLabel}>Platform</div> : null}
-      <h2 id="runs-on-pitchrise" className={headingClass}>
-        Runs on Pitchrise
+      <h2 id="runs-on-ludwitt" className={headingClass}>
+        Runs on Ludwitt
       </h2>
       <p className={styles.pitchriseBody}>
         This cohort runs on{' '}
         <a href={PITCHRISE_URL} target="_blank" rel="noopener noreferrer">
-          Pitchrise
+          Ludwitt
+        </a>
+        . {PITCHRISE_ALC_LINE}, is at{' '}
+        <a href={PITCHRISE_ALC_URL} target="_blank" rel="noopener noreferrer">
+          /alc
         </a>
         . Week 4 is the Ludwitt integration: a registered, working, instrumented learning app.
         {weekLink ? (

@@ -22,6 +22,7 @@ export function programStructuredData() {
         name: METADATA_SITE_NAME,
         url,
         description: DEFAULT_OG_DESCRIPTION,
+        // pitchrise.ludwitt.com is the Ludwitt host while the domain change is on hold.
         sameAs: [GITHUB_REPO_URL, PITCHRISE_URL],
       },
       {

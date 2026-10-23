@@ -34,7 +34,7 @@ export function SiteFooter() {
               GitHub
             </a>
             <a href={PITCHRISE_URL} target="_blank" rel="noopener noreferrer">
-              Pitchrise
+              Ludwitt
             </a>
             <Link href="/llms.txt">llms.txt</Link>
             <Link href="/sitemap.xml">Sitemap</Link>

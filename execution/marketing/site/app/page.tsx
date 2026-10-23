@@ -2,7 +2,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import { ParticipantCta } from '@/components/ParticipantCta';
 import { EducatorPilotCta } from '@/components/EducatorPilotCta';
-import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
+import { RunsOnLudwitt } from '@/components/RunsOnLudwitt';
 import { PageFrame } from '@/components/PageFrame';
 import { metadataForPath } from '@/lib/page-metadata';
 
@@ -54,7 +54,7 @@ export default function Home() {
         </p>
       </section>
 
-      <RunsOnPitchrise />
+      <RunsOnLudwitt />
 
       <section id="journey" className={styles.gridSection}>
         <div className={styles.phaseCard}>

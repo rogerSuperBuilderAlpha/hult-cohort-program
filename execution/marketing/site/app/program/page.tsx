@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { PageFrame } from '@/components/PageFrame';
-import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
+import { RunsOnLudwitt } from '@/components/RunsOnLudwitt';
 import styles from '../page.module.css';
 import { programProjects } from '../../content/program';
 import { metadataForPath } from '@/lib/page-metadata';
@@ -27,7 +27,7 @@ export default function ProgramIndexPage() {
 
         <Section title="Weeks 1–3 · Contests (review weeks)" projects={phase1} />
         <Section title="Weeks 4–6 · External sprints" projects={phase2} />
-        <RunsOnPitchrise layout="overview" />
+        <RunsOnLudwitt layout="overview" />
       </article>
     </PageFrame>
   );

@@ -8,7 +8,7 @@
 - [Program overview](https://cohorts.algorithmacy.org/overview): Full participant journey
 - [All projects](https://cohorts.algorithmacy.org/program): Every phase and project
 - [Apply](https://cohorts.algorithmacy.org/apply): Fall 2026 application
-- [Pitchrise](https://pitchrise.ludwitt.com): Platform this cohort runs on. Week 4 is the Ludwitt integration. Docs: https://pitchrise.ludwitt.com/docs
+- [Ludwitt](https://pitchrise.ludwitt.com): Platform this cohort runs on. Pitchrise, the ALC process in Ludwitt, is at https://pitchrise.ludwitt.com/alc. Week 4 is the Ludwitt integration. Docs: https://pitchrise.ludwitt.com/docs
 - [Trustabl hackathon track](https://cohorts.algorithmacy.org/hackathon/trustabl): Open contribution guide for the in-person OSS swarm held Aug 24, 2026
 - [Sitemap](https://cohorts.algorithmacy.org/sitemap.xml)
 - [Robots](https://cohorts.algorithmacy.org/robots.txt)

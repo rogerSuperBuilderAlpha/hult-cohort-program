@@ -15,10 +15,10 @@ export function canonicalUrl(path = '/'): string {
 /** Public brand used in titles, Open Graph, and Twitter tags. */
 export const METADATA_SITE_NAME = 'Algorithmacy Cohorts';
 
-/** Host of the Ludwitt platform this cohort runs on (Pitchrise). */
+/** Host of the Ludwitt platform. The public hostname stays pitchrise.ludwitt.com. */
 export const PITCHRISE_HOST = new URL(PITCHRISE_URL).host;
 
-/** Shared preview sentence. Pitchrise stays the on-page section title. */
+/** Shared preview sentence for titles, Open Graph, Twitter, and JSON-LD. */
 export const RUNS_ON_LUDWITT_LINE = `The program runs on Ludwitt (${PITCHRISE_HOST}).`;
 
 let warnedSiteUrlFallback = false;

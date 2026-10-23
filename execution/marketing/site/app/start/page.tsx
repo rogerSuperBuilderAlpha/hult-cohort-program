@@ -4,7 +4,7 @@ import { ParticipantCta } from '@/components/ParticipantCta';
 import { PageFrame } from '@/components/PageFrame';
 import { ProgramIntroLoop } from '@/components/ProgramIntroLoop';
 import { ProgramIntroTimeline } from '@/components/ProgramIntroTimeline';
-import { RunsOnPitchrise } from '@/components/RunsOnPitchrise';
+import { RunsOnLudwitt } from '@/components/RunsOnLudwitt';
 import { introFaq, programIntro } from '@/content/program-intro';
 import { metadataForPath } from '@/lib/page-metadata';
 import styles from '../page.module.css';
@@ -25,7 +25,7 @@ export default function StartPage() {
           <ProgramIntroTimeline />
         </section>
 
-        <RunsOnPitchrise layout="intro" />
+        <RunsOnLudwitt layout="intro" />
 
         <section className={styles.introSection}>
           <h2 className={styles.introSectionTitle}>Phase 1 repeats this loop</h2>

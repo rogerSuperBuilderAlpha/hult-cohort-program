@@ -1,0 +1,348 @@
+openapi: 3.1.0
+info:
+  title: Ludwitt Learning Engineer API
+  description: |
+    Public API surface for third-party "Learning Engineer" apps integrating
+    with Ludwitt for OAuth identity, AI credit billing, and (optionally)
+    hosted JSON document storage.
+
+    See https://pitchrise.ludwitt.com/docs/le for full prose docs.
+  version: 1.0.0
+servers:
+  - url: https://pitchrise.ludwitt.com
+    description: Production
+
+tags:
+  - name: oauth
+    description: OAuth 2.0 authorization, token, userinfo, revoke
+  - name: credits
+    description: Read user's spendable balance and proxy AI calls
+  - name: data
+    description: Hosted JSON document storage (hosted-storage tier only)
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT-like opaque token (lt_…)
+      description: |
+        OAuth 2.0 access token issued by `/api/oauth/token`. Required scope
+        varies per endpoint; see each operation's `x-required-scope`.
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: short machine-readable error code
+        error_description:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    StoredDocument:
+      type: object
+      required: [data, etag, updatedAt, sizeBytes]
+      properties:
+        data:
+          description: arbitrary JSON value (object, array, primitive)
+        etag:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        sizeBytes:
+          type: integer
+        expiresAt:
+          type: string
+          format: date-time
+          description: present iff the doc carries a _ttl sentinel
+
+    QuotaSnapshot:
+      type: object
+      required: [docCount, totalBytes, quota]
+      properties:
+        docCount: { type: integer }
+        totalBytes: { type: integer }
+        quota:
+          type: object
+          properties:
+            maxDocCountPerUser: { type: integer }
+            maxBytesPerUser: { type: integer }
+            maxDocBytes: { type: integer }
+
+    BalanceResponse:
+      type: object
+      required: [spendableCents, balanceCents]
+      properties:
+        spendableCents:
+          type: integer
+          description: |
+            The only number an LE app should gate on. Sum of unspent
+            Stripe-deposited credits. Free / trial / promo credits are
+            NOT included.
+        spendableFormatted: { type: string }
+        balanceCents:
+          type: integer
+          description: |
+            Full Ludwitt-internal balance including non-spendable credits.
+            Provided for back-compat; do not use for spend decisions.
+        balanceFormatted: { type: string }
+        lastUsageAt:
+          type: string
+          format: date-time
+          nullable: true
+
+paths:
+  /api/oauth/authorize:
+    get:
+      tags: [oauth]
+      summary: Fetch metadata for the consent screen
+      security: []
+      parameters:
+        - { name: client_id, in: query, required: true, schema: { type: string } }
+        - { name: redirect_uri, in: query, required: true, schema: { type: string, format: uri } }
+        - { name: response_type, in: query, required: true, schema: { type: string, enum: [code] } }
+        - { name: scope, in: query, schema: { type: string } }
+        - { name: state, in: query, schema: { type: string } }
+        - { name: code_challenge, in: query, schema: { type: string } }
+        - { name: code_challenge_method, in: query, schema: { type: string, enum: [S256] } }
+      responses:
+        '200': { description: consent metadata }
+        '400': { description: invalid_request, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /api/oauth/token:
+    post:
+      tags: [oauth]
+      summary: Exchange auth code or refresh for tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type: { type: string, enum: [authorization_code, refresh_token] }
+                code: { type: string }
+                redirect_uri: { type: string }
+                client_id: { type: string }
+                client_secret: { type: string }
+                code_verifier: { type: string }
+                refresh_token: { type: string }
+      responses:
+        '200':
+          description: token pair
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [access_token, token_type, expires_in, refresh_token, scope]
+                properties:
+                  access_token: { type: string }
+                  token_type: { type: string, enum: [Bearer] }
+                  expires_in: { type: integer }
+                  refresh_token: { type: string }
+                  scope: { type: string }
+        '400': { description: invalid_request | invalid_grant | invalid_scope | unsupported_grant_type }
+        '401': { description: invalid_client }
+
+  /api/oauth/userinfo:
+    get:
+      tags: [oauth]
+      summary: Read identity for the bearer's user
+      x-required-scope: profile
+      responses:
+        '200':
+          description: user identity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sub: { type: string }
+                  email: { type: string }
+                  name: { type: string }
+                  picture: { type: string }
+
+  /api/oauth/revoke:
+    post:
+      tags: [oauth]
+      summary: Revoke an access or refresh token (RFC 7009)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token: { type: string }
+      responses:
+        '200': { description: always returns 200 on syntactically valid input }
+
+  /api/v1/credits/balance:
+    get:
+      tags: [credits]
+      summary: Get user's credit balances
+      x-required-scope: credits:read
+      responses:
+        '200':
+          description: balance snapshot
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BalanceResponse' }
+
+  /api/v1/ai/messages:
+    post:
+      tags: [credits]
+      summary: Anthropic Messages proxy, billed to user's paid balance
+      x-required-scope: credits:spend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messages]
+              properties:
+                model: { type: string, enum: [claude-haiku-4-5, claude-haiku-4-5-20251001, claude-sonnet-4-6, claude-opus-4-7] }
+                max_tokens: { type: integer, default: 1024, maximum: 8192 }
+                messages: { type: array, items: { type: object } }
+                system: {}
+                temperature: { type: number }
+                top_p: { type: number }
+                top_k: { type: integer }
+                stop_sequences: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: |
+            Anthropic Messages response with an `x-ludwitt-credits` block
+            attached giving chargedCostCents, newBalanceCents, transactionId.
+        '400': { description: invalid_model | invalid_request }
+        '402': { description: 'INSUFFICIENT_PAID_CREDITS — user lacks paid balance' }
+        '503': { description: provider unavailable }
+
+  /api/v1/data/{collection}/{docId}:
+    parameters:
+      - { name: collection, in: path, required: true, schema: { type: string, pattern: '^[a-zA-Z0-9_-]{1,64}$' } }
+      - { name: docId, in: path, required: true, schema: { type: string, pattern: '^[a-zA-Z0-9_-]{1,64}$' } }
+    get:
+      tags: [data]
+      summary: Read a document
+      x-required-scope: data:read
+      responses:
+        '200':
+          description: document
+          headers:
+            ETag: { schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StoredDocument' }
+        '401': { description: invalid_token | access_revoked }
+        '403': { description: hosted_storage_disabled | insufficient_scope }
+        '404': { description: not found or expired }
+    put:
+      tags: [data]
+      summary: Create or replace a document
+      x-required-scope: data:write
+      parameters:
+        - name: If-Match
+          in: header
+          required: false
+          schema: { type: string }
+          description: optional optimistic-concurrency etag in quotes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [data]
+              properties:
+                data: {}
+      responses:
+        '200':
+          description: written; returns new etag and updated quota snapshot
+        '400': { description: invalid body / regex / depth / reserved key }
+        '401': { description: invalid_token | access_revoked }
+        '403': { description: hosted_storage_disabled | insufficient_scope }
+        '412': { description: 'precondition_failed (If-Match etag mismatch)' }
+        '413': { description: doc_too_large or quota_exceeded }
+        '429': { description: rate_limited }
+    delete:
+      tags: [data]
+      summary: Delete a document
+      x-required-scope: data:write
+      parameters:
+        - name: If-Match
+          in: header
+          required: false
+          schema: { type: string }
+      responses:
+        '200': { description: deleted }
+        '401': { description: invalid_token | access_revoked }
+        '403': { description: hosted_storage_disabled | insufficient_scope }
+        '404': { description: not_found }
+        '412': { description: precondition_failed }
+        '429': { description: rate_limited }
+
+  /api/v1/data/{collection}:
+    parameters:
+      - { name: collection, in: path, required: true, schema: { type: string, pattern: '^[a-zA-Z0-9_-]{1,64}$' } }
+    get:
+      tags: [data]
+      summary: List documents in a collection
+      x-required-scope: data:read
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: where, in: query, schema: { type: string }, description: 'field:value, equality only, indexed fields only' }
+        - { name: orderBy, in: query, schema: { type: string }, description: 'indexed field name; prefix with - for desc' }
+      responses:
+        '200':
+          description: page of documents + opaque nextCursor
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [docs, nextCursor]
+                properties:
+                  docs:
+                    type: array
+                    items:
+                      allOf:
+                        - { $ref: '#/components/schemas/StoredDocument' }
+                        - type: object
+                          properties:
+                            docId: { type: string }
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /api/v1/data/_meta/usage:
+    get:
+      tags: [data]
+      summary: Read this (app, user) pair's storage usage
+      x-required-scope: data:read
+      responses:
+        '200':
+          description: quota snapshot
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/QuotaSnapshot' }
+                  - type: object
+                    properties:
+                      storageTier: { type: string, enum: [hosted] }
+                      revenueShareEngineerPct: { type: integer }

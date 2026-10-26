@@ -1,0 +1,42 @@
+# Ludwitt Learning Engineer Platform — for AI coding agents
+
+> Build third-party apps that students sign into with Ludwitt, spend Ludwitt
+> credits inside, and (optionally) store JSON data in Ludwitt's hosted
+> Firestore — all via REST APIs.
+
+This file follows the [llms.txt convention](https://llmstxt.org). Fetch the
+linked markdown files into your project (e.g. into a `.ludwitt/` directory)
+so you have offline access to the full surface.
+
+## Quickstart
+- [quickstart.md](https://pitchrise.ludwitt.com/docs/le/quickstart.md): 5-minute path; two-tier model (BYOB vs hosted-data); URL inventory
+
+## Core
+- [oauth.md](https://pitchrise.ludwitt.com/docs/le/oauth.md): OAuth 2.0 + PKCE; scope catalog; refresh; revoke; what happens on user-revoke
+- [credits.md](https://pitchrise.ludwitt.com/docs/le/credits.md): paid-credit-only spending; spendableCents vs balanceCents; revenue split (70% BYOB, 35% hosted); 402 handling
+- [data-api.md](https://pitchrise.ludwitt.com/docs/le/data-api.md): JSON document CRUD; per-(app, user) scoping; ETag concurrency; TTL; quotas; reserved keys
+
+## Hardening
+- [security.md](https://pitchrise.ludwitt.com/docs/le/security.md): the shared security model — what Ludwitt enforces, what the engineer must enforce
+- [rate-limits.md](https://pitchrise.ludwitt.com/docs/le/rate-limits.md): per-(app, user) tiers; X-RateLimit-* headers; Retry-After
+- [errors.md](https://pitchrise.ludwitt.com/docs/le/errors.md): full error catalog by HTTP status
+
+## Machine-readable
+- [openapi.yaml](https://pitchrise.ludwitt.com/docs/le/openapi.yaml): OpenAPI 3.1 spec for all `/api/oauth/*` and `/api/v1/*` routes
+- [index.json](https://pitchrise.ludwitt.com/docs/le/index.json): list of every doc with content hashes (use to detect doc updates)
+
+## Optional
+- App registration: https://pitchrise.ludwitt.com/learning-engineers/apps/new (human-only)
+- Engineer dashboard: https://pitchrise.ludwitt.com/learning-engineers (human-only)
+
+## Heuristics for picking what to read
+- Building an integration from scratch → start with quickstart.md, then read all of oauth.md, credits.md, errors.md.
+- Adding hosted-storage to an existing OAuth-only app → read data-api.md, security.md, rate-limits.md.
+- Debugging a production incident → errors.md, then the relevant module's doc.
+- Auditing for security review → security.md, then errors.md.
+
+## Things that change shape — re-fetch the docs after major Ludwitt releases
+- The list of allowed Anthropic models on `/api/v1/ai/messages`
+- Default quota numbers
+- New OAuth scopes (none planned in v1.x but possible)
+- Audit log shape (no breaking change planned)
